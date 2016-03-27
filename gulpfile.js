@@ -81,7 +81,6 @@ gulp.task('rjs', ['nunjucks', 'foundation-js'], function() {
 
     return gulp.src('src/js/main.js')
         .pipe(sourcemaps.init())
-        .pipe($.babel())
         .pipe(requirejsOptimize(rjsOpts))
         .pipe(sourcemaps.write('.', {
             sourceMappingURLPrefix: ''
