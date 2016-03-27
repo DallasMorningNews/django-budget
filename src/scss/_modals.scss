@@ -1,0 +1,313 @@
+.package-modal {
+    border: 0;
+    font-family: 'Roboto', sans-serif;
+    outline: none;
+    text-align: left;
+
+    .red-background {
+        background: darken($mf-delete-action-color, 21%);
+        margin: -1rem;
+        padding: 1rem 0;
+
+        .button-holder {
+            .flat-button {
+                &.delete-action {
+                    &::before {
+                        border: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    .loading-animation {
+        display: none;
+        margin-top: 18px;
+
+        .loader {
+            position: relative;
+            margin: 0px auto;
+            width: 150px;
+
+            &:before {
+                content:'';
+                display: block;
+                padding-top: 100%;
+            }
+
+            .circular {
+                animation: rotate 2s linear infinite;
+                height: 100%;
+                margin: auto;
+                opacity: 0;
+                position: absolute;
+                top: 0; bottom: 0; left: 0; right: 0;
+                transform-origin: center center;
+                width: 100%;
+
+                transition: opacity 750ms ease-in-out;
+
+                .path {
+                    animation: dash 1.5s ease-in-out infinite;
+                    stroke: #FFFFFF;
+                    stroke-dasharray: 1,200;
+                    stroke-dashoffset: 0;
+                    stroke-linecap: round;
+                }
+            }
+
+            .fa {
+                color: #FFFFFF;
+                font-size: 60px;
+                left: 50%;
+                line-height: 80px;
+                margin-left: -40px;
+                margin-top: -40px;
+                position: absolute;
+                text-align: center;
+                top: 50%;
+                width: 80px;
+            }
+        }
+
+        .loading-text {
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            font-weight: 500;
+            line-height: 1.5rem;
+            margin: 0;
+            opacity: 0;
+            padding-top: 2rem;
+            text-align: center;
+
+            transition: opacity 750ms ease-in-out;
+        }
+
+        &.active {
+            .loader {
+                .circular {
+                    opacity: 1;
+                }
+            }
+
+            .loading-text {
+                opacity: 1;
+            }
+        }
+    }
+
+    &.waiting-transition {
+        .modal-inner {
+            // visibility: hidden;
+        }
+    }
+
+    &.waiting {
+        border-radius: 50%;
+        height: 300px;
+        top: calc(50vh - 150px) !important;
+        width: 300px;
+
+        .modal-inner {
+            display: none;
+        }
+
+        .loading-animation {
+            display: block;
+            padding-bottom: 75px;
+        }
+    }
+
+    &.waiting-transition,
+    &.waiting {
+        transition-duration: 0.75s !important;
+        transition-timing-function: cubic-bezier(.4,0,.5,1);
+    }
+
+    &.delete-waiting {
+        background-color: darken($mf-delete-action-color, 21%);
+
+        &.waiting-transition,
+        &.waiting {
+            border-color: darken($mf-delete-action-color, 24%);
+            border-style: solid;
+            border-width: 3px;
+        }
+    }
+
+    &.save-waiting {
+        background-color: darken($mf-save-action-color, 21%);
+
+        &.waiting-transition,
+        &.waiting {
+            border-color: darken($mf-save-action-color, 24%);
+        }
+    }
+
+    &.delete-waiting,
+    &.save-waiting {
+        &.waiting-transition,
+        &.waiting {
+            border-style: solid;
+            border-width: 3px;
+        }
+    }
+
+    h1 {
+        border-bottom: 0.125rem solid #212121;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.8rem;
+        height: 2.425rem;
+        line-height: 2.1rem;
+        margin: 0 0 1.2rem;
+        padding: 0 0.45rem 0.2rem;
+        position: relative;
+    }
+
+    .mode-toggle {
+        display: none;
+    }
+
+    .modes {
+        .edit {
+            display: none;
+        }
+
+        .read-only {
+            background: #E0E0E0;
+            border: 1px solid #BDBDBD;
+            margin: 0 12px 24px;
+            padding: 12px 12px 0;
+
+            p {
+                font-size: 14px;
+                line-height: 24px;
+                margin: 0;
+                padding-bottom: 12px;
+            }
+        }
+    }
+
+    label {
+        color: #727272;
+        display: block;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 12px;
+        margin: 0;
+        padding-bottom: 12px;
+        padding-top: 16px;
+        text-indent: 3px;
+    }
+
+    input[type='date'],
+    input[type='time'],
+    input[type='text'] {
+        border: 0;
+        border-bottom: 2px solid #616161;
+        box-shadow: none;
+        box-sizing: border-box;
+        color: #212121;
+        display: block;
+        font-size: 16px;
+        height: 32px;
+        line-height: 16px;
+        margin: 0;
+        padding: 8px 0 7px;
+        text-indent: 3px;
+        text-transform: none;
+        margin-top: 6px;
+    }
+
+    form {
+        .row {
+            margin-bottom: 6px;
+        }
+        .button-holder {
+            margin-top: 30px;
+        }
+    }
+
+    .button-holder {
+        text-align: right;
+
+        .flat-button {
+            margin: 0.4375rem 0 0 0.5rem;
+
+            &::before {
+                opacity: 0;
+                transition: all 360ms cubic-bezier(0.250, 0.460, 0.450, 0.940);
+            }
+
+            &.delete-action {
+                &.active-state {
+                    span {
+                        color: #FFFFFF !important;
+                    }
+                }
+
+                &::before {
+                    background: darken($mf-delete-action-color, 21%);
+                    border: 4px solid darken($mf-delete-action-color, 24%);
+                }
+            }
+
+            &.expand-past-button {
+                overflow: visible;
+
+                &.active-state {
+                    &::before {
+                        opacity: 1;
+                        transform: scale(120);
+                    }
+                    // transition: all 500ms cubic-bezier(0.250, 0.460, 0.450, 0.940), opacity 100ms ease-out;
+                }
+            }
+
+            &.cancel-trigger {
+                z-index: 100;
+            }
+
+            &.delete-trigger {
+                z-index: 150;
+            }
+        }
+    }
+}
+
+#production-notes-modal button.confirm {
+    display: none;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1,200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 89,200;
+        stroke-dashoffset: -35px;
+    }
+    100% {
+        stroke-dasharray: 89,200;
+        stroke-dashoffset: -124px;
+    }
+}
+
+@media (max-width: 479px) {
+    .package-modal {
+        &.waiting {
+            border-radius: 0;
+            height: 100%;
+            top: 0;
+            width: 100%;
+        }
+    }
+}

@@ -1,0 +1,25 @@
+<div class="modal-inner">
+    <h1>{{ modalTitle }}</h1>
+    {% if formConfig %}<form id="{{ innerID }}" action="." method="POST" data-abide="ajax">{% else %}<div id="{{ innerID }}" class="form-replacement">{% endif %}
+        {% for row in formConfig.rows %}
+        <div class="row">
+            {% for field in row.fields %}
+            <div class="column {{ field.widthClasses }}">
+                <label>{{ field.labelText }} <input name="{{ field.inputName }}" type="{{ field.inputType }}" value="{% if field.inputValue %}{{ field.inputValue }}{% endif %}" id="{{ field.inputID }}"></label>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        {% if extraHTML %}
+            {{ extraHTML|safe }}
+        {% endif %}
+
+        <div class="button-holder">
+            {% for button in buttons %}
+            <div id="{{ button.buttonID }}" class="button {{ button.buttonClass }} click-init"><span>{{ button.innerLabel }}</span></div>
+            {% endfor %}
+            <div class="clearer"></div>
+        </div>
+    {% if formConfig %}</form>{% else %}</div>{% endif %}
+</div>

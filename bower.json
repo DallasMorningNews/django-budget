@@ -1,0 +1,36 @@
+{
+  "name": "dmn-budget-frontend",
+  "authors": [
+    "Allan James Vestal (<ajvestal@dallasnews.com>)"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "almond": "^0.3.1",
+    "jquery": "^2.2.0",
+    "underscore": "1.8.3",
+    "backbone": "^1.2.3",
+    "backbone.marionette": "marionette#^2.4.4",
+    "bootstrap-sass": "^3.3.6",
+    "nunjucks": "^2.3.0",
+    "font-awesome": "fontawesome#^4.5.0",
+    "moment": "~2.11.2",
+    "moment-timezone": "~0.5.3",
+    "selectize": "^0.12.1",
+    "lunr.js": "~0.6.0",
+    "foundation-sites": "~6.2.0"
+  },
+  "devDependencies": {
+    "motion-ui": "^1.2.2"
+  }
+}

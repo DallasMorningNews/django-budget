@@ -1,0 +1,51 @@
+        <li class="content-item" ready="{{ item.isReady }}" content-id="{{ item.id }}">
+            <div class="row">
+                <div class="knockout column small-1 medium-1 large-1"></div>
+                <div class="visible-area column small-10 medium-10 large-10">
+                    <div class="slug-bar row">
+                        <div class="column small-6 medium-7 large-7">
+                            <div class="ready-check"><i class="fa fa-check"></i></div>
+                            <h3>{{ item.slug }}</h3>
+                        </div>
+                        <div class="author-info column small-6 medium-5 large-5">
+                            {% if item.authors|length > 0 %}
+                            <h4>{% if item.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in item.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
+                            {% endif %}
+
+                            {% if item.editors|length > 0 %}
+                            <h4>{% if item.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in item.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="additional-package-info row">
+                        <div class="column small-6 medium-8 large-8 text-left">
+                            <div class="additional-info-line"><i class="{{ item.typeMeta.icon }}"></i>&thinsp;&nbsp;{{ item.typeMeta.verboseName }}{% if item.length %} ({{ item.length }}){% endif %}</div>
+                        </div>
+                        <div class="column small-6 medium-4 large-4 text-center">
+                        </div>
+                    </div>
+
+                    <div class="related-description row">
+                        <div class="budget-line column small-12 medium-12 large-12">
+                            {% if item.budgetLine|length > 0 %}
+                                {% for line in item.budgetLine %}<p>{{ line|safe }}</p>{% endfor %}
+                            {% else %}
+                                <p>(None specified)</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="action-buttons column small-1 medium-1 large-1 text-center">
+                    <div class="mark-ready action-button">
+                        <i class="fa fa-check"></i>
+                        <span class="hover-info">Mark ready</span>
+                    </div>
+                    <div class="subscribe action-button">
+                        <i class="fa fa-envelope-o"></i>
+                        <span class="hover-info">Subscribe</span>
+                    </div>
+                </div>
+            </div>
+        </li>

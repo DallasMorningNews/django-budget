@@ -1,0 +1,286 @@
+<div class="center-content">
+    <div class="edit-bar">
+        <div class="button-holder">
+            {% if boundData %}<div class="delete-trigger button flat-button"><span>Delete</span></div>{% endif %}
+            <div class="primary-action save-trigger button flat-button"><span>Save</span></div>
+            <div class="save-and-continue-editing-trigger button flat-button show-for-medium"><span>Save &amp; continue editing</span></div>
+            <div class="clearer"></div>
+        </div>
+    </div>
+    <div class="single-page">
+        <div class="package-header">
+            <div class="color-dot"{% if boundData %} style="background-color: {{ boundData.hubColor }};"{% endif %}></div>
+            <h1>{% if boundData %}{{ boundData.primaryContent.slug }}{% else %}Add content{% endif %}</h1>
+        </div>
+        <form id="package-form">
+            <input type="hidden" name="csrfmiddlewaretoken" value="">
+            <input type="hidden" id="package_id" name="package_id" value="{% if boundData %}{{ boundData.id }}{% endif %}" data-form="package">
+            <input type="hidden" id="primary_id" name="primary_id" value="{% if boundData %}{{ boundData.primaryContent.id }}{% endif %}" data-form="primary">
+
+            <div class="row">
+                <div class="medium-6 columns form-group">
+                    <input id="slug" name="slug" data-form="primary" type="text" value="{% if boundData %}{{ boundData.primaryContent.slug }}{% endif %}" required="">
+                    <label for="slug" class="control-label">Slug<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                    <div class="form-help">Enter a unique value.</div>
+
+                </div>
+                <div class="medium-6 columns"></div>
+            </div>
+
+            <div class="row">
+                <div class="medium-6 columns form-group">
+                    <input id="hub" name="hub" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" value="{% if boundData %}{{ boundData.hub }}{% endif %}" />
+                    <label for="hub" class="control-label">Hub<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-4 columns form-group">
+                    <input id="type" name="type" class="to-selectize" type="text" placeholder="Choose an option" data-form="primary" value="{% if boundData %}{{ boundData.primaryContent.type }}{% endif %}" required="" />
+                    <label for="type" class="control-label">Type<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-2 columns form-group length-group"{% if boundData %}{% if boundData.primaryContent.type == 'text' %} style="display: block;"{% endif %}{% endif %}>
+                    <input id="length" name="length" data-form="primary" class="form-select-inches" type="number" value="{% if boundData %}{% if boundData.primaryContent.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if boundData %}{% if boundData.primaryContent.type != 'text' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
+                    <label for="length" class="control-label">Inches</label>
+                    <i class="bar"></i>
+                </div>
+            </div>
+
+            <div class="row">
+                <!--  -->
+                <div class="medium-12 columns form-group">
+                    <div class="expanding-holder{% if boundData %}{% if boundData.primaryContent.budgetLine|length > 0 %} has-value{% endif %}{% endif %}">
+                        <textarea id="budget_line" name="budget_line" data-form="primary" rows="1" required="">{% if boundData %}{% for budgetLineGraf in boundData.primaryContent.budgetLine %}{{ budgetLineGraf }}{% if not loop.last %}<br />{% endif %}{% endfor %}{% endif %}</textarea>
+                    </div>
+                    <label for="budget_line" class="control-label">Budget line<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h4>Headline ideas</h4>
+            </div>
+
+            <div class="row">
+                {% if boundData %}
+                    {% if boundData.headlines.status == 'voting' %}
+                <div class="medium-12 columns form-radio">
+                    {% endif %}
+                {% endif %}
+
+                {% if boundData %}
+                    {% if boundData.headlines and boundData.headlines.status == 'finalized' %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[0].id }}" value="{% if boundData.headlines.candidates|length > 0 %}{{ boundData.headlines.candidates[0].headline }}{% endif %}" required="" readonly="" />
+                    <label for="headline1" class="control-label">Headline #1</label>
+                    <i class="bar"></i>
+                </div>
+                    {% elif boundData.headlines.status == 'voting' %}
+                        {% if boundData.headlines.candidates|length > 0 %}
+                    <div class="radio">
+                        <label>
+                            <input id="headline1" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlines.candidates[0].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlines.candidates[0].headline }}</span>
+                        </label>
+                    </div>
+                        {% endif %}
+                    {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[0].id }}" value="{% if boundData.headlines.candidates|length > 0 %}{{ boundData.headlines.candidates[0].headline }}{% endif %}" required="" />
+                    <label for="headline1" class="control-label">Headline #1</label>
+                    <i class="bar"></i>
+                </div>
+                    {% endif %}
+                {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[0].id }}" value="{% if boundData.headlines.candidates|length > 0 %}{{ boundData.headlines.candidates[0].headline }}{% endif %}" required="" />
+                    <label for="headline1" class="control-label">Headline #1</label>
+                    <i class="bar"></i>
+                </div>
+                {% endif %}
+
+                {% if boundData %}
+                    {% if boundData.headlines and boundData.headlines.status == 'finalized' %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[1].id }}" value="{% if boundData.headlines.candidates|length > 1 %}{{ boundData.headlines.candidates[1].headline }}{% endif %}" required="" readonly="" />
+                    <label for="headline2" class="control-label">Headline #2</label>
+                    <i class="bar"></i>
+                </div>
+                    {% elif boundData.headlines.status == 'voting' %}
+                        {% if boundData.headlines.candidates|length > 1 %}
+                    <div class="radio">
+                        <label>
+                            <input id="headline2" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlines.candidates[1].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlines.candidates[1].headline }}</span>
+                        </label>
+                    </div>
+                        {% endif %}
+                    {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[1].id }}" value="{% if boundData.headlines.candidates|length > 1 %}{{ boundData.headlines.candidates[1].headline }}{% endif %}" required="">
+                    <label for="headline2" class="control-label">Headline #1</label>
+                    <i class="bar"></i>
+                </div>
+                    {% endif %}
+                {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[1].id }}" value="{% if boundData.headlines.candidates|length > 1 %}{{ boundData.headlines.candidates[1].headline }}{% endif %}" required="">
+                    <label for="headline2" class="control-label">Headline #1</label>
+                    <i class="bar"></i>
+                </div>
+                {% endif %}
+
+                {% if boundData %}
+                    {% if boundData.headlines and boundData.headlines.status == 'finalized' %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[2].id }}" value="{% if boundData.headlines.candidates|length > 2 %}{{ boundData.headlines.candidates[2].headline }}{% endif %}" required="" readonly="" />
+                    <label for="headline3" class="control-label">Headline #3</label>
+                    <i class="bar"></i>
+                </div>
+                    {% elif boundData.headlines.status == 'voting' %}
+                        {% if boundData.headlines.candidates|length > 2 %}
+                    <div class="radio">
+                        <label>
+                            <input id="headline3" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlines.candidates[2].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlines.candidates[2].headline }}</span>
+                        </label>
+                    </div>
+                        {% endif %}
+                    {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[2].id }}" value="{% if boundData.headlines.candidates|length > 2 %}{{ boundData.headlines.candidates[2].headline }}{% endif %}" required="" />
+                    <label for="headline3" class="control-label">Headline #4</label>
+                    <i class="bar"></i>
+                </div>
+                    {% endif %}
+                {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[2].id }}" value="{% if boundData.headlines.candidates|length > 2 %}{{ boundData.headlines.candidates[2].headline }}{% endif %}" required="" />
+                    <label for="headline3" class="control-label">Headline #2</label>
+                    <i class="bar"></i>
+                </div>
+                {% endif %}
+
+                {% if boundData %}
+                    {% if boundData.headlines and boundData.headlines.status == 'finalized' %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[3].id }}" value="{% if boundData.headlines.candidates|length > 3 %}{{ boundData.headlines.candidates[3].headline }}{% endif %}" required="" readonly="" />
+                    <label for="headline4" class="control-label">Headline #3</label>
+                    <i class="bar"></i>
+                </div>
+                    {% elif boundData.headlines.status == 'voting' %}
+                        {% if boundData.headlines.candidates|length > 3 %}
+                    <div class="radio">
+                        <label>
+                            <input id="headline4" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlines.candidates[3].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlines.candidates[3].headline }}</span>
+                        </label>
+                    </div>
+                        {% endif %}
+                    {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[3].id }}" value="{% if boundData.headlines.candidates|length > 3 %}{{ boundData.headlines.candidates[3].headline }}{% endif %}" required="" />
+                    <label for="headline4" class="control-label">Headline #4</label>
+                    <i class="bar"></i>
+                </div>
+                    {% endif %}
+                {% else %}
+                <div class="medium-6 columns form-group">
+                    <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlines.candidates[3].id }}" value="{% if boundData.headlines.candidates|length > 3 %}{{ boundData.headlines.candidates[3].headline }}{% endif %}" required="" />
+                    <label for="headline4" class="control-label">Headline #3</label>
+                    <i class="bar"></i>
+                </div>
+                {% endif %}
+
+                {% if boundData %}
+                    {% if boundData.headlines.status == 'voting' %}
+                    <!-- <div class="radio"> -->
+                        <!-- <label> -->
+                            <!-- <input id="headlineOther" name="headlineChoices" data-form="package" type="radio" value="other" /><i class="helper"></i><span class="radio-label">Other headline</span> -->
+                        <!-- </label> -->
+                    <!-- </div> -->
+                    {% endif %}
+                {% endif %}
+
+                {% if boundData %}
+                    {% if boundData.headlines.status == 'voting' %}
+                </div>
+                    {% endif %}
+                {% endif %}
+
+                {% if boundData %}{% if boundData.headlines %}{% if boundData.headlines.status == 'drafting' %}
+                <div class="medium-12 columns checkbox">
+                    <label>
+                        <input id="headlinesReady" name="headlinesReady" data-form="package" type="checkbox" value="ready" /><i class="helper"></i>Submit headlines to a vote
+                        <!-- <input type="checkbox" checked="" /><i class="helper"></i>Submit headlines to a vote -->
+                    </label>
+                </div>
+                {% endif %}{% endif %}{% endif %}
+            </div>
+
+            <div class="section-header">
+                <h4>Staff</h4>
+            </div>
+
+            <div class="row">
+                <div class="medium-6 columns form-group set-authors">
+                    <input id="authors" name="authors" class="to-selectize staff-select reporter" data-form="primary" type="text" value="{% if boundData %}{% for author in boundData.primaryContent.authors %}{{ author.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
+                    <label for="authors" class="control-label">Author(s)<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-6 columns form-group set-editors">
+                    <input id="editors" name="editors" class="to-selectize staff-select editor" data-form="primary" type="text" value="{% if boundData %}{% for editor in boundData.primaryContent.editors %}{{ editor.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
+                    <label for="editors" class="control-label">Editor(s)</label>
+                    <i class="bar"></i>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h4>Schedule</h4>
+            </div>
+
+            <div class="row">
+                <div class="medium-3 columns form-group">
+                    <input id="pub_date_resolution" name="pub_date_resolution" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" value="{% if boundData %}{{ boundData.pubDate.resolution }}{% endif %}" />
+                    <label for="pub_date_resolution" class="control-label">Time format<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-5 columns form-group pub-date-group"{% if boundData %}{% if boundData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
+                    <input id="pub_date" name="pub_date" data-form="package" type="text" id="pubDate" required="" {% if boundData %}{% if boundData.pubDate.resolution == '' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if boundData %}{% if boundData.pubDate.resolution != '' %}{{ formattedPubDate }}{% endif %}{% endif %}" />
+                    <label for="pub_date" class="control-label">Published date<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-4 columns form-group pub-time-group"{% if boundData %}{% if boundData.pubDate.resolution == 't' %} style="display: block;"{% endif %}{% endif %}>
+                    <input id="pub_time" name="pub_time" data-form="package" type="time" id="pubTime" {% if boundData %}{% if boundData.pubDate.resolution != 't' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if boundData %}{% if boundData.pubDate.resolution == 't' %}{{ formattedPubTime }}{% endif %}{% endif %}" pattern="\d{2}:\d{2}" />
+                    <label for="pub_time" class="control-label">Published time&thinsp;*</label>
+                    <i class="bar"></i>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h4>More information</h4>
+            </div>
+
+            <div class="row">
+                <div class="medium-12 columns notes-reveal form-group">
+                    <div class="expanding-holder{% if boundData %}{% if boundData.notes != '' %} has-value{% endif %}{% endif %}">
+                        <textarea id="notes" name="notes" data-form="package" rows="4" required="">{% if boundData %}{{ boundData.notes }}{% endif %}</textarea>
+                    </div>
+                    <label for="notes" class="control-label">Notes</label>
+                    <i class="bar"></i>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="single-page">
+        <div id="additional-forms">
+            <div class="section-header">
+                <h4 class="final-header">Additional content <span class="add-additional-content-trigger button"><i class="fa fa-plus"></i><span>&thinsp;Add<span class="show-for-medium">&nbsp;content</span></span></span></h4>
+            </div>
+        </div>
+
+        <div class="additional-content">
+        </div>
+
+        <div class="bottom-button-holder">
+            <div class="add-additional-content-trigger button"><i class="fa fa-plus"></i><span>&thinsp;Add content</span></div>
+        </div>
+    </div>
+</div>

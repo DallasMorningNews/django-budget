@@ -1,0 +1,74 @@
+<div class="package-sheet" content-id="{{ id }}" content-primary-id="{{ primaryContent.id }}" data-hub="{{ hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ primaryContent.isReady }}">
+    <div class="minimal-card">
+        <div class="slug-bar row">
+            <div class="column small-6 medium-8 large-8">
+                <div class="color-dot" style="background-color: {{ hubDotColor }};"><span class="ready-check"><i class="fa fa-check"></i></span></div>
+                <h1>{{ primaryContent.slug }}</h1>
+                <h2>{{ pubDate.formatted }}</h2>
+            </div>
+            <div class="author-info column small-5 medium-3 large-3">
+                {% if primaryContent.authors|length > 0 %}
+                <h3>{% if primaryContent.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in primaryContent.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
+                {% endif %}
+                {% if primaryContent.editors|length > 0 %}
+                <h3 class="additional-info-line">{% if primaryContent.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in primaryContent.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
+                {% endif %}
+            </div>
+            <div class="action-buttons column small-1 medium-1 large-1 text-center">
+                <a href="/#edit/{{ id }}/">
+                    <div class="edit action-button">
+                        <i class="fa fa-pencil-square-o"></i>
+                        <span class="hover-info">Edit</span>
+                    </div>
+                </a>
+                <div class="mark-ready action-button">
+                    <i class="fa fa-check"></i>
+                    <span class="hover-info">Mark ready</span>
+                </div>
+                <div class="subscribe action-button">
+                    <i class="fa fa-envelope-o"></i>
+                    <span class="hover-info">Subscribe</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="additional-package-info row">
+            <div class="column small-6 medium-6 large-6 text-left">
+                <div class="additional-info-line"><i class="{{ primaryContent.typeMeta.icon }}"></i>&thinsp;&nbsp;{{ primaryContent.typeMeta.verboseName }}{% if primaryContent.length %} ({{ primaryContent.length }}){% endif %}</div>
+            </div>
+            <div class="related-types column small-5 medium-5 large-5 text-right"><div class="additional-info-line">{% if additionalTypes|length > 0 %}Includes {% for type in additionalTypes %}<i class="{{ type.icon }}"></i>{% endfor %}{% endif %}</div>
+            </div>
+            <div class="action-buttons column small-1 medium-1 large-1 text-center">
+                <div class="expand-package action-button">
+                    <i class="fa fa-level-down"></i>
+                    <i class="fa fa-level-up"></i>
+                    <span class="hover-info">More about this item</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="primary-description row  small-11 medium-11 large-11 float-left">
+        <div class="budget-line collapsed column small-12 medium-9 large-9">
+            <div class="clearer"></div>
+            {% for line in primaryContent.budgetLine %}<p>{{ line|safe }}</p>{% endfor %}
+        </div>
+        <div class="item-options column small-12 medium-3 large-3">
+            <div class="option-list row">
+                <div class="notes option column small-4 medium-12 large-12"><i class="fa fa-comments-o"></i>&thinsp;&nbsp;View notes</div>
+                <div class="web-info option column small-4 medium-12 large-12"><i class="fa fa-desktop"></i>&thinsp;&nbsp;Web info</div>
+                <div class="print-info option column small-4 medium-12 large-12"><i class="fa fa-newspaper-o"></i>&thinsp;&nbsp;Print info</div>
+            </div>
+        </div>
+    </div>
+    <div class="clearer"></div>
+</div>
+{% if additionalContent|length > 0 %}
+<div class="extra-sheet">
+    <ul class="related-content">
+        {% for item in additionalContent %}
+            {% include "package-item-additionalcontent" %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
