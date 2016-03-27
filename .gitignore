@@ -56,13 +56,9 @@ jspm_packages
 
 dist/css/**
 dist/js/**
-build/
+build/js/**
 aws.json
 
-ui/dist/css/**
-ui/dist/js/**
-ui/build
-ui/aws.json
 .awspublish*
 
 .env
