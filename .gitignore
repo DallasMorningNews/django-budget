@@ -1,3 +1,20 @@
+### Bower ###
+
+bower_components
+.bower-cache
+.bower-registry
+.bower-tmp
+
+
+### OS X-specific ###
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+
+### Node ###
+
 # Logs
 logs
 *.log
@@ -33,3 +50,21 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+
+### Project-specific exclusions ###
+
+dist/css/**
+dist/js/**
+build/
+aws.json
+
+ui/dist/css/**
+ui/dist/js/**
+ui/build
+ui/aws.json
+.awspublish*
+
+.env
+*.pyc
+staticfiles
