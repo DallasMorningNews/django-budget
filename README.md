@@ -17,26 +17,31 @@ More information TK here.
 
 # Installation
 
-To set up this repo and begin serving files, follow these steps:
+To set up this repo and begin serving files, follow these steps.
 
-    git clone <this URL> .
+**First, clone this repo:**
 
-Install `node` and `npm` with the following:
+    git clone <this repo's URL> .
+
+**Then, install `node` and `npm` with the following:**
 
     curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
-Install Bower and gulp:
+Note: You may also need to install `build-essential` during this step.
+
+**Next, install Bower and gulp:**
 
     sudo npm install -g gulp
     sudo npm install -g bower
     npm install gulp
 
-Install NPM and Bower dependencies:
+**Finally, install NPM and Bower dependencies:**
+
     npm install
     bower install
 
-That's it!
+That's it! You should now have a working version of the code deployed on your computer/VM/server.
 
 
 # Errata
