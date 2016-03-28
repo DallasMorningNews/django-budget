@@ -4,6 +4,22 @@
     outline: none;
     text-align: left;
 
+    .blue-background {
+        background: darken($mf-save-action-color, 21%);
+        margin: -1rem;
+        padding: 1rem 0;
+
+        .button-holder {
+            .flat-button {
+                &.delete-action {
+                    &::before {
+                        border: 0;
+                    }
+                }
+            }
+        }
+    }
+
     .red-background {
         background: darken($mf-delete-action-color, 21%);
         margin: -1rem;
@@ -253,6 +269,19 @@
                 }
             }
 
+            &.save-action {
+                &.active-state {
+                    span {
+                        color: #FFFFFF !important;
+                    }
+                }
+
+                &::before {
+                    background: darken($mf-save-action-color, 21%);
+                    border: 4px solid darken($mf-save-action-color, 24%);
+                }
+            }
+
             &.expand-past-button {
                 overflow: visible;
 
@@ -269,8 +298,23 @@
                 z-index: 100;
             }
 
-            &.delete-trigger {
+            &.delete-trigger,
+            &.record-vote-trigger {
                 z-index: 150;
+            }
+        }
+    }
+
+    #headline-voting-modal {
+        .form-radio label {
+            color: #616161;
+            font-size: 14px;
+            font-weight: normal;
+            padding: 0 0 0 1.875rem;
+
+            input:checked ~ .radio-label {
+                color: #212121;
+                font-weight: bold;
             }
         }
     }
