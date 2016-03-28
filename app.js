@@ -42,7 +42,7 @@ app.set('port', (process.env.PORT || 5000));
 
 process.env.PWD = process.cwd();
 
-app.use(express.static(path.join(process.env.PWD, 'dist')));
+app.use(express.static(__dirname + '/dist'));
 
 var nenv = nunjucks.configure('templates', {
     autoescape: true,
