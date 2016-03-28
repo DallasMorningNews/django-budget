@@ -39,7 +39,10 @@ app.use(passport.session());*/
 
 app.set('port', (process.env.PORT || 5000));
 
-app.use(express.static(__dirname + '/dist'));
+
+process.env.PWD = process.cwd();
+
+app.use(express.static(path.join(process.env.PWD, 'dist')));
 
 var nenv = nunjucks.configure('templates', {
     autoescape: true,
