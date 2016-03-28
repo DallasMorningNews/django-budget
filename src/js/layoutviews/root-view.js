@@ -13,9 +13,10 @@ define([
         el: 'body',
         template: tpl('root-view'),
         regions: {
-            navbar: "#navigation",
-            mainContent: "#main-content",
-            modalHolder: "#modal-holder"
+            navbar: '#navigation',
+            mainContent: '#main-content',
+            modalHolder: '#modal-holder',
+            snackbarHolder: '#snackbar-holder',
         },
 
         initialize: function() {
@@ -42,9 +43,19 @@ define([
                 this.modal.open();
             }, this);
 
-            _radio.commands.setHandler('destroyModal', function() {
-                delete(this.modal);
+            _radio.commands.setHandler('showSnackbar', function(snackbarView) {
+                this.snackbarView = snackbarView;
+
+                this.showChildView('snackbarHolder', this.snackbarView);
             }, this);
+
+            _radio.commands.setHandler('destroyModal', function() {
+                // delete(this.modal);
+            }, this);
+
+            _radio.commands.setHandler('clearRegion', function(regionSlug) {
+                app.rootView[regionSlug].reset();
+            });
         },
 
         onRender: function() {
