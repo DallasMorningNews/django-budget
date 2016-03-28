@@ -10,6 +10,7 @@ define([
     'collections/additional-content-items',
     'collectionviews/additional-content/additional-form-holder',
     'itemviews/modals/modal-window.js',
+    'itemviews/snackbars/snackbar.js',
     'misc/settings',
     'misc/tpl',
     'utils/expanding-text-field'
@@ -25,6 +26,7 @@ define([
     AdditionalContentItems,
     AdditionalFormHolderView,
     ModalView,
+    SnackbarView,
     settings,
     tpl,
     expandingTextField
@@ -137,15 +139,12 @@ define([
                             var toDeleteDict = {
                                 'id': this.boundData.id
                             };
-                            // modalContext.$el.find('.delete-trigger').fadeOut(250);
 
                             modalContext.$el.parent().addClass('waiting-transition');
 
                             modalContext.$el.parent().parent().css({
                                 'pointer-events': 'none'
                             });
-
-                            // modalContext.$el.find('.delete-trigger').fadeOut(250);
 
                             modalContext.$el.append(
                                 '<div class="loading-animation deletion-loading-animation">' +
@@ -205,13 +204,27 @@ define([
                             //         this._radio.commands.execute('navigate', '', {trigger: true});
 
                             //         // Display snackbar:
-                            //         // "The item '{{ formerItem.Slug }}' has been successfully deleted."
-                            //         // TKTK
+                            //         this._radio.commands.execute(
+                            //             'showSnackbar',
+                            //             new SnackbarView({
+                            //                 snackbarClass: 'success',
+                            //                 text: 'Item has been successfully deleted.',
+                            //                 action: {
+                            //                     promptText: 'Dismiss'
+                            //                 },
+                            //             })
+                            //         );
                             //     },
                             //     error: function(jqXHR, textStatus, errorThrown) {
                             //         // Display snackbar:
-                            //         // "The item '{{ formerItem.Slug }}' could not be deleted."
-                            //         // "Try again later."
+                            //         this._radio.commands.execute(
+                            //             'showSnackbar',
+                            //             new SnackbarView({
+                            //                 containerClass: 'edit-page',
+                            //                 snackbarClass: 'failure',
+                            //                 text: 'Item could not be deleted. Try again later.',
+                            //             })
+                            //         );
                             //     },
                             //     dataType: 'json'
                             // });
@@ -235,8 +248,16 @@ define([
                                     this._radio.commands.execute('navigate', '', {trigger: true});
 
                                     // Display snackbar:
-                                    // "The item '{{ formerItem.Slug }}' has been successfully deleted."
-                                    // TKTK
+                                    this._radio.commands.execute(
+                                        'showSnackbar',
+                                        new SnackbarView({
+                                            snackbarClass: 'success',
+                                            text: 'Item has been successfully deleted.',
+                                            action: {
+                                                promptText: 'Dismiss'
+                                            },
+                                        })
+                                    );
                                 }.bind(this),
                                 5000
                             );
@@ -338,13 +359,27 @@ define([
             //         this._radio.commands.execute('navigate', '', {trigger: true});
 
             //         // Display snackbar:
-            //         // "The item '{{ packageDict.primaryContent.slug }}' was successfully saved."
-            //         // TKTK
+            //         this._radio.commands.execute(
+            //             'showSnackbar',
+            //             new SnackbarView({
+            //                 snackbarClass: 'success',
+            //                 text: 'Item successfully saved.',
+            //                 action: {
+            //                     promptText: 'Dismiss'
+            //                 },
+            //             })
+            //         );
             //     },
             //     error: function(jqXHR, textStatus, errorThrown) {
             //         // Display snackbar:
-            //         // "The item '{{ packageDict.primaryContent.slug }}' could not be saved."
-            //         // "Try again later."
+            //         this._radio.commands.execute(
+            //             'showSnackbar',
+            //             new SnackbarView({
+            //                 containerClass: 'edit-page',
+            //                 snackbarClass: 'failure',
+            //                 text: 'Item could not be saved. Try again later.',
+            //             })
+            //         );
             //     },
             //     dataType: 'json'
             // });
@@ -368,8 +403,16 @@ define([
                     this._radio.commands.execute('navigate', '', {trigger: true});
 
                     // Display snackbar:
-                    // "The item '{{ packageDict.primaryContent.slug }}' was successfully deleted."
-                    // TKTK
+                    this._radio.commands.execute(
+                        'showSnackbar',
+                        new SnackbarView({
+                            snackbarClass: 'success',
+                            text: 'Item successfully saved.',
+                            action: {
+                                promptText: 'Dismiss'
+                            },
+                        })
+                    );
                 }.bind(this),
                 5000
             );
@@ -437,20 +480,35 @@ define([
             //         // TK.
 
             //         // Navigate to the index view (or to the same page if save and continue)
-            //         // if (newlyCreatedObject) {
-            //         //     this._radio.commands.execute('navigate', 'edit/{{ newID }}/', {trigger: true});
-            //         // } else {
-            //         //     window.scrollTo(0,0);
-            //         // }
+            //         if (wasNotBound) {
+            //             this._radio.commands.execute('navigate', 'edit/{{ newID }}/', {trigger: true});
+            //         } else {
+            //             window.scrollTo(0,0);
+            //         }
 
             //         // Display snackbar:
-            //         // "The item '{{ packageDict.primaryContent.slug }}' was successfully saved."
-            //         // TKTK
+            //         this._radio.commands.execute(
+            //             'showSnackbar',
+            //             new SnackbarView({
+            //                 containerClass: 'edit-page',
+            //                 snackbarClass: 'success',
+            //                 text: 'Item successfully saved.',
+            //                 action: {
+            //                     promptText: 'Dismiss'
+            //                 },
+            //             })
+            //         );
             //     },
             //     error: function(jqXHR, textStatus, errorThrown) {
             //         // Display snackbar:
-            //         // "The item '{{ packageDict.primaryContent.slug }}' could not be saved."
-            //         // "Try again later."
+            //         this._radio.commands.execute(
+            //             'showSnackbar',
+            //             new SnackbarView({
+            //                 containerClass: 'edit-page',
+            //                 snackbarClass: 'failure',
+            //                 text: 'Item could not be saved. Try again later.',
+            //             })
+            //         );
             //     },
             //     dataType: 'json'
             // });
@@ -478,6 +536,17 @@ define([
                     // }
 
                     // Display snackbar:
+                    this._radio.commands.execute(
+                        'showSnackbar',
+                        new SnackbarView({
+                            containerClass: 'edit-page',
+                            snackbarClass: 'success',
+                            text: 'Item successfully saved.',
+                            action: {
+                                promptText: 'Dismiss'
+                            },
+                        })
+                    );
                     // "The item '{{ packageDict.primaryContent.slug }}' was successfully deleted."
                     // TKTK
                 }.bind(this),
