@@ -1,21 +1,24 @@
 define(
     [
-        'jquery',
-        'underscore',
         'backbone',
+        'jquery',
         'marionette',
+        'underscore',
+        'itemviews/modals/modal-window.js',
+        'itemviews/snackbars/snackbar.js',
         'misc/settings',
-        'misc/tpl',
-        'itemviews/modals/modal-window.js'
+        'misc/tpl'
+
     ],
     function(
-        $,
-        _,
         Backbone,
+        $,
         Mn,
+        _,
+        ModalView,
+        SnackbarView,
         settings,
-        tpl,
-        ModalView
+        tpl
     ) {
         'use strict';
 
@@ -25,6 +28,7 @@ define(
             className: 'package-sheet-holder',
 
             ui: {
+                slugHeadlineHolder: '.slug-headline-holder',
                 packageSheetOuter: '.package-sheet',
                 expansionTrigger: '.expand-package',
                 notesModalTrigger: '.notes',
@@ -34,6 +38,7 @@ define(
 
             events: {
                 'click @ui.expansionTrigger': 'expandPackageSheet',
+                'click @ui.slugHeadlineHolder': 'showHeadlineVotingModal',
                 'click @ui.notesModalTrigger': 'showNotesModal',
                 'click @ui.printInfoModalTrigger': 'showPrintInfoModal',
                 'click @ui.webInfoModalTrigger': 'showWebInfoModal'
@@ -94,11 +99,225 @@ define(
                     }
                 );
 
+                if (packageObj.headlines.candidates.length) {
+                    packageObj.leadingHeadline = _.chain(packageObj.headlines.candidates)
+                                                        .sortBy('votes')
+                                                        .last()
+                                                        .value()
+                                                        .headline;
+                }
+// "has-leading-headline"
+
                 return packageObj;
             },
 
             expandPackageSheet: function(e) {
                 this.ui.packageSheetOuter.toggleClass('expanded');
+            },
+
+            showHeadlineVotingModal: function(e) {
+                if (this.ui.slugHeadlineHolder.hasClass('has-leading-headline')) {
+                    var headlineFields = _.chain(this.model.get('headlines').candidates)
+                        .map(function(hed) {
+                            return '' +
+                            '<div class="radio">' +
+                                '<label>' +
+                                    '<input id="headline' + hed.id + '" name="modalHeadlines" ' +
+                                        'type="radio" value="' + hed.id + '">' +
+                                    '<i class="helper"></i>' +
+                                    '<span class="radio-label">' +
+                                        hed.headline +
+                                    '</span>' +
+                                '</label>' +
+                            '</div>';
+                        })
+                        .reduce(function(memo, num){ return memo + num; }, '')
+                        .value(),
+                        headlineVotingModal = {
+                            'modalTitle': 'Vote for your favorite headline',
+                            'innerID': 'headline-voting-modal',
+                            'extraHTML': '' +
+                                '<form>' +
+                                    '<div class="row">' +
+                                        '<div class="medium-12 columns form-radio">' +
+                                            headlineFields +
+                                            // '<div class="radio">' +
+                                            //     '<label>' +
+                                            //     '<input id="headlineOther" ' +
+                                            //         'name="modalHeadlines" ' +
+                                            //         'data-form="package" ' +
+                                            //         'type="radio" ' +
+                                            //         'value="other" />' +
+                                            //             '<i class="helper"></i>' +
+                                            //             '<span class="radio-label">' +
+                                            //                 'Other headline' +
+                                            //             '</span>' +
+                                            //     '</label>' +
+                                            // '</div>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</form>',
+                            'buttons': [
+                                {
+                                    'buttonID': 'headline-voting-record-vote-button',
+                                    'buttonClass': 'flat-button disabled save-action expand-past-button record-vote-trigger',
+                                    'innerLabel': 'Vote',
+                                    'clickCallback': function(modalContext) {
+                                        var voteData = {
+                                            packageID: this.model.get('id'),
+                                            chosenHeadline: modalContext.$el.find('form').serializeArray()[0].value,
+                                            userName: 'TK',
+                                        };
+
+                                        modalContext.$el.parent().addClass('waiting-transition');
+
+                                        modalContext.$el.parent().parent().css({
+                                            'pointer-events': 'none'
+                                        });
+
+                                        modalContext.$el.append(
+                                            '<div class="loading-animation deletion-loading-animation">' +
+                                                '<div class="loader">' +
+                                                    '<svg class="circular" viewBox="25 25 50 50">' +
+                                                        '<circle class="path" cx="50" cy="50" r="20" ' +
+                                                                'fill="none" stroke-width="2" ' +
+                                                                'stroke-miterlimit="10"/>' +
+                                                    '</svg>' +
+                                                    '<i class="fa fa-commenting-o fa-2x fa-fw"></i>' +
+                                                '</div>' +
+                                                '<p class="loading-text">Recording your vote...</p>' +
+                                            '</div>'
+                                        );
+
+                                        setTimeout(function() {
+                                            modalContext.$el.find('.loading-animation').addClass('active');
+                                        }.bind(this), 600);
+
+                                        setTimeout(
+                                            function() {
+                                                modalContext.$el.find('.modal-inner').css({
+                                                    'visibility': 'hidden'
+                                                });
+
+                                                modalContext.$el.addClass('blue-background');
+                                            },
+                                            500
+                                        );
+
+                                        setTimeout(
+                                            function() {
+                                                modalContext.$el.parent()
+                                                                    .addClass('waiting')
+                                                                    .addClass('save-waiting')
+                                                                    .removeClass('waiting-transition');
+                                            },
+                                            500
+                                        );
+
+                                        // $.ajax({
+                                        //     type: "POST",
+                                        //     url: settings.urlConfig.postEndpoints.recordHeadlineVote,
+                                        //     data: voteData,
+                                        //     success: function(data) {
+                                        //         // Close this popup and destroy it.
+                                        //         modalContext.$el.parent().foundation('close');
+                                        //         setTimeout(function() {
+                                        //             this._radio.commands.execute('destroyModal');
+                                        //         }.bind(this),
+                                        //         500);
+
+                                        //         // Get the latest vote counts for this package's headlines
+                                        //         // TK.
+
+                                        //         // Display snackbar:
+                                        //         this._radio.commands.execute(
+                                        //             'showSnackbar',
+                                        //             new SnackbarView({
+                                        //                 snackbarClass: 'success',
+                                        //                 text: 'Your vote has been counted.',
+                                        //                 action: {
+                                        //                     promptText: 'Dismiss'
+                                        //                 },
+                                        //             })
+                                        //         );
+                                        //     },
+                                        //     error: function(jqXHR, textStatus, errorThrown) {
+                                        //         // Display snackbar:
+                                        //         this._radio.commands.execute(
+                                        //             'showSnackbar',
+                                        //             new SnackbarView({
+                                        //                 snackbarClass: 'failure',
+                                        //                 text: 'Could not save your vote. Try again later.',
+                                        //             })
+                                        //         );
+                                        //     },
+                                        //     dataType: 'json'
+                                        // });
+
+
+                                        setTimeout(
+                                            function() {
+                                                // Log POST payload to the console.
+                                                console.log(voteData);
+
+                                                // Close this popup and destroy it.
+                                                modalContext.$el.parent().foundation('close');
+                                                setTimeout(function() {
+                                                    this._radio.commands.execute('destroyModal');
+                                                }.bind(this),
+                                                500);
+
+                                                // Get the latest vote counts for this package's headlines
+                                                // TK.
+
+                                                // Display snackbar:
+                                                this._radio.commands.execute(
+                                                    'showSnackbar',
+                                                    new SnackbarView({
+                                                        snackbarClass: 'success',
+                                                        text: 'Your vote has been counted.',
+                                                        action: {
+                                                            promptText: 'Dismiss'
+                                                        },
+                                                    })
+                                                );
+                                            }.bind(this),
+                                            5000
+                                        );
+                                    }.bind(this)
+                                },
+                                {
+                                    'buttonID': 'headline-voting-cancel-button',
+                                    'buttonClass': 'flat-button primary-action cancel-trigger',
+                                    'innerLabel': 'Cancel',
+                                    'clickCallback': function(modalContext) {
+                                        modalContext.$el.parent().foundation('close');
+
+                                        setTimeout(
+                                            function() {
+                                                this._radio.commands.execute('destroyModal');
+                                            }.bind(this),
+                                            500
+                                        );
+                                    }.bind(this)
+                                }
+                            ]
+                        };
+
+                    this.modalView = new ModalView({
+                        modalConfig: headlineVotingModal,
+                        renderCallback: function() {
+                            this.modalView.$el.find('label').click(
+                                function() {
+                                    $(this).closest('.form-replacement').find('.record-vote-trigger').removeClass('disabled');
+                                }
+                            );
+                        }.bind(this)
+                    });
+
+
+                    this._radio.commands.execute('showModal', this.modalView);
+                }
             },
 
             showNotesModal: function(e) {

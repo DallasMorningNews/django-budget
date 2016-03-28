@@ -3,8 +3,8 @@
         <div class="slug-bar row">
             <div class="column small-6 medium-8 large-8">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"><span class="ready-check"><i class="fa fa-check"></i></span></div>
-                <h1>{{ primaryContent.slug }}</h1>
-                <h2>{{ pubDate.formatted }}</h2>
+                <h1 class="slug-headline-holder {% if leadingHeadline %}has-leading-headline{% endif %}">{% if leadingHeadline %}&ldquo;{{ leadingHeadline }}&rdquo;{% else %}{{ primaryContent.slug }}{% endif %}</h1>
+                <h2>{{ pubDate.formatted }}{% if leadingHeadline %} ({{ primaryContent.slug }}){% endif %}</h2>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
                 {% if primaryContent.authors|length > 0 %}
@@ -26,7 +26,7 @@
                     <span class="hover-info">Mark ready</span>
                 </div>
                 <div class="subscribe action-button">
-                    <i class="fa fa-envelope-o"></i>
+                    <i class="fa fa-slack"></i>
                     <span class="hover-info">Subscribe</span>
                 </div>
             </div>
