@@ -3,6 +3,8 @@ var path = require('path');
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 var nunjucks = require('nunjucks');
+var cors = require('cors');
+
 
 require('dotenv').load();
 
@@ -33,6 +35,8 @@ var app = express();
 app.use(require('cookie-parser')());
 app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+
+app.use(cors());
 
 /*app.use(passport.initialize());
 app.use(passport.session());*/
