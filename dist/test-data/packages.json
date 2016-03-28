@@ -504,11 +504,11 @@
         },
         "headlines": {
             "candidates": [
-                {"headline": "Badminton taking Texas by storm", "id": 1},
-                {"headline": "This sport mashup started in 1873. You won't believe what happened next.", "id": 2},
-                {"headline": "You'll never guess what big Danish sport is also popular in Texas.", "id": 3}
+                {"headline": "Badminton taking Texas by storm", "id": 1, "votes": 21},
+                {"headline": "This sport mashup started in 1873. You won't believe what happened next.", "id": 2, "votes": 34},
+                {"headline": "You'll never guess what big Danish sport is also popular in Texas.", "id": 3, "votes": 15}
             ],
-            "status": "drafting"
+            "status": "voting"
         },
         "additionalContent": [],
         "editURL": "/package/52/",
