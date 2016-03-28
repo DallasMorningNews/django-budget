@@ -1,12 +1,14 @@
 define([
     'backbone',
     'marionette',
+    'underscore',
     'misc/tpl',
     'motion-ui',
     'selectize',
 ], function(
     Backbone,
     Mn,
+    _,
     tpl,
     motionUI,
     selectize
@@ -67,6 +69,12 @@ define([
             );
 
             modalConfig.clickCallback(this);
+        },
+
+        onRender: function() {
+            if (_.has(this.options, 'renderCallback')) {
+                this.options.renderCallback();
+            }
         },
 
         // initialize: function() {
