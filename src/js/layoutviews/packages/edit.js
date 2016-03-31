@@ -196,11 +196,13 @@ define([
                                 data: JSON.stringify(toDeleteDict),
                                 processData: false,
                                 success: function(data) {
-                                    if (data.success) {
-                                        this.deleteSuccessCallback(data);
-                                    } else {
-                                        this.deleteErrorCallback('processingError', [data]);
-                                    }
+                                    setTimeout(function() {
+                                        if (data.success) {
+                                            this.deleteSuccessCallback(data);
+                                        } else {
+                                            this.deleteErrorCallback('processingError', [data]);
+                                        }
+                                    }.bind(this), 1500);
                                 }.bind(this),
                                 error: function(jqXHR, textStatus, errorThrown) {
                                     this.deleteErrorCallback('hardError', [jqXHR, textStatus, errorThrown]);
@@ -285,11 +287,13 @@ define([
                 data: JSON.stringify(packageDict),
                 processData: false,
                 success: function(data) {
-                    if (data.success) {
-                        this.saveSuccessCallback('saveOnly', data);
-                    } else {
-                        this.saveErrorCallback('saveOnly', 'processingError', [data]);
-                    }
+                    setTimeout(function() {
+                        if (data.success) {
+                            this.saveSuccessCallback('saveOnly', data);
+                        } else {
+                            this.saveErrorCallback('saveOnly', 'processingError', [data]);
+                        }
+                    }.bind(this), 1500);
                 }.bind(this),
                 error: function(jqXHR, textStatus, errorThrown) {
                     this.saveErrorCallback('saveOnly', 'hardError', [jqXHR, textStatus, errorThrown]);
@@ -351,11 +355,13 @@ define([
                 data: JSON.stringify(packageDict),
                 processData: false,
                 success: function(data) {
-                    if (data.success) {
-                        this.saveSuccessCallback('saveAndContinue', data);
-                    } else {
-                        this.saveErrorCallback('saveAndContinue', 'processingError', [data]);
-                    }
+                    setTimeout(function() {
+                        if (data.success) {
+                            this.saveSuccessCallback('saveAndContinue', data);
+                        } else {
+                            this.saveErrorCallback('saveAndContinue', 'processingError', [data]);
+                        }
+                    }.bind(this), 1500);
                 }.bind(this),
                 error: function(jqXHR, textStatus, errorThrown) {
                     this.saveErrorCallback('saveAndContinue', 'hardError', [jqXHR, textStatus, errorThrown]);
