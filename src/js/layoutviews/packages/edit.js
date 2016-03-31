@@ -789,7 +789,7 @@ define([
 
             // this.showChildView('packages', this.collectionView);
             expandingTextField.make(this.ui.budgetLineField);
-            expandingTextField.make(this.ui.notesField);
+            // expandingTextField.make(this.ui.notesFieldf);
 
             var hubOptions = this.generateHubOptions();
 
@@ -1044,11 +1044,30 @@ define([
                 }.bind(this)
             });
 
-            // {
-            //     autoClose: true,
-            //     singleDate : true,
-            //     showShortcuts: false
-            // }
+            CKEDITOR.replace(app.rootView.mainView.ui.notesField[0], {
+                skin: 'minimalist,http://interactives.dallasnews.com/budget-assets/skins/minimalist/',
+                contentsCss: [
+                    'http://fonts.googleapis.com/css?family=PT+Serif:400,700%7CSource+Sans+Pro:400,700,900,600',
+                    'http://interactives.dallasnews.com/budget-assets/content.css'
+                ],
+                font_style: {
+                    element: 'span',
+                    styles: {'font-family': '#(Roboto)'},
+                    overrides: [{ element: 'font', attributes: {'face' : null }}]
+                },
+                fontSize_sizes: '16/16px;24/24px;48/48px;',
+                toolbarGroups: [
+                    {name: 'basicstyles', groups: ['basicstyles', 'styles', 'cleanup']},
+                    {name: 'forms', groups: ['forms']},
+                    {name: 'paragraph', groups: ['list',  'blocks', 'align', 'bidi', 'paragraph']},
+                    {name: 'links', groups: ['links']},
+                    {name: 'clipboard', groups: ['clipboard', 'undo']},
+                ],
+                removeButtons: 'Styles,Subscript,Superscript,Cut,Copy,Paste,PasteText,PasteFromWord,Scayt,Anchor,Source,Maximize,About,Image,Table,HorizontalRule,SpecialChar',
+                removePlugins: 'elementspath'
+            });
+
+            this.richNotesField = CKEDITOR.instances.notes;
         },
 
         initializeDatePicker: function(dateMode) {
@@ -1129,10 +1148,10 @@ define([
                 additionalContentItems = [];
 
             // Package-wide processing.
-
+console.log(this.richNotesField.getData());
             finalPackage.hub = rawFormData.packageFields.hub;
             finalPackage.URL = null;
-            finalPackage.notes = rawFormData.packageFields.notes;
+            finalPackage.notes = this.richNotesField.getData();
             finalPackage.id = rawFormData.packageFields.package_id;
             finalPackage.createdBy = null;
             finalPackage.lastChangedBy = null;

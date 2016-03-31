@@ -392,6 +392,16 @@ $mf-transition-speed: 0.28s !default;
             }
         }
     }
+
+    .notes-reveal {
+        label {
+            color: gray;
+            font-size: 1rem;
+            left: 0.625rem;
+            line-height: 0.8rem;
+            top: -1.3rem;
+        }
+    }
 }
 
 
