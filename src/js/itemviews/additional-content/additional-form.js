@@ -73,8 +73,6 @@ define(
                         this.model.get('boundData').length,
                         10
                     );
-
-                    console.log(templateContext.formattedLength);
                 }
 
                 return templateContext;
@@ -308,18 +306,7 @@ define(
                 finalAdditionalContent.id = rawFormData.id;
                 finalAdditionalContent.slug = rawFormData.slug;
                 finalAdditionalContent.type = rawFormData.type;
-                finalAdditionalContent.budgetLine = _.chain(
-                    rawFormData.budgetline.split('</p>')
-                ).map(
-                    function(substring) {
-                        var shortenedSubstring = substring.replace('<p>', '').trim();
-                        if (shortenedSubstring !== '') {
-                            return shortenedSubstring;
-                        } else {
-                            return false;
-                        }
-                    }
-                ).compact().value();
+                finalAdditionalContent.budgetLine = rawFormData.budgetline;
 
                 if (_.has(rawFormData, 'length')) {
                     finalAdditionalContent.length = rawFormData.length;

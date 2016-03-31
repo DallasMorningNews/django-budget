@@ -1,6 +1,6 @@
 <div class="content-header">{% if config.boundData %}{{ config.boundData.slug }}{% else %}New additional content{% endif %}<i class="fa fa-times delete-additional" data-confirm=""></i></div>
 
-<input type="hidden" id="{{ config.formID }}_id" class="field-id" name="{{ config.formID }}_id" value="" data-form="{{ config.formID }}">
+<input type="hidden" id="{{ config.formID }}_id" class="field-id" name="{{ config.formID }}_id" value="{{ config.boundData.id }}" data-form="{{ config.formID }}">
 
 <div class="row">
     <div class="medium-6 columns form-group">
@@ -31,7 +31,7 @@
     <!--  -->
     <div class="medium-12 columns form-group">
         <div class="expanding-holder{% if config.boundData %}{% if config.boundData.budgetLine|length > 0 %} has-value{% endif %}{% endif %}">
-            <textarea id="{{ config.formID }}_budgetline" class="field-budgetline" name="{{ config.formID }}_budgetline" data-form="{{ config.formID }}" rows="1" required="">{% if config.boundData %}{% for budgetLineGraf in config.boundData.budgetLine %}{{ budgetLineGraf }}{% endfor %}{% endif %}</textarea>
+            <textarea id="{{ config.formID }}_budgetline" class="field-budgetline" name="{{ config.formID }}_budgetline" data-form="{{ config.formID }}" rows="1" required="">{% if config.boundData %}{{ config.boundData.budgetLine }}{% endif %}</textarea>
         </div>
         <label for="{{ config.formID }}_budgetline" class="control-label">Budget line<span class="required-marker">*</span></label>
         <i class="bar"></i>

@@ -16,14 +16,54 @@ define([
             'updateQuery': 'render'
         },
 
+        initialize: function() {
+            // Hook into our global Wreqr channel.
+            this._radio = Backbone.Wreqr.radio.channel('global');
+
+            this._radio.commands.setHandler(
+                'pushQueryTerm',
+                function(queryObject) {
+                    this.options.state.queryTerms.push(queryObject);
+
+                    this.options.collection.filterAnd(
+                        this.options.state.queryTerms,
+                        {
+                            hubs: this.options.hubs
+                        }
+                    );
+                },
+                this
+            );
+
+            this._radio.commands.setHandler(
+                'popQueryTerm',
+                function(queryValue) {
+                    this.options.state.queryTerms.remove(
+                        this.options.state.queryTerms.where({
+                            value: queryValue
+                        })
+                    );
+
+                    this.options.collection.filterAnd(
+                        this.options.state.queryTerms,
+                        {
+                            hubs: this.options.hubs
+                        }
+                    );
+                },
+                this
+            );
+        },
+
         childViewOptions: function(model, index) {
             return {
-                hubConfigs: this.options.hubs
+                currentUser: this.options.currentUser,
+                hubConfigs: this.options.hubs,
             };
         },
 
         filter: function(child, index, collection) {
-            if (_.contains(this.collection.queryFiltered, child)) {
+            if (_.contains(collection.queryFiltered, child)) {
                 return true;
             }
 

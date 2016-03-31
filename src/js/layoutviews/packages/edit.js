@@ -11,6 +11,7 @@ define([
     'collectionviews/additional-content/additional-form-holder',
     'itemviews/modals/modal-window.js',
     'itemviews/snackbars/snackbar.js',
+    'misc/date-picker-options',
     'misc/settings',
     'misc/tpl',
     'utils/expanding-text-field'
@@ -27,6 +28,7 @@ define([
     AdditionalFormHolderView,
     ModalView,
     SnackbarView,
+    datePickerOptions,
     settings,
     tpl,
     expandingTextField
@@ -127,24 +129,25 @@ define([
                 '</p>';
 
             var deleteConfirmationModal = {
-                'modalTitle': 'Are you sure?',
-                'innerID': 'additional-delete-confirmation-modal',
-                'extraHTML': deleteExtraHTML,
-                'buttons': [
+                modalTitle: 'Are you sure?',
+                innerID: 'additional-delete-confirmation-modal',
+                contentClassName: 'package-modal',
+                extraHTML: deleteExtraHTML,
+                escapeButtonCloses: false,
+                overlayClosesOnClick: false,
+                buttons: [
                     {
                         'buttonID': 'delete-package-delete-button',
                         'buttonClass': 'flat-button delete-action expand-past-button delete-trigger',
                         'innerLabel': 'Delete',
                         'clickCallback': function(modalContext) {
                             var toDeleteDict = {
-                                'id': this.boundData.id
+                                'packageID': this.options.boundData.id
                             };
 
-                            modalContext.$el.parent().addClass('waiting-transition');
-
-                            modalContext.$el.parent().parent().css({
-                                'pointer-events': 'none'
-                            });
+                            modalContext.$el.parent()
+                                            .addClass('waiting-transition')
+                                            .addClass('delete-waiting-transition');
 
                             modalContext.$el.append(
                                 '<div class="loading-animation deletion-loading-animation">' +
@@ -154,7 +157,7 @@ define([
                                                     'fill="none" stroke-width="2" ' +
                                                     'stroke-miterlimit="10"/>' +
                                         '</svg>' +
-                                        '<i class="fa fa-remove fa-2x fa-fw"></i>' +
+                                        '<i class="fa fa-trash fa-2x fa-fw"></i>' +
                                     '</div>' +
                                     '<p class="loading-text">Deleting content...</p>' +
                                 '</div>'
@@ -172,7 +175,7 @@ define([
 
                                     modalContext.$el.addClass('red-background');
                                 },
-                                500
+                                450
                             );
 
                             setTimeout(
@@ -180,87 +183,30 @@ define([
                                     modalContext.$el.parent()
                                                         .addClass('waiting')
                                                         .addClass('delete-waiting')
-                                                        .removeClass('waiting-transition');
+                                                        .removeClass('waiting-transition')
+                                                        .removeClass('delete-waiting-transition');
                                 },
                                 500
                             );
 
-                            // $.ajax({
-                            //     type: "POST",
-                            //     url: settings.urlConfig.postEndpoints.deletePackage,
-                            //     data: toDeleteDict,
-                            //     success: function(data) {
-                            //         // Close this popup and destroy it.
-                            //         modalContext.$el.parent().foundation('close');
-                            //         setTimeout(function() {
-                            //             this._radio.commands.execute('destroyModal');
-                            //         }.bind(this),
-                            //         500);
-
-                            //         // Pop item from the local collection.
-                            //         // TK.
-
-                            //         // Navigate to the index view
-                            //         this._radio.commands.execute('navigate', '', {trigger: true});
-
-                            //         // Display snackbar:
-                            //         this._radio.commands.execute(
-                            //             'showSnackbar',
-                            //             new SnackbarView({
-                            //                 snackbarClass: 'success',
-                            //                 text: 'Item has been successfully deleted.',
-                            //                 action: {
-                            //                     promptText: 'Dismiss'
-                            //                 },
-                            //             })
-                            //         );
-                            //     },
-                            //     error: function(jqXHR, textStatus, errorThrown) {
-                            //         // Display snackbar:
-                            //         this._radio.commands.execute(
-                            //             'showSnackbar',
-                            //             new SnackbarView({
-                            //                 containerClass: 'edit-page',
-                            //                 snackbarClass: 'failure',
-                            //                 text: 'Item could not be deleted. Try again later.',
-                            //             })
-                            //         );
-                            //     },
-                            //     dataType: 'json'
-                            // });
-
-                            setTimeout(
-                                function() {
-                                    // Log POST payload to the console.
-                                    console.log(toDeleteDict);
-
-                                    // Close this popup and destroy it.
-                                    modalContext.$el.parent().foundation('close');
-                                    setTimeout(function() {
-                                        this._radio.commands.execute('destroyModal');
-                                    }.bind(this),
-                                    500);
-
-                                    // Pop item from the local collection.
-                                    // TK.
-
-                                    // Navigate to the index view
-                                    this._radio.commands.execute('navigate', '', {trigger: true});
-
-                                    // Display snackbar:
-                                    this._radio.commands.execute(
-                                        'showSnackbar',
-                                        new SnackbarView({
-                                            snackbarClass: 'success',
-                                            text: 'Item has been successfully deleted.',
-                                            action: {
-                                                promptText: 'Dismiss'
-                                            },
-                                        })
-                                    );
+                            $.ajax({
+                                type: "POST",
+                                url: settings.urlConfig.postEndpoints.deletePackage,
+                                contentType: 'application/json; charset=utf-8',
+                                data: JSON.stringify(toDeleteDict),
+                                processData: false,
+                                success: function(data) {
+                                    if (data.success) {
+                                        this.deleteSuccessCallback(data);
+                                    } else {
+                                        this.deleteErrorCallback('processingError', [data]);
+                                    }
                                 }.bind(this),
-                                5000
-                            );
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    this.deleteErrorCallback('hardError', [jqXHR, textStatus, errorThrown]);
+                                }.bind(this),
+                                dataType: 'json'
+                            });
                         }.bind(this),
                     },
                     {
@@ -268,17 +214,10 @@ define([
                         'buttonClass': 'flat-button primary-action cancel-trigger',
                         'innerLabel': 'Cancel',
                         'clickCallback': function(modalContext) {
-                            modalContext.$el.parent().foundation('close');
-
-                            setTimeout(
-                                function() {
-                                    this._radio.commands.execute('destroyModal');
-                                }.bind(this),
-                                500
-                            );
+                            this._radio.commands.execute('destroyModal');
                         }.bind(this),
                     },
-                ]
+                ],
             };
 
             this.modalView = new ModalView({
@@ -289,7 +228,7 @@ define([
                 function() {
                     this._radio.commands.execute('showModal', this.modalView);
                 }.bind(this),
-                300
+                200
             );
         },
 
@@ -297,10 +236,13 @@ define([
             var packageDict = this.serializeForm();
 
             var saveProgressModal = {
-                'modalTitle': '',
-                'innerID': 'package-save-progress-modal',
-                'extraHTML': '',
-                'buttons': []
+                modalTitle: '',
+                innerID: 'package-save-progress-modal',
+                contentClassName: 'package-modal',
+                extraHTML: '',
+                escapeButtonCloses: false,
+                overlayClosesOnClick: false,
+                buttons: [],
             };
 
             this.modalView = new ModalView({
@@ -314,10 +256,6 @@ define([
                     this.modalView.$el.parent()
                                     .addClass('waiting')
                                     .addClass('save-waiting');
-
-                    this.modalView.$el.parent().parent().css({
-                        'pointer-events': 'none'
-                    });
 
                     this.modalView.$el.append(
                         '<div class="loading-animation save-loading-animation">' +
@@ -335,96 +273,42 @@ define([
 
                     setTimeout(function() {
                         this.modalView.$el.find('.loading-animation').addClass('active');
-                    }.bind(this), 600);
+                    }.bind(this), 270);
                 }.bind(this),
-                300
+                200
             );
 
-            // $.ajax({
-            //     type: "POST",
-            //     url: settings.urlConfig.postEndpoints.savePackage,
-            //     data: packageDict,
-            //     success: function(data) {
-            //         // Close this popup and destroy it.
-            //         modalContext.$el.parent().foundation('close');
-            //         setTimeout(function() {
-            //             this._radio.commands.execute('destroyModal');
-            //         }.bind(this),
-            //         500);
-
-            //         // Add/update item in the local collection.
-            //         // TK.
-
-            //         // Navigate to the index view (or to the same page if save and continue)
-            //         this._radio.commands.execute('navigate', '', {trigger: true});
-
-            //         // Display snackbar:
-            //         this._radio.commands.execute(
-            //             'showSnackbar',
-            //             new SnackbarView({
-            //                 snackbarClass: 'success',
-            //                 text: 'Item successfully saved.',
-            //                 action: {
-            //                     promptText: 'Dismiss'
-            //                 },
-            //             })
-            //         );
-            //     },
-            //     error: function(jqXHR, textStatus, errorThrown) {
-            //         // Display snackbar:
-            //         this._radio.commands.execute(
-            //             'showSnackbar',
-            //             new SnackbarView({
-            //                 containerClass: 'edit-page',
-            //                 snackbarClass: 'failure',
-            //                 text: 'Item could not be saved. Try again later.',
-            //             })
-            //         );
-            //     },
-            //     dataType: 'json'
-            // });
-
-            setTimeout(
-                function() {
-                    // Log POST payload to the console.
-                    console.log(packageDict);
-
-                    // Close this popup and destroy it.
-                    this.modalView.$el.parent().foundation('close');
-                    setTimeout(function() {
-                        this._radio.commands.execute('destroyModal');
-                    }.bind(this),
-                    500);
-
-                    // Add/update item in the local collection.
-                    // TK.
-
-                    // Navigate to the index view (or to the same page if save and continue)
-                    this._radio.commands.execute('navigate', '', {trigger: true});
-
-                    // Display snackbar:
-                    this._radio.commands.execute(
-                        'showSnackbar',
-                        new SnackbarView({
-                            snackbarClass: 'success',
-                            text: 'Item successfully saved.',
-                            action: {
-                                promptText: 'Dismiss'
-                            },
-                        })
-                    );
+            $.ajax({
+                type: "POST",
+                url: settings.urlConfig.postEndpoints.savePackage,
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(packageDict),
+                processData: false,
+                success: function(data) {
+                    if (data.success) {
+                        this.saveSuccessCallback('saveOnly', data);
+                    } else {
+                        this.saveErrorCallback('saveOnly', 'processingError', [data]);
+                    }
                 }.bind(this),
-                5000
-            );
+                error: function(jqXHR, textStatus, errorThrown) {
+                    this.saveErrorCallback('saveOnly', 'hardError', [jqXHR, textStatus, errorThrown]);
+                }.bind(this),
+                dataType: 'json'
+            });
         },
+
         savePackageAndContinueEditing: function() {
             var packageDict = this.serializeForm();
 
             var saveProgressModal = {
-                'modalTitle': 'Are you sure?',
-                'innerID': 'package-save-progress-modal',
-                'extraHTML': '',
-                'buttons': []
+                modalTitle: 'Are you sure?',
+                innerID: 'package-save-progress-modal',
+                contentClassName: 'package-modal',
+                extraHTML: '',
+                escapeButtonCloses: false,
+                overlayClosesOnClick: false,
+                buttons: [],
             };
 
             this.modalView = new ModalView({
@@ -438,10 +322,6 @@ define([
                     this.modalView.$el.parent()
                                     .addClass('waiting')
                                     .addClass('save-waiting');
-
-                    this.modalView.$el.parent().parent().css({
-                        'pointer-events': 'none'
-                    });
 
                     this.modalView.$el.append(
                         '<div class="loading-animation save-loading-animation">' +
@@ -459,98 +339,131 @@ define([
 
                     setTimeout(function() {
                         this.modalView.$el.find('.loading-animation').addClass('active');
-                    }.bind(this), 600);
+                    }.bind(this), 270);
                 }.bind(this),
-                300
+                200
             );
 
-            // $.ajax({
-            //     type: "POST",
-            //     url: settings.urlConfig.postEndpoints.savePackage,
-            //     data: packageDict,
-            //     success: function(data) {
-            //         // Close this popup and destroy it.
-            //         modalContext.$el.parent().foundation('close');
-            //         setTimeout(function() {
-            //             this._radio.commands.execute('destroyModal');
-            //         }.bind(this),
-            //         500);
-
-            //         // Add/update item in the local collection.
-            //         // TK.
-
-            //         // Navigate to the index view (or to the same page if save and continue)
-            //         if (wasNotBound) {
-            //             this._radio.commands.execute('navigate', 'edit/{{ newID }}/', {trigger: true});
-            //         } else {
-            //             window.scrollTo(0,0);
-            //         }
-
-            //         // Display snackbar:
-            //         this._radio.commands.execute(
-            //             'showSnackbar',
-            //             new SnackbarView({
-            //                 containerClass: 'edit-page',
-            //                 snackbarClass: 'success',
-            //                 text: 'Item successfully saved.',
-            //                 action: {
-            //                     promptText: 'Dismiss'
-            //                 },
-            //             })
-            //         );
-            //     },
-            //     error: function(jqXHR, textStatus, errorThrown) {
-            //         // Display snackbar:
-            //         this._radio.commands.execute(
-            //             'showSnackbar',
-            //             new SnackbarView({
-            //                 containerClass: 'edit-page',
-            //                 snackbarClass: 'failure',
-            //                 text: 'Item could not be saved. Try again later.',
-            //             })
-            //         );
-            //     },
-            //     dataType: 'json'
-            // });
-
-            setTimeout(
-                function() {
-                    // Log POST payload to the console.
-                    console.log(packageDict);
-
-                    // Close this popup and destroy it.
-                    this.modalView.$el.parent().foundation('close');
-                    setTimeout(function() {
-                        this._radio.commands.execute('destroyModal');
-                    }.bind(this),
-                    500);
-
-                    // Add/update item in the local collection.
-                    // TK.
-
-                    // Navigate to the index view (or to the same page if save and continue)
-                    // if (newlyCreatedObject) {
-                    //     this._radio.commands.execute('navigate', 'edit/{{ newID }}/', {trigger: true});
-                    // } else {
-                    //     window.scrollTo(0,0);
-                    // }
-
-                    // Display snackbar:
-                    this._radio.commands.execute(
-                        'showSnackbar',
-                        new SnackbarView({
-                            containerClass: 'edit-page',
-                            snackbarClass: 'success',
-                            text: 'Item successfully saved.',
-                            action: {
-                                promptText: 'Dismiss'
-                            },
-                        })
-                    );
-                    // "The item '{{ packageDict.primaryContent.slug }}' was successfully deleted."
-                    // TKTK
+            $.ajax({
+                type: "POST",
+                url: settings.urlConfig.postEndpoints.savePackage,
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(packageDict),
+                processData: false,
+                success: function(data) {
+                    if (data.success) {
+                        this.saveSuccessCallback('saveAndContinue', data);
+                    } else {
+                        this.saveErrorCallback('saveAndContinue', 'processingError', [data]);
+                    }
                 }.bind(this),
-                5000
+                error: function(jqXHR, textStatus, errorThrown) {
+                    this.saveErrorCallback('saveAndContinue', 'hardError', [jqXHR, textStatus, errorThrown]);
+                }.bind(this),
+                dataType: 'json'
+            });
+        },
+
+        deleteSuccessCallback: function(data) {
+            // Close this popup and destroy it.
+            setTimeout(function() {
+                this._radio.commands.execute('destroyModal');
+            }.bind(this),
+            500);
+
+            // Pop item from the local collection.
+            // TK.
+
+            // Navigate to the index view
+            this._radio.commands.execute('navigate', '', {trigger: true});
+
+            // Display snackbar:
+            this._radio.commands.execute(
+                'showSnackbar',
+                new SnackbarView({
+                    snackbarClass: 'success',
+                    text: 'Item has been successfully deleted.',
+                    action: {
+                        promptText: 'Dismiss'
+                    },
+                })
+            );
+        },
+
+        deleteErrorCallback: function(errorType, errorArgs) {
+            // Close this popup and destroy it:
+            setTimeout(function() {
+                this._radio.commands.execute('destroyModal');
+            }.bind(this),
+            500);
+
+            // Display snackbar:
+            this._radio.commands.execute(
+                'showSnackbar',
+                new SnackbarView({
+                    containerClass: 'edit-page',
+                    snackbarClass: 'failure',
+                    text: 'Item could not be deleted. Try again later.',
+                })
+            );
+        },
+
+        saveSuccessCallback: function(mode, data) {
+            // Close this popup and destroy it.
+            setTimeout(function() {
+                this._radio.commands.execute('destroyModal');
+            }.bind(this),
+            500);
+
+            // Add/update item in the local collection.
+            // TK.
+
+            // Configure success-message snackbar:
+            var successSnackbarOpts = {
+                snackbarClass: 'success',
+                text: 'Item successfully saved.',
+                action: {
+                    promptText: 'Dismiss'
+                },
+            };
+
+            // Navigate to the index view (or to the same page if save and continue)
+            if (mode == 'saveOnly') {
+                this._radio.commands.execute('navigate', '', {trigger: true});
+            } else if (mode == 'saveAndContinue') {
+                this._radio.commands.execute(
+                    'navigate',
+                    'edit/' + data.packageID + '/',
+                    {
+                        trigger: true
+                    }
+                );
+
+                successSnackbarOpts.containerClass = 'edit-page';
+            }
+
+            // Display snackbar:
+            this._radio.commands.execute(
+                'showSnackbar',
+                new SnackbarView(successSnackbarOpts)
+            );
+        },
+
+        saveErrorCallback: function(mode, errorType, errorArgs) {
+            // Close this popup and destroy it.
+            setTimeout(function() {
+                this._radio.commands.execute('destroyModal');
+            }.bind(this),
+            500);
+
+            // Display snackbar:
+            this._radio.commands.execute(
+                'showSnackbar',
+                new SnackbarView({
+                    containerClass: 'edit-page',
+                    snackbarClass: 'failure',
+                    text: 'Item could not be saved. Try again later.',
+                })
             );
         },
 
@@ -559,12 +472,6 @@ define([
             this.additionalItemCount = 0;
 
             this._radio = Backbone.Wreqr.radio.channel('global');
-
-            if (this.options.state.editedPackageID !== null) {
-                this.boundData = this.options.data.packages.findWhere({
-                    id: parseInt(this.options.state.editedPackageID, 10)
-                });
-            }
 
             moment.locale('en', {
                 meridiem: function (hour, minute, isLowercase) {
@@ -582,18 +489,8 @@ define([
                     return meridiemString;
                 },
                 monthsShort : [
-                    'Jan.',
-                    'Feb.',
-                    'March',
-                    'April',
-                    'May',
-                    'June',
-                    'July',
-                    'Aug.',
-                    'Sept.',
-                    'Oct.',
-                    'Nov.',
-                    'Dec.'
+                    'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
+                    'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'
                 ]
             });
 
@@ -634,24 +531,27 @@ define([
                 //
             };
 
-            if (typeof(this.boundData) != "undefined") {
+            if (typeof(this.options.boundData) != "undefined") {
                 var packageHub = this.options.data.hubs.findWhere({
-                    slug: this.boundData.get('hub')
+                    slug: this.options.boundData.get('hub')
                 });
 
-                templateContext.boundData = this.boundData.toJSON();
-                templateContext.boundData.hubColor = packageHub.get('color');
-                templateContext.boundData.hubName = packageHub.get('name');
+                templateContext.boundData = this.options.boundData.toJSON();
 
-                if (_.has(this.boundData.get('primaryContent'), 'length')) {
+                if (!_.isUndefined(packageHub) && !_.isNull(packageHub)) {
+                    templateContext.boundData.hubColor = packageHub.get('color');
+                    templateContext.boundData.hubName = packageHub.get('name');
+                }
+
+                if (_.has(this.options.boundData.get('primaryContent'), 'length')) {
                     templateContext.formattedLength = parseInt(
-                        this.boundData.get('primaryContent').length,
+                        this.options.boundData.get('primaryContent').length,
                         10
                     );
                 }
 
-                if (this.boundData.has('pubDate')) {
-                    var pubDateObj = this.boundData.get('pubDate');
+                if (this.options.boundData.has('pubDate')) {
+                    var pubDateObj = this.options.boundData.get('pubDate');
 
                     if (_.contains(['m', 'w', 'd', 't'], pubDateObj.resolution)) {
                         var datetimeConverted = moment.unix(
@@ -843,17 +743,17 @@ define([
             if (this.isFirstRender) {
                 this.isFirstRender = false;
 
-                if (_.has(this, 'boundData')) {
+                if (_.has(this.options, 'boundData')) {
                     if (
-                        this.boundData.has('pubDate') &&
-                        _.has(this.boundData.get('pubDate'), 'resolution') &&
+                        this.options.boundData.has('pubDate') &&
+                        _.has(this.options.boundData.get('pubDate'), 'resolution') &&
                         _.contains(
                             ['m','w','d','t'],
-                            this.boundData.get('pubDate').resolution
+                            this.options.boundData.get('pubDate').resolution
                         )
                     ) {
                         this.initializeDatePicker(
-                            this.boundData.get('pubDate').resolution
+                            this.options.boundData.get('pubDate').resolution
                         );
                     }
                 }
@@ -871,9 +771,9 @@ define([
                 staffers: this.options.data.staffers,
             });
 
-            if (!_.isUndefined(this.boundData)) {
-                if (!_.isEmpty(this.boundData.get('additionalContent'))) {
-                    _.each(this.boundData.get('additionalContent'), function(additionalItem) {
+            if (!_.isUndefined(this.options.boundData)) {
+                if (!_.isEmpty(this.options.boundData.get('additionalContent'))) {
+                    _.each(this.options.boundData.get('additionalContent'), function(additionalItem) {
                         this.additionalItems.add([{
                             formID: 'additionalBound' + additionalItem.id,
                             boundData: additionalItem,
@@ -1152,29 +1052,13 @@ define([
         },
 
         initializeDatePicker: function(dateMode) {
-            defaultDatePickerOptions = {
-                    autoClose: true,
-                    customCloseAnimation: function(cb) {
-                        $(this).fadeOut(150, cb);
-                    },
-                    customOpenAnimation: function(cb) {
-                        $(this).fadeIn(150, cb);
-                    },
-                    customTopBar: ' ',
-                    format: 'MMM D, YYYY',
-                    separator: ' to ',
-                    showShortcuts: false,
-                    singleMonth: true,
-                    startOfWeek: 'monday'
-                };
-
             if (dateMode == 'm') {
                 this.showDatePicker();
                 this.hideTimePicker();
 
                 this.destroyCurrentDatePicker();
 
-                var monthOptions = _.clone(defaultDatePickerOptions);
+                var monthOptions = _.clone(datePickerOptions);
                 monthOptions.batchMode = 'month';
 
                 this.ui.pubDateField.dateRangePicker(monthOptions);
@@ -1184,7 +1068,7 @@ define([
 
                 this.destroyCurrentDatePicker();
 
-                var weekOptions = _.clone(defaultDatePickerOptions);
+                var weekOptions = _.clone(datePickerOptions);
                 weekOptions.batchMode = 'week';
 
                 this.ui.pubDateField.dateRangePicker(weekOptions);
@@ -1194,7 +1078,7 @@ define([
 
                 this.destroyCurrentDatePicker();
 
-                var dayOptions = _.clone(defaultDatePickerOptions);
+                var dayOptions = _.clone(datePickerOptions);
                 dayOptions.singleDate = true;
 
                 this.ui.pubDateField.dateRangePicker(dayOptions);
@@ -1204,7 +1088,7 @@ define([
 
                 this.destroyCurrentDatePicker();
 
-                var dayTimeOptions = _.clone(defaultDatePickerOptions);
+                var dayTimeOptions = _.clone(datePickerOptions);
                 dayTimeOptions.singleDate = true;
 
                 this.ui.pubDateField.dateRangePicker(dayTimeOptions);
@@ -1217,7 +1101,7 @@ define([
             _.each(
                 this.ui.packageForm.find("[data-form]"),
                 function(field) {
-                    if (!field.disabled) {
+                    if (!field.disabled && !field.readOnly) {
                         var formTypeKey = field.dataset.form + 'Fields';
                         if (!_.has(rawFormData, formTypeKey)) {
                             rawFormData[formTypeKey] = {};
@@ -1253,11 +1137,8 @@ define([
             finalPackage.createdBy = null;
             finalPackage.lastChangedBy = null;
 
-            if (_.has(rawFormData.packageFields, 'headlinesReady')) {
-                finalPackage.headlines = {
-                    candidates: []
-                    // votingOpen: 'a'
-                };
+            if (_.has(rawFormData.packageFields, 'headline1')) {
+                finalPackage.headlineCandidates = [];
 
                 _.each(
                     [
@@ -1270,8 +1151,8 @@ define([
                         var headlineID = this.ui.packageForm.find('#headline' + (i + 1)).data('headline-id');
 
                         if (typeof(hed) != 'undefined' && hed !== '') {
-                            finalPackage.headlines.candidates.push({
-                                'headline': hed,
+                            finalPackage.headlineCandidates.push({
+                                'text': hed,
                                 'id': headlineID
                             });
                         }
@@ -1280,40 +1161,37 @@ define([
                 );
 
                 if (rawFormData.packageFields.headlinesReady) {
-                    finalPackage.headlines.status = 'voting';
+                    finalPackage.headlineStatus = 'voting';
                 } else {
-                    finalPackage.headlines.status = 'drafting';
+                    finalPackage.headlineStatus = 'drafting';
                 }
             } else if (_.has(rawFormData.packageFields, 'headlineChoices')) {
-                finalPackage.headlines = {
-                    candidates: []
-                    // votingOpen: 'a'
-                };
+                finalPackage.headlineCandidates = [];
 
                 this.ui.packageForm.find("[name='headlineChoices']").each(
                     function(index, element) {
 
                         if (element.id != 'headlineOther') {
                             var headlineConfig = {
-                                headline: element.parentElement.getElementsByTagName('span')[0].innerHTML,
+                                text: element.parentElement.getElementsByTagName('span')[0].innerHTML,
                                 id: element.value
                             };
 
                             if (!_.isNull(rawFormData.packageFields.headlineChoices)) {
                                 if (element.value == rawFormData.packageFields.headlineChoices) {
-                                    headlineConfig.chosen = true;
+                                    headlineConfig.winner = true;
                                 }
                             }
 
-                            finalPackage.headlines.candidates.push(headlineConfig);
+                            finalPackage.headlineCandidates.push(headlineConfig);
                         }
                     }
                 );
 
                 if (_.isNull(rawFormData.packageFields.headlineChoices)) {
-                    finalPackage.headlines.status = 'voting';
+                    finalPackage.headlineStatus = 'voting';
                 } else {
-                    finalPackage.headlines.status = 'finalized';
+                    finalPackage.headlineStatus = 'finalized';
                 }
             }
 
@@ -1369,35 +1247,26 @@ define([
             finalPrimaryItem.id = rawFormData.primaryFields.primary_id;
             finalPrimaryItem.slug = rawFormData.primaryFields.slug;
             finalPrimaryItem.type = rawFormData.primaryFields.type;
-            finalPrimaryItem.budgetLine = _.chain(
-                rawFormData.primaryFields.budget_line.split('</p>')
-            ).map(
-                function(substring) {
-                    var shortenedSubstring = substring.replace('<p>', '').trim();
-                    if (shortenedSubstring !== '') {
-                        return shortenedSubstring;
-                    } else {
-                        return false;
-                    }
-                }
-            ).compact().value();
+            finalPrimaryItem.budgetLine = rawFormData.primaryFields.budget_line;
 
             if (_.has(rawFormData.primaryFields, 'length')) {
                 finalPrimaryItem.length = rawFormData.primaryFields.length;
             }
 
-            finalPrimaryItem.authors = _.map(
-                rawFormData.primaryFields.authors.split(','),
-                function(authorEmail) {
-                    return this.options.data.staffers.findWhere({'email': authorEmail});
-                }.bind(this)
-            );
+            if (rawFormData.primaryFields.authors !== '') {
+                finalPrimaryItem.authors = _.map(
+                    rawFormData.primaryFields.authors.split(','),
+                    function(authorEmail) {
+                        return this.options.data.staffers.findWhere({'email': authorEmail}).toJSON();
+                    }.bind(this)
+                );
+            }
 
             if (rawFormData.primaryFields.editors !== '') {
                 finalPrimaryItem.editors = _.map(
                     rawFormData.primaryFields.editors.split(','),
                     function(editorEmail) {
-                        return this.options.data.staffers.findWhere({'email': editorEmail});
+                        return this.options.data.staffers.findWhere({'email': editorEmail}).toJSON();
                     }.bind(this)
                 );
             }

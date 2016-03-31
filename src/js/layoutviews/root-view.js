@@ -1,11 +1,13 @@
 define([
     'backbone',
     'marionette',
+    'vex',
     'misc/tpl',
     'layoutviews/navbar'
 ], function(
     Backbone,
     Mn,
+    vex,
     tpl,
     NavbarView
 ) {
@@ -15,8 +17,11 @@ define([
         regions: {
             navbar: '#navigation',
             mainContent: '#main-content',
-            modalHolder: '#modal-holder',
             snackbarHolder: '#snackbar-holder',
+        },
+
+        ui: {
+            modalHolder: '#modal-holder',
         },
 
         initialize: function() {
@@ -26,21 +31,67 @@ define([
                 currentUser: this.options.currentUser
             });
 
-            _radio.commands.setHandler('switchMainView', function(MainViewClass) {
-                this.mainView = new MainViewClass({
+            _radio.commands.setHandler('switchMainView', function(MainViewClass, boundData) {
+                var classConstructor = {
+                    currentUser: this.options.currentUser,
                     data: this.options.data,
                     state: this.options.state,
-                });
+                };
+
+                if (typeof(boundData) != "undefined") {
+                    classConstructor.boundData = boundData;
+                }
+
+                this.mainView = new MainViewClass(classConstructor);
 
                 this.showChildView('mainContent', this.mainView);
             }, this);
 
             _radio.commands.setHandler('showModal', function(modalView) {
-                this.showChildView('modalHolder', modalView);
+                var vexConfig,
+                    viewConfig = modalView.options.modalConfig;
 
-                this.modal = new Foundation.Reveal(modalView.$el.parent());
+                vexConfig = {
+                    appendLocation: this.ui.modalHolder,
+                    className: 'vex-theme-plain vex-theme-stack-demo',
+                    content: modalView.render().$el,
+                    showCloseButton: false,
+                    escapeButtonCloses: true,
+                    overlayClosesOnClick: true,
+                };
 
-                this.modal.open();
+                if (
+                    !_.isUndefined(viewConfig.contentClassName) &&
+                    !_.isNull(viewConfig.contentClassName)
+                ) {
+                    vexConfig.contentClassName = viewConfig.contentClassName;
+                }
+
+                if (
+                    (!_.isUndefined(viewConfig.escapeButtonCloses)) &&
+                    (!_.isNull(viewConfig.escapeButtonCloses)) &&
+                    (viewConfig.escapeButtonCloses === false)
+                ) {
+                    vexConfig.escapeButtonCloses = false;
+                }
+
+                if (
+                    (!_.isUndefined(viewConfig.overlayClosesOnClick)) &&
+                    (!_.isNull(viewConfig.overlayClosesOnClick)) &&
+                    (viewConfig.overlayClosesOnClick === false)
+                ) {
+                    vexConfig.overlayClosesOnClick = false;
+                }
+
+                if (
+                    (!_.isUndefined(viewConfig.showCloseButton)) &&
+                    (!_.isNull(viewConfig.showCloseButton)) &&
+                    (viewConfig.showCloseButton === true)
+                ) {
+                    vexConfig.showCloseButton = true;
+                }
+
+                this.modal = vex.open(vexConfig);
             }, this);
 
             _radio.commands.setHandler('showSnackbar', function(snackbarView) {
@@ -50,7 +101,7 @@ define([
             }, this);
 
             _radio.commands.setHandler('destroyModal', function() {
-                // delete(this.modal);
+                vex.close(this.modal.data().vex.id);
             }, this);
 
             _radio.commands.setHandler('clearRegion', function(regionSlug) {

@@ -1,7 +1,13 @@
-define(['backbone'], function(Backbone) {
+define([
+    'backbone',
+    'misc/settings',
+],
+function(Backbone, settings) {
     'use strict';
 
     return Backbone.Model.extend({
+        urlRoot: settings.urlConfig.getEndpoints.packageDetailBase,
+
         facetFilters: {
             person: function(pkg, stringToMatch, extraContext) {
                 var allPeople = _.union(
@@ -81,5 +87,7 @@ define(['backbone'], function(Backbone) {
                 return anyFacetsMatch;
             }
         }
+
+
     });
 });

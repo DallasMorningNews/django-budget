@@ -1,13 +1,23 @@
-.package-modal {
-    border: 0;
-    font-family: 'Roboto', sans-serif;
-    outline: none;
-    text-align: left;
+// @include keyframes-vex-flyin
+// @include keyframes-vex-flyout
+@include keyframes-vex-fadein
+@include keyframes-vex-fadeforward
+@include keyframes-vex-fadebackward
+// @import keyframes
 
-    .blue-background {
-        background: darken($mf-save-action-color, 21%);
+#modal-holder .package-modal {
+    border: 3px solid #FFFFFF;
+    font-family: 'Roboto', sans-serif;
+    padding: calc(1rem - 3px);
+    outline: none;
+    overflow: hidden;
+    text-align: left;
+    width: 600px;
+
+    .blue-background,
+    .red-background {
         margin: -1rem;
-        padding: 1rem 0;
+        padding: 1rem;
 
         .button-holder {
             .flat-button {
@@ -20,20 +30,12 @@
         }
     }
 
+    .blue-background {
+        background: darken($mf-save-action-color, 21%);
+    }
+
     .red-background {
         background: darken($mf-delete-action-color, 21%);
-        margin: -1rem;
-        padding: 1rem 0;
-
-        .button-holder {
-            .flat-button {
-                &.delete-action {
-                    &::before {
-                        border: 0;
-                    }
-                }
-            }
-        }
     }
 
     .loading-animation {
@@ -113,6 +115,17 @@
     }
 
     &.waiting-transition {
+        border-style: solid;
+        border-width: 3px;
+
+        &.delete-waiting-transition {
+            border-color: darken($mf-delete-action-color, 21%);
+        }
+
+        &.save-waiting-transition {
+            border-color: darken($mf-save-action-color, 21%);
+        }
+
         .modal-inner {
             // visibility: hidden;
         }
@@ -121,7 +134,8 @@
     &.waiting {
         border-radius: 50%;
         height: 300px;
-        top: calc(50vh - 150px) !important;
+        // margin-top: -150px;
+        // top: calc(50vh - 160px) !important;
         width: 300px;
 
         .modal-inner {
@@ -305,22 +319,74 @@
         }
     }
 
+    #headline-voting,
+    #package-web-info,
     #headline-voting-modal {
-        .form-radio label {
-            color: #616161;
-            font-size: 14px;
-            font-weight: normal;
-            padding: 0 0 0 1.875rem;
-
-            input:checked ~ .radio-label {
-                color: #212121;
+        .section-header {
+            h4 {
+                color: #727272;
+                display: block;
+                font-size: 14px;
                 font-weight: bold;
+                line-height: 14px;
+                margin: 0;
+                padding: 2px 0.9375rem 22px;
+            }
+        }
+
+        .form-radio {
+            padding: 0 1.625rem;
+
+            label {
+                color: #616161;
+                font-size: 14px;
+                font-weight: normal;
+                padding: 0 0 0 1.875rem;
+
+                input:checked ~ .radio-label {
+                    color: #212121;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        .headlines-finalized {
+            .form-radio {
+                .radio {
+                    .helper {
+                        color: #BDBDBD;
+                    }
+
+                    label {
+                        &:hover .helper {
+                            color: #BDBDBD;
+                        }
+
+                        .radio-label {
+                            color: #9E9E9E;
+                        }
+
+                        input:checked ~ .radio-label {
+                            color: #616161;
+                        }
+                    }
+
+                    input:checked ~ .helper {
+                        &::before {
+                            color: #757575;
+                        }
+                        &::after {
+                            background-color: #757575;
+                            border-color: #757575;
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-#production-notes-modal button.confirm {
+#production-notes-modal #package-notes-save-button {
     display: none;
 }
 
@@ -353,5 +419,23 @@
             top: 0;
             width: 100%;
         }
+    }
+}
+
+
+.vex {
+    /* This line is required for Vex to enable animations. */
+    @include vex-animation(vex-fadein 0.5s);
+
+    // // And this line is needed to enable the z-axis for the
+    // // 'fadeforward' transition.
+    // perspective: 500px;
+
+    &.vex-closing .vex-content {
+        @include vex-animation(vex-fadebackward 0.35s);
+    }
+
+    .vex-content {
+        @include vex-animation(vex-fadeforward 0.5s);
     }
 }

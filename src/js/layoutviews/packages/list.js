@@ -1,17 +1,15 @@
 define([
-    'backbone',
     'marionette',
     'misc/tpl',
+    'collectionviews/packages/package-collection',
     'itemviews/packages/date-filter',
-    'itemviews/packages/search-box',
-    'collectionviews/packages/package-collection'
+    'itemviews/packages/search-box'
 ], function(
-    Backbone,
     Mn,
     tpl,
+    PackageCollectionView,
     DateFilterView,
-    SearchBoxView,
-    PackageCollectionView
+    SearchBoxView
 ) {
     return Mn.LayoutView.extend({
         id: 'package-archive',
@@ -23,13 +21,16 @@ define([
         },
 
         initialize: function() {
+            this.packageCollection = this.options.boundData.packageCollection;
+
             this.dateFilterView = new DateFilterView({});
             this.searchBoxView = new SearchBoxView({
                 searchOptions: this.options.data.searchOptions
             });
 
             this.collectionView = new PackageCollectionView({
-                collection: this.options.data.packages,
+                collection: this.packageCollection,
+                currentUser: this.options.currentUser,
                 hubs: this.options.data.hubs,
                 state: this.options.state,
             });

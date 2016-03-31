@@ -55,12 +55,18 @@ $fa-font-path: "../fonts/font-awesome";
 @import "../../vendored/longbill-daterangepicker/daterangepicker";
 
 // Motion UI
-@import "../../bower_components/motion-ui/dist/motion-ui";
+// @import "../../bower_components/motion-ui/dist/motion-ui";
 // @include motion-ui-transitions;
 
 // Selectize.js
 @import "../../bower_components/selectize/dist/css/selectize";
 // @import "../../bower_components/selectize/dist/css/selectize.bootstrap3";
+
+// Vex.js
+@import "../../bower_components/vex/sass/vex";
+@import "../../bower_components/vex/sass/vex-theme-plain";
+@import "../../bower_components/vex/sass/_keyframes";
+@import "../../bower_components/vex/sass/_mixins";
 
 // @import "mixins";
 
@@ -72,6 +78,7 @@ $fa-font-path: "../fonts/font-awesome";
 // @import "page-header";
 @import "_layout";
 @import "_filters";
+@import "_modal_keyframes";
 @import "_modals";
 @import "_packages";
 @import "_package_editing";

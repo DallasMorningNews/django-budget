@@ -15,6 +15,7 @@ require.config({
         selectize: '../../bower_components/selectize/dist/js/selectize',
         sifter: '../../bower_components/sifter/sifter',
         microplugin: '../../bower_components/microplugin/src/microplugin',
+        vex: '../../bower_components/vex/js/vex',
         // 'spin': '../../bower_components/spin.js/spin'
         'foundation': '../../build/js/foundation-transpiled',
         'dateRangePicker': '../../vendored/longbill-daterangepicker/daterangepicker'

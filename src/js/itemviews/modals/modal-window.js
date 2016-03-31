@@ -73,7 +73,7 @@ define([
 
         onRender: function() {
             if (_.has(this.options, 'renderCallback')) {
-                this.options.renderCallback();
+                this.options.renderCallback(this);
             }
         },
 

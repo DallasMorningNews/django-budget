@@ -515,3 +515,14 @@
         max-height: 600px;
     }
 }
+
+.date-picker-wrapper.package-print-info-date,
+.date-picker-wrapper.package-web-info-date {
+    z-index: 10000;
+}
+.date-picker-wrapper.package-print-info-date {
+    left: calc(50% - 114px) !important;
+}
+.date-picker-wrapper.package-web-info-date {
+    left: calc(43.9% - 114px) !important;
+}

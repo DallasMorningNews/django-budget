@@ -2,12 +2,35 @@
     <h1>{{ modalTitle }}</h1>
     {% if formConfig %}<form id="{{ innerID }}" action="." method="POST" data-abide="ajax">{% else %}<div id="{{ innerID }}" class="form-replacement">{% endif %}
         {% for row in formConfig.rows %}
-        <div class="row">
+
+        {% if row.rowHeader %}
+        <div class="section-header">
+            <h4>{{ row.rowHeader }}</h4>
+        </div>
+        {% endif %}
+
+        <div class="row{% if row.extraClasses %} {{ row.extraClasses }}{% endif %}">
+            {% if row.rowType == 'radio-buttons' %}
+                <div class="medium-12 columns form-radio">
+            {% endif %}
+
             {% for field in row.fields %}
-            <div class="column {{ field.widthClasses }}">
-                <label>{{ field.labelText }} <input name="{{ field.inputName }}" type="{{ field.inputType }}" value="{% if field.inputValue %}{{ field.inputValue }}{% endif %}" id="{{ field.inputID }}"></label>
-            </div>
+                {% if field.type == 'input' %}
+                <div class="column {{ field.widthClasses }}">
+                    <label>{{ field.labelText }} <input name="{{ field.inputName }}" type="{{ field.inputType }}" value="{% if field.inputValue %}{{ field.inputValue }}{% endif %}" id="{{ field.inputID }}"></label>
+                </div>
+                {% elif field.type == 'radio' %}
+                    <div class="radio">
+                        <label>
+                            <input id="{{ field.inputID }}" name="{{ field.groupName }}" type="radio" value="{% if field.inputValue %}{{ field.inputValue }}{% endif %}"{% if field.isChecked %} checked{% endif %}{% if field.isDisabled %} disabled{% endif %} /><i class="helper"></i><span class="radio-label">{{ field.labelText|safe }}</span>
+                        </label>
+                    </div>
+                {% endif %}
             {% endfor %}
+
+            {% if row.rowType == 'radio-buttons' %}
+                </div>
+            {% endif %}
         </div>
         {% endfor %}
 

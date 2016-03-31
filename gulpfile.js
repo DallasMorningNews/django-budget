@@ -130,7 +130,7 @@ gulp.task('default', ['build'], function () {
         files: ['./dist/**/*.*'], // Watch all built files for changes and reload
         open: 'local',
         server: {
-            baseDir: "./dist/"
+            baseDir: ["./templates/", "./dist/"]
         }
     });
 

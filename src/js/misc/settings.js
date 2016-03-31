@@ -48,12 +48,27 @@ define(function() {
         },
 
         urlConfig: {
-            hubEndpoint: 'test-data/hub-configs.json',
-            packageEndpoint: 'test-data/packages.json',
+            hubEndpoint: 'http://192.168.12.17:8000/staff/api/hub/',
+            // packageEndpoint: 'test-data/packages.json',
+            packageEndpoint: 'http://192.168.12.17:8000/budget/packages/',
             searchOptionEndpoint: 'test-data/search-box-options.json',
-            stafferEndpoint: 'test-data/staffers.json',
+            stafferEndpoint: 'http://192.168.12.17:8000/staff/api/staff/',
             postEndpoints: {
-                deletePackage: '',
+                itemMarkReady: 'http://192.168.12.17:8000/budget/content/ready/',
+                deletePackage: 'http://192.168.12.17:8000/budget/package/delete/',
+                savePackage: 'http://192.168.12.17:8000/budget/package/',
+                headlines: {
+                    submitVote: 'http://192.168.12.17:8000/budget/headline/vote/'
+                },
+                package: {
+                    delete: 'http://192.168.12.17:8000/budget/package/delete/',  // To be migrated to in the app.
+                    save: 'http://192.168.12.17:8000/budget/package/',  // To be migrated to in the app.
+                    updatePrintInfo: 'http://192.168.12.17:8000/budget/package/print/',  // Already implemented.
+                    updateWebInfo: 'http://192.168.12.17:8000/budget/package/web/',  // Already implemented.
+                },
+            },
+            getEndpoints: {
+                packageDetailBase: 'http://192.168.12.17:8000/budget/packages'
             },
         }
     };

@@ -24,7 +24,6 @@ define(
         // 'misc/settings'
         'layoutviews/root-view',
         'collections/hubs',
-        'collections/packages',
         'collections/query-terms',
         'collections/search-options',
         'collections/staffers',
@@ -56,7 +55,6 @@ define(
         // settings
         RootView,
         HubCollection,
-        PackageCollection,
         QueryTermCollection,
         SearchOptionCollection,
         StafferCollection,
@@ -80,50 +78,6 @@ define(
                 this._radio.reqres.setHandler('data', function(type){
                     return this.data[type];
                 }, this);
-
-                this._radio.commands.setHandler(
-                    'pushQueryTerm',
-                    function(queryObject) {
-                        this.state.queryTerms.push(queryObject);
-
-                        this.data.packages.filterAnd(
-                            this.state.queryTerms,
-                            {
-                                hubs: this.data.hubs
-                            }
-                        );
-                    },
-                    this
-                );
-
-                this._radio.commands.setHandler(
-                    'popQueryTerm',
-                    function(queryValue) {
-                        this.state.queryTerms.remove(
-                            this.state.queryTerms.where({
-                                value: queryValue
-                            })
-                        );
-
-                        this.data.packages.filterAnd(
-                            this.state.queryTerms,
-                            {
-                                hubs: this.data.hubs
-                            }
-                        );
-                    },
-                    this
-                );
-
-                this._radio.commands.setHandler(
-                    'specifyEditedPackage',
-                    function(packageID) {
-                        this.state.editedPackageID = packageID;
-                    },
-                    this
-                );
-
-
             },
 
             bootstrapData: function() {
@@ -137,7 +91,6 @@ define(
                  * on the app class for later access w/ reqres.
                  */
                 this.data.hubs = new HubCollection();
-                this.data.packages = new PackageCollection();
                 this.data.searchOptions = new SearchOptionCollection();
                 this.data.staffers = new StafferCollection();
 
@@ -146,7 +99,6 @@ define(
                  */
                 return $.when(
                     this.data.hubs.fetch(),
-                    this.data.packages.fetch(),
                     this.data.searchOptions.fetch(),
                     this.data.staffers.fetch()
                 );
@@ -157,8 +109,7 @@ define(
                  * Instantiate the root view.
                  */
                 this.state = {
-                    selectizeType: 'and',
-                    editedPackageID: null
+                    selectizeType: 'and'
                 };
 
                 this.state.queryTerms = new QueryTermCollection();
