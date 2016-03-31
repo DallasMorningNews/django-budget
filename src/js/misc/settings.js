@@ -48,27 +48,27 @@ define(function() {
         },
 
         urlConfig: {
-            hubEndpoint: 'http://192.168.12.17:8000/staff/api/hub/',
+            hubEndpoint: 'http://datalab.dallasnews.com/staff/api/hub/',
             // packageEndpoint: 'test-data/packages.json',
-            packageEndpoint: 'http://192.168.12.17:8000/budget/packages/',
+            packageEndpoint: 'http://datalab.dallasnews.com/budget/packages/',
             searchOptionEndpoint: 'test-data/search-box-options.json',
-            stafferEndpoint: 'http://192.168.12.17:8000/staff/api/staff/',
+            stafferEndpoint: 'http://datalab.dallasnews.com/staff/api/staff/',
             postEndpoints: {
-                itemMarkReady: 'http://192.168.12.17:8000/budget/content/ready/',
-                deletePackage: 'http://192.168.12.17:8000/budget/package/delete/',
-                savePackage: 'http://192.168.12.17:8000/budget/package/',
+                itemMarkReady: 'http://datalab.dallasnews.com/budget/content/ready/',
+                deletePackage: 'http://datalab.dallasnews.com/budget/package/delete/',
+                savePackage: 'http://datalab.dallasnews.com/budget/package/',
                 headlines: {
-                    submitVote: 'http://192.168.12.17:8000/budget/headline/vote/'
+                    submitVote: 'http://datalab.dallasnews.com/budget/headline/vote/'
                 },
                 package: {
-                    delete: 'http://192.168.12.17:8000/budget/package/delete/',  // To be migrated to in the app.
-                    save: 'http://192.168.12.17:8000/budget/package/',  // To be migrated to in the app.
-                    updatePrintInfo: 'http://192.168.12.17:8000/budget/package/print/',  // Already implemented.
-                    updateWebInfo: 'http://192.168.12.17:8000/budget/package/web/',  // Already implemented.
+                    delete: 'http://datalab.dallasnews.com/budget/package/delete/',  // To be migrated to in the app.
+                    save: 'http://datalab.dallasnews.com/budget/package/',  // To be migrated to in the app.
+                    updatePrintInfo: 'http://datalab.dallasnews.com/budget/package/print/',  // Already implemented.
+                    updateWebInfo: 'http://datalab.dallasnews.com/budget/package/web/',  // Already implemented.
                 },
             },
             getEndpoints: {
-                packageDetailBase: 'http://192.168.12.17:8000/budget/packages'
+                packageDetailBase: 'http://datalab.dallasnews.com/budget/packages'
             },
         }
     };
