@@ -1,15 +1,19 @@
 define([
     'marionette',
+    'underscore',
     'misc/tpl',
     'collectionviews/packages/package-collection',
     'itemviews/packages/date-filter',
-    'itemviews/packages/search-box'
+    'itemviews/packages/search-box',
+    'misc/settings'
 ], function(
     Mn,
+    _,
     tpl,
     PackageCollectionView,
     DateFilterView,
-    SearchBoxView
+    SearchBoxView,
+    settings
 ) {
     return Mn.LayoutView.extend({
         id: 'package-archive',
@@ -21,6 +25,8 @@ define([
         },
 
         initialize: function() {
+            this._radio = Backbone.Wreqr.radio.channel('global');
+
             this.packageCollection = this.options.boundData.packageCollection;
 
             this.dateFilterView = new DateFilterView({});
@@ -34,6 +40,27 @@ define([
                 hubs: this.options.data.hubs,
                 state: this.options.state,
             });
+
+            this._radio.commands.setHandler(
+                'switchListDates',
+                function(dates) {
+                    var newPackagesURL = settings.urlConfig.packageEndpoint;
+                    if (!_.isEmpty(dates)) {
+                        newPackagesURL = newPackagesURL + dates.start + '/' + dates.end + '/';
+                    }
+
+                    this.packageCollection.url = newPackagesURL;
+                    this.packageCollection.fetch({
+                        success: function (collection, response, options)  {
+                            collection.filterAnd(
+                                this.options.state.queryTerms,
+                                {hubs: this.options.data.hubs}
+                            );
+                        }.bind(this)
+                    });
+                }.bind(this),
+                this
+            );
         },
 
         onRender: function() {

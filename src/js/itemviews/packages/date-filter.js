@@ -27,6 +27,8 @@ define([
         // },
 
         initialize: function() {
+            this._radio = Backbone.Wreqr.radio.channel('global');
+
             moment.locale('en', {
                 monthsShort : [
                     'Jan.',
@@ -113,19 +115,11 @@ define([
                     if (
                         (!isNaN(o2.date1.valueOf())) &&
                         (!isNaN(o2.date2.valueOf()))
-                    ) {
-                        // this.chaperone.chaperone.performQuery({
-                        //     dates: {
-                        //         start: moment(
-                        //             obj.date1
-                        //         ).format('YYYY-MM-DD'),
-                        //         end: moment(
-                        //             obj.date2
-                        //         ).format('YYYY-MM-DD')
-                        //     }
-                        // });
-                        window.console.log({
-                            dates: {
+                    )
+
+                        this._radio.commands.execute(
+                            'switchListDates',
+                            {
                                 start: moment(
                                     obj.date1
                                 ).format('YYYY-MM-DD'),
@@ -133,9 +127,9 @@ define([
                                     obj.date2
                                 ).format('YYYY-MM-DD')
                             }
-                        });
+                        );
                     }
-                }
+                }.bind(this)
             );
         }
     });
