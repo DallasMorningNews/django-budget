@@ -115,7 +115,7 @@ define([
                     if (
                         (!isNaN(o2.date1.valueOf())) &&
                         (!isNaN(o2.date2.valueOf()))
-                    )
+                    ) {
 
                         this._radio.commands.execute(
                             'switchListDates',
