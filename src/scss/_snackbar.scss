@@ -2,6 +2,7 @@
     bottom: 0;
     height: 3rem;
     left: 0;
+    pointer-events: none;
     position: fixed;
     width: 100%;
     z-index: 50;
@@ -21,6 +22,7 @@
         max-width: 35.5rem;
         min-width: 19.5rem;
         padding: 14px 24px;
+        pointer-events: all;
         width: 100%;
 
         transition: margin 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.2s;
