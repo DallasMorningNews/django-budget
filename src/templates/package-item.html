@@ -1,7 +1,14 @@
-<div class="package-sheet{% if primaryIsExpanded %} expanded{% endif %}" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageObj.primaryContent.isReady }}">
-    <div class="minimal-card">
+<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageObj.primaryContent.isReady }}">
+
+    <div class="minimal-card column small-11 medium-11 large-11">
+        <div class="readiness-indicator">
+            <div class="indicator-inner">
+                <i class="fa fa-check"></i>
+            </div>
+        </div>
+
         <div class="slug-bar row">
-            <div class="column small-6 medium-8 large-8">
+            <div class="column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"><span class="ready-check"><i class="fa fa-check"></i></span></div>
                 <h1 class="slug-headline-holder {% if leadingHeadline %}has-leading-headline{% endif %}">{% if leadingHeadline %}&ldquo;{{ leadingHeadline }}&rdquo;{% else %}{{ packageObj.primaryContent.slug }}{% endif %}</h1>
                 <h2>{{ packageObj.pubDate.formatted }}{% if leadingHeadline %} ({{ packageObj.primaryContent.slug }}){% endif %}</h2>
@@ -14,22 +21,6 @@
                 <h3 class="additional-info-line">{% if packageObj.primaryContent.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in packageObj.primaryContent.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
                 {% endif %}
             </div>
-            <div class="action-buttons column small-1 medium-1 large-1 text-center">
-                <a href="/#edit/{{ packageObj.id }}/">
-                    <div class="edit action-button">
-                        <i class="fa fa-pencil-square-o"></i>
-                        <span class="hover-info">Edit</span>
-                    </div>
-                </a>
-                <div class="mark-ready action-button">
-                    <i class="fa fa-check"></i>
-                    <span class="hover-info">Mark ready</span>
-                </div>
-                <div class="subscribe action-button">
-                    <i class="fa fa-slack"></i>
-                    <span class="hover-info">Subscribe</span>
-                </div>
-            </div>
         </div>
         <div class="additional-package-info row">
             <div class="column small-6 medium-6 large-6 text-left">
@@ -37,26 +28,48 @@
             </div>
             <div class="related-types column small-5 medium-5 large-5 text-right"><div class="additional-info-line">{% if additionalItemTypes|length > 0 %}Includes {% for type in additionalItemTypes %}<i class="{{ type.icon }}"></i>{% endfor %}{% endif %}</div>
             </div>
-            <div class="action-buttons column small-1 medium-1 large-1 text-center">
-                <div class="expand-package action-button">
-                    <i class="fa fa-level-down"></i>
-                    <i class="fa fa-level-up"></i>
-                    <span class="hover-info">More about this item</span>
+        </div>
+
+        <div class="primary-description row">
+            <div class="budget-line collapsed column small-12 medium-12 large-12">
+                <div class="item-options">
+                    <div class="option-list">
+                        <div class="web-info option">
+                            <i class="fa fa-fw fa-desktop"></i>
+                            <span class="hover-info">Web publishing</span>
+                        </div>
+                        <div class="print-info option">
+                            <i class="fa fa-fw fa-newspaper-o"></i>
+                            <span class="hover-info">Print publishing</span>
+                        </div>
+                    </div>
                 </div>
+
+                <p>{{ packageObj.primaryContent.budgetLine }}</p>
+
+                <div class="clearer"></div>
             </div>
         </div>
     </div>
-    <div class="primary-description row  small-11 medium-11 large-11 float-left">
-        <div class="budget-line collapsed column small-12 medium-9 large-9">
-            <div class="clearer"></div>
-            <p>{{ packageObj.primaryContent.budgetLine }}</p>
-        </div>
-        <div class="item-options column small-12 medium-3 large-3">
-            <div class="option-list row">
-                <div class="notes option column small-4 medium-12 large-12"><i class="fa fa-comments-o"></i>&thinsp;&nbsp;View notes</div>
-                <div class="web-info option column small-4 medium-12 large-12"><i class="fa fa-desktop"></i>&thinsp;&nbsp;Web info</div>
-                <div class="print-info option column small-4 medium-12 large-12"><i class="fa fa-newspaper-o"></i>&thinsp;&nbsp;Print info</div>
+    <div class="action-buttons column small-1 medium-1 large-1 text-center">
+        <a href="/#edit/{{ packageObj.id }}/">
+            <div class="edit action-button">
+                <i class="fa fa-pencil-square-o"></i>
+                <span class="hover-info">Edit</span>
             </div>
+        </a>
+        <div class="view-notes action-button">
+            <i class="fa fa-paragraph"></i>
+            <span class="hover-info">Notes</span>
+        </div>
+        <div class="subscribe action-button">
+            <i class="fa fa-slack"></i>
+            <span class="hover-info">Subscribe</span>
+        </div>
+        <div class="expand-package action-button">
+            <i class="fa fa-plus"></i>
+            <i class="fa fa-minus"></i>
+            <span class="hover-info">More info</span>
         </div>
     </div>
     <div class="clearer"></div>
