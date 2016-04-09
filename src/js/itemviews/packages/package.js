@@ -37,22 +37,20 @@ define(
             ui: {
                 packageSheetOuter: '.package-sheet',
                 slugHeadlineHolder: '.package-sheet .slug-headline-holder',
-                primaryMarkReadyTrigger: '.package-sheet .mark-ready',
+                notesModalTrigger: '.package-sheet .view-notes',
+                subscriptionModalTrigger: '.package-sheet .subscribe',
                 expansionTrigger: '.package-sheet .expand-package',
-                notesModalTrigger: '.package-sheet .notes',
                 printInfoModalTrigger: '.package-sheet .print-info',
                 webInfoModalTrigger: '.package-sheet .web-info',
-                additionalMarkReadyTrigger: '.extra-sheet .mark-ready',
             },
 
             events: {
                 'click @ui.slugHeadlineHolder': 'showHeadlineVotingModal',
-                'click @ui.primaryMarkReadyTrigger': 'markPrimaryAsReady',
-                'click @ui.expansionTrigger': 'expandPackageSheet',
                 'click @ui.notesModalTrigger': 'showNotesModal',
+                'click @ui.subscriptionModalTrigger': 'showSubscriptionModal',
+                'click @ui.expansionTrigger': 'expandPackageSheet',
                 'click @ui.printInfoModalTrigger': 'showPrintInfoModal',
                 'click @ui.webInfoModalTrigger': 'showWebInfoModal',
-                'click @ui.additionalMarkReadyTrigger': 'markAdditionalAsReady',
             },
 
             modelEvents: {
@@ -182,99 +180,35 @@ define(
                 return templateContext;
             },
 
-            markPrimaryAsReady: function() {
-                var primaryContentCopy = _.clone(this.model.get('primaryContent'));
+            expandPackageSheet: function(e) {
+                if (this.primaryIsExpanded) {
+                    // Strike the 'is-expanded' class, then remove the
+                    // 'overflow-visible' class at the end of the
+                    // 'is-expanded' animation.
+                    this.ui.packageSheetOuter.removeClass('is-expanded');
 
-                $.ajax({
-                    type: "POST",
-                    url: settings.urlConfig.postEndpoints.itemMarkReady,
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({contentID: primaryContentCopy.id}),
-                    processData: false,
-                    success: function(data) {
-                        if (data.success) {
-                            primaryContentCopy.isReady = data.ready;
-                            this.model.set('primaryContent', primaryContentCopy);
-                        } else {
-                            // Open error-acknowledgement snackbar.
-                            this._radio.commands.execute(
-                                'showSnackbar',
-                                new SnackbarView({
-                                    snackbarClass: 'failure',
-                                    text: 'Could not mark as ready. Try again later.',
-                                })
-                            );
-                        }
-                    }.bind(this),
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        // Open error-acknowledgement snackbar.
-                        this._radio.commands.execute(
-                            'showSnackbar',
-                            new SnackbarView({
-                                snackbarClass: 'failure',
-                                text: 'Could not mark as ready. Try again later.',
-                            })
-                        );
-                    }.bind(this),
-                    dataType: 'json'
-                });
-            },
+                    this.ui.packageSheetOuter
+                                .find('.primary-description')
+                                .removeClass('overflow-visible');
 
-            markAdditionalAsReady: function(event) {
-                var additionalContentCopy = [],
-                    additionalContentID = parseInt(
-                        $(event.currentTarget).closest('.content-item').attr('content-id'),
-                        10
+                    this.primaryIsExpanded = false;
+                } else {
+                    // Add the 'is-expanded' class, then add the
+                    // 'overflow-visible' class at the end of the
+                    // 'is-expanded' animation.
+                    this.ui.packageSheetOuter.addClass('is-expanded');
+
+                    setTimeout(
+                        function() {
+                            this.ui.packageSheetOuter
+                                        .find('.primary-description')
+                                        .addClass('overflow-visible');
+                        }.bind(this),
+                        1500
                     );
 
-                _.each(
-                    this.model.get('additionalContent'),
-                    function(additionalItem) {
-                        var itemCopy = _.clone(additionalItem);
-
-                        if (additionalItem.id == additionalContentID) {
-                            itemCopy.isReady = !itemCopy.isReady;
-                        }
-                    additionalContentCopy.push(itemCopy);
-                });
-
-                $.ajax({
-                    type: "POST",
-                    url: settings.urlConfig.postEndpoints.itemMarkReady,
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({contentID: additionalContentID}),
-                    processData: false,
-                    success: function(data) {
-                        if (data.success) {
-                            this.model.set('additionalContent', additionalContentCopy);
-                        } else {
-                            // Open error-acknowledgement snackbar.
-                            this._radio.commands.execute(
-                                'showSnackbar',
-                                new SnackbarView({
-                                    snackbarClass: 'failure',
-                                    text: 'Could not mark as ready. Try again later.',
-                                })
-                            );
-                        }
-                    }.bind(this),
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        // Open error-acknowledgement snackbar.
-                        this._radio.commands.execute(
-                            'showSnackbar',
-                            new SnackbarView({
-                                snackbarClass: 'failure',
-                                text: 'Could not mark as ready. Try again later.',
-                            })
-                        );
-                    }.bind(this),
-                    dataType: 'json'
-                });
-            },
-
-            expandPackageSheet: function(e) {
-                this.primaryIsExpanded = !this.primaryIsExpanded;
-                this.ui.packageSheetOuter.toggleClass('expanded');
+                    this.primaryIsExpanded = true;
+                }
             },
 
             showHeadlineVotingModal: function(e) {
@@ -526,6 +460,33 @@ define(
 
                 this.modalView = new ModalView({
                     modalConfig: notesModal
+                });
+
+                this._radio.commands.execute('showModal', this.modalView);
+            },
+
+            showSubscriptionModal: function(e) {
+                var subscriptionModal = {
+                    'modalTitle': 'Coming soon',
+                    'innerID': 'subscription-modal',
+                    'contentClassName': 'package-modal',
+                    'extraHTML': '' +
+                        '<p>Soon you will be able to follow budgeted content on Slack. We&rsquo;ll keep track of everything you follow, and let you know any time it&rsquo;s updated.</p>' +
+                        '<p>Check back shortly as we finish implementing this feature.</p>',
+                    'buttons': [
+                        {
+                            buttonID: 'package-notes-close-button',
+                            buttonClass: 'flat-button primary-action close-trigger',
+                            innerLabel: 'Close',
+                            clickCallback: function(modalContext) {
+                                this._radio.commands.execute('destroyModal');
+                            }.bind(this),
+                        },
+                    ]
+                };
+
+                this.modalView = new ModalView({
+                    modalConfig: subscriptionModal
                 });
 
                 this._radio.commands.execute('showModal', this.modalView);

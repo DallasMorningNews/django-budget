@@ -54,7 +54,6 @@ define(function() {
             searchOptionEndpoint: 'test-data/search-box-options.json',
             stafferEndpoint: 'http://datalab.dallasnews.com/staff/api/staff/',
             postEndpoints: {
-                itemMarkReady: 'http://datalab.dallasnews.com/budget/content/ready/',
                 deletePackage: 'http://datalab.dallasnews.com/budget/package/delete/',
                 savePackage: 'http://datalab.dallasnews.com/budget/package/',
                 headlines: {
