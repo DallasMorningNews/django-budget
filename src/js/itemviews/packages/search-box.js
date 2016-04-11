@@ -1,12 +1,18 @@
 define([
     'backbone',
     'marionette',
+    'collections/search-options',
+    'misc/settings',
     'misc/tpl',
-    'selectize',
+    'models/search-option',
+    'selectize'
 ], function(
     Backbone,
     Mn,
+    SearchOptionCollection,
+    settings,
     tpl,
+    SearchOption,
     selectize
 ) {
     return Mn.ItemView.extend({
@@ -22,15 +28,18 @@ define([
         //     packages: "#packages"
         // },
 
-        // initialize: function() {
+        initialize: function() {
+            this.searchOptions = new SearchOptionCollection();
         //     this.packageFilterView = new PackageFilterView({});
         //     this.packageCollectionView = new ({});
-        // },
+        },
 
         // TODO: Render search options dynamically.
 
         onRender: function() {
             var _radio = Backbone.Wreqr.radio.channel('global');
+
+            this.generateSearchOptions();
 
             this.selectizeBox = this.ui.searchBox.selectize({
                 plugins: ['remove_button', 'restore_on_backspace'],
@@ -47,7 +56,7 @@ define([
                 searchField: ['name',],
                 selectOnTab: true,
                 closeAfterSelect: true,
-                options: this.options.searchOptions.toJSON(),
+                options: this.searchOptions.toJSON(),
                 optgroupField: 'type',
                 optgroupLabelField: 'name',
                 optgroupValueField: 'value',
@@ -85,6 +94,82 @@ define([
                 }.bind(this)
                 // preload: true
             });
+        },
+
+        generateSearchOptions: function() {
+            var rawOptions = {
+                    hubs: [],
+                    verticals: []
+                },
+                addedVerticals = [];
+
+            rawOptions.staffers = this.options.data.staffers.map(
+                function(staffer, idx) {
+                    return new SearchOption({
+                        name: staffer.get('fullName'),
+                        value: staffer.get('email'),
+                        type: 'person',
+                        sortKey: staffer.get('lastName')
+                    });
+                }
+            );
+
+            this.options.data.hubs.each(
+                function(hub) {
+                    var vertical = hub.get('vertical');
+
+                    rawOptions.hubs.push(
+                        new SearchOption({
+                            name: hub.get('name'),
+                            value: hub.get('slug'),
+                            type: 'hub'
+                        })
+                    );
+
+                    if (!_.contains(addedVerticals, vertical.slug)) {
+                        addedVerticals.push(vertical.slug);
+
+                        rawOptions.verticals.push(
+                            new SearchOption({
+                                name: vertical.name,
+                                value: vertical.slug,
+                                type: 'vertical'
+                            })
+                        );
+                    }
+                }
+            );
+
+            this.searchOptions.comparator = function(item1, item2) {
+                var optionType1 = item1.get('type'),
+                    optionType2 = item2.get('type');
+
+                if (optionType1 != optionType2) {
+                    var typeRanking1 = settings.typeRankingIndex[optionType1],
+                        typeRanking2 = settings.typeRankingIndex[optionType2];
+
+                    return (typeRanking1 > typeRanking2) ? 1 : -1;
+                } else {
+                    var optionValue1 = item1.get('value').toLowerCase(),
+                        optionValue2 = item2.get('value').toLowerCase();
+
+                    if (item1.has('sortKey')) {
+                        optionValue1 = item1.get('sortKey').toLowerCase();
+                    }
+
+                    if (item2.has('sortKey')) {
+                        optionValue2 = item2.get('sortKey').toLowerCase();
+                    }
+
+                    return (optionValue1 > optionValue2) ? 1 : -1;
+                }
+            };
+
+            this.searchOptions.reset();
+
+            this.searchOptions.add(rawOptions.staffers);
+            this.searchOptions.add(rawOptions.hubs);
+            this.searchOptions.add(rawOptions.verticals);
         }
     });
 });

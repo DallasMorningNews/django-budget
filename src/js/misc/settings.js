@@ -47,11 +47,16 @@ define(function() {
             }
         },
 
+        typeRankingIndex: {
+            person: 1,
+            hub: 5,
+            vertical: 9
+        },
+
         urlConfig: {
             hubEndpoint: 'http://datalab.dallasnews.com/staff/api/hub/',
             // packageEndpoint: 'test-data/packages.json',
             packageEndpoint: 'http://datalab.dallasnews.com/budget/packages/',
-            searchOptionEndpoint: 'test-data/search-box-options.json',
             stafferEndpoint: 'http://datalab.dallasnews.com/staff/api/staff/',
             postEndpoints: {
                 deletePackage: 'http://datalab.dallasnews.com/budget/package/delete/',

@@ -2,14 +2,12 @@ define(
     [
         'backbone',
         'underscore',
-        'models/search-option',
-        'misc/settings'
+        'models/search-option'
     ],
     function(
         Backbone,
         _,
-        SearchOption,
-        settings
+        SearchOption
     ) {
         'use strict';
 
@@ -31,10 +29,6 @@ define(
                     'vertical': 4
                 };
                 return optionTypeWeights[model.get('type')] + '_' + model.get('value');
-            },
-
-            url: function() {
-                return settings.urlConfig.searchOptionEndpoint;
             },
 
             parse: function(response) {

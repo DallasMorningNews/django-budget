@@ -4,28 +4,9 @@ define(
         'backbone',
         'marionette',
         'foundation',
-        // 'collections/posts',
-        // 'collections/candidates',
-        // 'models/nav-state',
-        // 'models/blog',
-        // 'models/quiz',
-        // 'models/question',
-        // 'models/answer',
-        // 'collections/answers',
-        // 'itemviews/answer',
-        // 'itemviews/question',
-        // 'itemviews/quiz',
-        // 'itemviews/nav',
-        // 'itemviews/nav-bottom',
-        // 'itemviews/share-tray',
-        // 'layoutviews/quiz',
-        // 'regions/animated',
-        // 'misc/router',
-        // 'misc/settings'
         'layoutviews/root-view',
         'collections/hubs',
         'collections/query-terms',
-        'collections/search-options',
         'collections/staffers',
         'misc/router',
         'misc/settings'
@@ -35,28 +16,9 @@ define(
         Backbone,
         Mn,
         Foundation,
-        // PostsCollection,
-        // CandidatesCollection,
-        // NavStateModel,
-        // BlogModel,
-        // QuizModel,
-        // QuestionModel,
-        // AnswerModel,
-        // AnswersCollection,
-        // AnswerView,
-        // QuestionView,
-        // QuizView,
-        // NavView,
-        // NavBottomView,
-        // ShareTrayView,
-        // QuizLayoutView,
-        // AnimatedRegion,
-        // Router,
-        // settings
         RootView,
         HubCollection,
         QueryTermCollection,
-        SearchOptionCollection,
         StafferCollection,
         Router,
         settings
@@ -73,8 +35,8 @@ define(
                 // Hook into our global Wreqr channel.
                 this._radio = Backbone.Wreqr.radio.channel('global');
 
-                // Add a ReqRes handler to allow controllers to fetch data of
-                // our app instance.
+                // Add a ReqRes handler to allow controllers to fetch
+                // data of our app instance.
                 this._radio.reqres.setHandler('data', function(type){
                     return this.data[type];
                 }, this);
@@ -91,7 +53,6 @@ define(
                  * on the app class for later access w/ reqres.
                  */
                 this.data.hubs = new HubCollection();
-                this.data.searchOptions = new SearchOptionCollection();
                 this.data.staffers = new StafferCollection();
 
                 /**
@@ -99,7 +60,6 @@ define(
                  */
                 return $.when(
                     this.data.hubs.fetch(),
-                    this.data.searchOptions.fetch(),
                     this.data.staffers.fetch()
                 );
             },

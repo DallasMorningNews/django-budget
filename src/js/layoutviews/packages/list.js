@@ -31,7 +31,7 @@ define([
 
             this.dateFilterView = new DateFilterView({});
             this.searchBoxView = new SearchBoxView({
-                searchOptions: this.options.data.searchOptions
+                data: this.options.data
             });
 
             this.collectionView = new PackageCollectionView({
