@@ -121,8 +121,8 @@ $mf-transition-speed: 0.28s !default;
 
             .collapsible-row-header {
                 h4 {
-                    background: #E7E7E7;
-                    border: 1px solid #CCCCCC;
+                    background: #F2F2F2;
+                    border: 1px solid #D9D9D9;
                     box-sizing: border-box;
                     color: #616161;
                     cursor: pointer;
@@ -150,8 +150,8 @@ $mf-transition-speed: 0.28s !default;
                     }
 
                     &:hover {
-                        background: #D4D4D4;
-                        border: 1px solid #BABABA;
+                        background: #E4E4E4;
+                        border: 1px solid #C9C9C9;
                         color: #424242;
 
                         &::after {
@@ -160,8 +160,8 @@ $mf-transition-speed: 0.28s !default;
                     }
 
                     &.section-expanded {
-                        background: #D4D4D4;
-                        border: 1px solid #BABABA;
+                        background: #E4E4E4;
+                        border: 1px solid #C9C9C9;
                         color: #424242;
 
                         &::after {
