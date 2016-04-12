@@ -3,14 +3,12 @@ define([
     'marionette',
     'underscore',
     'misc/tpl',
-    'motion-ui',
     'selectize',
 ], function(
     Backbone,
     Mn,
     _,
     tpl,
-    motionUI,
     selectize
 ) {
     return Mn.ItemView.extend({

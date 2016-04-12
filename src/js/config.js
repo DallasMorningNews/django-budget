@@ -11,9 +11,9 @@ require.config({
         nunjucks: '../../bower_components/nunjucks/browser/nunjucks-slim',
         moment: '../../bower_components/moment/moment',
         'moment-timezone': '../../bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020',
-        'motion-ui': '../../bower_components/motion-ui/dist/motion-ui',
         // resize: '../../bower_components/javascript-detect-element-resize/detect-element-resize',
         // smartquotes: '../../bower_components/smartquotes/src/smartquotes',
+        quill: '../../bower_components/quill/dist/quill',
         selectize: '../../bower_components/selectize/dist/js/selectize',
         sifter: '../../bower_components/sifter/sifter',
         microplugin: '../../bower_components/microplugin/src/microplugin',
@@ -33,9 +33,9 @@ require.config({
             deps: ['jquery', 'moment']
         },
         'foundation': {
-            deps: ['jquery', 'motion-ui']
+            deps: ['jquery']
         },
-        "moment-timezone": {
+        'moment-timezone': {
             deps: ['moment']
         }
     }
