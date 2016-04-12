@@ -529,3 +529,50 @@ $quill-popup-border-color: #CCCCCC;
         padding: 5px;
     }
 }
+
+@media (max-width: 479px) {
+    .quill-holder {
+        .ql-toolbar {
+            padding: 0;
+
+            .ql-format-group {
+                .ql-format-button {
+                    margin: 0;
+                    width: 34px;
+                }
+
+                .ql-format-separator {
+                    margin: 2px 0;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 419px) {
+    .quill-holder {
+        .ql-toolbar {
+            height: 73px;
+            .ql-format-group {
+                .ql-format-button {
+                    font-size: 14px;
+                }
+
+                .ql-picker {
+                    .ql-picker-label {
+                        font-size: 14px;
+                    }
+                }
+
+                .last-separator {
+                    display: none;
+                }
+
+                &.last-format-group {
+                    border-top: 1px solid $quill-background-accent-darker;
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
