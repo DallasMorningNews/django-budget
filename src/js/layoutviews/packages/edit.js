@@ -58,6 +58,8 @@ define([
             pubDateField: '#package-form #pub_date',
             pubTimeGroup: '#package-form .pub-time-group',
             pubTimeField: '#package-form #pub_time',
+            collapsibleRowHeaders: '#package-form .collapsible-row-header',
+            collapsibleRows: '#package-form .can-collapse',
             notesField: '#package-form #notes-quill .text-holder',
             notesToolbar: '#package-form #notes-quill .toolbar-holder',
             addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
@@ -70,11 +72,12 @@ define([
         },
 
         events: {
+            'click @ui.collapsibleRowHeaders': 'toggleCollapsibleRow',
             'click @ui.addAdditionalItemTrigger': 'addNewAdditionalItem',
             'mousedown @ui.persistentButton': 'addButtonClickedClass',
             'click @ui.packageSaveTrigger': 'savePackage',
             'click @ui.packageSaveAndContinueEditingTrigger': 'savePackageAndContinueEditing',
-            'click @ui.packageDeleteTrigger': 'deleteEntirePackage',
+            'click @ui.packageDeleteTrigger': 'deleteEntirePackage'
         },
 
         addButtonClickedClass: function(event) {
@@ -728,6 +731,26 @@ define([
             }
         },
 
+        toggleCollapsibleRow: function(event) {
+            var toggleTarget = $(event.currentTarget),
+                toggleSlug = toggleTarget.data('expand-target'),
+                toggleReceiver = this.ui.collapsibleRows.filter(
+                    '[data-expand-receiver="' + toggleSlug + '"]'
+                ).first();
+
+            if (toggleReceiver.height() === 0) {
+                toggleTarget.find('h4').addClass('section-expanded');
+
+                toggleReceiver.css({
+                    'max-height': toggleReceiver.data('expandedHeight')
+                });
+            } else {
+                toggleTarget.find('h4').removeClass('section-expanded');
+
+                toggleReceiver.css({'max-height': 0});
+            }
+        },
+
         addNewAdditionalItem: function() {
             this.additionalItemCount++;
 
@@ -1062,6 +1085,16 @@ define([
                 },
                 theme: 'snow'
             });
+
+            this.ui.packageForm.find('.row.can-collapse').each(function() {
+                var $thisEl = $(this);
+
+                $thisEl.data('expanded-height', $thisEl.height());
+
+                $thisEl.addClass('collapse-enabled');
+            });
+
+            // this.ui.
         },
 
         initializeDatePicker: function(dateMode) {

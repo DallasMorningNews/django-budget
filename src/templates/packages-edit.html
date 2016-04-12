@@ -57,11 +57,43 @@
                 </div>
             </div>
 
-            <div class="section-header">
-                <h4>Headline ideas</h4>
+            <div class="row">
+                <div class="medium-6 columns form-group set-authors">
+                    <input id="authors" name="authors" class="to-selectize staff-select reporter" data-form="primary" type="text" value="{% if boundData %}{% for author in boundData.primaryContent.authors %}{{ author.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
+                    <label for="authors" class="control-label">Author(s)<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-6 columns form-group set-editors">
+                    <input id="editors" name="editors" class="to-selectize staff-select editor" data-form="primary" type="text" value="{% if boundData %}{% for editor in boundData.primaryContent.editors %}{{ editor.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
+                    <label for="editors" class="control-label">Editor(s)</label>
+                    <i class="bar"></i>
+                </div>
             </div>
 
             <div class="row">
+                <div class="medium-3 columns form-group">
+                    <input id="pub_date_resolution" name="pub_date_resolution" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" value="{% if boundData %}{{ boundData.pubDate.resolution }}{% endif %}" />
+                    <label for="pub_date_resolution" class="control-label">Time format<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-5 columns form-group pub-date-group"{% if boundData %}{% if boundData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
+                    <input id="pub_date" name="pub_date" data-form="package" type="text" id="pubDate" required="" {% if boundData %}{% if boundData.pubDate.resolution == '' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if boundData %}{% if boundData.pubDate.resolution != '' %}{{ formattedPubDate }}{% endif %}{% endif %}" />
+                    <label for="pub_date" class="control-label">Published date<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                </div>
+                <div class="medium-4 columns form-group pub-time-group"{% if boundData %}{% if boundData.pubDate.resolution == 't' %} style="display: block;"{% endif %}{% endif %}>
+                    <input id="pub_time" name="pub_time" data-form="package" type="time" id="pubTime" {% if boundData %}{% if boundData.pubDate.resolution != 't' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if boundData %}{% if boundData.pubDate.resolution == 't' %}{{ formattedPubTime }}{% endif %}{% endif %}" pattern="\d{2}:\d{2}" />
+                    <label for="pub_time" class="control-label">Published time&thinsp;*</label>
+                    <i class="bar"></i>
+                </div>
+            </div>
+
+            <div class="collapsible-row-header" data-expand-target="headlines">
+                <h4>Headlines</h4>
+            </div>
+
+            <div class="row can-collapse" data-expand-receiver="headlines">
+                <div class="extra-headline-spacing"></div>
                 {% if boundData %}
                     {% if boundData.headlineStatus == 'voting' %}
                 <div class="medium-12 columns form-radio">
@@ -214,50 +246,11 @@
                 {% endif %}{% endif %}{% endif %}
             </div>
 
-            <div class="section-header">
-                <h4>Staff</h4>
+            <div class="collapsible-row-header" data-expand-target="production-notes">
+                <h4>Production notes</h4>
             </div>
 
-            <div class="row">
-                <div class="medium-6 columns form-group set-authors">
-                    <input id="authors" name="authors" class="to-selectize staff-select reporter" data-form="primary" type="text" value="{% if boundData %}{% for author in boundData.primaryContent.authors %}{{ author.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
-                    <label for="authors" class="control-label">Author(s)<span class="required-marker">*</span></label>
-                    <i class="bar"></i>
-                </div>
-                <div class="medium-6 columns form-group set-editors">
-                    <input id="editors" name="editors" class="to-selectize staff-select editor" data-form="primary" type="text" value="{% if boundData %}{% for editor in boundData.primaryContent.editors %}{{ editor.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
-                    <label for="editors" class="control-label">Editor(s)</label>
-                    <i class="bar"></i>
-                </div>
-            </div>
-
-            <div class="section-header">
-                <h4>Schedule</h4>
-            </div>
-
-            <div class="row">
-                <div class="medium-3 columns form-group">
-                    <input id="pub_date_resolution" name="pub_date_resolution" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" value="{% if boundData %}{{ boundData.pubDate.resolution }}{% endif %}" />
-                    <label for="pub_date_resolution" class="control-label">Time format<span class="required-marker">*</span></label>
-                    <i class="bar"></i>
-                </div>
-                <div class="medium-5 columns form-group pub-date-group"{% if boundData %}{% if boundData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="pub_date" name="pub_date" data-form="package" type="text" id="pubDate" required="" {% if boundData %}{% if boundData.pubDate.resolution == '' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if boundData %}{% if boundData.pubDate.resolution != '' %}{{ formattedPubDate }}{% endif %}{% endif %}" />
-                    <label for="pub_date" class="control-label">Published date<span class="required-marker">*</span></label>
-                    <i class="bar"></i>
-                </div>
-                <div class="medium-4 columns form-group pub-time-group"{% if boundData %}{% if boundData.pubDate.resolution == 't' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="pub_time" name="pub_time" data-form="package" type="time" id="pubTime" {% if boundData %}{% if boundData.pubDate.resolution != 't' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if boundData %}{% if boundData.pubDate.resolution == 't' %}{{ formattedPubTime }}{% endif %}{% endif %}" pattern="\d{2}:\d{2}" />
-                    <label for="pub_time" class="control-label">Published time&thinsp;*</label>
-                    <i class="bar"></i>
-                </div>
-            </div>
-
-            <div class="section-header">
-                <h4>More information</h4>
-            </div>
-
-            <div class="row">
+            <div class="row can-collapse" data-expand-receiver="production-notes">
                 <div class="medium-12 columns notes-reveal form-group">
                     <div class="expanding-holder{% if boundData %}{% if boundData.notes != '' %} has-value{% endif %}{% endif %}">
                         <div id="notes-quill" class="quill-holder">
@@ -350,8 +343,6 @@
                             <div class="text-holder">{% if boundData %}{{ boundData.notes|safe }}{% endif %}</div>
                         </div>
                     </div>
-                    <label for="notes" class="control-label">Notes</label>
-                    <i class="bar"></i>
                 </div>
             </div>
         </form>

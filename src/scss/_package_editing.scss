@@ -119,38 +119,56 @@ $mf-transition-speed: 0.28s !default;
             background-color: #FFFFFF;
             padding: 0.625rem 0 0;
 
-            .section-header {
+            .collapsible-row-header {
                 h4 {
-                    border-bottom: 0.125rem solid #212121;
-                    font-size: 1.2rem;
-                    height: 1.825rem;
-                    line-height: 1.5rem;
-                    margin: 2.75rem 0.75rem 1.125rem;
-                    padding: 0 0.45rem 0.2rem;
+                    background: #E7E7E7;
+                    border: 1px solid #CCCCCC;
                     box-sizing: border-box;
+                    color: #616161;
+                    cursor: pointer;
+                    font-size: 1.125rem;
+                    font-weight: 500;
+                    height: 2.125rem;
+                    line-height: 2rem;
+                    // margin: 2.75rem 0.75rem 1.125rem;
+                    margin: 1rem 0.75rem 0;
+                    padding: 0 0.625rem;
+                    position: relative;
 
-                    // .add-additional-content-trigger {
-                    //     float: right;
-                    //     line-height: 1.5rem;
-                    //     margin: 0;
-                    //     padding: 0.25rem 0.875rem 0.25rem 2rem;
+                    &::after {
+                        border-color: #757575 transparent transparent transparent;
+                        border-style: solid;
+                        border-width: 5px 5px 0 5px;
+                        content: ' ';
+                        display: block;
+                        height: 0;
+                        margin-top: -3px;
+                        position: absolute;
+                        top: 50%;
+                        right: 15px;
+                        width: 0;
+                    }
 
-                    //     .fa {
-                    //         color: #FFFFFF !important;
-                    //         font-size: 1rem;
-                    //         left: 0;
-                    //         line-height: 1rem;
-                    //         margin: -0.5rem 0.125rem 0 0.875rem;
-                    //         position: absolute;
-                    //         top: 50%;
-                    //         width: 1rem;
-                    //     }
+                    &:hover {
+                        background: #D4D4D4;
+                        border: 1px solid #BABABA;
+                        color: #424242;
 
-                    //     span {
-                    //         font-weight: bold;
-                    //         text-transform: uppercase;
-                    //     }
-                    // }
+                        &::after {
+                            border-color: #616161 transparent transparent transparent;
+                        }
+                    }
+
+                    &.section-expanded {
+                        background: #D4D4D4;
+                        border: 1px solid #BABABA;
+                        color: #424242;
+
+                        &::after {
+                            border-color: transparent transparent #616161 transparent;
+                            border-width: 0 5px 5px 5px;
+                        }
+                    }
                 }
             }
 
@@ -307,6 +325,25 @@ $mf-transition-speed: 0.28s !default;
                         }
                     }
                 }
+
+                &.can-collapse {
+                    display: none;
+
+                    &.collapse-enabled {
+                        display: block;
+                        margin-bottom: 0;
+                        max-height: 0;
+                        overflow: hidden;
+                        padding-bottom: 0;
+
+                        transition: max-height 0.75s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+                        .extra-headline-spacing {
+                            height: 0.25rem;
+                            width: 100%;
+                        }
+                    }
+                }
             }
         }
 
@@ -394,12 +431,16 @@ $mf-transition-speed: 0.28s !default;
     }
 
     #notes-quill {
+        margin: 0;
+
         .text-holder {
             height: 270px;
         }
     }
 
     .notes-reveal {
+        margin-bottom: 0.5rem;
+
         label {
             color: gray;
             font-size: 1rem;
