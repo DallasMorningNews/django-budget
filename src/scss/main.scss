@@ -54,9 +54,9 @@ $fa-font-path: "../fonts/font-awesome";
 // Longbill-Daterangepicker
 @import "../../vendored/longbill-daterangepicker/daterangepicker";
 
-// Motion UI
-// @import "../../bower_components/motion-ui/dist/motion-ui";
-// @include motion-ui-transitions;
+// Quill.js
+@import "../../bower_components/quill/dist/quill.base";
+// @import "../../bower_components/quill/dist/quill.snow";
 
 // Selectize.js
 @import "../../bower_components/selectize/dist/css/selectize";
@@ -82,6 +82,7 @@ $fa-font-path: "../fonts/font-awesome";
 @import "_modals";
 @import "_packages";
 @import "_package_editing";
+@import "_quill_theme";
 @import "_snackbar";
 @import "_typography";
 // @import "ads";

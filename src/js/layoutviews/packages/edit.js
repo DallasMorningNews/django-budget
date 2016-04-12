@@ -5,6 +5,7 @@ define([
     'marionette',
     'moment',
     'moment-timezone',
+    'quill',
     'selectize',
     'underscore',
     'collections/additional-content-items',
@@ -22,6 +23,7 @@ define([
     Mn,
     moment,
     mmtz,
+    Quill,
     selectize,
     _,
     AdditionalContentItems,
@@ -56,7 +58,8 @@ define([
             pubDateField: '#package-form #pub_date',
             pubTimeGroup: '#package-form .pub-time-group',
             pubTimeField: '#package-form #pub_time',
-            notesField: '#package-form #notes',
+            notesField: '#package-form #notes-quill .text-holder',
+            notesToolbar: '#package-form #notes-quill .toolbar-holder',
             addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
             bottomButtonHolder: '.single-page .bottom-button-holder',
             persistentHolder: '.edit-bar .button-holder',
@@ -795,7 +798,7 @@ define([
 
             // this.showChildView('packages', this.collectionView);
             expandingTextField.make(this.ui.budgetLineField);
-            // expandingTextField.make(this.ui.notesFieldf);
+            // expandingTextField.make(this.ui.notesField);
 
             var hubOptions = this.generateHubOptions();
 
@@ -1049,31 +1052,16 @@ define([
                     this.destroyCurrentDatePicker();
                 }.bind(this)
             });
+        },
 
-            CKEDITOR.replace(app.rootView.mainView.ui.notesField[0], {
-                skin: 'minimalist,http://interactives.dallasnews.com/budget-assets/skins/minimalist/',
-                contentsCss: [
-                    'http://fonts.googleapis.com/css?family=PT+Serif:400,700%7CSource+Sans+Pro:400,700,900,600',
-                    'http://interactives.dallasnews.com/budget-assets/content.css'
-                ],
-                font_style: {
-                    element: 'span',
-                    styles: {'font-family': '#(Roboto)'},
-                    overrides: [{ element: 'font', attributes: {'face' : null }}]
+        onAttach: function() {
+            this.richNotesField = new Quill(this.ui.notesField.selector, {
+                modules: {
+                    toolbar: this.ui.notesToolbar.selector,
+                    'link-tooltip': true
                 },
-                fontSize_sizes: '16/16px;24/24px;48/48px;',
-                toolbarGroups: [
-                    {name: 'basicstyles', groups: ['basicstyles', 'styles', 'cleanup']},
-                    {name: 'forms', groups: ['forms']},
-                    {name: 'paragraph', groups: ['list',  'blocks', 'align', 'bidi', 'paragraph']},
-                    {name: 'links', groups: ['links']},
-                    {name: 'clipboard', groups: ['clipboard', 'undo']},
-                ],
-                removeButtons: 'Styles,Subscript,Superscript,Cut,Copy,Paste,PasteText,PasteFromWord,Scayt,Anchor,Source,Maximize,About,Image,Table,HorizontalRule,SpecialChar',
-                removePlugins: 'elementspath'
+                theme: 'snow'
             });
-
-            this.richNotesField = CKEDITOR.instances.notes;
         },
 
         initializeDatePicker: function(dateMode) {
@@ -1154,10 +1142,9 @@ define([
                 additionalContentItems = [];
 
             // Package-wide processing.
-console.log(this.richNotesField.getData());
             finalPackage.hub = rawFormData.packageFields.hub;
             finalPackage.URL = null;
-            finalPackage.notes = this.richNotesField.getData();
+            finalPackage.notes = this.richNotesField.getHTML();
             finalPackage.id = rawFormData.packageFields.package_id;
             finalPackage.createdBy = null;
             finalPackage.lastChangedBy = null;

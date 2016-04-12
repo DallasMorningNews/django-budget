@@ -393,6 +393,12 @@ $mf-transition-speed: 0.28s !default;
         }
     }
 
+    #notes-quill {
+        .text-holder {
+            height: 270px;
+        }
+    }
+
     .notes-reveal {
         label {
             color: gray;
