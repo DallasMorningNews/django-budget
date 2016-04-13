@@ -88,261 +88,267 @@
                 </div>
             </div>
 
-            <div class="collapsible-row-header" data-expand-target="headlines">
+            <div class="row collapsible-row-header" data-expand-target="headlines">
                 <h4>Headlines</h4>
             </div>
 
             <div class="row can-collapse" data-expand-receiver="headlines">
-                <div class="extra-headline-spacing"></div>
-                {% if boundData %}
-                    {% if boundData.headlineStatus == 'voting' %}
-                <div class="medium-12 columns form-radio">
+                <div class="collapsable-inner">
+                    <div class="extra-headline-spacing"></div>
+                    {% if boundData %}
+                        {% if boundData.headlineStatus == 'voting' %}
+                    <div class="medium-12 columns form-radio">
+                        {% endif %}
                     {% endif %}
-                {% endif %}
 
-                {% if boundData %}
-                    {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[0].id }}" value="{% if boundData.headlineCandidates|length > 0 %}{{ boundData.headlineCandidates[0].text }}{% endif %}" required="" readonly="" />
-                    <label for="headline1" class="control-label">Headline #1</label>
-                    <i class="bar"></i>
-                </div>
-                    {% elif boundData.headlineStatus == 'voting' %}
-                        {% if boundData.headlineCandidates|length > 0 %}
-                    <div class="radio">
-                        <label>
-                            <input id="headline1" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[0].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[0].text }}</span>
-                        </label>
+                    {% if boundData %}
+                        {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[0].id }}" value="{% if boundData.headlineCandidates|length > 0 %}{{ boundData.headlineCandidates[0].text }}{% endif %}" required="" readonly="" />
+                        <label for="headline1" class="control-label">Headline #1</label>
+                        <i class="bar"></i>
+                    </div>
+                        {% elif boundData.headlineStatus == 'voting' %}
+                            {% if boundData.headlineCandidates|length > 0 %}
+                        <div class="radio">
+                            <label>
+                                <input id="headline1" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[0].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[0].text }}</span>
+                            </label>
+                        </div>
+                            {% endif %}
+                        {% else %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[0].id }}" value="{% if boundData.headlineCandidates|length > 0 %}{{ boundData.headlineCandidates[0].text }}{% endif %}" required="" />
+                        <label for="headline1" class="control-label">Headline #1</label>
+                        <i class="bar"></i>
                     </div>
                         {% endif %}
                     {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[0].id }}" value="{% if boundData.headlineCandidates|length > 0 %}{{ boundData.headlineCandidates[0].text }}{% endif %}" required="" />
-                    <label for="headline1" class="control-label">Headline #1</label>
-                    <i class="bar"></i>
-                </div>
+                    <div class="medium-6 columns form-group">
+                        <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[0].id }}" value="{% if boundData.headlineCandidates|length > 0 %}{{ boundData.headlineCandidates[0].text }}{% endif %}" required="" />
+                        <label for="headline1" class="control-label">Headline #1</label>
+                        <i class="bar"></i>
+                    </div>
                     {% endif %}
-                {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[0].id }}" value="{% if boundData.headlineCandidates|length > 0 %}{{ boundData.headlineCandidates[0].text }}{% endif %}" required="" />
-                    <label for="headline1" class="control-label">Headline #1</label>
-                    <i class="bar"></i>
-                </div>
-                {% endif %}
 
-                {% if boundData %}
-                    {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[1].id }}" value="{% if boundData.headlineCandidates|length > 1 %}{{ boundData.headlineCandidates[1].text }}{% endif %}" required="" readonly="" />
-                    <label for="headline2" class="control-label">Headline #2</label>
-                    <i class="bar"></i>
-                </div>
-                    {% elif boundData.headlineStatus == 'voting' %}
-                        {% if boundData.headlineCandidates|length > 1 %}
-                    <div class="radio">
-                        <label>
-                            <input id="headline2" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[1].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[1].text }}</span>
-                        </label>
+                    {% if boundData %}
+                        {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[1].id }}" value="{% if boundData.headlineCandidates|length > 1 %}{{ boundData.headlineCandidates[1].text }}{% endif %}" required="" readonly="" />
+                        <label for="headline2" class="control-label">Headline #2</label>
+                        <i class="bar"></i>
+                    </div>
+                        {% elif boundData.headlineStatus == 'voting' %}
+                            {% if boundData.headlineCandidates|length > 1 %}
+                        <div class="radio">
+                            <label>
+                                <input id="headline2" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[1].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[1].text }}</span>
+                            </label>
+                        </div>
+                            {% endif %}
+                        {% else %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[1].id }}" value="{% if boundData.headlineCandidates|length > 1 %}{{ boundData.headlineCandidates[1].text }}{% endif %}" required="">
+                        <label for="headline2" class="control-label">Headline #2</label>
+                        <i class="bar"></i>
                     </div>
                         {% endif %}
                     {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[1].id }}" value="{% if boundData.headlineCandidates|length > 1 %}{{ boundData.headlineCandidates[1].text }}{% endif %}" required="">
-                    <label for="headline2" class="control-label">Headline #2</label>
-                    <i class="bar"></i>
-                </div>
+                    <div class="medium-6 columns form-group">
+                        <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[1].id }}" value="{% if boundData.headlineCandidates|length > 1 %}{{ boundData.headlineCandidates[1].text }}{% endif %}" required="">
+                        <label for="headline2" class="control-label">Headline #2</label>
+                        <i class="bar"></i>
+                    </div>
                     {% endif %}
-                {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[1].id }}" value="{% if boundData.headlineCandidates|length > 1 %}{{ boundData.headlineCandidates[1].text }}{% endif %}" required="">
-                    <label for="headline2" class="control-label">Headline #2</label>
-                    <i class="bar"></i>
-                </div>
-                {% endif %}
 
-                {% if boundData %}
-                    {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[2].id }}" value="{% if boundData.headlineCandidates|length > 2 %}{{ boundData.headlineCandidates[2].text }}{% endif %}" required="" readonly="" />
-                    <label for="headline3" class="control-label">Headline #3</label>
-                    <i class="bar"></i>
-                </div>
-                    {% elif boundData.headlineStatus == 'voting' %}
-                        {% if boundData.headlineCandidates|length > 2 %}
-                    <div class="radio">
-                        <label>
-                            <input id="headline3" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[2].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[2].text }}</span>
-                        </label>
+                    {% if boundData %}
+                        {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[2].id }}" value="{% if boundData.headlineCandidates|length > 2 %}{{ boundData.headlineCandidates[2].text }}{% endif %}" required="" readonly="" />
+                        <label for="headline3" class="control-label">Headline #3</label>
+                        <i class="bar"></i>
+                    </div>
+                        {% elif boundData.headlineStatus == 'voting' %}
+                            {% if boundData.headlineCandidates|length > 2 %}
+                        <div class="radio">
+                            <label>
+                                <input id="headline3" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[2].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[2].text }}</span>
+                            </label>
+                        </div>
+                            {% endif %}
+                        {% else %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[2].id }}" value="{% if boundData.headlineCandidates|length > 2 %}{{ boundData.headlineCandidates[2].text }}{% endif %}" required="" />
+                        <label for="headline3" class="control-label">Headline #3</label>
+                        <i class="bar"></i>
                     </div>
                         {% endif %}
                     {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[2].id }}" value="{% if boundData.headlineCandidates|length > 2 %}{{ boundData.headlineCandidates[2].text }}{% endif %}" required="" />
-                    <label for="headline3" class="control-label">Headline #3</label>
-                    <i class="bar"></i>
-                </div>
+                    <div class="medium-6 columns form-group">
+                        <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[2].id }}" value="{% if boundData.headlineCandidates|length > 2 %}{{ boundData.headlineCandidates[2].text }}{% endif %}" required="" />
+                        <label for="headline3" class="control-label">Headline #3</label>
+                        <i class="bar"></i>
+                    </div>
                     {% endif %}
-                {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[2].id }}" value="{% if boundData.headlineCandidates|length > 2 %}{{ boundData.headlineCandidates[2].text }}{% endif %}" required="" />
-                    <label for="headline3" class="control-label">Headline #3</label>
-                    <i class="bar"></i>
-                </div>
-                {% endif %}
 
-                {% if boundData %}
-                    {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[3].id }}" value="{% if boundData.headlineCandidates|length > 3 %}{{ boundData.headlineCandidates[3].text }}{% endif %}" required="" readonly="" />
-                    <label for="headline4" class="control-label">Headline #4</label>
-                    <i class="bar"></i>
-                </div>
-                    {% elif boundData.headlineStatus == 'voting' %}
-                        {% if boundData.headlineCandidates|length > 3 %}
-                    <div class="radio">
-                        <label>
-                            <input id="headline4" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[3].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[3].text }}</span>
-                        </label>
+                    {% if boundData %}
+                        {% if boundData.headlineCandidates and boundData.headlineStatus == 'finalized' %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[3].id }}" value="{% if boundData.headlineCandidates|length > 3 %}{{ boundData.headlineCandidates[3].text }}{% endif %}" required="" readonly="" />
+                        <label for="headline4" class="control-label">Headline #4</label>
+                        <i class="bar"></i>
+                    </div>
+                        {% elif boundData.headlineStatus == 'voting' %}
+                            {% if boundData.headlineCandidates|length > 3 %}
+                        <div class="radio">
+                            <label>
+                                <input id="headline4" name="headlineChoices" data-form="package" type="radio" value="{{ boundData.headlineCandidates[3].id }}" /><i class="helper"></i><span class="radio-label">{{ boundData.headlineCandidates[3].text }}</span>
+                            </label>
+                        </div>
+                            {% endif %}
+                        {% else %}
+                    <div class="medium-6 columns form-group">
+                        <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[3].id }}" value="{% if boundData.headlineCandidates|length > 3 %}{{ boundData.headlineCandidates[3].text }}{% endif %}" required="" />
+                        <label for="headline4" class="control-label">Headline #4</label>
+                        <i class="bar"></i>
                     </div>
                         {% endif %}
                     {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[3].id }}" value="{% if boundData.headlineCandidates|length > 3 %}{{ boundData.headlineCandidates[3].text }}{% endif %}" required="" />
-                    <label for="headline4" class="control-label">Headline #4</label>
-                    <i class="bar"></i>
-                </div>
+                    <div class="medium-6 columns form-group">
+                        <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[3].id }}" value="{% if boundData.headlineCandidates|length > 3 %}{{ boundData.headlineCandidates[3].text }}{% endif %}" required="" />
+                        <label for="headline4" class="control-label">Headline #4</label>
+                        <i class="bar"></i>
+                    </div>
                     {% endif %}
-                {% else %}
-                <div class="medium-6 columns form-group">
-                    <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ boundData.headlineCandidates[3].id }}" value="{% if boundData.headlineCandidates|length > 3 %}{{ boundData.headlineCandidates[3].text }}{% endif %}" required="" />
-                    <label for="headline4" class="control-label">Headline #4</label>
-                    <i class="bar"></i>
-                </div>
-                {% endif %}
 
-                {% if boundData %}
-                    {% if boundData.headlineStatus == 'voting' %}
-                    <!-- <div class="radio"> -->
-                        <!-- <label> -->
-                            <!-- <input id="headlineOther" name="headlineChoices" data-form="package" type="radio" value="other" /><i class="helper"></i><span class="radio-label">Other headline</span> -->
-                        <!-- </label> -->
-                    <!-- </div> -->
+                    {% if boundData %}
+                        {% if boundData.headlineStatus == 'voting' %}
+                        <!-- <div class="radio"> -->
+                            <!-- <label> -->
+                                <!-- <input id="headlineOther" name="headlineChoices" data-form="package" type="radio" value="other" /><i class="helper"></i><span class="radio-label">Other headline</span> -->
+                            <!-- </label> -->
+                        <!-- </div> -->
+                        {% endif %}
                     {% endif %}
-                {% endif %}
 
-                {% if boundData %}
-                    {% if boundData.headlineStatus == 'voting' %}
-                </div>
+                    {% if boundData %}
+                        {% if boundData.headlineStatus == 'voting' %}
+                    </div>
+                        {% endif %}
                     {% endif %}
-                {% endif %}
 
-                {% if boundData %}{% if boundData.headlineCandidates %}{% if boundData.headlineStatus == 'drafting' %}
-                <div class="medium-12 columns checkbox">
-                    <label>
-                        <input id="headlinesReady" name="headlinesReady" data-form="package" type="checkbox" value="ready" /><i class="helper"></i>Submit headlines to a vote
-                        <!-- <input type="checkbox" checked="" /><i class="helper"></i>Submit headlines to a vote -->
-                    </label>
+                    {% if boundData %}{% if boundData.headlineCandidates %}{% if boundData.headlineStatus == 'drafting' %}
+                    <div class="medium-12 columns checkbox">
+                        <label>
+                            <input id="headlinesReady" name="headlinesReady" data-form="package" type="checkbox" value="ready" /><i class="helper"></i>Submit headlines to a vote
+                            <!-- <input type="checkbox" checked="" /><i class="helper"></i>Submit headlines to a vote -->
+                        </label>
+                    </div>
+                    {% endif %}{% endif %}{% endif %}
+                    <div class="clearer"></div>
                 </div>
-                {% endif %}{% endif %}{% endif %}
             </div>
 
-            <div class="collapsible-row-header" data-expand-target="production-notes">
+            <div class="row collapsible-row-header" data-expand-target="production-notes">
                 <h4>Production notes</h4>
             </div>
 
             <div class="row can-collapse" data-expand-receiver="production-notes">
-                <div class="medium-12 columns notes-reveal form-group">
-                    <div class="expanding-holder{% if boundData %}{% if boundData.notes != '' %} has-value{% endif %}{% endif %}">
-                        <div id="notes-quill" class="quill-holder">
-                            <div class="toolbar-holder">
-                                <div class="ql-format-group">
-                                    <div class="ql-format-button ql-bold">
-                                        <i class="fa fa-bold"></i>
-                                        <span class="ql-button-explainer">Bold</span>
+                <div class="collapsable-inner">
+                    <div class="medium-12 columns notes-reveal form-group">
+                        <div class="expanding-holder{% if boundData %}{% if boundData.notes != '' %} has-value{% endif %}{% endif %}">
+                            <div id="notes-quill" class="quill-holder">
+                                <div class="toolbar-holder">
+                                    <div class="ql-format-group">
+                                        <div class="ql-format-button ql-bold">
+                                            <i class="fa fa-bold"></i>
+                                            <span class="ql-button-explainer">Bold</span>
+                                        </div>
+
+                                        <div class="ql-format-button ql-italic">
+                                            <i class="fa fa-italic"></i>
+                                            <span class="ql-button-explainer">Italic</span>
+                                        </div>
+
+                                        <div class="ql-format-button ql-underline">
+                                            <i class="fa fa-underline"></i>
+                                            <span class="ql-button-explainer">Underline</span>
+                                        </div>
+
+                                        <div class="ql-format-button ql-strike">
+                                            <i class="fa fa-strikethrough"></i>
+                                            <span class="ql-button-explainer">Strikethrough</span>
+                                        </div>
+
+                                        <div class="ql-format-separator"></div>
+                                    </div>
+                                    <div class="ql-format-group">
+                                        <select class="ql-size">
+                                            <option value="8px">8px</option>
+                                            <option value="9px">9px</option>
+                                            <option value="10px">10px</option>
+                                            <option value="11px">11px</option>
+                                            <option value="12px" selected="">12px</option>
+                                            <option value="13px">13px</option>
+                                            <option value="14px">14px</option>
+                                            <option value="16px">16px</option>
+                                            <option value="18px">18px</option>
+                                            <option value="24px">24px</option>
+                                            <option value="30px">30px</option>
+                                            <option value="36px">36px</option>
+                                        </select>
+
+                                        <div class="ql-button-explainer">Font size</div>
+
+                                        <select class="ql-align">
+                                            <option value="left" label="Left" selected="">
+                                                <i class="fa fa-align-left"></i>
+                                            </option>
+                                            <option value="center" label="Center">
+                                                <i class="fa fa-align-center"></i>
+                                            </option>
+                                            <option value="right" label="Right">
+                                                <i class="fa fa-align-right"></i>
+                                            </option>
+                                            <option value="justify" label="Justify">
+                                                <i class="fa fa-align-justify"></i>
+                                            </option>
+                                        </select>
+
+                                        <div class="ql-button-explainer">Text alignment</div>
+
+
+                                        <div class="ql-format-separator last-separator"></div>
+
+                                        <div class="clearer"></div>
                                     </div>
 
-                                    <div class="ql-format-button ql-italic">
-                                        <i class="fa fa-italic"></i>
-                                        <span class="ql-button-explainer">Italic</span>
+                                    <div class="ql-format-group last-format-group">
+                                        <div class="ql-format-button ql-bullet">
+                                            <i class="fa fa-list-ul"></i>
+                                            <span class="ql-button-explainer">Bulleted list</span>
+                                        </div>
+
+                                        <div class="ql-format-button ql-list">
+                                            <i class="fa fa-list-ol"></i>
+                                            <span class="ql-button-explainer">Numbered list</span>
+                                        </div>
+
+                                        <div class="ql-format-button ql-link">
+                                            <i class="fa fa-link"></i>
+                                            <span class="ql-button-explainer">Link</span>
+                                        </div>
+
+                                        <div class="clearer"></div>
                                     </div>
-
-                                    <div class="ql-format-button ql-underline">
-                                        <i class="fa fa-underline"></i>
-                                        <span class="ql-button-explainer">Underline</span>
-                                    </div>
-
-                                    <div class="ql-format-button ql-strike">
-                                        <i class="fa fa-strikethrough"></i>
-                                        <span class="ql-button-explainer">Strikethrough</span>
-                                    </div>
-
-                                    <div class="ql-format-separator"></div>
-                                </div>
-                                <div class="ql-format-group">
-                                    <select class="ql-size">
-                                        <option value="8px">8px</option>
-                                        <option value="9px">9px</option>
-                                        <option value="10px">10px</option>
-                                        <option value="11px">11px</option>
-                                        <option value="12px" selected="">12px</option>
-                                        <option value="13px">13px</option>
-                                        <option value="14px">14px</option>
-                                        <option value="16px">16px</option>
-                                        <option value="18px">18px</option>
-                                        <option value="24px">24px</option>
-                                        <option value="30px">30px</option>
-                                        <option value="36px">36px</option>
-                                    </select>
-
-                                    <div class="ql-button-explainer">Font size</div>
-
-                                    <select class="ql-align">
-                                        <option value="left" label="Left" selected="">
-                                            <i class="fa fa-align-left"></i>
-                                        </option>
-                                        <option value="center" label="Center">
-                                            <i class="fa fa-align-center"></i>
-                                        </option>
-                                        <option value="right" label="Right">
-                                            <i class="fa fa-align-right"></i>
-                                        </option>
-                                        <option value="justify" label="Justify">
-                                            <i class="fa fa-align-justify"></i>
-                                        </option>
-                                    </select>
-
-                                    <div class="ql-button-explainer">Text alignment</div>
-
-
-                                    <div class="ql-format-separator last-separator"></div>
 
                                     <div class="clearer"></div>
                                 </div>
-
-                                <div class="ql-format-group last-format-group">
-                                    <div class="ql-format-button ql-bullet">
-                                        <i class="fa fa-list-ul"></i>
-                                        <span class="ql-button-explainer">Bulleted list</span>
-                                    </div>
-
-                                    <div class="ql-format-button ql-list">
-                                        <i class="fa fa-list-ol"></i>
-                                        <span class="ql-button-explainer">Numbered list</span>
-                                    </div>
-
-                                    <div class="ql-format-button ql-link">
-                                        <i class="fa fa-link"></i>
-                                        <span class="ql-button-explainer">Link</span>
-                                    </div>
-
-                                    <div class="clearer"></div>
-                                </div>
-
-                                <div class="clearer"></div>
+                                <div class="text-holder">{% if boundData %}{{ boundData.notes|safe }}{% endif %}</div>
                             </div>
-                            <div class="text-holder">{% if boundData %}{{ boundData.notes|safe }}{% endif %}</div>
                         </div>
                     </div>
+                    <div class="clearer"></div>
                 </div>
             </div>
         </form>

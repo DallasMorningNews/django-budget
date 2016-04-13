@@ -742,12 +742,12 @@ define([
                 toggleTarget.find('h4').addClass('section-expanded');
 
                 toggleReceiver.css({
-                    'max-height': toggleReceiver.data('expandedHeight')
+                    'height': toggleReceiver.data('expandedHeight')
                 });
             } else {
                 toggleTarget.find('h4').removeClass('section-expanded');
 
-                toggleReceiver.css({'max-height': 0});
+                toggleReceiver.css({'height': 0});
             }
         },
 
@@ -1090,7 +1090,7 @@ define([
             this.ui.packageForm.find('.row.can-collapse').each(function() {
                 var $thisEl = $(this);
 
-                $thisEl.data('expanded-height', $thisEl.height());
+                $thisEl.data('expanded-height', $thisEl.outerHeight());
 
                 $thisEl.addClass('collapse-enabled');
             });
