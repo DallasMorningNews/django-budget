@@ -1086,6 +1086,7 @@ define([
                 theme: 'snow'
             });
 
+            // TODO: This needs to run each time a user resizes their window.
             this.ui.packageForm.find('.row.can-collapse').each(function() {
                 var $thisEl = $(this);
 
@@ -1093,8 +1094,6 @@ define([
 
                 $thisEl.addClass('collapse-enabled');
             });
-
-            // this.ui.
         },
 
         initializeDatePicker: function(dateMode) {

@@ -146,7 +146,11 @@ $mf-transition-speed: 0.28s !default;
                         position: absolute;
                         top: 50%;
                         right: 15px;
+                        transform: rotate(0);
+                        transform-origin: 50% 40%;
                         width: 0;
+
+                        transition: transform 0.3s;
                     }
 
                     &:hover {
@@ -165,8 +169,8 @@ $mf-transition-speed: 0.28s !default;
                         color: #424242;
 
                         &::after {
-                            border-color: transparent transparent #616161 transparent;
-                            border-width: 0 5px 5px 5px;
+                            border-color: #616161 transparent transparent transparent;
+                            transform: rotate(180deg);
                         }
                     }
                 }
