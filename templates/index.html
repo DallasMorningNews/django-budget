@@ -15,9 +15,7 @@
         <script async src="js/main.js"></script>
 
         <script type="text/javascript">
-            window.currentUser = {
-                email: '{{user}}'
-            };
+            window.currentUser = JSON.parse('{{ user|safe }}');
         </script>
     </body>
 </html>

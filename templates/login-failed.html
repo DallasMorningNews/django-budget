@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+    <head prefix='og: http://ogp.me/ns#'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>DMN Budget</title>
+
+        <link rel="shortcut icon" type="image/x-icon" href="img/favicon-premium.ico" />
+
+        <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic,700italic,500italic' rel='stylesheet' type='text/css'>
+
+        <link href="/css/main.css" rel="stylesheet" type="text/css" />
+
+        <style type="text/css">
+            .center-content {
+                max-width: 600px;
+            }
+            .package-sheet-holder .package-sheet .error-holder {
+                background-color: #F5F5F5;
+                box-sizing: border-box;
+                padding: 2rem 0 2.4rem;
+            }
+            .package-sheet-holder .package-sheet .error-holder h1 {
+                border-bottom: 1px solid #D9D9D9;
+                font-size: 34px;
+                line-height: 40px;
+                margin: 0 2.5rem 2.1rem;
+                overflow: visible;
+                padding: 0 0 2rem;
+                position: relative;
+                text-align: center;
+            }
+            .package-sheet-holder .package-sheet .error-holder h1::after {
+                bottom: calc(-1rem + 3.5px);
+                color: #BDBDBD;
+                content: '\02666';
+                font-family: Georgia, "Times", serif;
+                font-size: 24px;
+                font-weight: normal;
+                height: 24px;
+                left: calc(50% - 9px);
+                line-height: 24px;
+                padding: 0 1px;
+                position: absolute;
+                text-align: left;
+                width: 18px;
+            }
+            .package-sheet-holder .package-sheet .error-holder ul {
+                color: #616161;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 28px;
+                list-style: none inside none;
+                margin: 0;
+                padding: 0;
+            }
+            .package-sheet-holder .package-sheet .error-holder ul li {
+                margin: 1.5rem 3.5rem 0;
+            }
+            .package-sheet-holder .package-sheet .error-holder ul li strong {
+                color: #212121;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="navigation" class="top-bar sans">
+            <div class="navigation-inner">
+                <div id="logo-holder" class="top-bar-left">
+                    <img src="/img/dmn_masthead.png">
+                </div>
+            </div>
+        </div>
+
+        <div id="main-content">
+            <div class="center-content">
+                <div class="package-sheet-holder">
+                    <div class="package-sheet">
+                        <div class="minimal-card">
+                            <div class="error-holder row">
+                                <h1>Login failed</h1>
+                                <ul id="error-message-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.3/jquery.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+        <script type="text/javascript">
+            var errorMessageString = '{{ errorMessage|safe }}',
+                errorMessages = {
+                    'Invalid host domain.': [
+                        'You must use a valid ' +
+                            '<strong>@dallasnews.com</strong> email address ' +
+                            'to access this&nbsp;site.',
+                        'Sign out of any other Google accounts you may have ' +
+                            'open and try logging in&nbsp;again.'
+                    ],
+                    'other': [
+                        'Oops! An unspecified error occurred, and we ' +
+                            'couldn&rsquo;t log you&nbsp;in.',
+                        'Please try&nbsp;again.'
+                    ]
+                },
+                specialMessagesAdded = false,
+                maintenaceEmail = 'newsapps@dallasnews.com';
+
+            function appendListItem(headerElement, errorMessageKey) {
+                _.each(errorMessages[errorMessageKey], function(messageGraf) {
+                    headerElement.append(
+                        '<li>' + messageGraf + '</li>'
+                    );
+                });
+            }
+
+            $(document).ready(function() {
+                headerList = $("#error-message-list");
+
+                if (errorMessageString !== '') {
+                    var errorMessageArray = JSON.parse(errorMessageString);
+
+                    _.each(errorMessageArray, function(message) {
+                        specialMessagesAdded = true;
+                        appendListItem(headerList, message);
+                    });
+                }
+
+                if (!specialMessagesAdded) {
+                    appendListItem(headerList, 'other');
+                }
+
+                headerList.append(
+                    '<li>' +
+                        'If the problem persists, contact the News Apps ' +
+                        'Desk at&nbsp;<a href="mailto:' + maintenaceEmail + '">' +
+                        maintenaceEmail + '</a>.' +
+                    '</li>'
+                );
+            });
+        </script>
+    </body>
+</html>
