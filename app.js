@@ -36,13 +36,16 @@ app.set('google_auth_client_id', (process.env.GOOGLE_AUTH_CLIENT_ID || ''));  //
 app.set('google_auth_secret_key', (process.env.GOOGLE_AUTH_SECRET_KEY || ''));  // This needs a value
 app.set('google_auth_callback_url', (process.env.GOOGLE_AUTH_CALLBACK_URL || ''));  // This needs a value.
 
+app.set('express_session_secret_key', (process.env.EXPRESS_SESSION_SECRET_KEY || 'keyboard cat'));
+
 
 // Session, Passport and flash-messaging setup.
 app.use(
     expressSession({
-        secret: 'keyboard cat',
+        secret: app.get('express_session_secret_key'),
         resave: true,
-        saveUninitialized: true
+        saveUninitialized: true,
+        cookie: { maxAge: 900000 }
     })
 );
 app.use(passport.initialize());
