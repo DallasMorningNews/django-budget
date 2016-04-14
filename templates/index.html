@@ -15,7 +15,18 @@
         <script async src="js/main.js"></script>
 
         <script type="text/javascript">
-            window.currentUser = JSON.parse('{{ user|safe }}');
+            var userJSON = '{{ user|safe }}';
+
+            if (userJSON.substring(3, 12) == 'user|safe') {
+                // Catch the case where there's no actual user object.
+                // This will mostly happen when we're using Gulp in lieu
+                // of the node.js server.
+                userJSON = JSON.stringify({
+                    email: 'test-user@dallasnews.com'
+                });
+            }
+
+            window.currentUser = JSON.parse(userJSON);
         </script>
     </body>
 </html>
