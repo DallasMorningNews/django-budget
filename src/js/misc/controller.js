@@ -1,8 +1,8 @@
 define(
     [
         'backbone',
-        'marionette',
-        'collections/packages',
+        'moment',
+        'underscore',
         'itemviews/snackbars/snackbar.js',
         'layoutviews/packages/edit',
         'layoutviews/packages/list',
@@ -10,8 +10,8 @@ define(
     ],
     function(
         Backbone,
-        Mn,
-        PackageCollection,
+        moment,
+        _,
         SnackbarView,
         PackageEditView,
         PackageListView,
@@ -22,30 +22,81 @@ define(
         var _radio = Backbone.Wreqr.radio.channel('global');
 
         return {
-            home: function(){
-                // var packageListView = new PackageListView({
-                //     hubs: this.options.data.hubs,
-                //     searchOptions: this.options.data.searchOptions,
-                //     packages: this.options.data.packages,
-                //     state: this.options.state,
-                // });
+            home: function(querystring){
+                var parsedQueryTerms = null,
+                    parsedDateRange = {},
+                    searchQueryTerms = [
+                        'fullText',
+                        'hub',
+                        'person',
+                        'vertical',
+                    ],
+                    dateQueryTerms = [
+                        'startDate',
+                        'endDate'
+                    ];
 
-                var packageCollection = new PackageCollection();
+                if (!_.isNull(querystring)) {
+                    var invalidTerms = [];
 
-                packageCollection.fetch().done(function() {
-                    console.log("Fetched package collection with '" + packageCollection.length + "' item(s).");
+                    parsedQueryTerms = _.chain(querystring.split('&'))
+                        .map(
+                            function(i){
+                                var termParts = _.map(
+                                        i.split('='),
+                                        decodeURIComponent
+                                    );
 
-                    _radio.commands.execute(
-                        'switchMainView',
-                        PackageListView,
-                        {
-                            'packageCollection': packageCollection
-                        }
-                    );
-                });
-            },
-            search: function(){
-                console.log("Search.");
+                                if (_.contains(searchQueryTerms, termParts[0])) {
+                                    return {
+                                        type: termParts[0],
+                                        value: termParts[1]
+                                    };
+                                } else if (_.contains(dateQueryTerms, termParts[0])) {
+                                    parsedDateRange[
+                                        termParts[0].slice(0, -4)
+                                    ] = moment(
+                                        termParts[1]
+                                    ).format('YYYY-MM-DD');
+
+                                    return null;
+                                } else {
+                                    invalidTerms.push({
+                                        type: termParts[0],
+                                        value: termParts[1],
+                                    });
+
+                                    return null;
+                                }
+
+                            }
+                        )
+                        .compact()
+                        .value();
+
+                    if (!_.isEmpty(invalidTerms)) {
+                        _.each(
+                            invalidTerms,
+                            function(term) {
+                                var message = '' +
+                                    'Invalid querystring term: "' +
+                                    encodeURIComponent(term.type) + '=' +
+                                    encodeURIComponent(term.value) + '" ' +
+                                    '(ignored)';
+                                console.log(message);
+                            }
+                        );
+                    }
+                }
+
+                _radio.commands.execute(
+                    'switchMainView',
+                    PackageListView,
+                    {
+                        'dateRange': parsedDateRange,
+                        'queryTerms': parsedQueryTerms
+                    }
+                );
             },
             edit: function(packageID){
                 if (packageID === null) {

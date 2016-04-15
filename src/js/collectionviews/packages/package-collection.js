@@ -1,11 +1,13 @@
 define([
     'backbone',
     'marionette',
+    'underscore',
     'itemviews/packages/package',
     'itemviews/packages/no-package'
 ], function(
     Backbone,
     Mn,
+    _,
     PackageView,
     NoPackagesView
 ) {
@@ -16,44 +18,10 @@ define([
             'updateQuery': 'render'
         },
 
-        initialize: function() {
-            // Hook into our global Wreqr channel.
-            this._radio = Backbone.Wreqr.radio.channel('global');
-
-            this._radio.commands.setHandler(
-                'pushQueryTerm',
-                function(queryObject) {
-                    this.options.state.queryTerms.push(queryObject);
-
-                    this.options.collection.filterAnd(
-                        this.options.state.queryTerms,
-                        {
-                            hubs: this.options.hubs
-                        }
-                    );
-                },
-                this
-            );
-
-            this._radio.commands.setHandler(
-                'popQueryTerm',
-                function(queryValue) {
-                    this.options.state.queryTerms.remove(
-                        this.options.state.queryTerms.where({
-                            value: queryValue
-                        })
-                    );
-
-                    this.options.collection.filterAnd(
-                        this.options.state.queryTerms,
-                        {
-                            hubs: this.options.hubs
-                        }
-                    );
-                },
-                this
-            );
-        },
+        // initialize: function() {
+        //     // Hook into our global Wreqr channel.
+        //     this._radio = Backbone.Wreqr.radio.channel('global');
+        // },
 
         childViewOptions: function(model, index) {
             return {

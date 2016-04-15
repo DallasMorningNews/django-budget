@@ -1,8 +1,13 @@
 define([
     'backbone',
+    'underscore',
     'misc/settings',
 ],
-function(Backbone, settings) {
+function(
+    Backbone,
+    _,
+    settings
+) {
     'use strict';
 
     return Backbone.Model.extend({
@@ -44,6 +49,10 @@ function(Backbone, settings) {
                 }).get('vertical').slug;
 
                 return thisVerticalSlug == stringToMatch;
+            },
+            fullText: function(pkg, stringToMatch, extraContext) {
+                // Implementation TK.
+                return true;
             }
         },
 
@@ -87,7 +96,5 @@ function(Backbone, settings) {
                 return anyFacetsMatch;
             }
         }
-
-
     });
 });

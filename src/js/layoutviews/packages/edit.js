@@ -519,6 +519,8 @@ define([
             this.additionalItems.on('update', function() {
                 this.updateBottomButtonVisibility();
             }, this);
+
+            this.options.initFinishedCallback(this);
         },
 
         changeColorDot: function(newHubSlug) {

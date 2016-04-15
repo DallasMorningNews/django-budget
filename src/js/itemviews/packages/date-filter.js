@@ -1,15 +1,19 @@
 define([
     'backbone',
-    'marionette',
-    'misc/tpl',
-    'moment',
     'dateRangePicker',
+    'jquery',
+    'marionette',
+    'moment',
+    'underscore',
+    'misc/tpl'
 ], function(
     Backbone,
+    dateRangePicker,
+    $,
     Mn,
-    tpl,
     moment,
-    dateRangePicker
+    _,
+    tpl
 ) {
     return Mn.ItemView.extend({
         // id: '',
@@ -116,21 +120,31 @@ define([
                         (!isNaN(o2.date1.valueOf())) &&
                         (!isNaN(o2.date2.valueOf()))
                     ) {
+                        var newDateRange = {
+                            start: moment(
+                                obj.date1
+                            ).format('YYYY-MM-DD'),
+                            end: moment(
+                                obj.date2
+                            ).format('YYYY-MM-DD')
+                        };
 
-                        this._radio.commands.execute(
-                            'switchListDates',
-                            {
-                                start: moment(
-                                    obj.date1
-                                ).format('YYYY-MM-DD'),
-                                end: moment(
-                                    obj.date2
-                                ).format('YYYY-MM-DD')
-                            }
-                        );
+                        this._radio.commands.execute('switchListDates', newDateRange);
                     }
                 }.bind(this)
             );
+
+            if (!_.isEmpty(this.options.state.dateRange)) {
+                this.ui.dateChooser.data('dateRangePicker').setDateRange(
+                    moment(
+                        this.options.state.dateRange.start, 'YYYY-MM-DD'
+                    ).format('MMM D, YYYY'),
+                    moment(
+                        this.options.state.dateRange.end, 'YYYY-MM-DD'
+                    ).format('MMM D, YYYY'),
+                    true
+                );
+            }
         }
     });
 });

@@ -1,25 +1,25 @@
 define(
     [
-        'jquery',
         'backbone',
-        'marionette',
         'foundation',
-        'layoutviews/root-view',
+        'jquery',
+        'marionette',
         'collections/hubs',
         'collections/query-terms',
         'collections/staffers',
+        'layoutviews/root-view',
         'misc/router',
         'misc/settings'
     ],
     function(
-        $,
         Backbone,
-        Mn,
         Foundation,
-        RootView,
+        $,
+        Mn,
         HubCollection,
         QueryTermCollection,
         StafferCollection,
+        RootView,
         Router,
         settings
     ) {
@@ -69,7 +69,8 @@ define(
                  * Instantiate the root view.
                  */
                 this.state = {
-                    selectizeType: 'and'
+                    selectizeType: 'and',
+                    dateRange: {},
                 };
 
                 this.state.queryTerms = new QueryTermCollection();

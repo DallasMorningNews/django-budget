@@ -15,9 +15,9 @@ define(
             controller: controller,
 
             appRoutes: {
-                '': 'home',
-                'search(/)(:querystring)(/)': 'search',
                 'edit(/)(:id)(/)': 'edit',
+                '(:querystring)(/)': 'home',
+                // 'search(/)(:querystring)(/)': 'search',
                 '*notFound': 'fourohfour'
             },
 

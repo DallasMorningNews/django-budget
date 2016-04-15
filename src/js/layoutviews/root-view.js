@@ -1,15 +1,17 @@
 define([
     'backbone',
     'marionette',
+    'underscore',
     'vex',
-    'misc/tpl',
-    'layoutviews/navbar'
+    'layoutviews/navbar',
+    'misc/tpl'
 ], function(
     Backbone,
     Mn,
+    _,
     vex,
-    tpl,
-    NavbarView
+    NavbarView,
+    tpl
 ) {
     return Mn.LayoutView.extend({
         el: 'body',
@@ -36,6 +38,9 @@ define([
                     currentUser: this.options.currentUser,
                     data: this.options.data,
                     state: this.options.state,
+                    initFinishedCallback: function(childView) {
+                        this.showChildView('mainContent', childView);
+                    }.bind(this)
                 };
 
                 if (typeof(boundData) != "undefined") {
@@ -43,8 +48,6 @@ define([
                 }
 
                 this.mainView = new MainViewClass(classConstructor);
-
-                this.showChildView('mainContent', this.mainView);
             }, this);
 
             _radio.commands.setHandler('showModal', function(modalView) {

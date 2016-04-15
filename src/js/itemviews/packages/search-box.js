@@ -34,8 +34,6 @@ define([
         //     this.packageCollectionView = new ({});
         },
 
-        // TODO: Render search options dynamically.
-
         onRender: function() {
             var _radio = Backbone.Wreqr.radio.channel('global');
 
@@ -94,6 +92,28 @@ define([
                 }.bind(this)
                 // preload: true
             });
+
+            if (!this.options.state.queryTerms.isEmpty()) {
+                // Add all currently-selected fields to the selectize box.
+                // Nota bene: I'm doing this manually, rather than by
+                // specifying an 'items' array, because the latter way won't
+                // let you add created (in our case, full-text search) options.
+                var selectizeObj = this.ui.searchBox[0].selectize;
+
+                selectizeObj.off('item_add');
+
+                this.options.state.queryTerms.each(function(term, i) {
+                    if (term.get('type') == 'fullText') {
+                        selectizeObj.createItem(term.get('value'), false);
+                    } else {
+                        selectizeObj.addItem(term.get('value'), true);
+                    }
+
+                    if (i + 1 == this.options.state.queryTerms.length) {
+                        selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
+                    }
+                }.bind(this));
+            }
         },
 
         generateSearchOptions: function() {
