@@ -38,7 +38,7 @@ define(
 
             filterOr: function(searchTerms, extraContext) {
                 this.queryFiltered = this.filter(function(pkg) {
-                    return pkg.filterUsingOr(queryTerms, extraContext);
+                    return pkg.filterUsingOr(searchTerms, extraContext);
                 }.bind(this));
 
                 this.trigger('updateQuery', this.queryFiltered);
