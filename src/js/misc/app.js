@@ -40,6 +40,10 @@ define(
                 this._radio.reqres.setHandler('data', function(type){
                     return this.data[type];
                 }, this);
+
+                this.currentUser = {
+                    email: 'test.user@dallasnews.com'
+                };
             },
 
             bootstrapData: function() {
@@ -60,8 +64,20 @@ define(
                  */
                 return $.when(
                     this.data.hubs.fetch(),
-                    this.data.staffers.fetch()
+                    this.data.staffers.fetch(),
+                    $.ajax({
+                        dataType: 'json',
+                        url: '/user-info/',
+                    }).done(this.handleUserData.bind(this))
                 );
+            },
+
+            handleUserData: function(data) {
+                // Overwrite 'this.currentUser' with a user's
+                // actual profile information.
+                if (!_.isEmpty(data)) {
+                    this.currentUser = data;
+                }
             },
 
             onBeforeStart: function() {
@@ -76,7 +92,7 @@ define(
                 this.state.queryTerms = new QueryTermCollection();
 
                 this.rootView = new RootView({
-                    currentUser: this.options.currentUser,
+                    currentUser: this.currentUser,
                     data: this.data,
                     state: this.state,
                 });
@@ -94,7 +110,9 @@ define(
                     this.router.navigate(path, options);
                 }, this);
 
-                Backbone.history.start();
+                Backbone.history.start({
+                    pushState: true
+                });
             }
         });
     }

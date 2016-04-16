@@ -113,8 +113,6 @@ gulp.task('scss', function () {
 });
 
 
-
-
 /**
  * Meta/grouped tasks
  */
@@ -124,13 +122,19 @@ gulp.task('build-styles', ['scss']);
 
 gulp.task('build', ['build-scripts', 'build-styles']);
 
+var modRewrite = require('connect-modrewrite');
 
 gulp.task('default', ['build'], function () {
     browserSync.init({
         files: ['./dist/**/*.*'], // Watch all built files for changes and reload
-        open: 'local',
         server: {
-            baseDir: ["./templates/", "./dist/"]
+            baseDir: ["./templates/", "./dist/"],
+            middleware: [
+                modRewrite([
+                    '^/user-info/?$ /test-data/empty-user.json [L,T=application/json]',
+                    '!\\.html|\\.js|\\.svg|\\.css|\\.png|\\.jpg|\\.gif|\\.ico|\\.eot|\\.svg|\\.ttf|\\.woff|\\.woff2$ /index.html [L]',
+                ])
+            ]
         }
     });
 

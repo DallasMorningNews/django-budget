@@ -98,37 +98,14 @@ var requireLogin = function (req, res, next) {
     if (req.isAuthenticated()) {
         next();
     } else {
+        req.session.loginSuccessfulRedirect = req.path;
+
         res.redirect('/login/google');
     }
 };
 
 
 // Routes.
-
-app.get(
-    '/',
-    requireLogin,
-    function(req, res) {
-        var userObj = {
-            provider: req.user.provider,
-            userID: req.user.id,
-            email: _.find(req.user.emails, {type: 'account'}).value,
-            displayName: req.user.displayName,
-            nameComponents: _.clone(req.user.name)
-        };
-
-        if (
-            (_.has(req.user, 'photos')) &&
-            (!_.isEmpty(req.user.photos))
-        ) {
-            userObj.photoURL = _.find(req.user.photos, {}).value;
-        }
-
-        res.render('index.html', {
-            user: JSON.stringify(userObj)
-        });
-    }
-);
 
 app.get(
     '/login/google',
@@ -150,8 +127,14 @@ app.get(
         }
     ),
     function(req, res) {
-        // Successful authentication, redirect home.
-        res.redirect('/');
+        // Successful authentication.
+        // Redirect to the initial location a user requested (if we have a
+        // record of it), or to the home page if no record exists.
+        if (!_.isUndefined(req.session.loginSuccessfulRedirect)) {
+            res.redirect(req.session.loginSuccessfulRedirect);
+        } else {
+            res.redirect('/');
+        }
     }
 );
 
@@ -166,6 +149,42 @@ app.get(
         }
 
         res.render('login-failed.html', pageContext);
+    }
+);
+
+app.get(
+    '/user-info/',
+    function(req, res) {
+        var userObj = {};
+
+        if (!_.isUndefined(req.user)) {
+            userObj = {
+                provider: req.user.provider,
+                userID: req.user.id,
+                email: _.find(req.user.emails, {type: 'account'}).value,
+                displayName: req.user.displayName,
+                nameComponents: _.clone(req.user.name)
+            };
+
+            if (
+                (_.has(req.user, 'photos')) &&
+                (!_.isEmpty(req.user.photos))
+            ) {
+                userObj.photoURL = _.find(req.user.photos, {}).value;
+            }
+        }
+
+        res.json(userObj);
+    }
+);
+
+app.get(
+    '*',
+    requireLogin,
+    function(req, res) {
+        delete req.session.loginSuccessfulRedirect;
+
+        res.sendFile(path.join(__dirname + '/templates/index.html'));
     }
 );
 

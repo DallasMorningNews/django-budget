@@ -4,29 +4,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>DMN Budget</title>
 
-        <link rel="shortcut icon" type="image/x-icon" href="img/favicon-premium.ico" />
+        <link rel="shortcut icon" type="image/x-icon" href="/img/favicon-premium.ico" />
 
         <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic,700italic,500italic' rel='stylesheet' type='text/css'>
 
-        <link href="css/main.css" rel="stylesheet" type="text/css" />
+        <link href="/css/main.css" rel="stylesheet" type="text/css" />
     </head>
 
     <body>
-        <script async src="js/main.js"></script>
-
-        <script type="text/javascript">
-            var userJSON = '{{ user|safe }}';
-
-            if (userJSON.substring(3, 12) == 'user|safe') {
-                // Catch the case where there's no actual user object.
-                // This will mostly happen when we're using Gulp in lieu
-                // of the node.js server.
-                userJSON = JSON.stringify({
-                    email: 'test-user@dallasnews.com'
-                });
-            }
-
-            window.currentUser = JSON.parse(userJSON);
-        </script>
+        <script async src="/js/main.js"></script>
     </body>
 </html>

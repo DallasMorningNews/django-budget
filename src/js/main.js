@@ -2,13 +2,19 @@ require(['misc/app'], function(App) {
     'use strict';
 
     var $ = require('jquery');
-    // var foundation = require('foundation-core');
 
-    // Start the app
-    window.app = new App({
-        currentUser: window.currentUser
+    $(document).ready(function() {
+        // Initialize the app.
+        var budgetApp = new App();
+
+        // Load underlying data (including the user config), then start
+        // the app.
+        budgetApp.bootstrapData().done(
+            budgetApp.start.bind(budgetApp)
+        );
+
+        window.app = budgetApp;
+
+        $(document).foundation();
     });
-    app.bootstrapData().done(app.start.bind(app));
-
-    $(document).foundation();
 });
