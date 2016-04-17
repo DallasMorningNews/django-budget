@@ -40,8 +40,8 @@
                     <i class="bar"></i>
                 </div>
                 <div class="medium-2 columns form-group length-group"{% if boundData %}{% if boundData.primaryContent.type == 'text' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="length" name="length" data-form="primary" class="form-select-inches" type="number" value="{% if boundData %}{% if boundData.primaryContent.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if boundData %}{% if boundData.primaryContent.type != 'text' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
-                    <label for="length" class="control-label">Inches</label>
+                    <input id="length" name="length" data-form="primary" class="form-select-word-count" type="number" value="{% if boundData %}{% if boundData.primaryContent.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if boundData %}{% if boundData.primaryContent.type != 'text' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
+                    <label for="length" class="control-label">Word count</label>
                     <i class="bar"></i>
                 </div>
             </div>

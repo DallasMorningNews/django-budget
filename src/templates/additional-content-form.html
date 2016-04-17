@@ -20,8 +20,8 @@
         <i class="bar"></i>
     </div>
     <div class="medium-2 columns form-group length-group"{% if config.boundData %}{% if config.boundData.type == 'text' %} style="display: block;"{% endif %}{% endif %}>
-        <input id="{{ config.formID }}_length" class="field-length form-select-inches" name="{{ config.formID }}_length" data-form="{{ config.formID }}" type="number" value="{% if config.boundData %}{% if config.boundData.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if config.boundData %}{% if config.boundData.type != 'text' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
-        <label for="{{ config.formID }}_length" class="control-label">Inches</label>
+        <input id="{{ config.formID }}_length" class="field-length form-select-word-count" name="{{ config.formID }}_length" data-form="{{ config.formID }}" type="number" value="{% if config.boundData %}{% if config.boundData.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if config.boundData %}{% if config.boundData.type != 'text' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
+        <label for="{{ config.formID }}_length" class="control-label">Word count</label>
         <i class="bar"></i>
     </div>
     <div class="medium-6 columns"></div>
