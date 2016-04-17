@@ -403,6 +403,8 @@
                 transition: max-height 0.5s ease;
 
                 .row {
+                    margin: 0;
+
                     .column{
                         &.knockout {
                             min-height: 10px;
@@ -416,17 +418,16 @@
                             padding: 0;
                         }
                     }
-
-                    // Test this to see if it can go above the related stuff.
-                    margin: 0;
                 }
 
-                &:last-child {
-                    .row {
-                        .column.visible-area {
-                            margin-bottom: 6px;
-                            margin-top: 9px;
-                        }
+                &> .row {
+                    // Test this to see if it can go above the related stuff.
+                    padding-bottom: 9px;
+                }
+
+                &:first-child {
+                    &> .row {
+                        padding-top: 9px;
                     }
                 }
 
