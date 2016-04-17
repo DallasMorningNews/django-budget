@@ -24,7 +24,7 @@
         </div>
         <div class="additional-package-info row">
             <div class="column small-6 medium-6 large-6 text-left">
-                <div class="additional-info-line"><i class="{{ primaryTypeMeta.icon }}"></i>&thinsp;&nbsp;{{ primaryTypeMeta.verboseName }}{% if packageObj.primaryContent.length %} ({{ packageObj.primaryContent.length }} words){% endif %}</div>
+                <div class="additional-info-line"><i class="{{ primaryTypeMeta.icon }}"></i>&thinsp;&nbsp;{{ primaryTypeMeta.verboseName }}{% if packageObj.primaryContent.length %} ({{ packageObj.primaryContent.length|numberWithCommas }} words){% endif %}</div>
             </div>
             <div class="related-types column small-5 medium-5 large-5 text-right"><div class="additional-info-line">{% if additionalItemTypes|length > 0 %}Includes {% for type in additionalItemTypes %}<i class="{{ type.icon }}"></i>{% endfor %}{% endif %}</div>
             </div>
