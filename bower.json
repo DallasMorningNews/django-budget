@@ -29,6 +29,7 @@
     "selectize": "^0.12.1",
     "lunr.js": "~0.6.0",
     "foundation-sites": "~6.2.0",
-    "vex": "^2.3.3"
+    "vex": "^2.3.3",
+    "numeral": "^1.5.3"
   }
 }
