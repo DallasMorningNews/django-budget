@@ -152,6 +152,14 @@ define(
                     this.model.get('primaryContent').type
                 ];
 
+                // Fallback function for comma-formatted length (1 of 2).
+                // If used, remember to also import numeral.
+                // if (_.has(packageObj.primaryContent, 'length')) {
+                //     templateContext.primaryLengthFormatted = numeral(
+                //         packageObj.primaryContent.length
+                //     ).format('0,0');
+                // }
+
                 // List of additional content item types and icons
                 // (Needed for "Includes [other icons]" list).
                 templateContext.additionalItemTypes = _.map(
@@ -168,12 +176,22 @@ define(
                 templateContext.additionalWithTypeMetas = _.map(
                     packageObj.additionalContent,
                     function(additionalItem) {
-                        return {
-                            model: additionalItem,
+                        var additionalConfig = {
+                            model: _.clone(additionalItem),
                             typeMeta: settings.contentTypes[
                                 additionalItem.type
                             ],
                         };
+
+                        // Fallback function for comma-formatted length (2 of 2).
+                        // If used, remember to also import numeral.
+                        // if (_.has(additionalItem, 'length')) {
+                        //     additionalConfig.model.length = numeral(
+                        //         additionalItem.length
+                        //     ).format('0,0');
+                        // }
+
+                        return additionalConfig;
                     }
                 );
 
