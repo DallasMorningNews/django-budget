@@ -14,11 +14,35 @@ define(
         return Mn.AppRouter.extend({
             controller: controller,
 
-            appRoutes: {
-                'edit(/)(:id)(/)': 'edit',
-                '(:querystring)(/)': 'home',
-                // 'search(/)(:querystring)(/)': 'search',
-                '*notFound': 'fourohfour'
+            namedAppRoutes: {
+                notFound: {
+                    pattern: /^.+$/,
+                    name: 'fourohfour'
+                },
+                listPage: {
+                    pattern: /^([\s\d\w\&\=\-\%\.]*)\/{0,1}$/,
+                    name: 'home'
+                },
+                createPage: {
+                    pattern: /^edit\/{0,1}$/,
+                    name: 'edit'
+                },
+                editPage: {
+                    pattern: /^edit\/(\d+)\/{0,1}$/,
+                    name: 'edit'
+                }
+            },
+
+            initialize: function(opts) {
+                _.each(
+                    this.namedAppRoutes,
+                    function(routeConfig, routeSlug) {
+                        this.appRoute(
+                            routeConfig.pattern,
+                            routeConfig.name
+                        );
+                    }.bind(this)
+                );
             },
 
             onRoute: function(name, path, args) {
