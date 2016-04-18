@@ -99,7 +99,7 @@ define(
                 );
             },
             edit: function(packageID){
-                if (packageID === null) {
+                if (_.isUndefined(packageID)) {
                     _radio.commands.execute('switchMainView', PackageEditView);
                 } else {
                     var packageToEdit = new Package({
