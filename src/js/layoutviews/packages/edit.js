@@ -816,14 +816,13 @@ define([
                 }
             }
 
-            this.addNewAdditionalItem();
+            // Uncomment this line to have an unbound form on every edit page
+            // (the JS equivalent of Django's 'inline.EXTRA=1').
+            // this.addNewAdditionalItem();
 
             this.showChildView('additionalContentHolder', this.additionalContentView);
-            // this.showChildView('searchBox', this.searchBoxView);
 
-            // this.showChildView('packages', this.collectionView);
             expandingTextField.make(this.ui.budgetLineField);
-            // expandingTextField.make(this.ui.notesField);
 
             var hubOptions = this.generateHubOptions();
 
