@@ -344,7 +344,7 @@ $mf-transition-speed: 0.28s !default;
                         margin-bottom: 5px;
 
                         .extra-headline-spacing {
-                            height: 0.25rem;
+                            height: 0.75rem;
                             width: 100%;
                         }
                     }
@@ -794,6 +794,16 @@ fieldset {
         padding-left: $mf-checkbox-gap;
         position: relative;
         text-align: left;
+
+        .vote-count {
+            color: #9E9E9E;
+            font-weight: 700;
+
+            .percent-sign {
+                font-size: 13px;
+                padding-left: 1px;
+            }
+        }
     }
 
     input {
