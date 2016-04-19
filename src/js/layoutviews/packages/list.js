@@ -123,18 +123,36 @@ define([
 
             this.packageCollection.fetch().done(
                 function(data, textStatus, jqXHR) {
+                    this.packageCollection.rebuildIndex();
+
                     callbackFunction(this.packageCollection, jqXHR, {});
                 }.bind(this)
             );
         },
 
         updateQuery: function(collection) {
+            var extraQueryContext = {
+                    hubs: this.options.data.hubs
+                },
+                fullTextQueries = this.options.state.queryTerms.where({
+                    type: 'fullText'
+                });
+
+            if (!_.isEmpty(fullTextQueries)) {
+                extraQueryContext.fullTextSearches = {};
+                _.chain(fullTextQueries)
+                    .each(function(query) {
+                        extraQueryContext.fullTextSearches[
+                            query.get('value')
+                        ] = collection.fullTextIndex.search(query.get('value'));
+                    })
+                    .value();
+            }
+
             // Re-run the object query based on the terms.
             collection.filterAnd(
                 this.options.state.queryTerms,
-                {
-                    hubs: this.options.data.hubs
-                }
+                extraQueryContext
             );
         },
 
