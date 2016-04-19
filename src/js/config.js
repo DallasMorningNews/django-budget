@@ -6,6 +6,7 @@ require.config({
         underscore: '../../bower_components/underscore/underscore',
         jquery: '../../bower_components/jquery/dist/jquery',
         // 'jquery-timeago': '../../bower_components/jquery-timeago/jquery.timeago',
+        lunr: '../../bower_components/lunr.js/lunr',
         numeral: '../../bower_components/numeral/numeral',
         nunjucks: '../../bower_components/nunjucks/browser/nunjucks-slim',
         moment: '../../bower_components/moment/moment',
