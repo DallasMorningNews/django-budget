@@ -51,8 +51,13 @@ function(
                 return thisVerticalSlug == stringToMatch;
             },
             fullText: function(pkg, stringToMatch, extraContext) {
-                // Implementation TK.
-                return true;
+                return _.contains(
+                    _.pluck(
+                        extraContext.fullTextSearches[stringToMatch],
+                        'ref'
+                    ),
+                    pkg.get('id')
+                );
             }
         },
 
