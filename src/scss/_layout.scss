@@ -33,9 +33,22 @@ h2 {
     .navigation-inner {
         @include clearfix;
 
-        height: 3rem;
+        height: 5.5rem;
         margin: 0 auto;
         padding: 0.25rem 0.75rem;
+
+        /* IE10+ */
+        background-image: -ms-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        /* Mozilla Firefox */
+        background-image: -moz-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        /* Opera */
+        background-image: -o-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        /* Webkit (Safari/Chrome 10) */
+        background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #2196F3), color-stop(70, #0D47A1));
+        /* Webkit (Chrome 11+) */
+        background-image: -webkit-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        /* W3C Markup */
+        background-image: linear-gradient(to bottom right, #2196F3 0%, #0D47A1 70%);
 
         #logo-holder {
             img {
@@ -43,13 +56,28 @@ h2 {
                 height: 2.5rem;
                 padding: 0.5rem 0;
             }
+
+            .masthead {
+                opacity: 0.7;
+                height: 1rem;
+                display: block;
+                margin: 0.5rem 0 0 1.5rem;
+                padding: 0;
+            }
+
+            .budget-wordmark {
+                display: block;
+                height: 2.5rem;
+                padding: 0;
+                margin: 0.5rem 0 0.5rem 1.5rem;
+            }
         }
 
         #user-info-holder {
             font-weight: 500;
-            height: 2.5rem;
+            height: 4.5rem;
             line-height: 2.5rem;
-            padding: 0 0 0 0.5rem;
+            padding: 2rem 1rem 0 0.5rem;
         }
     }
 
