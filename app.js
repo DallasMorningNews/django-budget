@@ -40,12 +40,14 @@ app.set('express_session_secret_key', (process.env.EXPRESS_SESSION_SECRET_KEY ||
 
 
 // Session, Passport and flash-messaging setup.
+var cookieAge = 7 * 24 * 60 * 60 * 1000;
+
 app.use(
     expressSession({
         secret: app.get('express_session_secret_key'),
         resave: true,
         saveUninitialized: true,
-        cookie: { maxAge: 900000 }
+        cookie: { maxAge: cookieAge }
     })
 );
 app.use(passport.initialize());
