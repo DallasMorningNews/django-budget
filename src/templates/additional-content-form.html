@@ -4,10 +4,10 @@
 
 <div class="row">
     <div class="medium-6 columns form-group">
-        <input id="{{ config.formID }}_slug" class="field-slug" name="{{ config.formID }}_slug" data-form="{{ config.formID }}" type="text" value="{% if config.boundData %}{{ config.boundData.slug }}{% endif %}" required="">
+        <input id="{{ config.formID }}_slug" class="field-slug" name="{{ config.formID }}_slug" data-form="{{ config.formID }}" type="text" {% if config.boundData %}data-original-value="{{ config.boundData.slug }}" {% endif %}value="{% if config.boundData %}{{ config.boundData.slug }}{% endif %}" required="">
         <label for="{{ config.formID }}_slug" class="control-label">Slug<span class="required-marker">*</span></label>
         <i class="bar"></i>
-        <div class="form-help">Enter a unique value.</div>
+        <div class="form-help">{% if config.boundData %}{{ slugMessages.successfullyUniqueValue }}{% else %}{{ slugMessages.defaultMessage }}{% endif %}</div>
 
     </div>
     <div class="medium-6 columns"></div>

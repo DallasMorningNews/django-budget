@@ -523,6 +523,78 @@ define([
             }, this);
 
             this.options.initFinishedCallback(this);
+
+            this._radio.commands.setHandler(
+                'verifySlugUniqueness',
+                function(event) {
+                    var targetEl = $(event.currentTarget),
+                        currentValue = targetEl.val();
+
+                    if (currentValue.length > 3) {
+                        $.ajax({
+                            url: settings.urlConfig.getEndpoints.package.slugUniquenessCheck,
+                            data: {
+                                slug: currentValue
+                            },
+                            dataType: 'json',
+                            success: function(data) {
+                                if (data.success) {
+                                    if (data.unique) {
+                                        // Remove all error classes
+                                        if (targetEl.parent().hasClass('has-error')) {
+                                            targetEl.parent().removeClass('has-error');
+                                        }
+
+                                        targetEl.siblings('.form-help').html(
+                                            settings.messages.slugField.successfullyUniqueValue
+                                        );
+                                    } else if (
+                                        _.has(targetEl.data(), 'originalValue') &&
+                                        currentValue == targetEl.data('originalValue')
+                                    ) {
+
+                                        // Remove all error classes
+                                        if (targetEl.parent().hasClass('has-error')) {
+                                            targetEl.parent().removeClass('has-error');
+                                        }
+
+                                        targetEl.siblings('.form-help').html(
+                                            settings.messages.slugField.successfullyUniqueValue
+                                        );
+                                    } else {
+                                        // Add an error class and error text saying the slug isn't unique.
+                                        if (!targetEl.hasClass('has-error')) {
+                                            targetEl.parent().addClass('has-error');
+                                        }
+
+                                        targetEl.siblings('.form-help').html(
+                                            settings.messages.slugField.nonUniqueError
+                                        );
+                                    }
+                                } else {
+                                    // Add an error class saying the app couldn't verify uniqueness.
+                                    if (!targetEl.hasClass('has-error')) {
+                                        targetEl.parent().addClass('has-error');
+                                    }
+
+                                    targetEl.siblings('.form-help').html(
+                                        settings.messages.slugField.ajaxError
+                                    );
+                                }
+                            }
+                        });
+                    } else {
+                        // Add an error class and error text saying the slug is too short.
+                        if (!targetEl.hasClass('has-error')) {
+                            targetEl.parent().addClass('has-error');
+                        }
+
+                        targetEl.siblings('.form-help').html(
+                            settings.messages.slugField.tooShortError
+                        );
+                    }
+                }
+            );
         },
 
         changeColorDot: function(newHubSlug) {
@@ -544,7 +616,7 @@ define([
 
         serializeData: function() {
             var templateContext = {
-                //
+                slugMessages: settings.messages.slugField
             };
 
             if (typeof(this.options.boundData) != "undefined") {
@@ -736,59 +808,7 @@ define([
         },
 
         validateSlugUniqueness: function(event) {
-            var targetEl = $(event.currentTarget),
-                currentValue = targetEl.val();
-
-            if (currentValue.length > 3) {
-                $.ajax({
-                    url: settings.urlConfig.getEndpoints.package.slugUniquenessCheck,
-                    data: {
-                        slug: currentValue
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        if (data.success) {
-                            if (data.unique) {
-                                // Remove all error classes
-                                if (targetEl.parent().hasClass('has-error')) {
-                                    targetEl.parent().removeClass('has-error');
-                                }
-
-                                targetEl.siblings('.form-help').html(
-                                    settings.messages.slugField.successfullyUniqueValue
-                                );
-                            } else {
-                                // Add an error class and error text saying the slug isn't unique.
-                                if (!targetEl.hasClass('has-error')) {
-                                    targetEl.parent().addClass('has-error');
-                                }
-
-                                targetEl.siblings('.form-help').html(
-                                    settings.messages.slugField.nonUniqueError
-                                );
-                            }
-                        } else {
-                            // Add an error class saying the app couldn't verify uniqueness.
-                            if (!targetEl.hasClass('has-error')) {
-                                targetEl.parent().addClass('has-error');
-                            }
-
-                            targetEl.siblings('.form-help').html(
-                                settings.messages.slugField.ajaxError
-                            );
-                        }
-                    }
-                });
-            } else {
-                // Add an error class and error text saying the slug is too short.
-                if (!targetEl.hasClass('has-error')) {
-                    targetEl.parent().addClass('has-error');
-                }
-
-                targetEl.siblings('.form-help').html(
-                    settings.messages.slugField.tooShortError
-                );
-            }
+            this._radio.commands.execute('verifySlugUniqueness', event);
         },
 
         toggleCollapsibleRow: function(event) {

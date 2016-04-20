@@ -37,6 +37,7 @@ define(
             },
 
             ui: {
+                slugField: '.field-slug',
                 budgetLineField: '.field-budgetline',
                 typeDropdown: '.field-type',
                 lengthGroup: '.length-group',
@@ -52,6 +53,7 @@ define(
             },
 
             events: {
+                'keyup @ui.slugField': 'validateSlugUniqueness',
                 'click @ui.deleteTrigger': 'deleteItem',
             },
 
@@ -66,6 +68,7 @@ define(
             serializeData: function() {
                 var templateContext = {
                     config: this.model.toJSON(),
+                    slugMessages: settings.messages.slugField,
                 };
 
                 if (this.model.has('boundData') && _.has(this.model.get('boundData'), 'length')) {
@@ -76,6 +79,10 @@ define(
                 }
 
                 return templateContext;
+            },
+
+            validateSlugUniqueness: function(event) {
+                this._radio.commands.execute('verifySlugUniqueness', event);
             },
 
             deleteItem: function() {
