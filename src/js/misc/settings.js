@@ -47,6 +47,16 @@ define(function() {
             }
         },
 
+        messages: {
+            slugField: {
+                ajaxError: 'Could not check if that slug is unique. Try again later.',
+                defaultMessage: 'Enter a unique value.',
+                nonUniqueError: 'That slug is already taken. Please choose something else.',
+                successfullyUniqueValue: 'Your slug is unique.',
+                tooShortError: 'Slugs must be four or more characters long.',
+            }
+        },
+
         typeRankingIndex: {
             person: 1,
             hub: 5,
@@ -72,7 +82,11 @@ define(function() {
                 },
             },
             getEndpoints: {
-                packageDetailBase: 'http://datalab.dallasnews.com/budget/packages'
+                packageDetailBase: 'http://datalab.dallasnews.com/budget/packages',
+                package: {
+                    detailBase: 'http://datalab.dallasnews.com/budget/packages',  // To be migrated to in the app.
+                    slugUniquenessCheck: 'http://datalab.dallasnews.com/budget/content/unique-slug/',  // Already implemented.
+                }
             },
         }
     };

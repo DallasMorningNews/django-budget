@@ -46,6 +46,7 @@ define([
         ui: {
             colorDot: '.single-page .package-header .color-dot',
             packageForm: '#package-form',
+            slugField: '#package-form #slug',
             hubDropdown: '#package-form #hub',
             typeDropdown: '#package-form #type',
             lengthGroup: '#package-form .length-group',
@@ -72,6 +73,7 @@ define([
         },
 
         events: {
+            'keyup @ui.slugField': 'validateSlugUniqueness',
             'click @ui.collapsibleRowHeaders': 'toggleCollapsibleRow',
             'click @ui.addAdditionalItemTrigger': 'addNewAdditionalItem',
             'mousedown @ui.persistentButton': 'addButtonClickedClass',
@@ -730,6 +732,62 @@ define([
 
             if (this.ui.pubTimeGroup.is(':hidden')) {
                 this.ui.pubTimeGroup.fadeIn(280);
+            }
+        },
+
+        validateSlugUniqueness: function(event) {
+            var targetEl = $(event.currentTarget),
+                currentValue = targetEl.val();
+
+            if (currentValue.length > 3) {
+                $.ajax({
+                    url: settings.urlConfig.getEndpoints.package.slugUniquenessCheck,
+                    data: {
+                        slug: currentValue
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.success) {
+                            if (data.unique) {
+                                // Remove all error classes
+                                if (targetEl.parent().hasClass('has-error')) {
+                                    targetEl.parent().removeClass('has-error');
+                                }
+
+                                targetEl.siblings('.form-help').html(
+                                    settings.messages.slugField.successfullyUniqueValue
+                                );
+                            } else {
+                                // Add an error class and error text saying the slug isn't unique.
+                                if (!targetEl.hasClass('has-error')) {
+                                    targetEl.parent().addClass('has-error');
+                                }
+
+                                targetEl.siblings('.form-help').html(
+                                    settings.messages.slugField.nonUniqueError
+                                );
+                            }
+                        } else {
+                            // Add an error class saying the app couldn't verify uniqueness.
+                            if (!targetEl.hasClass('has-error')) {
+                                targetEl.parent().addClass('has-error');
+                            }
+
+                            targetEl.siblings('.form-help').html(
+                                settings.messages.slugField.ajaxError
+                            );
+                        }
+                    }
+                });
+            } else {
+                // Add an error class and error text saying the slug is too short.
+                if (!targetEl.hasClass('has-error')) {
+                    targetEl.parent().addClass('has-error');
+                }
+
+                targetEl.siblings('.form-help').html(
+                    settings.messages.slugField.tooShortError
+                );
             }
         },
 
