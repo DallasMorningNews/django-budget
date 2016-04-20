@@ -1172,15 +1172,19 @@ define([
 
             var finalPackage = {},
                 finalPrimaryItem = {},
-                additionalContentItems = [];
+                additionalContentItems = [],
+                userEmail = this.options.currentUser.email;
 
             // Package-wide processing.
             finalPackage.hub = rawFormData.packageFields.hub;
             finalPackage.URL = null;
             finalPackage.notes = this.richNotesField.getHTML();
             finalPackage.id = rawFormData.packageFields.package_id;
-            finalPackage.createdBy = null;
-            finalPackage.lastChangedBy = null;
+            finalPackage.lastChangedBy = userEmail;
+
+            if (_.isUndefined(this.options.boundData)) {
+                finalPackage.createdBy = userEmail;
+            }
 
             if (_.has(rawFormData.packageFields, 'headline1')) {
                 finalPackage.headlineCandidates = [];
