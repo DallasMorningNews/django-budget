@@ -85,7 +85,6 @@ define(function() {
                 packageDetailBase: 'http://datalab.dallasnews.com/budget/packages',
                 package: {
                     detailBase: 'http://datalab.dallasnews.com/budget/packages',  // To be migrated to in the app.
-                    slugUniquenessCheck: 'http://datalab.dallasnews.com/budget/content/unique-slug/',  // Already implemented.
                 }
             },
         }

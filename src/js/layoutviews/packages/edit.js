@@ -73,7 +73,7 @@ define([
         },
 
         events: {
-            'keyup @ui.slugField': 'validateSlugUniqueness',
+            'keyup @ui.slugField': 'validateSlug',
             'click @ui.collapsibleRowHeaders': 'toggleCollapsibleRow',
             'click @ui.addAdditionalItemTrigger': 'addNewAdditionalItem',
             'mousedown @ui.persistentButton': 'addButtonClickedClass',
@@ -525,64 +525,20 @@ define([
             this.options.initFinishedCallback(this);
 
             this._radio.commands.setHandler(
-                'verifySlugUniqueness',
+                'validateSlug',
                 function(event) {
                     var targetEl = $(event.currentTarget),
                         currentValue = targetEl.val();
 
                     if (currentValue.length > 3) {
-                        $.ajax({
-                            url: settings.urlConfig.getEndpoints.package.slugUniquenessCheck,
-                            data: {
-                                slug: currentValue
-                            },
-                            dataType: 'json',
-                            success: function(data) {
-                                if (data.success) {
-                                    if (data.unique) {
-                                        // Remove all error classes
-                                        if (targetEl.parent().hasClass('has-error')) {
-                                            targetEl.parent().removeClass('has-error');
-                                        }
+                        // Remove all error classes
+                        if (targetEl.parent().hasClass('has-error')) {
+                            targetEl.parent().removeClass('has-error');
+                        }
 
-                                        targetEl.siblings('.form-help').html(
-                                            settings.messages.slugField.successfullyUniqueValue
-                                        );
-                                    } else if (
-                                        _.has(targetEl.data(), 'originalValue') &&
-                                        currentValue == targetEl.data('originalValue')
-                                    ) {
-
-                                        // Remove all error classes
-                                        if (targetEl.parent().hasClass('has-error')) {
-                                            targetEl.parent().removeClass('has-error');
-                                        }
-
-                                        targetEl.siblings('.form-help').html(
-                                            settings.messages.slugField.successfullyUniqueValue
-                                        );
-                                    } else {
-                                        // Add an error class and error text saying the slug isn't unique.
-                                        if (!targetEl.hasClass('has-error')) {
-                                            targetEl.parent().addClass('has-error');
-                                        }
-
-                                        targetEl.siblings('.form-help').html(
-                                            settings.messages.slugField.nonUniqueError
-                                        );
-                                    }
-                                } else {
-                                    // Add an error class saying the app couldn't verify uniqueness.
-                                    if (!targetEl.hasClass('has-error')) {
-                                        targetEl.parent().addClass('has-error');
-                                    }
-
-                                    targetEl.siblings('.form-help').html(
-                                        settings.messages.slugField.ajaxError
-                                    );
-                                }
-                            }
-                        });
+                        targetEl.siblings('.form-help').html(
+                            settings.messages.slugField.defaultMessage
+                        );
                     } else {
                         // Add an error class and error text saying the slug is too short.
                         if (!targetEl.hasClass('has-error')) {
@@ -807,8 +763,8 @@ define([
             }
         },
 
-        validateSlugUniqueness: function(event) {
-            this._radio.commands.execute('verifySlugUniqueness', event);
+        validateSlug: function(event) {
+            this._radio.commands.execute('validateSlug', event);
         },
 
         toggleCollapsibleRow: function(event) {

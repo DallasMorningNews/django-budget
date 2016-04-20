@@ -53,7 +53,7 @@ define(
             },
 
             events: {
-                'keyup @ui.slugField': 'validateSlugUniqueness',
+                'keyup @ui.slugField': 'validateSlug',
                 'click @ui.deleteTrigger': 'deleteItem',
             },
 
@@ -81,8 +81,8 @@ define(
                 return templateContext;
             },
 
-            validateSlugUniqueness: function(event) {
-                this._radio.commands.execute('verifySlugUniqueness', event);
+            validateSlug: function(event) {
+                this._radio.commands.execute('validateSlug', event);
             },
 
             deleteItem: function() {
