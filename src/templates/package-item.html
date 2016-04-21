@@ -10,15 +10,16 @@
         <div class="slug-bar row">
             <div class="column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"><span class="ready-check"><i class="fa fa-check"></i></span></div>
-                <h1 class="slug-headline-holder {% if leadingHeadline %}has-leading-headline{% endif %}">{% if leadingHeadline %}&ldquo;{{ leadingHeadline }}&rdquo;{% else %}{{ packageObj.primaryContent.slug }}{% endif %}</h1>
-                <h2>{{ packageObj.pubDate.formatted }}{% if leadingHeadline %} ({{ packageObj.primaryContent.slug }}){% endif %}</h2>
+                <h2 class="date-header">{{ packageObj.pubDate.formatted }}</h2>
+                <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.slug }}</h1>
+                <h4 class="budget-line-truncated might-overflow">{{ packageObj.primaryContent.budgetLine }}</h4>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
                 {% if packageObj.primaryContent.authors|length > 0 %}
-                <h3>{% if packageObj.primaryContent.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in packageObj.primaryContent.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
+                <h3 class="might-overflow">{% if packageObj.primaryContent.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in packageObj.primaryContent.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
                 {% endif %}
                 {% if packageObj.primaryContent.editors|length > 0 %}
-                <h3 class="additional-info-line">{% if packageObj.primaryContent.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in packageObj.primaryContent.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
+                <h3 class="additional-info-line might-overflow">{% if packageObj.primaryContent.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in packageObj.primaryContent.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
                 {% endif %}
             </div>
         </div>

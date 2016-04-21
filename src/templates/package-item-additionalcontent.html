@@ -3,15 +3,15 @@
                 <div class="visible-area column small-11 medium-11 large-11">
                     <div class="slug-bar row">
                         <div class="column small-6 medium-7 large-7">
-                            <h3>{{ item.model.slug }}</h3>
+                            <h3 class="might-overflow">{{ item.model.slug }}</h3>
                         </div>
                         <div class="author-info column small-6 medium-5 large-5">
                             {% if item.model.authors|length > 0 %}
-                            <h4>{% if item.model.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in item.model.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
+                            <h4 class="might-overflow">{% if item.model.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in item.model.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
                             {% endif %}
 
                             {% if item.model.editors|length > 0 %}
-                            <h4>{% if item.model.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in item.model.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
+                            <h4 class="might-overflow">{% if item.model.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in item.model.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
                             {% endif %}
                         </div>
                     </div>

@@ -72,9 +72,11 @@
                 padding: 0;
 
                 .column {
-                    padding: 12px 17px;
+                    padding: 0 17px;
 
-                    &.author-info {}
+                    &.author-info {
+                        padding: 13px 17px 12px;
+                    }
                 }
 
                 .color-dot {
@@ -82,7 +84,7 @@
                     border-radius: 15px;
                     float: left;
                     height: 30px;
-                    margin: 17px 17px 17px 0;
+                    margin: 30px 17px 30px 0;
                     position: relative;
                     width: 30px;
 
@@ -242,6 +244,12 @@
             position: relative;
             text-overflow: ellipsis;
             white-space: nowrap;
+
+            &.primary-slug {
+                font-size: 26px;
+                line-height: 26px;
+                padding: 0 0 4px;
+            }
         }
 
         h2 {
@@ -249,6 +257,12 @@
             font-size: 14px;
             line-height: 24px;
             margin: 0;
+
+            &.date-header {
+                font-size: 12px;
+                margin: 5px 0 1px;
+                text-indent: 2px;
+            }
         }
 
         h3 {
@@ -258,13 +272,29 @@
             line-height: 32px;
             height: 32px;
             margin: 0;
+            overflow: hidden;
             padding: 0;
             text-align: right;
             text-transform: uppercase;
+            text-overflow: ellipsis;
+            white-space: nowrap;
 
             i {
                 color: #9E9E9E;
                 font-size: 18px;
+            }
+        }
+        h4 {
+            &.budget-line-truncated {
+                color: #757575;
+                font-size: 12px;
+                font-style: italic;
+                line-height: 22px;
+                margin: 0 0 8px;
+                overflow: hidden;
+                text-indent: 2px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
 
@@ -485,9 +515,12 @@
                         font-weight: bold;
                         line-height: 20px;
                         margin: 0;
+                        overflow: hidden;
                         padding: 0;
                         text-align: right;
                         text-transform: uppercase;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
                     }
                 }
 
