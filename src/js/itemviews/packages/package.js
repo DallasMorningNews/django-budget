@@ -198,6 +198,16 @@ define(
                 return templateContext;
             },
 
+            onAttach: function() {
+                this.$el.find('.might-overflow').bind('mouseenter', function(){
+                    var $this = $(this);
+
+                    if(this.offsetWidth < this.scrollWidth && !$this.attr('title')){
+                        $this.attr('title', $this.text());
+                    }
+                });
+            },
+
             expandPackageSheet: function(e) {
                 if (this.primaryIsExpanded) {
                     // Strike the 'is-expanded' class, then remove the
