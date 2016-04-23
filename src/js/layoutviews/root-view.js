@@ -44,7 +44,19 @@ define([
                 };
 
                 if (typeof(boundData) != "undefined") {
-                    classConstructor.boundData = boundData;
+                    if (_.has(boundData, 'collection')) {
+                        classConstructor.collection = boundData.collection;
+                        delete boundData.collection;
+                    }
+
+                    if (_.has(boundData, 'model')) {
+                        classConstructor.model = boundData.model;
+                        delete boundData.model;
+                    }
+
+                    if (!_.isEmpty(boundData)) {
+                        classConstructor.boundData = boundData;
+                    }
                 }
 
                 this.mainView = new MainViewClass(classConstructor);

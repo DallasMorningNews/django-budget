@@ -3,8 +3,9 @@ define(
         'backbone',
         'moment',
         'underscore',
+        'collections/additional-content-items',
+        'compositeviews/packages/edit',
         'itemviews/snackbars/snackbar.js',
-        'layoutviews/packages/edit',
         'layoutviews/packages/list',
         'models/package'
     ],
@@ -12,8 +13,9 @@ define(
         Backbone,
         moment,
         _,
-        SnackbarView,
+        AdditionalContentItems,
         PackageEditView,
+        SnackbarView,
         PackageListView,
         Package
     ) {
@@ -98,9 +100,17 @@ define(
                     }
                 );
             },
-            edit: function(packageID){
+            edit: function(packageID) {
+                var additionalItemCollection = new AdditionalContentItems();
+
                 if (_.isUndefined(packageID)) {
-                    _radio.commands.execute('switchMainView', PackageEditView);
+                    _radio.commands.execute(
+                        'switchMainView',
+                        PackageEditView,
+                        {
+                            collection: additionalItemCollection,
+                        }
+                    );
                 } else {
                     var packageToEdit = new Package({
                         id: parseInt(packageID, 10)
@@ -113,7 +123,10 @@ define(
                             _radio.commands.execute(
                                 'switchMainView',
                                 PackageEditView,
-                                packageToEdit
+                                {
+                                    model: packageToEdit,
+                                    collection: additionalItemCollection,
+                                }
                             );
                         },
                         error: function(model, response, options) {
