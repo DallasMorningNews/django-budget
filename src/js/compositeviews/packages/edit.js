@@ -208,11 +208,40 @@ define([
                         }
                     }
                 }
+
+                if (
+                    this.model.has('printPlacement') &&
+                    _.has(this.model.get('printPlacement'), 'printRunDate') &&
+                    !_.isNull(this.model.get('printPlacement').printRunDate)
+                ) {
+                    templateContext.formattedPrintRunDate = moment(
+                        this.model.get('printPlacement').printRunDate,
+                        'YYYY-MM-DD'
+                    ).format('MMM D, YYYY');
+                }
             }
 
             // TK: Loop through the currently-selected print-placement values,
             // adding an 'isSelected: true' value to the template context.
-            templateContext.placementChoices = settings.printPlacementTypes;
+            templateContext.placementChoices = _.map(
+                settings.printPlacementTypes,
+                function(placementConfig) {
+                    var configFinalized = _.clone(placementConfig);
+
+                    if (
+                        _.has(this, 'model') &&
+                        this.model.has('printPlacement') &&
+                        _.contains(
+                            this.model.get('printPlacement').printPlacements,
+                            configFinalized.slug
+                        )
+                    ) {
+                        configFinalized.isChecked = true;
+                    }
+
+                    return configFinalized;
+                }.bind(this)
+            );
 
             return templateContext;
         },
@@ -1462,6 +1491,8 @@ define([
 
             finalPackage.printPlacement = printPlacement;
 
+
+            // Headline processing.
 
             if (_.has(rawFormData.packageFields, 'headline1')) {
                 finalPackage.headlineCandidates = [];
