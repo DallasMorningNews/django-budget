@@ -77,6 +77,7 @@ define([
             collapsibleRows: '#package-form .can-collapse',
             notesField: '#package-form #notes-quill .text-holder',
             notesToolbar: '#package-form #notes-quill .toolbar-holder',
+            printRunDateField: '#package-form #print_run_date',
             addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
             bottomButtonHolder: '.single-page .bottom-button-holder',
             persistentHolder: '.edit-bar .button-holder',
@@ -209,6 +210,10 @@ define([
                 }
             }
 
+            // TK: Loop through the currently-selected print-placement values,
+            // adding an 'isSelected: true' value to the template context.
+            templateContext.placementChoices = settings.printPlacementTypes;
+
             return templateContext;
         },
 
@@ -263,6 +268,7 @@ define([
             this.initializeAuthorDropdown();
             this.initializeEditorDropdown();
             this.initializePubDateResolutionDropdown();
+            this.initializePrintRunDatePicker();
 
             if (!_.isUndefined(this.model)) {
                 if (
@@ -771,6 +777,12 @@ define([
             }
         },
 
+        initializePrintRunDatePicker: function() {
+            var dayOptions = _.clone(datePickerOptions);
+            dayOptions.singleDate = true;
+
+            this.ui.printRunDateField.dateRangePicker(dayOptions);
+        },
 
         /*
          * Control modifiers.
@@ -1380,7 +1392,21 @@ define([
                         }
 
                         if (field.type == 'checkbox') {
-                            rawFormData[formTypeKey][field.name] = field.checked;
+                            if (field.name.endsWith('[]')) {
+                                if (field.checked) {
+                                    var fieldKey = field.name.substring(
+                                        0,
+                                        field.name.length - 2
+                                    );
+
+                                    if (!_.has(rawFormData[formTypeKey], fieldKey)) {
+                                        rawFormData[formTypeKey][fieldKey] = [];
+                                    }
+                                    rawFormData[formTypeKey][fieldKey].push(field.value);
+                                }
+                            } else {
+                                rawFormData[formTypeKey][field.name] = field.checked;
+                            }
                         } else if (field.type == 'radio') {
                             if (!_.has(rawFormData[formTypeKey], field.name)) {
                                 rawFormData[formTypeKey][field.name] = null;
@@ -1403,7 +1429,6 @@ define([
 
             // Package-wide processing.
             finalPackage.hub = rawFormData.packageFields.hub;
-            finalPackage.URL = null;
             finalPackage.notes = this.richNotesField.getHTML();
             finalPackage.id = rawFormData.packageFields.package_id;
             finalPackage.lastChangedBy = userEmail;
@@ -1411,6 +1436,32 @@ define([
             if (!_.isUndefined(this.model)) {
                 finalPackage.createdBy = userEmail;
             }
+
+            if (!_.isEmpty(rawFormData.packageFields.URL)) {
+                finalPackage.URL = rawFormData.packageFields.URL;
+            }
+
+            // Print-placement processing.
+            var printPlacement = {};
+
+            printPlacement.isPlacementFinalized = rawFormData.packageFields.is_placement_finalized;
+
+            if (!_.isEmpty(rawFormData.packageFields.print_run_date)) {
+                printPlacement.printRunDate = moment(
+                    rawFormData.packageFields.print_run_date,
+                    'MMM D, YYYY'
+                ).format('YYYY-MM-DD');
+            } else {
+                printPlacement.printRunDate = null;
+            }
+
+            printPlacement.pitchedPlacements = [];
+            if (_.has(rawFormData.packageFields, 'pitched_placements')) {
+                printPlacement.pitchedPlacements = rawFormData.packageFields.pitched_placements;
+            }
+
+            finalPackage.printPlacement = printPlacement;
+
 
             if (_.has(rawFormData.packageFields, 'headline1')) {
                 finalPackage.headlineCandidates = [];

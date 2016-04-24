@@ -57,6 +57,29 @@ define(function() {
             }
         },
 
+        printPlacementTypes: [
+            {
+                verboseName: '1A',
+                slug: '1a'
+            },
+            {
+                verboseName: 'Centerpiece',
+                slug: 'centerpiece'
+            },
+            {
+                verboseName: 'Section cover',
+                slug: 'section-cover'
+            },
+            {
+                verboseName: 'Inside pages',
+                slug: 'inside-pages'
+            },
+            {
+                verboseName: 'Other',
+                slug: 'other'
+            }
+        ],
+
         typeRankingIndex: {
             person: 1,
             hub: 5,

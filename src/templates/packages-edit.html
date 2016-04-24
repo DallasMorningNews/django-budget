@@ -358,6 +358,42 @@
                     <div class="clearer"></div>
                 </div>
             </div>
+
+            <div class="row collapsible-row-header" data-expand-target="publishing-details">
+                <h4>Publishing details</h4>
+            </div>
+
+            <div class="row can-collapse" data-expand-receiver="publishing-details">
+                <div class="collapsable-inner">
+                    <div class="extra-headline-spacing"></div>
+
+                    <div class="medium-12 columns form-group">
+                        <input id="URL" name="URL" data-form="package" type="text" value="{% if packageData.URL %}{{ packageData.URL }}{% endif %}" />
+                        <label for="URL" class="control-label">URL</label>
+                        <i class="bar"></i>
+                    </div>
+
+                    <div class="medium-6 columns form-group pub-date-group"{% if packageData %}{% if packageData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
+                        <input id="print_run_date" name="print_run_date" data-form="package" type="text" id="printRunDate" required="" value="{% if packageData %}{% if packageData.printPlacement.printIssue %}A{{ formattedPrintIssue }}{% endif %}{% endif %}" />
+                        <label for="pub_date" class="control-label">Print run date</label>
+                        <i class="bar"></i>
+                    </div>
+                    <div class="medium-12 columns checkbox pitched-print-placements">
+                        <h5>Print placements</h5>
+                        {% for placementChoice in placementChoices %}
+                            <label>
+                                <input id="{{ placementChoice.slug }}" name="pitched_placements[]" data-form="package" type="checkbox" value="{{ placementChoice.slug }}" /><i class="helper"></i>{{ placementChoice.verboseName }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <div class="medium-12 columns checkbox">
+                        <label>
+                            <input id="is_placement_finalized" name="is_placement_finalized" data-form="package" type="checkbox" value="finalized" /><i class="helper"></i>Print placement finalized?
+                        </label>
+                    </div>
+                    <div class="clearer"></div>
+                </div>
+            </div>
         </form>
     </div>
 
