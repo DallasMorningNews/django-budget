@@ -322,6 +322,10 @@ $quill-popup-border-color: #CCCCCC;
                     }
                 }
             }
+
+            &.dropdowns-group {
+                width: 116px;
+            }
         }
     }
 
@@ -553,6 +557,7 @@ $quill-popup-border-color: #CCCCCC;
     .quill-holder {
         .ql-toolbar {
             height: 73px;
+
             .ql-format-group {
                 .ql-format-button {
                     font-size: 14px;
