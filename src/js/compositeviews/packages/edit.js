@@ -1142,8 +1142,36 @@ define([
         deleteEntirePackage: function() {
             var serializedForm = this.serializeForm();
 
-            var itemSlugs = _.pluck(serializedForm.additionalContent, 'slug');
-            itemSlugs.unshift(serializedForm.primaryContent.slug);
+            // var itemSlugs = _.pluck(serializedForm.additionalContent, 'slug');
+            // itemSlugs.unshift(serializedForm.primaryContent.slug);
+
+            var dbPrimarySlug = this.model.get('primaryContent').slug,
+                currentPrimarySlug = this.ui.packageTitle.text(),
+                itemSlugEndings = _.map(
+                    this.model.get('additionalContent'),
+                    function(additionalItem) {
+                        return _.last(
+                            additionalItem.slug.split(
+                                dbPrimarySlug + '.'
+                            )
+                        );
+                    }
+                );
+
+            itemSlugEndings.unshift('');
+
+            var itemSlugs = _.map(
+                    itemSlugEndings,
+                    function(slugEnding) {
+                        var slugSuffix = '';
+
+                        if (slugEnding !== '') {
+                            slugSuffix = '.' + slugEnding;
+                        }
+
+                        return currentPrimarySlug + slugSuffix;
+                    }
+                );
 
             var itemsToDelete = '<ul class="to-be-deleted-list">' + _.chain(itemSlugs)
                 .map(
