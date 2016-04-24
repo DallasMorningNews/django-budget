@@ -941,6 +941,20 @@ fieldset {
             }
         }
     }
+
+    &.pitched-print-placements {
+        h5 {
+            color: gray;
+            font-size: 0.8rem;
+            font-weight: normal;
+            left: 0;
+            line-height: 0.8rem;
+            margin: 0;
+        }
+        label {
+            margin-top: 1rem;
+        }
+    }
 }
 
 .radio + .radio,
