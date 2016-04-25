@@ -1,4 +1,4 @@
-<div class="content-header">{% if config %}{{ config.slug }}{% else %}New additional content{% endif %}<i class="fa fa-times delete-additional" data-confirm=""></i></div>
+<div class="content-header">{% if config %}{{ primarySlug }}.<span class="keyword">{{ config.slugKey }}</span><span class="unique-modifier">{% if slugSuffixRaw %}{{ slugSuffixRaw }}{% endif %}</span>{% else %}New additional content{% endif %}<i class="fa fa-times delete-additional" data-confirm=""></i></div>
 
 <input type="hidden" id="{{ formID }}_id" class="field-id" name="{{ formID }}_id" value="{{ config.id }}" data-form="{{ formID }}">
 
@@ -24,7 +24,7 @@
                 <div class="keyword-value">{% if config %}{{ config.slugKey }}{% else %}keyword{% endif %}</div>
                 <input id="{{ formID }}_slugkey" class="field-slugkey" name="{{ formID }}_slugkey" data-form="{{ formID }}" type="text" placeholder="keyword" autocomplete="off" {% if config %}data-original-value="{{ config.slugKey }}" {% endif %}value="{% if config %}{{ config.slugKey }}{% endif %}" required="">
             </div>
-            <div class="slug-suffix">-1</div>
+            <div class="slug-suffix">{% if slugSuffixRaw %}{{ slugSuffixRaw }}{% endif %}</div>
             <div class="clearer"></div>
         </div>
         <label for="{{ formID }}_slugkey" class="control-label">Slug<span class="required-marker">*</span></label>

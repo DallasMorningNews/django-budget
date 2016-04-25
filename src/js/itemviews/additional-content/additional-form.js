@@ -39,7 +39,10 @@ define(
             },
 
             ui: {
+                titleKeyword: '.content-header .keyword',
+                titleUniqueModifier: '.content-header .unique-modifier',
                 slugField: '.field-slugkey',
+                slugSuffixHolder: '.slug-group-holder .slug-suffix',
                 budgetLineField: '.field-budgetline',
                 typeDropdown: '.field-type',
                 lengthGroup: '.length-group',
@@ -64,6 +67,14 @@ define(
 
             initialize: function() {
                 this._radio = Backbone.Wreqr.radio.channel('global');
+
+                this.slugSuffixRaw = _.last(
+                    _.last(
+                        this.model.get('slug').split('.')
+                    ).split(
+                        this.model.get('slugKey')
+                    )
+                );
             },
 
             serializeData: function() {
@@ -84,6 +95,8 @@ define(
                 }
 
                 templateContext.primarySlug = this.options.primarySlug;
+
+                templateContext.slugSuffixRaw = this.slugSuffixRaw;
 
                 return templateContext;
             },
@@ -219,7 +232,39 @@ define(
                             );
                         }
 
-                        // this.updatePackageTitle();
+                        if (this.model.has('id')) {
+                            if (
+                                _.isEmpty(this.slugSuffixRaw)
+                            ) {
+                                // There is no initial trailing number at the
+                                // end of this slug.
+                                this.ui.slugSuffixHolder.text('');
+                                this.ui.slugSuffixHolder.hide();
+
+                                this.updateAdditionalTitle(
+                                    slugField.val(),
+                                    null
+                                );
+                            } else {
+                                // There is an initial trailing number at the
+                                // end of this slug.
+                                this.ui.slugSuffixHolder.text('');
+                                this.ui.slugSuffixHolder.show();
+
+                                this.updateAdditionalTitle(
+                                    slugField.val(),
+                                    this.slugSuffixRaw
+                                );
+                            }
+                        } else {
+                            this.ui.slugSuffixHolder.text('');
+                            this.ui.slugSuffixHolder.show();
+
+                            this.updateAdditionalTitle(
+                                slugField.val(),
+                                null
+                            );
+                        }
                     }.bind(this)
                 );
             },
@@ -328,6 +373,16 @@ define(
             /*
              * Control modifiers.
              */
+
+            updateAdditionalTitle: function(newSlugValue, newSuffixValue) {
+                this.ui.titleKeyword.text(newSlugValue);
+
+                if (!_.isNull(newSlugValue)) {
+                    this.ui.titleUniqueModifier.text(newSuffixValue);
+                } else {
+                    this.ui.titleUniqueModifier.text('');
+                }
+            },
 
             hideLengthAttribute: function() {
                 if (!this.ui.lengthField.is(':disabled')) {
@@ -572,7 +627,6 @@ define(
 
                 var finalAdditionalContent = {};
 
-                finalAdditionalContent.id = rawFormData.id;
                 finalAdditionalContent.slugKey = rawFormData.slugkey;
                 finalAdditionalContent.type = rawFormData.type;
                 finalAdditionalContent.budgetLine = rawFormData.budgetline;
@@ -613,6 +667,8 @@ define(
                     if (_.isEmpty(nonNullValues)) {
                         finalAdditionalContent = {};
                     }
+                } else {
+                    finalAdditionalContent.id = rawFormData.id;
                 }
 
                 return finalAdditionalContent;
