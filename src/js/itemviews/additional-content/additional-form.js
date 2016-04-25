@@ -6,6 +6,7 @@ define(
         'marionette',
         'selectize',
         'itemviews/modals/modal-window.js',
+        'itemviews/snackbars/snackbar.js',
         'misc/settings',
         'misc/tpl',
         'utils/expanding-text-field'
@@ -17,6 +18,7 @@ define(
         Mn,
         selectize,
         ModalView,
+        SnackbarView,
         settings,
         tpl,
         expandingTextField
@@ -405,7 +407,7 @@ define(
                                 innerLabel: 'Delete',
                                 clickCallback: function(modalContext) {
                                     var toDeleteDict = {
-                                        'itemID': this.model.id
+                                        'itemToDeleteID': this.model.id
                                     };
 
                                     modalContext.$el.parent()
@@ -452,27 +454,26 @@ define(
                                         500
                                     );
 
-                                    console.log(toDeleteDict);
-                                    // $.ajax({
-                                    //     type: "POST",
-                                    //     url: settings.urlConfig.postEndpoints.deletePackage,
-                                    //     contentType: 'application/json; charset=utf-8',
-                                    //     data: JSON.stringify(toDeleteDict),
-                                    //     processData: false,
-                                    //     success: function(data) {
-                                    //         setTimeout(function() {
-                                    //             if (data.success) {
-                                    //                 this.deleteSuccessCallback(data);
-                                    //             } else {
-                                    //                 this.deleteErrorCallback('processingError', [data]);
-                                    //             }
-                                    //         }.bind(this), 1500);
-                                    //     }.bind(this),
-                                    //     error: function(jqXHR, textStatus, errorThrown) {
-                                    //         this.deleteErrorCallback('hardError', [jqXHR, textStatus, errorThrown]);
-                                    //     }.bind(this),
-                                    //     dataType: 'json'
-                                    // });
+                                    $.ajax({
+                                        type: "POST",
+                                        url: settings.urlConfig.postEndpoints.additionalItems.delete,
+                                        contentType: 'application/json; charset=utf-8',
+                                        data: JSON.stringify(toDeleteDict),
+                                        processData: false,
+                                        success: function(data) {
+                                            setTimeout(function() {
+                                                if (data.success) {
+                                                    this.deleteSuccessCallback(data);
+                                                } else {
+                                                    this.deleteErrorCallback('processingError', [data]);
+                                                }
+                                            }.bind(this), 1500);
+                                        }.bind(this),
+                                        error: function(jqXHR, textStatus, errorThrown) {
+                                            this.deleteErrorCallback('hardError', [jqXHR, textStatus, errorThrown]);
+                                        }.bind(this),
+                                        dataType: 'json'
+                                    });
                                 }.bind(this),
                             },
                             {
@@ -510,13 +511,14 @@ define(
                 // Pop item from the local collection.
                 // TK.
 
-                // Navigate to the index view
-                this._radio.commands.execute('navigate', '', {trigger: true});
+                // Destroy view.
+                this.destroy();
 
                 // Display snackbar:
                 this._radio.commands.execute(
                     'showSnackbar',
                     new SnackbarView({
+                        containerClass: 'edit-page',
                         snackbarClass: 'success',
                         text: 'Successfully deleted additional item.',
                         action: {

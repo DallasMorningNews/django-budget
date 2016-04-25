@@ -94,6 +94,9 @@ define(function() {
             postEndpoints: {
                 deletePackage: 'http://datalab.dallasnews.com/budget/package/delete/',
                 savePackage: 'http://datalab.dallasnews.com/budget/package/',
+                additionalItems: {
+                    delete: 'http://datalab.dallasnews.com/budget/delete-additional-item/'
+                },
                 headlines: {
                     submitVote: 'http://datalab.dallasnews.com/budget/headline/vote/'
                 },
