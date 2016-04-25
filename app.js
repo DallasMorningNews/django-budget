@@ -52,7 +52,7 @@ app.use(
         secret: app.get('express_session_secret_key'),
         resave: false,
         saveUninitialized: true,
-        cookie: { maxAge: 60 * 1000 }
+        cookie: { maxAge: cookieAge }
     })
 );
 app.use(passport.initialize());
