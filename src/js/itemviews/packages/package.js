@@ -651,13 +651,16 @@ define(
 
                                 packageWebData.packageID = this.model.get('id');
                                 packageWebData.packageURL = formValues.url;
-                                packageWebData.pubDate = moment.tz(
-                                    formValues.pub_date +
-                                        ' ' +
-                                        formValues.pub_time,
-                                    'MMM D, YYYY HH:mm',
-                                    'America/Chicago'
-                                ).unix();
+                                packageWebData.pubDate = {
+                                    timestamp: moment.tz(
+                                                    formValues.pub_date +
+                                                        ' ' +
+                                                        formValues.pub_time,
+                                                    'MMM D, YYYY HH:mm',
+                                                    'America/Chicago'
+                                                ).unix(),
+                                    resolution: 't',
+                                };
 
                                 if (_.has(formValues, 'headlineChoices')) {
                                     if (headlineStatus != 'finalized') {
