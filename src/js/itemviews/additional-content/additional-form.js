@@ -355,7 +355,7 @@ define(
 
                 var inputPadding = {};
 
-                inputPadding.left = slugGroup.find('.primary-content-slug').width();
+                inputPadding.left = slugGroup.find('.primary-content-slug').width() + 5;
                 inputPadding.right = slugGroup.find('.slug-suffix').width();
 
                 slugField.css({
@@ -368,7 +368,7 @@ define(
                     'padding-right': inputPadding.right
                 });
                 slugField.css({
-                    'width': 'calc(100% + ' + inputPadding.left + 'px + ' + inputPadding.right + 'px)'
+                    'width': slugGroup.width()
                 });
             },
 

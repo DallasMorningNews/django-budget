@@ -431,6 +431,20 @@ define([
             var slugField = this.ui.slugField;
 
             slugField.bind(
+                'focus',
+                function() {
+                    slugField.closest('.slug-group-holder').addClass('input-focused');
+                }
+            );
+
+            slugField.bind(
+                'blur',
+                function() {
+                    slugField.closest('.slug-group-holder').removeClass('input-focused');
+                }
+            );
+
+            slugField.bind(
                 'input',
                 function() {
                     var formGroup = slugField.closest('.form-group');
@@ -867,7 +881,7 @@ define([
 
             var inputPadding = {};
 
-            inputPadding.left = slugGroup.find('.hub-slug-value').width();
+            inputPadding.left = slugGroup.find('.hub-slug-value').width() + 5;
             inputPadding.right = slugGroup.find('.formatted-date-value').width();
 
             slugField.css({
@@ -880,7 +894,7 @@ define([
                 'padding-right': inputPadding.right
             });
             slugField.css({
-                'width': 'calc(100% + ' + inputPadding.left + 'px + ' + inputPadding.right + 'px)'
+                'width': slugGroup.width()
             });
         },
 
