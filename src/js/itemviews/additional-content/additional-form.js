@@ -68,13 +68,17 @@ define(
             initialize: function() {
                 this._radio = Backbone.Wreqr.radio.channel('global');
 
-                this.slugSuffixRaw = _.last(
-                    _.last(
-                        this.model.get('slug').split('.')
-                    ).split(
-                        this.model.get('slugKey')
-                    )
-                );
+                if (this.model.has('id')) {
+                    this.slugSuffixRaw = _.last(
+                        _.last(
+                            this.model.get('slug').split('.')
+                        ).split(
+                            this.model.get('slugKey')
+                        )
+                    );
+                } else {
+                    this.slugSuffixRaw = '';
+                }
             },
 
             serializeData: function() {
