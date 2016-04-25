@@ -72,6 +72,7 @@ define([
                 },
                 separator: ' to ',
                 format: 'MMM D, YYYY',
+                startOfWeek: 'monday',
                 showShortcuts: true,
                 shortcuts : null,
                 customShortcuts: [

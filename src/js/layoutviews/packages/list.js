@@ -1,4 +1,5 @@
 define([
+    'jquery',
     'marionette',
     'underscore',
     'misc/tpl',
@@ -8,6 +9,7 @@ define([
     'itemviews/packages/search-box',
     'misc/settings'
 ], function(
+    $,
     Mn,
     _,
     tpl,
@@ -32,6 +34,8 @@ define([
             this.options.state.dateRange = this.options.boundData.dateRange;
 
             this.packageCollection = new PackageCollection();
+
+            this.setDatePickerDayAbbreviations();
 
             this.loadPackages(
                 function(collection, request, options) {
@@ -236,6 +240,16 @@ define([
             this.showChildView('searchBox', this.searchBoxView);
 
             this.showChildView('packages', this.collectionView);
-        }
+        },
+
+        setDatePickerDayAbbreviations: function() {
+            $.dateRangePickerLanguages.default['week-1'] = 'M';
+            $.dateRangePickerLanguages.default['week-2'] = 'T';
+            $.dateRangePickerLanguages.default['week-3'] = 'W';
+            $.dateRangePickerLanguages.default['week-4'] = 'T';
+            $.dateRangePickerLanguages.default['week-5'] = 'F';
+            $.dateRangePickerLanguages.default['week-6'] = 'S';
+            $.dateRangePickerLanguages.default['week-7'] = 'S';
+        },
     });
 });
