@@ -195,6 +195,15 @@ define(
                     }
                 );
 
+                templateContext.packageIsReady = false;
+
+                if (
+                    (this.model.has('URL')) &&
+                    (!_.isEmpty(this.model.get('URL')))
+                ) {
+                    templateContext.packageIsReady = true;
+                }
+
                 return templateContext;
             },
 

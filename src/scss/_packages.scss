@@ -87,19 +87,6 @@
                     margin: 30px 17px 30px 0;
                     position: relative;
                     width: 30px;
-
-                    .ready-check {
-                        color: rgba(255,255,255,0.8);
-                        display: none;
-                        font-size: 30px;
-                        font-weight: normal;
-                        left: 0px;
-                        line-height: 30px;
-                        position: absolute;
-                        text-align: center;
-                        top: 0;
-                        width: 30px;
-                    }
                 }
             }
 
@@ -218,16 +205,6 @@
                         visibility: visible;
 
                         transition-delay: 0.6s;
-                    }
-                }
-            }
-        }
-
-        &[ready="true"] {
-            .slug-bar {
-                .color-dot {
-                    .ready-check {
-                        display: block;
                     }
                 }
             }
@@ -401,8 +378,7 @@
             }
         }
 
-        &[content-id="33"],
-        &[content-id="39"] {
+        &[ready="true"] {
             .readiness-indicator {
                 .indicator-inner {
                     display: block;
@@ -475,26 +451,6 @@
                         &.author-info {
                             padding-bottom: 5px;
                             padding-top: 5px;
-                        }
-                    }
-
-                    .ready-check {
-                        border-style: solid;
-                        border-width: 2px;
-                        border-radius: 9px;
-                        color: #878787;
-                        display: block;
-                        float: left;
-                        font-size: 20px;
-                        height: 24px;
-                        left: 11px;
-                        line-height: 20px;
-                        margin: 6px 12px 6px 1px;
-                        text-align: center;
-                        width: 24px;
-
-                        i {
-                            opacity: 0;
                         }
                     }
 
@@ -574,10 +530,6 @@
                             padding: 8px 15px;
                         }
                     }
-                }
-
-                &[ready="true"] .slug-bar .ready-check i {
-                    opacity: 1;
                 }
             }
         }

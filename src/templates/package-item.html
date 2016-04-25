@@ -1,4 +1,4 @@
-<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageObj.primaryContent.isReady }}">
+<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageIsReady }}">
 
     <div class="minimal-card column small-11 medium-11 large-11">
         <div class="readiness-indicator">
@@ -9,7 +9,7 @@
 
         <div class="slug-bar row">
             <div class="column small-7 medium-9 large-9">
-                <div class="color-dot" style="background-color: {{ hubDotColor }};"><span class="ready-check"><i class="fa fa-check"></i></span></div>
+                <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
                 <h2 class="date-header">{{ packageObj.pubDate.formatted }}</h2>
                 <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.slug }}</h1>
                 <h4 class="budget-line-truncated might-overflow">{{ packageObj.primaryContent.budgetLine }}</h4>
