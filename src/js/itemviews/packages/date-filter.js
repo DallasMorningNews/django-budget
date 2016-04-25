@@ -144,6 +144,12 @@ define([
                     ).format('MMM D, YYYY'),
                     true
                 );
+            } else {
+                this.ui.dateChooser.data('dateRangePicker').setDateRange(
+                    moment().tz("America/Chicago").format('MMM D, YYYY'),
+                    moment().tz("America/Chicago").add(2, 'days').format('MMM D, YYYY'),
+                    true
+                );
             }
         }
     });
