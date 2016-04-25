@@ -7,6 +7,7 @@ var nunjucks = require('nunjucks');
 var cors = require('cors');
 var flash = require('connect-flash');
 var _ = require('underscore');
+var RedisStore = require('connect-redis')(expressSession);
 
 require('dotenv').load();
 
@@ -36,6 +37,7 @@ app.set('google_auth_client_id', (process.env.GOOGLE_AUTH_CLIENT_ID || ''));  //
 app.set('google_auth_secret_key', (process.env.GOOGLE_AUTH_SECRET_KEY || ''));  // This needs a value
 app.set('google_auth_callback_url', (process.env.GOOGLE_AUTH_CALLBACK_URL || ''));  // This needs a value.
 
+app.set('express_session_store', (process.env.EXPRESS_SESSION_STORE || ''));
 app.set('express_session_secret_key', (process.env.EXPRESS_SESSION_SECRET_KEY || 'keyboard cat'));
 
 
@@ -44,10 +46,13 @@ var cookieAge = 7 * 24 * 60 * 60 * 1000;
 
 app.use(
     expressSession({
+        store: new RedisStore({
+            url: app.get('express_session_store')
+        }),
         secret: app.get('express_session_secret_key'),
-        resave: true,
+        resave: false,
         saveUninitialized: true,
-        cookie: { maxAge: cookieAge }
+        cookie: { maxAge: 60 * 1000 }
     })
 );
 app.use(passport.initialize());
