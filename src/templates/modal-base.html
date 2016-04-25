@@ -4,7 +4,7 @@
         {% for row in formConfig.rows %}
 
         {% if row.rowHeader %}
-        <div class="section-header">
+        <div class="section-header{% if row.rowHeaderExtraClasses %} {{ row.rowHeaderExtraClasses }}{% endif %}">
             <h4>{{ row.rowHeader }}</h4>
         </div>
         {% endif %}
@@ -25,6 +25,10 @@
                             <input id="{{ field.inputID }}" name="{{ field.groupName }}" type="radio" value="{% if field.inputValue %}{{ field.inputValue }}{% endif %}"{% if field.isChecked %} checked{% endif %}{% if field.isDisabled %} disabled{% endif %} /><i class="helper"></i><span class="radio-label">{{ field.labelText|safe }}</span>
                         </label>
                     </div>
+                {% elif field.type == 'checkbox' %}
+                    <label>
+                        <input id="{{ field.inputID }}" name="{{ field.groupName }}" type="checkbox" value="{{ field.inputValue }}"{% if field.isChecked %} checked{% endif %} /><i class="helper"></i>{{ field.labelText|safe }}
+                    </label>
                 {% endif %}
             {% endfor %}
 

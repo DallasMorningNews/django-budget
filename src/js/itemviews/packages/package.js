@@ -767,11 +767,51 @@ define(
             },
 
             showPrintInfoModal: function(e) {
-                var formattedPrintIssue = '';
+                var formattedPrintRunDate = '';
                 if (!_.isNull(this.model.get('printPlacement').printIssue)) {
-                    formattedPrintIssue = moment(
-                        this.model.get('printPlacement').printIssue
+                    formattedPrintRunDate = moment(
+                        this.model.get('printPlacement').printRunDate,
+                        'YYYY-MM-DD'
                     ).format('MMM D, Y');
+                }
+
+                var placementFields = _.map(
+                    settings.printPlacementTypes,
+                    function(placementTypeConfig) {
+                        var fieldOpts = {
+                            type: 'checkbox',
+                            labelText: placementTypeConfig.verboseName,
+                            inputID: placementTypeConfig.slug,
+                            groupName: 'pitched_placements[]',
+                            inputValue: placementTypeConfig.slug,
+                        };
+
+                        if (_.contains(
+                            this.model.get('printPlacement').printPlacements,
+                            placementTypeConfig.slug
+                        )) {
+
+                            fieldOpts.isChecked = true;
+                        }
+
+                        return fieldOpts;
+                    }.bind(this)
+                );
+
+                var finalizedOption = {
+                    type: 'checkbox',
+                    labelText: 'Print placement finalized?',
+                    inputID: 'is_placement_finalized',
+                    groupName: 'is_placement_finalized',
+                    inputValue: 'finalized',
+                };
+
+                if (
+                    this.model.has('printPlacement') &&
+                    _.has(this.model.get('printPlacement'), 'isFinalized') &&
+                    this.model.get('printPlacement').isFinalized === true
+                ) {
+                    finalizedOption.isChecked = true;
                 }
 
                 var printInfoModal = {
@@ -787,20 +827,23 @@ define(
                                         type: 'input',
                                         widthClasses: 'small-12 medium-12 large-12',
                                         labelText: 'Print run date',
-                                        inputID: 'print_issue',
-                                        inputName: 'print_issue',
+                                        inputID: 'print_run_date',
+                                        inputName: 'print_run_date',
                                         inputType: 'text',
-                                        inputValue: formattedPrintIssue,
-                                    },
-                                    {
-                                        type: 'input',
-                                        widthClasses: 'small-12 medium-12 large-12',
-                                        labelText: 'Page(s)',
-                                        inputID: 'print_pages',
-                                        inputName: 'print_pages',
-                                        inputType: 'text',
-                                        inputValue: this.model.get('printPlacement').printPages
+                                        inputValue: formattedPrintRunDate,
                                     }
+                                ]
+                            },
+                            {
+                                extraClasses: 'checkbox checkbox-group-first',
+                                fields: placementFields,
+                                rowHeader: 'Print placements',
+                                rowHeaderExtraClasses: 'placements-header',
+                            },
+                            {
+                                extraClasses: 'checkbox',
+                                fields: [
+                                    finalizedOption
                                 ]
                             }
                         ]
@@ -815,20 +858,54 @@ define(
                             clickCallback: function(modalContext) {
                                 // First, serialize the form:
                                 var packagePrintData = {},
-                                    formValues = _.chain(
-                                        modalContext.$el.find('form').serializeArray()
-                                    ).map(
-                                        function(i) {
-                                            return [i.name, i.value];
+                                    formValues = {};
+                                    // formValues = _.chain(
+                                    //     modalContext.$el.find('form').serializeArray()
+                                    // ).map(
+                                    //     function(i) {
+                                    //         return [i.name, i.value];
+                                    //     }
+                                    // ).object().value();
+                                _.each(
+                                    modalContext.$el.find('form input'),
+                                    function(inputEl) {
+                                        if (inputEl.name.endsWith('[]')) {
+                                            var groupName = inputEl.name.substring(
+                                                0,
+                                                inputEl.name.length - 2
+                                            );
+
+                                            if (!_.has(formValues, groupName)) {
+                                                formValues[groupName] = [];
+                                            }
+
+                                            if (inputEl.checked) {
+                                                formValues[groupName].push(
+                                                    inputEl.value
+                                                );
+                                            }
+                                        } else if (inputEl.type == 'checkbox') {
+                                            if (inputEl.checked) {
+                                                formValues[inputEl.name] = true;
+                                            } else {
+                                                formValues[inputEl.name] = false;
+                                            }
+                                        } else {
+                                            formValues[inputEl.name] = inputEl.value;
                                         }
-                                    ).object().value();
+                                    }
+                                );
 
                                 packagePrintData.packageID = this.model.get('id');
-                                packagePrintData.printIssue = moment(
-                                    formValues.print_issue,
+
+                                packagePrintData.printRunDate = moment(
+                                    formValues.print_run_date,
                                     'MMM D, YYYY'
-                                ).format('Y-MM-DD');
-                                packagePrintData.printPages = formValues.print_pages;
+                                ).format('YYYY-MM-DD');
+
+                                packagePrintData.pitchedPlacements = formValues.pitched_placements;
+
+                                packagePrintData.isPlacementFinalized = formValues.is_placement_finalized;
 
                                 // Next, add animation classes to the modal:
                                 modalContext.$el.parent()
@@ -924,7 +1001,7 @@ define(
                         dayOptions.singleDate = true;
                         dayOptions.extraClass = 'package-print-info-date';
 
-                        modal.$el.find('form #print_issue').dateRangePicker(dayOptions);
+                        modal.$el.find('form #print_run_date').dateRangePicker(dayOptions);
                     }
                 });
 

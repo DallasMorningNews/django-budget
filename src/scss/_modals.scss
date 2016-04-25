@@ -319,6 +319,27 @@
         }
     }
 
+    .checkbox {
+        margin: 1.5rem 1rem;
+
+        &.checkbox-group-first {
+            margin-top: 0.25rem;
+        }
+
+        label {
+            padding: 0 0 1.5rem 1.875rem;
+        }
+    }
+
+    .section-header {
+        &.placements-header {
+            color: #727272;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin: 1.5rem 0.9375rem 0;
+        }
+    }
+
     #subscription-modal {
         p {
             color: #424242;
