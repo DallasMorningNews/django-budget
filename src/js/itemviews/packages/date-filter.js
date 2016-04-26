@@ -130,18 +130,28 @@ define([
                             ).format('YYYY-MM-DD')
                         };
 
-                        this._radio.commands.execute('switchListDates', newDateRange);
+                        this._radio.commands.execute(
+                            'switchListDates',
+                            this.options.stateKey,
+                            newDateRange
+                        );
                     }
                 }.bind(this)
             );
 
-            if (!_.isEmpty(this.options.state.dateRange)) {
+            var commonDateRange = this._radio.reqres.request(
+                'getState',
+                this.options.stateKey,
+                'dateRange'
+            );
+
+            if (!_.isEmpty(commonDateRange)) {
                 this.ui.dateChooser.data('dateRangePicker').setDateRange(
                     moment(
-                        this.options.state.dateRange.start, 'YYYY-MM-DD'
+                        commonDateRange.start, 'YYYY-MM-DD'
                     ).format('MMM D, YYYY'),
                     moment(
-                        this.options.state.dateRange.end, 'YYYY-MM-DD'
+                        commonDateRange.end, 'YYYY-MM-DD'
                     ).format('MMM D, YYYY'),
                     true
                 );
