@@ -6,8 +6,10 @@ define(
         'collections/additional-content-items',
         'compositeviews/packages/edit',
         'itemviews/snackbars/snackbar.js',
-        'layoutviews/packages/list',
-        'models/package'
+        'layoutviews/packages/list-print-info',
+        'layoutviews/packages/list-web-info',
+        'models/package',
+        'utils/list-querystring-parser'
     ],
     function(
         Backbone,
@@ -16,8 +18,10 @@ define(
         AdditionalContentItems,
         PackageEditView,
         SnackbarView,
-        PackageListView,
-        Package
+        PackagePrintListView,
+        PackageWebListView,
+        Package,
+        ListQuerystringParser
     ) {
         'use strict';
 
@@ -25,78 +29,20 @@ define(
 
         return {
             home: function(querystring){
-                var parsedQueryTerms = null,
-                    parsedDateRange = {},
-                    searchQueryTerms = [
-                        'fullText',
-                        'hub',
-                        'person',
-                        'vertical',
-                    ],
-                    dateQueryTerms = [
-                        'startDate',
-                        'endDate'
-                    ];
-
-                if (!_.isNull(querystring)) {
-                    var invalidTerms = [];
-
-                    parsedQueryTerms = _.chain(querystring.split('&'))
-                        .map(
-                            function(i){
-                                var termParts = _.map(
-                                        i.split('='),
-                                        decodeURIComponent
-                                    );
-
-                                if (_.contains(searchQueryTerms, termParts[0])) {
-                                    return {
-                                        type: termParts[0],
-                                        value: termParts[1]
-                                    };
-                                } else if (_.contains(dateQueryTerms, termParts[0])) {
-                                    parsedDateRange[
-                                        termParts[0].slice(0, -4)
-                                    ] = moment(
-                                        termParts[1]
-                                    ).format('YYYY-MM-DD');
-
-                                    return null;
-                                } else {
-                                    invalidTerms.push({
-                                        type: termParts[0],
-                                        value: termParts[1],
-                                    });
-
-                                    return null;
-                                }
-
-                            }
-                        )
-                        .compact()
-                        .value();
-
-                    if (!_.isEmpty(invalidTerms)) {
-                        _.each(
-                            invalidTerms,
-                            function(term) {
-                                var message = '' +
-                                    'Invalid querystring term: "' +
-                                    encodeURIComponent(term.type) + '=' +
-                                    encodeURIComponent(term.value) + '" ' +
-                                    '(ignored)';
-                                console.log(message);
-                            }
-                        );
-                    }
-                }
-
                 _radio.commands.execute(
                     'switchMainView',
-                    PackageListView,
+                    PackageWebListView,
                     {
-                        'dateRange': parsedDateRange,
-                        'queryTerms': parsedQueryTerms
+                        'queryParts': ListQuerystringParser.parse(querystring)
+                    }
+                );
+            },
+            printList: function(querystring){
+                _radio.commands.execute(
+                    'switchMainView',
+                    PackagePrintListView,
+                    {
+                        'queryParts': ListQuerystringParser.parse(querystring)
                     }
                 );
             },
