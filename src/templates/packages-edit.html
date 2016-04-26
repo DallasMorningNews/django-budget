@@ -20,24 +20,6 @@
             <div class="error-message"></div>
 
             <div class="row">
-                <div class="medium-12 columns form-group">
-                    <div class="slug-group-holder">
-                        <div class="hub-slug-value">{% if packageData %}{{ packageData.hub }}{% else %}hub{% endif %}.</div>
-                        <div class="keyword-group">
-                            <div class="keyword-value">{% if packageData %}{{ packageData.primaryContent.slugKey }}{% else %}keyword{% endif %}</div>
-                            <input id="slug_key" name="slug_key" data-form="primary" type="text" placeholder="keyword" autocomplete="off" {% if packageData %}data-original-value="{{ packageData.primaryContent.slugKey }}" {% endif %}value="{% if packageData %}{{ packageData.primaryContent.slugKey }}{% endif %}" required="" isRequired="true" />
-                        </div>
-                        <div class="formatted-date-value">.date</div>
-                        <div class="clearer"></div>
-                    </div>
-                    <label for="slug_key" class="control-label">Slug<span class="required-marker">*</span></label>
-                    <i class="bar"></i>
-                    <div class="form-help"></div>
-                </div>
-                <div class="medium-6 columns"></div>
-            </div>
-
-            <div class="row">
                 <div class="medium-6 columns form-group">
                     <input id="hub" name="hub" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" isRequired="true" value="{% if packageData %}{{ packageData.hub }}{% endif %}" />
                     <label for="hub" class="control-label">Hub<span class="required-marker">*</span></label>
@@ -55,6 +37,44 @@
                     <label for="length" class="control-label">Word count</label>
                     <i class="bar"></i>
                 </div>
+            </div>
+
+            <div class="row">
+                <div class="medium-3 columns form-group">
+                    <input id="pub_date_resolution" name="pub_date_resolution" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" isRequired="true" value="{% if packageData %}{{ packageData.pubDate.resolution }}{% endif %}" />
+                    <label for="pub_date_resolution" class="control-label">Time format<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                    <div class="form-help"></div>
+                </div>
+                <div class="medium-5 columns form-group pub-date-group"{% if packageData %}{% if packageData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
+                    <input id="pub_date" name="pub_date" data-form="package" type="text" id="pubDate" required="" isRequired="true" {% if packageData %}{% if packageData.pubDate.resolution == '' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if packageData %}{% if packageData.pubDate.resolution != '' %}{{ formattedPubDate }}{% endif %}{% endif %}" />
+                    <label for="pub_date" class="control-label">Published date<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                    <div class="form-help"></div>
+                </div>
+                <div class="medium-4 columns form-group pub-time-group"{% if packageData %}{% if packageData.pubDate.resolution == 't' %} style="display: block;"{% endif %}{% endif %}>
+                    <input id="pub_time" name="pub_time" data-form="package" type="time" id="pubTime" {% if packageData %}{% if packageData.pubDate.resolution != 't' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if packageData %}{% if packageData.pubDate.resolution == 't' %}{{ formattedPubTime }}{% endif %}{% endif %}" pattern="\d{2}:\d{2}" />
+                    <label for="pub_time" class="control-label">Published time&thinsp;*</label>
+                    <i class="bar"></i>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="medium-12 columns form-group">
+                    <div class="slug-group-holder">
+                        <div class="hub-slug-value">{% if packageData %}{{ packageData.hub }}{% else %}hub{% endif %}.</div>
+                        <div class="keyword-group">
+                            <div class="keyword-value">{% if packageData %}{{ packageData.primaryContent.slugKey }}{% else %}keyword{% endif %}</div>
+                            <input id="slug_key" name="slug_key" data-form="primary" type="text" placeholder="keyword" autocomplete="off" {% if packageData %}data-original-value="{{ packageData.primaryContent.slugKey }}" {% endif %}value="{% if packageData %}{{ packageData.primaryContent.slugKey }}{% endif %}" required="" isRequired="true" />
+                        </div>
+                        <div class="formatted-date-value">.date</div>
+                        <div class="clearer"></div>
+                    </div>
+                    <label for="slug_key" class="control-label">Slug<span class="required-marker">*</span></label>
+                    <i class="bar"></i>
+                    <div class="form-help"></div>
+                </div>
+                <div class="medium-6 columns"></div>
             </div>
 
             <div class="row">
@@ -79,26 +99,6 @@
                 <div class="medium-6 columns form-group set-editors">
                     <input id="editors" name="editors" class="to-selectize staff-select editor" data-form="primary" type="text" value="{% if packageData %}{% for editor in packageData.primaryContent.editors %}{{ editor.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
                     <label for="editors" class="control-label">Editor(s)</label>
-                    <i class="bar"></i>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="medium-3 columns form-group">
-                    <input id="pub_date_resolution" name="pub_date_resolution" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" isRequired="true" value="{% if packageData %}{{ packageData.pubDate.resolution }}{% endif %}" />
-                    <label for="pub_date_resolution" class="control-label">Time format<span class="required-marker">*</span></label>
-                    <i class="bar"></i>
-                    <div class="form-help"></div>
-                </div>
-                <div class="medium-5 columns form-group pub-date-group"{% if packageData %}{% if packageData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="pub_date" name="pub_date" data-form="package" type="text" id="pubDate" required="" isRequired="true" {% if packageData %}{% if packageData.pubDate.resolution == '' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if packageData %}{% if packageData.pubDate.resolution != '' %}{{ formattedPubDate }}{% endif %}{% endif %}" />
-                    <label for="pub_date" class="control-label">Published date<span class="required-marker">*</span></label>
-                    <i class="bar"></i>
-                    <div class="form-help"></div>
-                </div>
-                <div class="medium-4 columns form-group pub-time-group"{% if packageData %}{% if packageData.pubDate.resolution == 't' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="pub_time" name="pub_time" data-form="package" type="time" id="pubTime" {% if packageData %}{% if packageData.pubDate.resolution != 't' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if packageData %}{% if packageData.pubDate.resolution == 't' %}{{ formattedPubTime }}{% endif %}{% endif %}" pattern="\d{2}:\d{2}" />
-                    <label for="pub_time" class="control-label">Published time&thinsp;*</label>
                     <i class="bar"></i>
                 </div>
             </div>
