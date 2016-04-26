@@ -3,6 +3,7 @@ define([
     'underscore',
     'misc/tpl',
     'collections/packages',
+    'collections/query-terms',
     'collectionviews/packages/package-collection',
     'itemviews/packages/date-filter',
     'itemviews/packages/search-box',
@@ -12,6 +13,7 @@ define([
     _,
     tpl,
     PackageCollection,
+    QueryTermCollection,
     PackageCollectionView,
     DateFilterView,
     SearchBoxView,
@@ -19,7 +21,7 @@ define([
 ) {
     return Mn.LayoutView.extend({
         id: 'package-archive',
-        template: tpl('packages-list'),
+
         regions: {
             dateFilter: "#filter-holder #date-filter",
             searchBox: "#filter-holder #search-box",
@@ -29,38 +31,80 @@ define([
         initialize: function() {
             this._radio = Backbone.Wreqr.radio.channel('global');
 
-            this.options.state.dateRange = this.options.boundData[
-                this.options.suppliedDateRange
-            ];
+            if (
+                _.isUndefined(
+                    this._radio.reqres.request(
+                        'getState',
+                        this.stateKey,
+                        'dateRange'
+                    )
+                )
+            ) {
+                this._radio.commands.execute(
+                    'setState',
+                    this.stateKey,
+                    'dateRange',
+                    this.options.boundData.queryParts.dateRange
+                );
+            }
+
+            if (
+                _.isUndefined(
+                    this._radio.reqres.request(
+                        'getState',
+                        this.stateKey,
+                        'queryTerm'
+                    )
+                )
+            ) {
+                // console.log('Set QT.');
+                this._radio.commands.execute(
+                    'setState',
+                    this.stateKey,
+                    'queryTerms',
+                    new QueryTermCollection()
+                );
+            } else {
+                // console.log('QTs exist.');
+            }
 
             this.packageCollection = new PackageCollection();
 
             this.loadPackages(
                 function(collection, request, options) {
-                    if (!_.isNull(this.options.boundData.queryTerms)) {
-                        this.options.state.queryTerms.reset(
-                            this.options.boundData.queryTerms
+                    if (!_.isNull(this.options.boundData.queryParts.queryTerms)) {
+                        this._radio.commands.execute(
+                            'setState',
+                            this.stateKey,
+                            'queryTerms',
+                            function(terms) {
+                                terms.reset(this.options.boundData.queryParts.queryTerms);
+                            }.bind(this)
                         );
 
                         this.updateQuery(collection);
                     }
 
+                    var PackageCollectionViewForType = PackageCollectionView.extend({
+                        childView: this.packageItemView,
+                    });
+
                     this.dateFilterView = new DateFilterView({
                         collection: collection,
                         data: this.options.data,
-                        state: this.options.state,
+                        stateKey: this.stateKey,
                     });
                     this.searchBoxView = new SearchBoxView({
                         data: this.options.data,
-                        state: this.options.state,
+                        stateKey: this.stateKey,
                     });
 
-                    this.collectionView = new PackageCollectionView({
+                    this.collectionView = new PackageCollectionViewForType({
                         collection: collection,
                         currentUser: this.options.currentUser,
                         hubs: this.options.data.hubs,
-                        state: this.options.state,
-                        itemView: this.options.packageItemView
+                        itemView: this.packageItemView,
+                        stateKey: this.stateKey,
                     });
 
                     this.updateQuerystring();
@@ -72,8 +116,8 @@ define([
             // Handler for updating our internal date filters.
             this._radio.commands.setHandler(
                 'switchListDates',
-                function(newDates) {
-                    this.options.state.dateRange = newDates;
+                function(stateKey, newDates) {
+                    this._radio.commands.execute('setState', stateKey, 'dateRange', newDates);
 
                     this.loadPackages(
                         function(collection, response, options) {
@@ -89,8 +133,15 @@ define([
             // Handler for adding a query term.
             this._radio.commands.setHandler(
                 'pushQueryTerm',
-                function(queryObject) {
-                    this.options.state.queryTerms.push(queryObject);
+                function(stateKey, queryObject) {
+                    this._radio.commands.execute(
+                        'setState',
+                        stateKey,
+                        'queryTerms',
+                        function(terms) {
+                            terms.push(queryObject);
+                        }.bind(this)
+                    );
 
                     this.updateQuery(this.packageCollection);
                     this.updateQuerystring();
@@ -101,11 +152,18 @@ define([
             // Handler for removing a query term.
             this._radio.commands.setHandler(
                 'popQueryTerm',
-                function(queryValue) {
-                    this.options.state.queryTerms.remove(
-                        this.options.state.queryTerms.where({
-                            value: queryValue
-                        })
+                function(stateKey, queryValue) {
+                    this._radio.commands.execute(
+                        'setState',
+                        stateKey,
+                        'queryTerms',
+                        function(terms) {
+                            terms.remove(
+                                terms.where({
+                                    value: queryValue
+                                })
+                            );
+                        }.bind(this)
                     );
 
                     this.updateQuery(this.packageCollection);
@@ -116,14 +174,7 @@ define([
         },
 
         loadPackages: function(callbackFunction) {
-            var newPackagesURL = settings.urlConfig.packageEndpoint;
-
-            if (!_.isEmpty(this.options.state.dateRange)) {
-                newPackagesURL = newPackagesURL +
-                                    this.options.state.dateRange.start + '/' +
-                                    this.options.state.dateRange.end + '/';
-            }
-            this.packageCollection.url = newPackagesURL;
+            this.packageCollection.url = this.generateDataURL();
 
             this.packageCollection.fetch().done(
                 function(data, textStatus, jqXHR) {
@@ -134,11 +185,23 @@ define([
             );
         },
 
+        onRender: function() {
+            this.showChildView('dateFilter', this.dateFilterView);
+            this.showChildView('searchBox', this.searchBoxView);
+
+            this.showChildView('packages', this.collectionView);
+        },
+
         updateQuery: function(collection) {
-            var extraQueryContext = {
+            var commonQueryTerms = this._radio.reqres.request(
+                    'getState',
+                    this.stateKey,
+                    'queryTerms'
+                ),
+                extraQueryContext = {
                     hubs: this.options.data.hubs
                 },
-                fullTextQueries = this.options.state.queryTerms.where({
+                fullTextQueries = commonQueryTerms.where({
                     type: 'fullText'
                 });
 
@@ -155,13 +218,23 @@ define([
 
             // Re-run the object query based on the terms.
             collection.filterAnd(
-                this.options.state.queryTerms,
+                commonQueryTerms,
                 extraQueryContext
             );
         },
 
         generateQuerystring: function() {
-            var fullQuerystring = this.options.state.queryTerms.map(
+            var commonQueryTerms = this._radio.reqres.request(
+                    'getState',
+                    this.stateKey,
+                    'queryTerms'
+                ),
+                commonDateRange = this._radio.reqres.request(
+                    'getState',
+                    this.stateKey,
+                    'dateRange'
+                ),
+                fullQuerystring = commonQueryTerms.map(
                 function(term) {
                     var termType = encodeURIComponent(
                                         term.get('type')
@@ -187,14 +260,12 @@ define([
                 ''
             );
 
-            if (!_.isEmpty(this.options.state.dateRange)) {
+            if (!_.isEmpty(commonDateRange)) {
                 if (fullQuerystring !== '') {
                     fullQuerystring += '&';
                 }
 
-                fullQuerystring += _.chain(
-                    this.options.state.dateRange
-                )
+                fullQuerystring += _.chain(commonDateRange)
                     .map(
                         function(value, key) {
                             return encodeURIComponent(key) + 'Date=' +
@@ -223,23 +294,21 @@ define([
 
         updateQuerystring: function() {
             // Generate a querystring based on the current terms selected.
-            var querystring = this.generateQuerystring() + '/';
+            var querystring = this.generateQuerystring(),
+                newURL = this.urlBase + querystring;
+
+            if (querystring !== '') {
+                newURL += '/';
+            }
 
             // Navigate to that querystring.
             this._radio.commands.execute(
                 'navigate',
-                querystring,
+                newURL,
                 {
                     trigger: false
                 }
             );
         },
-
-        onRender: function() {
-            this.showChildView('dateFilter', this.dateFilterView);
-            this.showChildView('searchBox', this.searchBoxView);
-
-            this.showChildView('packages', this.collectionView);
-        }
     });
 });

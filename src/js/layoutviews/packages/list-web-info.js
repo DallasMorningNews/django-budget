@@ -4,7 +4,7 @@ define([
     'collections/packages',
     'collectionviews/packages/package-collection',
     'itemviews/packages/date-filter',
-    'itemviews/packages/package-print-info',
+    'itemviews/packages/package-web-info',
     'itemviews/packages/search-box',
     'layoutviews/packages/list-base',
     'misc/settings'
@@ -14,7 +14,7 @@ define([
     PackageCollection,
     PackageCollectionView,
     DateFilterView,
-    PackageItemPrintView,
+    PackageItemWebView,
     SearchBoxView,
     PackageListBase,
     settings
@@ -22,9 +22,9 @@ define([
     return PackageListBase.extend({
         template: tpl('packages-list'),
 
-        packageItemView: PackageItemPrintView,
-        stateKey: 'printList',
-        urlBase: '/print/',
+        packageItemView: PackageItemWebView,
+        stateKey: 'webList',
+        urlBase: '/',
 
         generateDataURL: function() {
             var dateRange = this._radio.reqres.request(
