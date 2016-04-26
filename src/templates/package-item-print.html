@@ -11,7 +11,7 @@
             <div class="column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
                 <h2 class="date-header">{{ packageObj.pubDate.formatted }}</h2>
-                <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.slug }}</h1>
+                <h1 class="primary-slug might-overflow">PRINT.{{ packageObj.primaryContent.slug }}</h1>
                 <h4 class="budget-line-truncated might-overflow">{{ packageObj.primaryContent.budgetLine }}</h4>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
@@ -79,7 +79,7 @@
 <div class="extra-sheet">
     <ul class="related-content">
         {% for item in additionalWithTypeMetas %}
-            {% include "package-item-additionalcontent" %}
+            {% include "package-item-print-additionalcontent" %}
         {% endfor %}
     </ul>
 </div>
