@@ -11,7 +11,11 @@ function(
     'use strict';
 
     return Backbone.Model.extend({
-        urlRoot: settings.urlConfig.getEndpoints.packageDetailBase,
+        urlRoot: settings.urlConfig.getEndpoints.package.detail,
+
+        url: function() {
+            return this.urlRoot + this.id + '/';
+        },
 
         facetFilters: {
             person: function(pkg, stringToMatch, extraContext) {
