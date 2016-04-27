@@ -357,7 +357,7 @@ define(
                                     // Finally, execute the AJAX:
                                     $.ajax({
                                         type: "POST",
-                                        url: settings.urlConfig.postEndpoints.headlines.submitVote,
+                                        url: settings.urlConfig.postEndpoints.headline.submitVote,
                                         contentType: 'application/json; charset=utf-8',
                                         data: JSON.stringify(voteCastData),
                                         processData: false,
