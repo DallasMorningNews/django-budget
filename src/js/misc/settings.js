@@ -88,8 +88,6 @@ define(function() {
 
         urlConfig: {
             hubEndpoint: 'http://datalab.dallasnews.com/staff/api/hub/',
-            // packageEndpoint: 'test-data/packages.json',
-            packageEndpoint: 'http://datalab.dallasnews.com/budget/packages/',
             stafferEndpoint: 'http://datalab.dallasnews.com/staff/api/staff/',
             postEndpoints: {
                 deletePackage: 'http://datalab.dallasnews.com/budget/package/delete/',
@@ -108,9 +106,12 @@ define(function() {
                 },
             },
             getEndpoints: {
-                packageDetailBase: 'http://datalab.dallasnews.com/budget/packages',
                 package: {
-                    detailBase: 'http://datalab.dallasnews.com/budget/packages',  // To be migrated to in the app.
+                    detail: 'http://datalab.dallasnews.com/budget/packages/',
+                    list: {
+                        print: 'http://datalab.dallasnews.com/budget/packages/for-print/',
+                        web: 'http://datalab.dallasnews.com/budget/packages/',
+                    }
                 }
             },
         }

@@ -174,7 +174,7 @@ define([
         },
 
         loadPackages: function(callbackFunction) {
-            this.packageCollection.url = this.generateDataURL();
+            this.packageCollection.url = this.generateCollectionURL();
 
             this.packageCollection.fetch().done(
                 function(data, textStatus, jqXHR) {

@@ -26,13 +26,13 @@ define([
         stateKey: 'printList',
         urlBase: '/print/',
 
-        generateDataURL: function() {
+        generateCollectionURL: function() {
             var dateRange = this._radio.reqres.request(
                     'getState',
                     this.stateKey,
                     'dateRange'
                 ),
-                newPackagesURL = settings.urlConfig.packageEndpoint;
+                newPackagesURL = settings.urlConfig.getEndpoints.package.list.print;
 
             if (!_.isEmpty(dateRange)) {
                 newPackagesURL = newPackagesURL +
