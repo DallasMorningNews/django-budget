@@ -114,10 +114,6 @@ define(
                 return model.get('pubDate').timestamp;
             },
 
-            url: function() {
-                return settings.urlConfig.packageEndpoint;
-            },
-
             parse: function(response) {
                 // window.resp = response;
                 // response.posts = _.map(response.posts, function(post) {
