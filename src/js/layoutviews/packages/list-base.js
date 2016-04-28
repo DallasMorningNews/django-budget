@@ -1,5 +1,6 @@
 define([
     'marionette',
+    'moment',
     'underscore',
     'misc/tpl',
     'collections/packages',
@@ -10,6 +11,7 @@ define([
     'misc/settings'
 ], function(
     Mn,
+    moment,
     _,
     tpl,
     PackageCollection,
@@ -28,8 +30,16 @@ define([
             packages: "#package-list"
         },
 
+        extraChildViews: {},
+
+        extraQueryTerms: [],
+
         initialize: function() {
             this._radio = Backbone.Wreqr.radio.channel('global');
+
+            this.initialState = this.parseQueryString(
+                this.options.boundData.querystring
+            );
 
             if (
                 _.isUndefined(
@@ -44,7 +54,7 @@ define([
                     'setState',
                     this.stateKey,
                     'dateRange',
-                    this.options.boundData.queryParts.dateRange
+                    this.initialState.dateRange
                 );
             }
 
@@ -70,15 +80,21 @@ define([
 
             this.packageCollection = new PackageCollection();
 
+            this.extraViewInstances = {};
+
+            if (!_.isUndefined(this.extendInitialize)) {
+                this.extendInitialize();
+            }
+
             this.loadPackages(
                 function(collection, request, options) {
-                    if (!_.isNull(this.options.boundData.queryParts.queryTerms)) {
+                    if (!_.isNull(this.initialState.queryTerms)) {
                         this._radio.commands.execute(
                             'setState',
                             this.stateKey,
                             'queryTerms',
                             function(terms) {
-                                terms.reset(this.options.boundData.queryParts.queryTerms);
+                                terms.reset(this.initialState.queryTerms);
                             }.bind(this)
                         );
 
@@ -186,10 +202,105 @@ define([
         },
 
         onRender: function() {
+            if (!_.isEmpty(this.extraChildViews)) {
+                // TODO: Destroy old views.
+                this.extraViewInstances = {};
+
+                _.each(
+                    this.extraChildViews,
+                    function(viewClass, region) {
+                        var viewInstance = new viewClass({
+                            data: this.options.data,
+                            stateKey: this.stateKey,
+                        });
+
+                        this.extraViewInstances[region] = viewInstance;
+                        this.showChildView(region, viewInstance);
+                    }.bind(this)
+                );
+            }
+
             this.showChildView('dateFilter', this.dateFilterView);
             this.showChildView('searchBox', this.searchBoxView);
 
             this.showChildView('packages', this.collectionView);
+        },
+
+        parseQueryString: function(querystring, returnValue) {
+            var parsedQueryTerms = [],
+                parsedDateRange = {},
+                extraContext = {},
+                invalidTerms = [],
+                searchQueryTerms = [
+                    'fullText',
+                    'hub',
+                    'person',
+                    'vertical',
+                ],
+                dateQueryTerms = [
+                    'startDate',
+                    'endDate'
+                ];
+
+            if (!_.isNull(querystring)) {
+                parsedQueryTerms = _.chain(querystring.split('&'))
+                    .map(
+                        function(i){
+                            var termParts = _.map(
+                                    i.split('='),
+                                    decodeURIComponent
+                                );
+
+                            if (_.contains(searchQueryTerms, termParts[0])) {
+                                return {
+                                    type: termParts[0],
+                                    value: termParts[1]
+                                };
+                            } else if (_.contains(dateQueryTerms, termParts[0])) {
+                                parsedDateRange[
+                                    termParts[0].slice(0, -4)
+                                ] = moment(
+                                    termParts[1]
+                                ).format('YYYY-MM-DD');
+
+                                return null;
+                            } else if (_.contains(this.extraQueryTerms, termParts[0])) {
+                                extraContext[termParts[0]] = termParts[1];
+                            } else {
+                                invalidTerms.push({
+                                    type: termParts[0],
+                                    value: termParts[1],
+                                });
+
+                                return null;
+                            }
+                        }.bind(this)
+                    )
+                    .compact()
+                    .value();
+
+                // Log invalid query terms.
+                if (!_.isEmpty(invalidTerms)) {
+                    _.each(
+                        invalidTerms,
+                        function(term) {
+                            var message = '' +
+                                'Invalid querystring term: "' +
+                                encodeURIComponent(term.type) + '=' +
+                                encodeURIComponent(term.value) + '" ' +
+                                '(ignored)';
+                            console.log(message);
+                        }
+                    );
+                }
+            }
+
+            return {
+                queryTerms: parsedQueryTerms,
+                dateRange: parsedDateRange,
+                invalidTerms: invalidTerms,
+                extraContext: extraContext,
+            };
         },
 
         updateQuery: function(collection) {
@@ -287,6 +398,10 @@ define([
                         ''
                     )
                     .value();
+            }
+
+            if (!_.isUndefined(this.extendGenerateQuerystring)) {
+                return this.extendGenerateQuerystring(fullQuerystring);
             }
 
             return fullQuerystring;

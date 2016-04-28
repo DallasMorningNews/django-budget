@@ -8,8 +8,7 @@ define(
         'itemviews/snackbars/snackbar.js',
         'layoutviews/packages/list-print-info',
         'layoutviews/packages/list-web-info',
-        'models/package',
-        'utils/list-querystring-parser'
+        'models/package'
     ],
     function(
         Backbone,
@@ -20,8 +19,7 @@ define(
         SnackbarView,
         PackagePrintListView,
         PackageWebListView,
-        Package,
-        ListQuerystringParser
+        Package
     ) {
         'use strict';
 
@@ -33,7 +31,7 @@ define(
                     'switchMainView',
                     PackageWebListView,
                     {
-                        'queryParts': ListQuerystringParser.parse(querystring)
+                        'querystring': querystring
                     }
                 );
             },
@@ -42,7 +40,7 @@ define(
                     'switchMainView',
                     PackagePrintListView,
                     {
-                        'queryParts': ListQuerystringParser.parse(querystring)
+                        'querystring': querystring
                     }
                 );
             },
