@@ -20,7 +20,7 @@ define([
     settings
 ) {
     return PackageListBase.extend({
-        template: tpl('packages-list'),
+        template: tpl('packages-list-web'),
 
         packageItemView: PackageItemWebView,
         stateKey: 'webList',
