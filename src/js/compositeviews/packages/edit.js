@@ -42,18 +42,29 @@ define([
         childView: AdditionalContentForm,
         childViewContainer: "#additional-content-children",
         childViewOptions: function(model, index) {
-            return this.generateChildViewOptions(
-                this.model.get('primaryContent').slug
-            );
+            var primarySlug;
+
+            if (_.has(this, 'model') && this.model.has('primaryContent')) {
+                primarySlug = this.model.get('primaryContent').slug;
+            }
+
+            return this.generateChildViewOptions(primarySlug);
         },
 
         generateChildViewOptions: function(primarySlug) {
-            return {
+            var opts = {
                 stafferChoices: this.enumerateStafferChoices(),
                 staffers: this.options.data.staffers,
                 typeChoices: this.enumerateTypeChoices(),
-                primarySlug: primarySlug,
             };
+
+            if (!_.isUndefined(primarySlug)) {
+                opts.primarySlug = primarySlug;
+            } else {
+                opts.primarySlug = '[main-slug]';
+            }
+
+            return opts;
         },
 
         ui: {
