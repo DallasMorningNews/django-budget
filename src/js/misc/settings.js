@@ -2,6 +2,8 @@ define(function() {
     'use strict';
 
     return {
+        buttonHideWidth: 600,
+
         contentTypes: {
             'text': {
                 icon: 'fa fa-file-text-o',
@@ -60,23 +62,28 @@ define(function() {
         printPlacementTypes: [
             {
                 verboseName: '1A',
-                slug: '1a'
+                slug: '1a',
+                order: 1
             },
             {
                 verboseName: 'Centerpiece',
-                slug: 'centerpiece'
+                slug: 'centerpiece',
+                order: 2
             },
             {
                 verboseName: 'Section cover',
-                slug: 'section-cover'
+                slug: 'section-cover',
+                order: 3
             },
             {
                 verboseName: 'Inside pages',
-                slug: 'inside-pages'
+                slug: 'inside-pages',
+                order: 4
             },
             {
                 verboseName: 'Other',
-                slug: 'other'
+                slug: 'other',
+                order: 5
             }
         ],
 
