@@ -1,9 +1,7 @@
 define(
     [
-        'backbone',
         'dateRangePicker',
         'jquery',
-        'marionette',
         'moment',
         'moment-timezone',
         'underscore',
@@ -15,10 +13,8 @@ define(
         'misc/tpl'
     ],
     function(
-        Backbone,
         dateRangePicker,
         $,
-        Mn,
         moment,
         mmtz,
         _,
@@ -36,18 +32,27 @@ define(
 
             ui: {
                 packageSheetOuter: '.package-sheet',
-                slugHeadlineHolder: '.package-sheet .slug-headline-holder',
+                slugBar: '.package-sheet .minimal-card .slug-bar',
+                contentsBar: '.package-sheet .minimal-card .contents-bar',
+                rippleButton: '.package-sheet .button',
+                editPackageTrigger: '.package-sheet .edit-package',
                 notesModalTrigger: '.package-sheet .view-notes',
                 subscriptionModalTrigger: '.package-sheet .subscribe',
                 expansionTrigger: '.package-sheet .expand-package',
                 printInfoModalTrigger: '.package-sheet .print-info',
+                webInfoModalTrigger: '.package-sheet .web-info',
             },
 
             events: {
+                'click @ui.slugBar': 'expandOnMobile',
+                'click @ui.contentsBar': 'expandOnMobile',
+                'mousedown @ui.rippleButton': 'addButtonClickedClass',
+                'click @ui.editPackageTrigger': 'showPackageEdit',
                 'click @ui.notesModalTrigger': 'showNotesModal',
                 'click @ui.subscriptionModalTrigger': 'showSubscriptionModal',
                 'click @ui.expansionTrigger': 'expandPackageSheet',
                 'click @ui.printInfoModalTrigger': 'showPrintInfoModal',
+                'click @ui.webInfoModalTrigger': 'showWebInfoModal',
             },
 
             initEnd: function() {
@@ -98,13 +103,48 @@ define(
                 // Underlying model.
                 templateContext.packageObj = packageObj;
 
+                // 'Is ready' flag.
+                templateContext.packageIsReady = false;
+                if (
+                    (this.model.has('URL')) &&
+                    (!_.isEmpty(this.model.get('URL')))
+                ) {
+                    templateContext.packageIsReady = true;
+                }
+
                 // Hub color and vertical slug.
                 if (!_.isUndefined(packageHub)){
                     templateContext.hubDotColor = packageHub.get('color');
                     templateContext.verticalSlug = packageHub.get('vertical').slug;
                 }
 
-                // Editors and authors list.
+                // Print placement lists.
+                templateContext.formattedPrintPlacements = _.chain(
+                    _.map(
+                        this.model.get('printPlacement').printPlacements,
+                        function(placementSlug) {
+                            return _.findWhere(
+                                settings.printPlacementTypes,
+                                {
+                                    slug: placementSlug
+                                }
+                            );
+                        }
+                    )
+                )
+                    .sortBy('order')
+                    .map(function(i) { return _.omit(i, 'order');})
+                    .value();
+
+                // Formatted print run date.
+                templateContext.formattedPrintRunDate = moment(
+                    this.model.get('printPlacement').printRunDate,
+                    'YYYY-MM-DD'
+                ).format(
+                    'MMM D, YYYY'
+                );
+
+                // Editor and author lists.
                 templateContext.allPeople = _.union(
                     _.pluck(this.model.get('primaryContent').editors, 'email'),
                     _.pluck(this.model.get('primaryContent').authors, 'email'),
@@ -186,16 +226,36 @@ define(
                     }
                 );
 
-                templateContext.packageIsReady = false;
-
-                if (
-                    (this.model.has('URL')) &&
-                    (!_.isEmpty(this.model.get('URL')))
-                ) {
-                    templateContext.packageIsReady = true;
-                }
-
                 return templateContext;
+            },
+
+            onRenderCallback: function() {
+                this.ui.rippleButton.addClass('click-init');
+            },
+
+
+            /*
+             *   Event handlers.
+             */
+
+            expandOnMobile: function(e) {
+                if ($(window).width() < settings.buttonHideWidth) {
+                    this.expandPackageSheet();
+                }
+            },
+
+            showPackageEdit: function(event) {
+                if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
+                    event.preventDefault();
+
+                    this._radio.commands.execute(
+                        'navigate',
+                        'edit/' + this.model.id + '/',
+                        {
+                            trigger: true
+                        }
+                    );
+                }
             },
 
             expandPackageSheet: function(e) {
@@ -294,6 +354,208 @@ define(
                 this._radio.commands.execute('showModal', this.modalView);
             },
 
+            showWebInfoModal: function(e) {
+                var parsedPubDate = moment.unix(
+                        this.model.get('pubDate').timestamp
+                    ).tz('America/Chicago'),
+                    headlineStatus = this.model.get('headlineStatus'),
+                    formRows = [],
+                    headlineFields = [];
+
+                if (this.model.get('headlineCandidates').length > 0) {
+                    _.each(this.model.get('headlineCandidates'), function(hed) {
+                        var radioFieldConfig = {
+                            type: 'radio',
+                            widthClasses: 'small-12 medium-12 large-12',
+                            groupName: 'headlineChoices',
+                            inputID: 'headline' + hed.id,
+                            inputValue: hed.id,
+                            labelText: '&ldquo;' + hed.text + '&rdquo;',
+                            isDisabled: false,
+                            isChecked: false,
+                        };
+
+                        if (headlineStatus == 'finalized') {
+                            if (hed.winner) {
+                                radioFieldConfig.isChecked = true;
+                            } else {
+                                radioFieldConfig.isDisabled = true;
+                            }
+                        }
+
+                        headlineFields.push(radioFieldConfig);
+                    });
+
+                    var radioExtraClasses = '',
+                        radioRowHeader = 'Choose a winning headline';
+
+                    if (headlineStatus == 'finalized') {
+                        radioExtraClasses += 'headlines-finalized';
+                        radioRowHeader = 'Headlines (winner already chosen)';
+                    }
+
+                    formRows.push({ extraClasses: radioExtraClasses, rowType: 'radio-buttons', fields: headlineFields, rowHeader: radioRowHeader });
+                }
+
+                formRows.push(
+                    {
+                        extraClasses: '',
+                        fields: [
+                            { type: 'input', widthClasses: 'small-12 medium-12 large-12', labelText: 'URL', inputName: 'url', inputType: 'text', inputValue: this.model.get('URL') }
+                        ]
+                    }
+                );
+
+                formRows.push(
+                    {
+                        extraClasses: '',
+                        fields: [
+                            { type: 'input', widthClasses: 'small-6 medium-8 large-8', labelText: 'Date published (online)', inputID: 'pubDate', inputName: 'pub_date', inputType: 'text', inputValue: parsedPubDate.format('MMM D, YYYY'), },
+                            { type: 'input', widthClasses: 'small-6 medium-4 large-4', labelText: 'Time published', inputID: 'pubTime', inputName: 'pub_time', inputType: 'time', inputValue: parsedPubDate.format('HH:mm'), },
+                        ]
+                    }
+                );
+
+                var webInfoModal = {
+                    modalTitle: 'Web publishing info',
+                    innerID: 'package-web-info',
+                    contentClassName: 'package-modal',
+                    formConfig: { rows: formRows },
+                    escapeButtonCloses: false,
+                    overlayClosesOnClick: false,
+                    buttons: [
+                        {
+                            buttonID: 'package-web-info-save-button',
+                            buttonClass: 'flat-button save-action expand-past-button save-trigger',
+                            innerLabel: 'Save',
+                            clickCallback: function(modalContext) {
+                                // First, serialize the form:
+                                var packageWebData = {},
+                                    formValues = _.chain(modalContext.$el.find('form').serializeArray())
+                                                        .map(function(i) {return [i.name, i.value];})
+                                                        .object()
+                                                        .value();
+
+                                packageWebData.packageID = this.model.get('id');
+                                packageWebData.packageURL = formValues.url;
+                                packageWebData.pubDate = {
+                                    timestamp: moment.tz(
+                                                    formValues.pub_date +
+                                                        ' ' +
+                                                        formValues.pub_time,
+                                                    'MMM D, YYYY HH:mm',
+                                                    'America/Chicago'
+                                                ).unix(),
+                                    resolution: 't',
+                                };
+
+                                if (_.has(formValues, 'headlineChoices')) {
+                                    if (headlineStatus != 'finalized') {
+                                        packageWebData.headlineID = formValues.headlineChoices;
+                                    }
+                                }
+
+                                // Next, add animation classes to the modal:
+                                modalContext.$el.parent()
+                                    .addClass('waiting')
+                                    .addClass('save-waiting');
+
+                                modalContext.$el.append(
+                                    '<div class="loading-animation save-loading-animation">' +
+                                        '<div class="loader">' +
+                                            '<svg class="circular" viewBox="25 25 50 50">' +
+                                                '<circle class="path" cx="50" cy="50" r="20" ' +
+                                                        'fill="none" stroke-width="2" ' +
+                                                        'stroke-miterlimit="10"/>' +
+                                            '</svg>' +
+                                            '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+                                        '</div>' +
+                                        '<p class="loading-text">Saving content...</p>' +
+                                    '</div>'
+                                );
+
+                                setTimeout(function() {
+                                    modalContext.$el.find('.loading-animation').addClass('active');
+                                }.bind(this), 600);
+
+                                setTimeout(
+                                    function() {
+                                        modalContext.$el.find('.modal-inner').css({
+                                            'visibility': 'hidden'
+                                        });
+
+                                        modalContext.$el.addClass('blue-background');
+                                    },
+                                    450
+                                );
+
+                                setTimeout(
+                                    function() {
+                                        modalContext.$el.parent()
+                                                            .addClass('waiting')
+                                                            .addClass('save-waiting')
+                                                            .removeClass('waiting-transition')
+                                                            .removeClass('save-waiting-transition');
+                                    },
+                                    500
+                                );
+
+                                // Finally, execute the AJAX:
+                                $.ajax({
+                                    type: "POST",
+                                    url: settings.urlConfig.postEndpoints.package.updateWebInfo,
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify(packageWebData),
+                                    processData: false,
+                                    success: function(data) {
+                                        setTimeout(
+                                            function() {
+                                                if (data.success) {
+                                                    this.infoModalSuccessCallback('web');
+                                                } else {
+                                                    this.infoModalErrorCallback();
+                                                }
+                                            }.bind(this),
+                                            1500
+                                        );
+                                    }.bind(this),
+                                    error: function(jqXHR, textStatus, errorThrown) {
+                                        setTimeout(
+                                            function() {
+                                                this.infoModalErrorCallback();
+                                            }.bind(this),
+                                            1500
+                                        );
+                                    }.bind(this),
+                                    dataType: 'json'
+                                });
+                            }.bind(this),
+                        },
+                        {
+                            buttonID: 'package-web-info-cancel-button',
+                            buttonClass: 'flat-button primary-action cancel-trigger',
+                            innerLabel: 'Cancel',
+                            clickCallback: function(modalContext) {
+                                this._radio.commands.execute('destroyModal');
+                            }.bind(this),
+                        },
+                    ]
+                };
+
+                this.modalView = new ModalView({
+                    modalConfig: webInfoModal,
+                    renderCallback: function(modal) {
+                        var dayOptions = _.clone(datePickerOptions);
+                        dayOptions.singleDate = true;
+                        dayOptions.extraClass = 'package-web-info-date';
+
+                        modal.$el.find('form #pubDate').dateRangePicker(dayOptions);
+                    }
+                });
+
+                this._radio.commands.execute('showModal', this.modalView);
+            },
+
             showPrintInfoModal: function(e) {
                 var formattedPrintRunDate = '';
                 if (!_.isNull(this.model.get('printPlacement').printIssue)) {
@@ -387,13 +649,6 @@ define(
                                 // First, serialize the form:
                                 var packagePrintData = {},
                                     formValues = {};
-                                    // formValues = _.chain(
-                                    //     modalContext.$el.find('form').serializeArray()
-                                    // ).map(
-                                    //     function(i) {
-                                    //         return [i.name, i.value];
-                                    //     }
-                                    // ).object().value();
                                 _.each(
                                     modalContext.$el.find('form input'),
                                     function(inputEl) {
@@ -537,6 +792,9 @@ define(
             },
 
 
+            /*
+             *   Form-submission callbacks.
+             */
 
             infoModalSuccessCallback: function(infoType) {
                 // Close this popup and destroy it:

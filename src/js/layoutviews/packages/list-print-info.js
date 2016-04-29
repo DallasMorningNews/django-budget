@@ -44,7 +44,15 @@ define([
         },
 
         extraQueryTerms: [
-            'printPlacement'
+            {
+                urlSlug: 'printPlacement',
+                parseFunction: function(pkg, stringToMatch, extraContext) {
+                    return _.contains(
+                        pkg.get('printPlacement').printPlacements,
+                        stringToMatch
+                    );
+                }
+            }
         ],
 
         extendInitialize: function() {
@@ -75,6 +83,16 @@ define([
                     selectedPrintPlacement
                 );
             }
+
+            // Handler for removing a query term.
+            this._radio.commands.setHandler(
+                'updateQueryElements',
+                function() {
+                    this.updateQuery(this.packageCollection);
+                    this.updateQuerystring();
+                },
+                this
+            );
         },
 
         extendGenerateQuerystring: function(existingQueryString) {

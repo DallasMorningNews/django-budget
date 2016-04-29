@@ -8,7 +8,7 @@
         </div>
 
         <div class="slug-bar row">
-            <div class="column small-7 medium-9 large-9">
+            <div class="date-slug-budget-line column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
                 <h2 class="date-header">{{ packageObj.pubDate.formatted }}</h2>
                 <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.slug }}</h1>
@@ -23,11 +23,11 @@
                 {% endif %}
             </div>
         </div>
-        <div class="additional-package-info row">
-            <div class="column small-6 medium-6 large-6 text-left">
+        <div class="contents-bar row">
+            <div class="primary-type column small-6 medium-6 large-6 text-left">
                 <div class="additional-info-line"><i class="{{ primaryTypeMeta.icon }}"></i>&thinsp;&nbsp;{{ primaryTypeMeta.verboseName }}{% if packageObj.primaryContent.length %} ({{ packageObj.primaryContent.length|numberWithCommas }} words){% endif %}</div>
             </div>
-            <div class="related-types column small-5 medium-5 large-5 text-right"><div class="additional-info-line">{% if additionalItemTypes|length > 0 %}Includes {% for type in additionalItemTypes %}<i class="{{ type.icon }}"></i>{% endfor %}{% endif %}</div>
+            <div class="related-types column small-6 medium-6 large-6 text-right"><div class="additional-info-line">{% if additionalItemTypes|length > 0 %}Includes {% for type in additionalItemTypes %}<i class="{{ type.icon }}"></i>{% endfor %}{% endif %}</div>
             </div>
         </div>
 
@@ -46,19 +46,56 @@
                     </div>
                 </div>
 
+                <div class="mobile-author-info">
+                    <p>{% if packageObj.primaryContent.authors|length > 0 %}{% if packageObj.primaryContent.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in packageObj.primaryContent.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}{% if packageObj.primaryContent.editors|length > 0 %}&nbsp;/&nbsp;{% if packageObj.primaryContent.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in packageObj.primaryContent.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+                </div>
+
                 <p>{{ packageObj.primaryContent.budgetLine }}</p>
+
+                <div class="mobile-action-buttons">
+                    <div class="action-button button edit-package">
+                        <a href="/edit/{{ packageObj.id }}/">
+                            <div class="button-contents">
+                                <div class="button-innermost">
+                                    <i class="fa fa-fw fa-pencil-square-o"></i>
+                                    <div class="action-text">Edit</div>
+                                    <div class="clearer"></div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="action-button button view-notes">
+                        <div class="button-contents">
+                            <div class="button-innermost">
+                                <i class="fa fa-fw fa-paragraph"></i>
+                                <div class="action-text">Notes</div>
+                                <div class="clearer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-button button subscribe">
+                        <div class="button-contents">
+                            <div class="button-innermost">
+                                <i class="fa fa-fw fa-slack"></i>
+                                <div class="action-text">Subscribe</div>
+                                <div class="clearer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearer"></div>
+                </div>
 
                 <div class="clearer"></div>
             </div>
         </div>
     </div>
     <div class="action-buttons column small-1 medium-1 large-1 text-center">
-        <a href="/edit/{{ packageObj.id }}/">
-            <div class="edit action-button">
+        <div class="edit-package action-button">
+            <a href="/edit/{{ packageObj.id }}/">
                 <i class="fa fa-pencil-square-o"></i>
                 <span class="hover-info">Edit</span>
-            </div>
-        </a>
+            </a>
+        </div>
         <div class="view-notes action-button">
             <i class="fa fa-paragraph"></i>
             <span class="hover-info">Notes</span>

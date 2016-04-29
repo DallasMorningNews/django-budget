@@ -40,7 +40,27 @@ define(
                         $this.attr('title', $this.text());
                     }
                 });
-            }
+            },
+
+            addButtonClickedClass: function(event) {
+                var thisEl = $(event.currentTarget);
+                thisEl.addClass('active-state');
+                thisEl.removeClass('click-init');
+
+                setTimeout(
+                    function() {
+                        thisEl.removeClass('hover').removeClass('active-state');
+                    },
+                    1000
+                );
+
+                setTimeout(
+                    function() {
+                        thisEl.addClass('click-init');
+                    },
+                    2000
+                );
+            },
         });
     }
 );

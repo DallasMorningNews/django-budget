@@ -95,6 +95,18 @@ define([
                             'queryTerms',
                             function(terms) {
                                 terms.reset(this.initialState.queryTerms);
+
+                                if (!_.isEmpty(this.initialState.extraContext)) {
+                                    _.each(
+                                        this.initialState.extraContext,
+                                        function(value, key) {
+                                            terms.add({
+                                                type: key,
+                                                value: value
+                                            });
+                                        }
+                                    );
+                                }
                             }.bind(this)
                         );
 
@@ -121,6 +133,10 @@ define([
                         hubs: this.options.data.hubs,
                         itemView: this.packageItemView,
                         stateKey: this.stateKey,
+                    });
+
+                    this.collectionView.on('add:child', function(childView) {
+                        childView.onRenderCallback();
                     });
 
                     this.updateQuerystring();
@@ -245,9 +261,9 @@ define([
             if (!_.isNull(querystring)) {
                 parsedQueryTerms = _.chain(querystring.split('&'))
                     .map(
-                        function(i){
+                        function(component){
                             var termParts = _.map(
-                                    i.split('='),
+                                    component.split('='),
                                     decodeURIComponent
                                 );
 
@@ -264,7 +280,12 @@ define([
                                 ).format('YYYY-MM-DD');
 
                                 return null;
-                            } else if (_.contains(this.extraQueryTerms, termParts[0])) {
+                            } else if (
+                                _.contains(
+                                    _.pluck(this.extraQueryTerms, 'urlSlug'),
+                                    termParts[0]
+                                )
+                            ) {
                                 extraContext[termParts[0]] = termParts[1];
                             } else {
                                 invalidTerms.push({
@@ -327,6 +348,17 @@ define([
                     .value();
             }
 
+            if (!_.isEmpty(this.extraQueryTerms)) {
+                extraQueryContext.extraQueryFunctions = _.chain(
+                    this.extraQueryTerms
+                )
+                    .map(function(termProcessor) {
+                        return _.values(termProcessor);
+                    })
+                    .object()
+                    .value();
+            }
+
             // Re-run the object query based on the terms.
             collection.filterAnd(
                 commonQueryTerms,
@@ -345,31 +377,38 @@ define([
                     this.stateKey,
                     'dateRange'
                 ),
-                fullQuerystring = commonQueryTerms.map(
-                function(term) {
-                    var termType = encodeURIComponent(
-                                        term.get('type')
-                                    ),
-                        termValue = encodeURIComponent(
-                                        term.get('value').replace('&', '+')
-                                    );
+                fullQuerystring = commonQueryTerms.filter(
+                    function(termValue) {
+                        return !_.contains(
+                            _.pluck(this.extraQueryTerms, 'urlSlug'),
+                            termValue.get('type')
+                        );
+                    }.bind(this)
+                ).map(
+                    function(term) {
+                        var termType = encodeURIComponent(
+                                            term.get('type')
+                                        ),
+                            termValue = encodeURIComponent(
+                                            term.get('value').replace('&', '+')
+                                        );
 
-                    return termType + '=' + termValue;
-                }
-            ).reduce(
-                function(memo, queryComponent, index) {
-                    var newAddition = '';
-
-                    if (index !== 0) {
-                        newAddition += '&';
+                        return termType + '=' + termValue;
                     }
+                ).reduce(
+                    function(memo, queryComponent, index) {
+                        var newAddition = '';
 
-                    newAddition += queryComponent;
+                        if (index !== 0) {
+                            newAddition += '&';
+                        }
 
-                    return memo + newAddition;
-                },
-                ''
-            );
+                        newAddition += queryComponent;
+
+                        return memo + newAddition;
+                    },
+                    ''
+                );
 
             if (!_.isEmpty(commonDateRange)) {
                 if (fullQuerystring !== '') {

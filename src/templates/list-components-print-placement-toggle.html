@@ -7,5 +7,6 @@
         {% for placement in placementTypes %}
         <div class="toggle{% if placement.isActive %} active{% endif %}" data-placement-type="{{ placement.slug }}">{{ placement.verboseName }}</div>
         {% endfor %}
+        <div class="clearer"></div>
     </div>
 </div>
