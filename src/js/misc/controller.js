@@ -28,6 +28,13 @@ define(
         return {
             home: function(querystring){
                 _radio.commands.execute(
+                    'setState',
+                    'meta',
+                    'listViewType',
+                    'listPage'
+                );
+
+                _radio.commands.execute(
                     'switchMainView',
                     PackageWebListView,
                     {
@@ -36,6 +43,13 @@ define(
                 );
             },
             printList: function(querystring){
+                _radio.commands.execute(
+                    'setState',
+                    'meta',
+                    'listViewType',
+                    'printListPage'
+                );
+
                 _radio.commands.execute(
                     'switchMainView',
                     PackagePrintListView,

@@ -1,41 +1,14 @@
 define(
     [
-        'marionette',
-        'misc/controller'
+        'marionette'
     ],
     function(
-        Mn,
-        controller
+        Mn
     ) {
         'use strict';
 
-        var _radio = Backbone.Wreqr.radio.channel('global');
-
         return Mn.AppRouter.extend({
-            controller: controller,
-
-            namedAppRoutes: {
-                notFound: {
-                    pattern: /^.+$/,
-                    name: 'fourohfour'
-                },
-                listPage: {
-                    pattern: /^([\s\d\w\&\=\-\%\.]*)\/{0,1}$/,
-                    name: 'home'
-                },
-                printListPage: {
-                    pattern: /^print\/([\s\d\w\&\=\-\%\.]*)\/{0,1}$/,
-                    name: 'printList'
-                },
-                createPage: {
-                    pattern: /^edit\/{0,1}$/,
-                    name: 'edit'
-                },
-                editPage: {
-                    pattern: /^edit\/(\d+)\/{0,1}$/,
-                    name: 'edit'
-                }
-            },
+            namedAppRoutes: {},
 
             initialize: function(opts) {
                 _.each(
@@ -50,9 +23,6 @@ define(
             },
 
             onRoute: function(name, path, args) {
-                // $(window).scrollTop(0);
-                // _radio.vent.trigger('route', name, path);
-
                 console.info('= Routing =');
                 console.info('Name: ' + name);
                 console.info('Path: ' + path);
