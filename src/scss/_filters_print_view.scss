@@ -105,5 +105,54 @@ $line-margin: (($daily-image-height - $line-container-height) / 2);
                 }
             }
         }
+
+        .placement-dropdown {
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 666px) {
+    #filter-holder {
+        #print-placement-toggle {
+            .selectize-control {
+                .selectize-input {
+                    .item {
+                        margin-right: 0 !important;
+                        padding-right: 12px !important;
+                    }
+                    input {
+                        color: transparent !important;
+                    }
+                }
+            }
+        }
+    }
+
+    #print-placement-toggle {
+        .icon-holder {
+            padding: 0;
+            width: 10%;
+        }
+
+        .toggle-holder {
+            width: 90%;
+
+            .placement-toggle {
+                display: none;
+            }
+
+            .placement-dropdown {
+                display: block;
+            }
+
+            .selectize-control {
+                .selectize-input {
+                    .item {
+                        background: transparent !important;
+                    }
+                }
+            }
+        }
     }
 }

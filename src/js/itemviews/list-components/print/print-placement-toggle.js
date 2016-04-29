@@ -1,12 +1,14 @@
 define([
     'jquery',
     'marionette',
+    'selectize',
     'underscore',
     'misc/settings',
     'misc/tpl'
 ], function(
     $,
     Mn,
+    selectize,
     _,
     settings,
     tpl
@@ -16,10 +18,11 @@ define([
 
         ui: {
             toggleTrigger: '.toggle-holder .placement-toggle .toggle',
+            dropdownHolder: '.toggle-holder .placement-dropdown',
         },
 
         events: {
-            'click @ui.toggleTrigger': 'toggleActivePlacement',
+            'click @ui.toggleTrigger': 'runToggle',
         },
 
         initialize: function() {
@@ -65,25 +68,85 @@ define([
             };
         },
 
-        toggleActivePlacement: function(event) {
+        onRender: function() {
+            var dropdownOpts = _.map(settings.printPlacementTypes, _.clone);
+
+            dropdownOpts.push({
+                verboseName: 'All',
+                slug: 'all',
+                order: settings.printPlacementTypes.length + 1
+            });
+
+            this.ui.dropdownHolder.selectize({
+                selectOnTab: true,
+                closeAfterSelect: true,
+                options: dropdownOpts,
+                valueField: 'slug',
+                labelField: 'verboseName',
+                searchField: ['verboseName',],
+                maxItems: 1,
+                onItemAdd: function(value, $item) {
+                    this.toggleActivePlacement(value);
+
+                    // Set toggle device active state accordingly.
+                    this.ui.toggleTrigger.removeClass('active');
+                    this.ui.toggleTrigger.filter(
+                        "[data-placement-type='" + value + "']"
+                    ).addClass('active');
+                }.bind(this),
+                onItemRemove: function(value) {
+                    this.toggleActivePlacement('all');
+
+                    // Set toggle device active state accordingly.
+                    this.ui.toggleTrigger.removeClass('active');
+                    this.ui.toggleTrigger.filter(
+                        "[data-placement-type='all']"
+                    ).addClass('active');
+                }.bind(this),
+            });
+
+            this.updateDropdown(
+                this.ui.toggleTrigger.filter('.active').data('placementType')
+            );
+        },
+
+        updateDropdown: function(newValue) {
+            var selectizeObj = this.ui.dropdownHolder[0].selectize;
+
+            selectizeObj.off('item_add');
+
+            selectizeObj.addItem(newValue, true);
+
+            selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
+        },
+
+        runToggle: function(event) {
             var targetEl = $(event.currentTarget),
-                newPlacementSlug = targetEl.data('placementType'),
-                commonPrintPlacement = this._radio.reqres.request(
+                newPlacementSlug = targetEl.data('placementType');
+
+            this.ui.toggleTrigger.removeClass('active');
+            targetEl.addClass('active');
+
+            this.toggleActivePlacement(newPlacementSlug);
+
+            // Set dropdown device active state accordingly.
+            this.updateDropdown(newPlacementSlug);
+        },
+
+        toggleActivePlacement: function(newPlacement) {
+            var commonPrintPlacement = this._radio.reqres.request(
                     'getState',
                     this.options.stateKey,
                     'currentPrintPlacement'
                 );
 
-            this.ui.toggleTrigger.removeClass('active');
-            targetEl.addClass('active');
-
-            if (newPlacementSlug != commonPrintPlacement) {
+            if (newPlacement != commonPrintPlacement) {
                 // Update internal state to reflect new placement choice.
                 this._radio.commands.execute(
                     'setState',
                     this.options.stateKey,
                     'currentPrintPlacement',
-                    newPlacementSlug
+                    newPlacement
                 );
 
                 // Remove current placement filter from query term
@@ -101,7 +164,7 @@ define([
                     }.bind(this)
                 );
 
-                if (newPlacementSlug != 'all') {
+                if (newPlacement != 'all') {
                     // Add new placement filter to query term collection.
                     // Handler for adding a query term.
                     this._radio.commands.execute(
@@ -111,7 +174,7 @@ define([
                         function(terms) {
                             terms.push({
                                 type: 'printPlacement',
-                                value: newPlacementSlug
+                                value: newPlacement
                             });
                         }.bind(this)
                     );

@@ -65,7 +65,8 @@
         }
     }
 
-    #search-box {
+    #search-box,
+    #print-placement-toggle {
         font-family: 'Roboto', sans-serif;
         padding-left: 0;
 
@@ -183,20 +184,21 @@
                             padding: 0 12px;
                             text-transform: uppercase;
                         }
-                        .option {
-                            color: #212121;
-                            font-size: 14px;
-                            line-height: 48px;
-                            height: 48px;
-                            margin: 0;
-                            padding: 0 17px;
-                            text-overflow: ellipsis;
-                            transition: background .15s linear;
-                            white-space: nowrap;
+                    }
 
-                            &.active {
-                                background: #EEEEEE;
-                            }
+                    .option {
+                        color: #212121;
+                        font-size: 14px;
+                        line-height: 48px;
+                        height: 48px;
+                        margin: 0;
+                        padding: 0 17px;
+                        text-overflow: ellipsis;
+                        transition: background .15s linear;
+                        white-space: nowrap;
+
+                        &.active {
+                            background: #EEEEEE;
                         }
                     }
 
