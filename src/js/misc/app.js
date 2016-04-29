@@ -7,8 +7,10 @@ define(
         'collections/hubs',
         'collections/staffers',
         'layoutviews/root-view',
+        'misc/controller',
         'misc/router',
-        'misc/settings'
+        'misc/settings',
+        'misc/urls'
     ],
     function(
         Backbone,
@@ -18,8 +20,10 @@ define(
         HubCollection,
         StafferCollection,
         RootView,
-        Router,
-        settings
+        BudgetController,
+        NamedRouter,
+        settings,
+        URLConf
     ) {
         'use strict';
 
@@ -143,7 +147,12 @@ define(
             onStart: function() {
                 this.rootView.render();
 
-                this.router = new Router();
+                var CustomRouter = NamedRouter.extend({
+                    controller: BudgetController,
+                    namedAppRoutes: URLConf,
+                });
+
+                this.router = new CustomRouter();
 
                 /**
                  * Add a Wreqr command to allow other modules to trigger navigation
