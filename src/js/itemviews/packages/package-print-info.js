@@ -248,12 +248,19 @@ define(
                 if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
                     event.preventDefault();
 
-                    this._radio.commands.execute(
-                        'navigate',
-                        'edit/' + this.model.id + '/',
-                        {
-                            trigger: true
-                        }
+                    var triggerElement = $(event.currentTarget);
+
+                    setTimeout(
+                        function() {
+                            this._radio.commands.execute(
+                                'navigate',
+                                triggerElement.find('a').attr('href'),
+                                {
+                                    trigger: true
+                                }
+                            );
+                        }.bind(this),
+                        1000
                     );
                 }
             },

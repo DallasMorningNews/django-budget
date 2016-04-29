@@ -20,15 +20,17 @@ define([
         template: tpl('packages-list-datefilter'),
 
         ui: {
+            rippleButton: '.button',
             dateChooser: '#date-chooser',
             datesStart: '#budget-dates-start',
-            datesEnd: '#budget-dates-end'
+            datesEnd: '#budget-dates-end',
+            createPackageTrigger: '.create-button .button',
         },
-        // className: 'center-content',
-        // regions: {
-        //     filters: "#filters",
-        //     packages: "#packages"
-        // },
+
+        events: {
+            'mousedown @ui.rippleButton': 'addButtonClickedClass',
+            'click @ui.createPackageTrigger': 'showPackageCreate',
+        },
 
         initialize: function() {
             this._radio = Backbone.Wreqr.radio.channel('global');
@@ -52,6 +54,8 @@ define([
         },
 
         onRender: function() {
+            this.ui.rippleButton.addClass('click-init');
+
             this.ui.dateChooser.dateRangePicker({
                 getValue: function() {
                     if (this.ui.datesStart.val() && this.ui.datesEnd.val()) {
@@ -162,6 +166,47 @@ define([
                     true
                 );
             }
-        }
+        },
+
+        addButtonClickedClass: function(event) {
+            var thisEl = $(event.currentTarget);
+            thisEl.addClass('active-state');
+            thisEl.removeClass('click-init');
+
+            setTimeout(
+                function() {
+                    thisEl.removeClass('hover').removeClass('active-state');
+                },
+                1000
+            );
+
+            setTimeout(
+                function() {
+                    thisEl.addClass('click-init');
+                },
+                2000
+            );
+        },
+
+        showPackageCreate: function(event) {
+            if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+
+                var triggerElement = $(event.currentTarget);
+
+                setTimeout(
+                    function() {
+                        this._radio.commands.execute(
+                            'navigate',
+                            triggerElement.find('a').attr('href'),
+                            {
+                                trigger: true
+                            }
+                        );
+                    }.bind(this),
+                    1000
+                );
+            }
+        },
     });
 });
