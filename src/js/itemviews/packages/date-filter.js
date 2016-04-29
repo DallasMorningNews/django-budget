@@ -20,15 +20,17 @@ define([
         template: tpl('packages-list-datefilter'),
 
         ui: {
+            rippleButton: '.button',
             dateChooser: '#date-chooser',
             datesStart: '#budget-dates-start',
-            datesEnd: '#budget-dates-end'
+            datesEnd: '#budget-dates-end',
+            createPackageTrigger: '.create-button .button',
         },
-        // className: 'center-content',
-        // regions: {
-        //     filters: "#filters",
-        //     packages: "#packages"
-        // },
+
+        events: {
+            'mousedown @ui.rippleButton': 'addButtonClickedClass',
+            'click @ui.createPackageTrigger': 'showPackageCreate',
+        },
 
         initialize: function() {
             this._radio = Backbone.Wreqr.radio.channel('global');
@@ -52,6 +54,8 @@ define([
         },
 
         onRender: function() {
+            this.ui.rippleButton.addClass('click-init');
+
             this.ui.dateChooser.dateRangePicker({
                 getValue: function() {
                     if (this.ui.datesStart.val() && this.ui.datesEnd.val()) {
@@ -130,18 +134,28 @@ define([
                             ).format('YYYY-MM-DD')
                         };
 
-                        this._radio.commands.execute('switchListDates', newDateRange);
+                        this._radio.commands.execute(
+                            'switchListDates',
+                            this.options.stateKey,
+                            newDateRange
+                        );
                     }
                 }.bind(this)
             );
 
-            if (!_.isEmpty(this.options.state.dateRange)) {
+            var commonDateRange = this._radio.reqres.request(
+                'getState',
+                this.options.stateKey,
+                'dateRange'
+            );
+
+            if (!_.isEmpty(commonDateRange)) {
                 this.ui.dateChooser.data('dateRangePicker').setDateRange(
                     moment(
-                        this.options.state.dateRange.start, 'YYYY-MM-DD'
+                        commonDateRange.start, 'YYYY-MM-DD'
                     ).format('MMM D, YYYY'),
                     moment(
-                        this.options.state.dateRange.end, 'YYYY-MM-DD'
+                        commonDateRange.end, 'YYYY-MM-DD'
                     ).format('MMM D, YYYY'),
                     true
                 );
@@ -152,6 +166,47 @@ define([
                     true
                 );
             }
-        }
+        },
+
+        addButtonClickedClass: function(event) {
+            var thisEl = $(event.currentTarget);
+            thisEl.addClass('active-state');
+            thisEl.removeClass('click-init');
+
+            setTimeout(
+                function() {
+                    thisEl.removeClass('hover').removeClass('active-state');
+                },
+                1000
+            );
+
+            setTimeout(
+                function() {
+                    thisEl.addClass('click-init');
+                },
+                2000
+            );
+        },
+
+        showPackageCreate: function(event) {
+            if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+
+                var triggerElement = $(event.currentTarget);
+
+                setTimeout(
+                    function() {
+                        this._radio.commands.execute(
+                            'navigate',
+                            triggerElement.find('a').attr('href'),
+                            {
+                                trigger: true
+                            }
+                        );
+                    }.bind(this),
+                    1000
+                );
+            }
+        },
     });
 });

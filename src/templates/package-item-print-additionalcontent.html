@@ -2,7 +2,7 @@
             <div class="row">
                 <div class="visible-area column small-11 medium-11 large-11">
                     <div class="slug-bar row">
-                        <div class="column small-6 medium-7 large-7">
+                        <div class="date-slug column small-6 medium-7 large-7">
                             <h3 class="might-overflow">{{ item.model.slug }}</h3>
                         </div>
                         <div class="author-info column small-6 medium-5 large-5">
@@ -16,7 +16,7 @@
                         </div>
                     </div>
 
-                    <div class="additional-package-info row">
+                    <div class="contents-bar row">
                         <div class="column small-6 medium-8 large-8 text-left">
                             <div class="additional-info-line"><i class="{{ item.typeMeta.icon }}"></i>&thinsp;&nbsp;{{ item.typeMeta.verboseName }}{% if item.model.length %} ({{ item.model.length|numberWithCommas }} words){% endif %}</div>
                         </div>
@@ -26,6 +26,10 @@
 
                     <div class="related-description row">
                         <div class="budget-line column small-12 medium-12 large-12">
+                            <div class="mobile-author-info">
+                                <p>{% if item.model.authors|length > 0 %}{% if item.model.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in item.model.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}{% if item.model.editors|length > 0 %}&nbsp;/&nbsp;{% if item.model.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in item.model.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+                            </div>
+
                             {% if item.model.budgetLine %}
                             <p>{{ item.model.budgetLine }}</p>
                             {% else %}

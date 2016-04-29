@@ -1,0 +1,44 @@
+        <li class="content-item" ready="{{ item.model.isReady }}" content-id="{{ item.model.id }}">
+            <div class="row">
+                <div class="visible-area column small-11 medium-11 large-11">
+                    <div class="slug-bar row">
+                        <div class="date-slug column small-6 medium-7 large-7">
+                            <h3 class="might-overflow">{{ item.model.slug }}</h3>
+                        </div>
+                        <div class="author-info column small-6 medium-5 large-5">
+                            {% if item.model.authors|length > 0 %}
+                            <h4 class="might-overflow">{% if item.model.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in item.model.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
+                            {% endif %}
+
+                            {% if item.model.editors|length > 0 %}
+                            <h4 class="might-overflow">{% if item.model.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in item.model.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h4>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="contents-bar row">
+                        <div class="column small-6 medium-8 large-8 text-left">
+                            <div class="additional-info-line"><i class="{{ item.typeMeta.icon }}"></i>&thinsp;&nbsp;{{ item.typeMeta.verboseName }}{% if item.model.length %} ({{ item.model.length|numberWithCommas }} words){% endif %}</div>
+                        </div>
+                        <div class="column small-6 medium-4 large-4 text-center">
+                        </div>
+                    </div>
+
+                    <div class="related-description row">
+                        <div class="budget-line column small-12 medium-12 large-12">
+                            <div class="mobile-author-info">
+                                <p>{% if item.model.authors|length > 0 %}{% if item.model.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in item.model.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}{% if item.model.editors|length > 0 %}&nbsp;/&nbsp;{% if item.model.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in item.model.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+                            </div>
+
+                            {% if item.model.budgetLine %}
+                            <p>{{ item.model.budgetLine }}</p>
+                            {% else %}
+                            <p>(None specified)</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="knockout column small-1 medium-1 large-1"></div>
+            </div>
+        </li>

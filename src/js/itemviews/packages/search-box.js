@@ -16,26 +16,18 @@ define([
     selectize
 ) {
     return Mn.ItemView.extend({
-        // id: '',
         template: tpl('packages-list-searchbox'),
 
         ui: {
             searchBox: '#package-search-box'
         },
-        // className: 'center-content',
-        // regions: {
-        //     filters: "#filters",
-        //     packages: "#packages"
-        // },
 
         initialize: function() {
             this.searchOptions = new SearchOptionCollection();
-        //     this.packageFilterView = new PackageFilterView({});
-        //     this.packageCollectionView = new ({});
         },
 
         onRender: function() {
-            var _radio = Backbone.Wreqr.radio.channel('global');
+            this._radio = Backbone.Wreqr.radio.channel('global');
 
             this.generateSearchOptions();
 
@@ -81,19 +73,30 @@ define([
                     var additionalParam = {};
                     additionalParam.type = $item.data('type');
                     additionalParam.value = $item.data('value');
-                    // this.chaperone.chaperone.narrowVisiblePackages(additionalParam);
 
-                    _radio.commands.execute('pushQueryTerm', additionalParam);
+                    this._radio.commands.execute(
+                        'pushQueryTerm',
+                        this.options.stateKey,
+                        additionalParam
+                    );
                 }.bind(this),
                 onItemRemove: function(value) {
-                    // this.chaperone.chaperone.broadenVisiblePackages(value);
-
-                    _radio.commands.execute('popQueryTerm', value);
+                    this._radio.commands.execute(
+                        'popQueryTerm',
+                        this.options.stateKey,
+                        value
+                    );
                 }.bind(this)
                 // preload: true
             });
 
-            if (!this.options.state.queryTerms.isEmpty()) {
+            var commonQueryTerms = this._radio.reqres.request(
+                'getState',
+                this.options.stateKey,
+                'queryTerms'
+            );
+
+            if (!commonQueryTerms.isEmpty()) {
                 // Add all currently-selected fields to the selectize box.
                 // Nota bene: I'm doing this manually, rather than by
                 // specifying an 'items' array, because the latter way won't
@@ -102,14 +105,14 @@ define([
 
                 selectizeObj.off('item_add');
 
-                this.options.state.queryTerms.each(function(term, i) {
+                commonQueryTerms.each(function(term, i) {
                     if (term.get('type') == 'fullText') {
                         selectizeObj.createItem(term.get('value'), false);
                     } else {
                         selectizeObj.addItem(term.get('value'), true);
                     }
 
-                    if (i + 1 == this.options.state.queryTerms.length) {
+                    if (i + 1 == commonQueryTerms.length) {
                         selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
                     }
                 }.bind(this));

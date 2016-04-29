@@ -5,7 +5,6 @@ define(
         'jquery',
         'marionette',
         'collections/hubs',
-        'collections/query-terms',
         'collections/staffers',
         'layoutviews/root-view',
         'misc/router',
@@ -17,7 +16,6 @@ define(
         $,
         Mn,
         HubCollection,
-        QueryTermCollection,
         StafferCollection,
         RootView,
         Router,
@@ -40,6 +38,53 @@ define(
                 this._radio.reqres.setHandler('data', function(type){
                     return this.data[type];
                 }, this);
+
+                // Handler for getting app state.
+                this._radio.reqres.setHandler(
+                    'getState',
+                    function(overallKey, specificKey) {
+                        if (!_.has(this.state, overallKey)) {
+                            this.state[overallKey] = {};
+                        }
+
+                        if (!_.has(this.state[overallKey], specificKey)) {
+                            return undefined;
+                        }
+
+                        return this.state[overallKey][specificKey];
+                    },
+                    this
+                );
+
+                // Handler for setting app state.
+                this._radio.commands.setHandler(
+                    'setState',
+                    function(overallKey, specificKey, assignee, literalFunction) {
+                        if (!_.has(this.state, overallKey)) {
+                            this.state[overallKey] = {};
+                        }
+
+                        if (!_.has(this.state[overallKey], specificKey)) {
+                            this.state[overallKey][specificKey] = null;
+                        }
+
+                        if (!_.isUndefined(assignee)) {
+                            if (_.isFunction(assignee)) {
+                                if (_.isUndefined(literalFunction) || literalFunction === false) {
+                                    var newValue = assignee(this.state[overallKey][specificKey]);
+
+                                    if (!_.isUndefined(newValue)) {
+                                        this.state[overallKey][specificKey] = newValue;
+                                    }
+                                } else {
+                                    this.state[overallKey][specificKey] = assignee;
+                                }
+                            } else {
+                                this.state[overallKey][specificKey] = assignee;
+                            }
+                        }
+                    }.bind(this)
+                );
 
                 this.currentUser = {
                     email: 'test.user@dallasnews.com'
@@ -86,10 +131,7 @@ define(
                  */
                 this.state = {
                     selectizeType: 'and',
-                    dateRange: {},
                 };
-
-                this.state.queryTerms = new QueryTermCollection();
 
                 this.rootView = new RootView({
                     currentUser: this.currentUser,

@@ -11,7 +11,11 @@ function(
     'use strict';
 
     return Backbone.Model.extend({
-        urlRoot: settings.urlConfig.getEndpoints.packageDetailBase,
+        urlRoot: settings.urlConfig.getEndpoints.package.detail,
+
+        url: function() {
+            return this.urlRoot + this.id + '/';
+        },
 
         facetFilters: {
             person: function(pkg, stringToMatch, extraContext) {
@@ -65,11 +69,33 @@ function(
             var allFacetsMatch = true;
 
             queryTerms.each(function(term) {
+                var termType = term.get('type'),
+                    facetMatches = _.chain(this.facetFilters)
+                                        .keys()
+                                        .contains(termType)
+                                        .value(),
+                    extraMatches = _.chain(extraContext.extraQueryFunctions)
+                                        .keys()
+                                        .contains(termType)
+                                        .value(),
+                    queryFunction;
+
+                if (facetMatches) {
+                    queryFunction = this.facetFilters[termType];
+                } else if (extraMatches) {
+                    queryFunction = extraContext.extraQueryFunctions[termType];
+                } else {
+                    queryFunction = function(pkg, stringToMatch, extraContext) {
+                        console.log("Couldn't find filter for query term: " + termType);
+                        return false;
+                    };
+                }
+
                 if (
-                    !this.facetFilters[term.get('type')](
+                    !queryFunction(
                         this,
                         term.get('value'),
-                        extraContext
+                        _.omit(extraContext, 'extraQueryFunctions')
                     )
                 ) {
                     allFacetsMatch = false;

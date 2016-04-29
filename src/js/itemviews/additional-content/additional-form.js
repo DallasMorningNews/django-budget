@@ -515,7 +515,7 @@ define(
 
                                     $.ajax({
                                         type: "POST",
-                                        url: settings.urlConfig.postEndpoints.additionalItems.delete,
+                                        url: settings.urlConfig.postEndpoints.additionalItem.delete,
                                         contentType: 'application/json; charset=utf-8',
                                         data: JSON.stringify(toDeleteDict),
                                         processData: false,

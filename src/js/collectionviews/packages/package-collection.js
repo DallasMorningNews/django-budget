@@ -2,18 +2,14 @@ define([
     'backbone',
     'marionette',
     'underscore',
-    'itemviews/packages/package',
     'itemviews/packages/no-package'
 ], function(
     Backbone,
     Mn,
     _,
-    PackageView,
     NoPackagesView
 ) {
     return Mn.CollectionView.extend({
-        childView: PackageView,
-
         collectionEvents: {
             'updateQuery': 'render'
         },
