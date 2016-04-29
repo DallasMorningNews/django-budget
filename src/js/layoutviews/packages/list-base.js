@@ -58,16 +58,14 @@ define([
                 );
             }
 
-            if (
-                _.isUndefined(
-                    this._radio.reqres.request(
-                        'getState',
-                        this.stateKey,
-                        'queryTerm'
-                    )
-                )
-            ) {
-                // console.log('Set QT.');
+            var initialQueryTerms = this._radio.reqres.request(
+                'getState',
+                this.stateKey,
+                'queryTerms'
+            );
+
+            if (_.isUndefined(initialQueryTerms)) {
+                console.log('Set QT.');
                 this._radio.commands.execute(
                     'setState',
                     this.stateKey,
@@ -75,7 +73,8 @@ define([
                     new QueryTermCollection()
                 );
             } else {
-                // console.log('QTs exist.');
+                console.log('QTs exist.');
+                console.log(JSON.stringify(initialQueryTerms.toJSON()));
             }
 
             this.packageCollection = new PackageCollection();
@@ -88,7 +87,10 @@ define([
 
             this.loadPackages(
                 function(collection, request, options) {
-                    if (!_.isNull(this.initialState.queryTerms)) {
+
+                    if (!_.isUndefined(initialQueryTerms)) {
+                        this.updateQuery(collection);
+                    } else if (!_.isNull(this.initialState.queryTerms)) {
                         this._radio.commands.execute(
                             'setState',
                             this.stateKey,
