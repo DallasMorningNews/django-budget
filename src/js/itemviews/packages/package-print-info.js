@@ -250,17 +250,12 @@ define(
 
                     var triggerElement = $(event.currentTarget);
 
-                    setTimeout(
-                        function() {
-                            this._radio.commands.execute(
-                                'navigate',
-                                triggerElement.find('a').attr('href'),
-                                {
-                                    trigger: true
-                                }
-                            );
-                        }.bind(this),
-                        125
+                    this._radio.commands.execute(
+                        'navigate',
+                        triggerElement.find('a').attr('href'),
+                        {
+                            trigger: true
+                        }
                     );
                 }
             },
