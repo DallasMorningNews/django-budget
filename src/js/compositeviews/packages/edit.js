@@ -227,7 +227,10 @@ define([
             templateContext.placementChoices = _.map(
                 settings.printPlacementTypes,
                 function(placementConfig) {
-                    var configFinalized = _.clone(placementConfig);
+                    var configFinalized = _.chain(placementConfig)
+                                                .omit('order')
+                                                .clone()
+                                                .value();
 
                     if (
                         _.has(this, 'model') &&
