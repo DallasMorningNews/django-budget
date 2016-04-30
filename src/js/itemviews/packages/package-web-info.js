@@ -479,7 +479,7 @@ define(
                                 // Finally, execute the AJAX:
                                 $.ajax({
                                     type: "POST",
-                                    url: settings.urlConfig.postEndpoints.package.updateWebInfo,
+                                    url: settings.apiEndpoints.POST.package.updateWebInfo,
                                     contentType: 'application/json; charset=utf-8',
                                     data: JSON.stringify(packageWebData),
                                     processData: false,
@@ -714,7 +714,7 @@ define(
                                 // Finally, execute the AJAX:
                                 $.ajax({
                                     type: "POST",
-                                    url: settings.urlConfig.postEndpoints.package.updatePrintInfo,
+                                    url: settings.apiEndpoints.POST.package.updatePrintInfo,
                                     contentType: 'application/json; charset=utf-8',
                                     data: JSON.stringify(packagePrintData),
                                     processData: false,

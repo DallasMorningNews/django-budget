@@ -2,6 +2,38 @@ define(function() {
     'use strict';
 
     return {
+        apiEndpoints: {
+            POST: {
+                additionalItem: {
+                    delete: 'http://datalab.dallasnews.com/budget/delete-additional-item/'
+                },
+                headline: {
+                    submitVote: 'http://datalab.dallasnews.com/budget/headline/vote/'
+                },
+                package: {
+                    delete: 'http://datalab.dallasnews.com/budget/package/delete/',
+                    save: 'http://datalab.dallasnews.com/budget/package/',  // To be migrated to in the app.
+                    updatePrintInfo: 'http://datalab.dallasnews.com/budget/package/print/',
+                    updateWebInfo: 'http://datalab.dallasnews.com/budget/package/web/',
+                },
+            },
+            GET: {
+                hub: {
+                    list: 'http://datalab.dallasnews.com/staff/api/hub/'
+                },
+                staffer: {
+                    list: 'http://datalab.dallasnews.com/staff/api/staff/',
+                },
+                package: {
+                    detail: 'http://datalab.dallasnews.com/budget/packages/',
+                    list: {
+                        print: 'http://datalab.dallasnews.com/budget/packages/for-print/',
+                        web: 'http://datalab.dallasnews.com/budget/packages/',
+                    }
+                }
+            },
+        },
+
         buttonHideWidth: 600,
 
         contentTypes: {
@@ -92,37 +124,5 @@ define(function() {
             hub: 5,
             vertical: 9
         },
-
-        urlConfig: {
-            postEndpoints: {
-                additionalItem: {
-                    delete: 'http://datalab.dallasnews.com/budget/delete-additional-item/'
-                },
-                headline: {
-                    submitVote: 'http://datalab.dallasnews.com/budget/headline/vote/'
-                },
-                package: {
-                    delete: 'http://datalab.dallasnews.com/budget/package/delete/',
-                    save: 'http://datalab.dallasnews.com/budget/package/',  // To be migrated to in the app.
-                    updatePrintInfo: 'http://datalab.dallasnews.com/budget/package/print/',
-                    updateWebInfo: 'http://datalab.dallasnews.com/budget/package/web/',
-                },
-            },
-            getEndpoints: {
-                hub: {
-                    list: 'http://datalab.dallasnews.com/staff/api/hub/'
-                },
-                staffer: {
-                    list: 'http://datalab.dallasnews.com/staff/api/staff/',
-                },
-                package: {
-                    detail: 'http://datalab.dallasnews.com/budget/packages/',
-                    list: {
-                        print: 'http://datalab.dallasnews.com/budget/packages/for-print/',
-                        web: 'http://datalab.dallasnews.com/budget/packages/',
-                    }
-                }
-            },
-        }
     };
 });

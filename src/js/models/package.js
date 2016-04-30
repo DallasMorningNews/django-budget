@@ -11,7 +11,7 @@ function(
     'use strict';
 
     return Backbone.Model.extend({
-        urlRoot: settings.urlConfig.getEndpoints.package.detail,
+        urlRoot: settings.apiEndpoints.GET.package.detail,
 
         url: function() {
             return this.urlRoot + this.id + '/';
