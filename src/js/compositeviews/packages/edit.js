@@ -1101,7 +1101,7 @@ define([
 
                 $.ajax({
                     type: "POST",
-                    url: settings.urlConfig.postEndpoints.package.save,
+                    url: settings.apiEndpoints.POST.package.save,
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(packageDict),
                     processData: false,
@@ -1173,7 +1173,7 @@ define([
 
                 $.ajax({
                     type: "POST",
-                    url: settings.urlConfig.postEndpoints.package.save,
+                    url: settings.apiEndpoints.POST.package.save,
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(packageDict),
                     processData: false,
@@ -1322,7 +1322,7 @@ define([
 
                                 $.ajax({
                                     type: "POST",
-                                    url: settings.urlConfig.postEndpoints.package.delete,
+                                    url: settings.apiEndpoints.POST.package.delete,
                                     contentType: 'application/json; charset=utf-8',
                                     data: JSON.stringify(toDeleteDict),
                                     processData: false,

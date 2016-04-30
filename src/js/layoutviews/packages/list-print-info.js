@@ -121,7 +121,7 @@ define([
                     this.stateKey,
                     'dateRange'
                 ),
-                newPackagesURL = settings.urlConfig.getEndpoints.package.list.print;
+                newPackagesURL = settings.apiEndpoints.GET.package.list.print;
 
             if (!_.isEmpty(dateRange)) {
                 newPackagesURL = newPackagesURL +
