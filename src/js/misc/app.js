@@ -23,7 +23,7 @@ define(
         BudgetController,
         NamedRouter,
         settings,
-        URLConf
+        urlConfig
     ) {
         'use strict';
 
@@ -149,7 +149,7 @@ define(
 
                 var CustomRouter = NamedRouter.extend({
                     controller: BudgetController,
-                    namedAppRoutes: URLConf,
+                    namedAppRoutes: urlConfig,
                 });
 
                 this.router = new CustomRouter();

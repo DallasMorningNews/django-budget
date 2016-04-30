@@ -34,7 +34,7 @@ define([
     datePickerOptions,
     settings,
     tpl,
-    URLConf,
+    urlConfig,
     expandingTextField
 ) {
     return Mn.CompositeView.extend({
@@ -131,9 +131,9 @@ define([
             this.priorPath = '/';
             if (
                 !_.isUndefined(priorViewName) &&
-                _.has(URLConf, priorViewName)
+                _.has(urlConfig, priorViewName)
             ) {
-                this.priorPath = URLConf[priorViewName].reversePattern;
+                this.priorPath = urlConfig[priorViewName].reversePattern;
             }
 
 
