@@ -15,6 +15,7 @@ define([
     'misc/date-picker-options',
     'misc/settings',
     'misc/tpl',
+    'misc/urls',
     'utils/expanding-text-field'
 ], function(
     Backbone,
@@ -33,6 +34,7 @@ define([
     datePickerOptions,
     settings,
     tpl,
+    URLConf,
     expandingTextField
 ) {
     return Mn.CompositeView.extend({
@@ -117,6 +119,22 @@ define([
             this.isFirstRender = true;
 
             this._radio = Backbone.Wreqr.radio.channel('global');
+
+            /* Prior-path capturing. */
+
+            var priorViewName = this._radio.reqres.request(
+                'getState',
+                'meta',
+                'listViewType'
+            );
+
+            this.priorPath = '/';
+            if (
+                !_.isUndefined(priorViewName) &&
+                _.has(URLConf, priorViewName)
+            ) {
+                this.priorPath = URLConf[priorViewName].reversePattern;
+            }
 
 
             /* Moment.js configuration. */
@@ -1399,7 +1417,13 @@ define([
             // TK.
 
             // Navigate to the index view
-            this._radio.commands.execute('navigate', '', {trigger: true});
+            this._radio.commands.execute(
+                'navigate',
+                this.priorPath,
+                {
+                    trigger: true
+                }
+            );
 
             // Display snackbar:
             this._radio.commands.execute(
@@ -1453,7 +1477,13 @@ define([
 
             // Navigate to the index view (or to the same page if save and continue)
             if (mode == 'saveOnly') {
-                this._radio.commands.execute('navigate', '', {trigger: true});
+                this._radio.commands.execute(
+                    'navigate',
+                    this.priorPath,
+                    {
+                        trigger: true
+                    }
+                );
             } else if (mode == 'saveAndContinue') {
                 if (_.isUndefined(this.model)) {
                     this._radio.commands.execute(
@@ -1464,19 +1494,7 @@ define([
                         }
                     );
                 } else {
-                    // this.collection.remove(
-                    //     this.collection.filter(function(i) {
-                    //         return !i.has('id');
-                    //     })
-                    // );
-
                     this.model.fetch();
-                    // setTimeout(
-                    //     function() {
-
-                    //     }.bind(this),
-                    //     300
-                    // );
                 }
 
                 successSnackbarOpts.containerClass = 'edit-page';
