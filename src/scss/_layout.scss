@@ -38,17 +38,19 @@ h2 {
         padding: 0.3rem 0.75rem;
 
         /* IE10+ */
-        background-image: -ms-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        background-image: -ms-linear-gradient(top left, #0185D3 0%, #036DAB 70%);
         /* Mozilla Firefox */
-        background-image: -moz-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        background-image: -moz-linear-gradient(top left, #0185D3 0%, #036DAB 70%);
         /* Opera */
-        background-image: -o-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        background-image: -o-linear-gradient(top left, #0185D3 0%, #036DAB 70%);
         /* Webkit (Safari/Chrome 10) */
-        background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #2196F3), color-stop(70, #0D47A1));
+        background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #0185D3), color-stop(70, #036DAB));
         /* Webkit (Chrome 11+) */
-        background-image: -webkit-linear-gradient(top left, #2196F3 0%, #0D47A1 70%);
+        background-image: -webkit-linear-gradient(top left, #0185D3 0%, #036DAB 70%);
         /* W3C Markup */
-        background-image: linear-gradient(to bottom right, #2196F3 0%, #0D47A1 70%);
+        background-image: linear-gradient(to bottom right, #0185D3 0%, #036DAB 70%);
+        /* IE <10 */
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF0185D3', endColorstr='#FF036DAB', GradientType=1);
 
         #logo-holder {
             .masthead {
