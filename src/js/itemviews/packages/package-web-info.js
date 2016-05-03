@@ -160,11 +160,10 @@ define(
                 ];
 
                 // Fallback function for comma-formatted length (1 of 2).
-                // If used, remember to also import numeral.
                 // if (_.has(packageObj.primaryContent, 'length')) {
-                //     templateContext.primaryLengthFormatted = numeral(
+                //     templateContext.primaryLengthFormatted = _string_.numberFormat(
                 //         packageObj.primaryContent.length
-                //     ).format('0,0');
+                //     );
                 // }
 
                 // List of additional content item types and icons
@@ -191,11 +190,10 @@ define(
                         };
 
                         // Fallback function for comma-formatted length (2 of 2).
-                        // If used, remember to also import numeral.
                         // if (_.has(additionalItem, 'length')) {
-                        //     additionalConfig.model.length = numeral(
+                        //     additionalConfig.model.length = _string_.numberFormat(
                         //         additionalItem.length
-                        //     ).format('0,0');
+                        //     );
                         // }
 
                         return additionalConfig;

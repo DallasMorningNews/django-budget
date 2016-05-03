@@ -1,6 +1,5 @@
 define(
     [
-        'numeral',
         'nunjucks',
         'templates'
     ],
@@ -9,9 +8,11 @@ define(
 
         var env = new nunjucks.Environment();
 
+        var _string_ = require('underscore.string');
+
         // Add 'numberWithCommas' filter.
         env.addFilter('numberWithCommas', function(rawNumber) {
-            return numeral(rawNumber).format('0,0');
+            return _string_.numberFormat(rawNumber);
         });
 
         /**
