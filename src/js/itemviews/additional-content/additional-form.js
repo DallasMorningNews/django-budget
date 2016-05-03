@@ -196,6 +196,18 @@ define(
                         } else {
                             this.hideField(null, this.ui.pitchLinkGroup);
                         }
+
+                        if (_.isEmpty(this.ui.slugField.val())) {
+                            this.ui.slugField.val(value);
+                        } else {
+                            if (!_.isUndefined(this.$el.data('type'))) {
+                                if (this.ui.slugField.val() == this.$el.data('type')) {
+                                    this.ui.slugField.val(value);
+                                }
+                            }
+                        }
+
+                        this.$el.data('type', value);
                     }.bind(this),
                     onItemRemove: function(value) {
                         var typeConfig = settings.contentTypes[value];
@@ -205,6 +217,14 @@ define(
                         } else if (typeConfig.usesPitchSystem) {
                             this.hideField(null, this.ui.pitchLinkGroup);
                         }
+
+                        if (!_.isEmpty(this.ui.slugField.val())) {
+                            if (value == this.ui.slugField.val()) {
+                                this.ui.slugField.val('');
+                            }
+                        }
+
+                        this.$el.removeData('type', value);
                     }.bind(this)
                 });
             },
