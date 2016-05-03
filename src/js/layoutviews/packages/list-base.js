@@ -65,16 +65,12 @@ define([
             );
 
             if (_.isUndefined(initialQueryTerms)) {
-                console.log('Set QT.');
                 this._radio.commands.execute(
                     'setState',
                     this.stateKey,
                     'queryTerms',
                     new QueryTermCollection()
                 );
-            } else {
-                console.log('QTs exist.');
-                console.log(JSON.stringify(initialQueryTerms.toJSON()));
             }
 
             this.packageCollection = new PackageCollection();
