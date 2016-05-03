@@ -26,16 +26,24 @@
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
-                <div class="medium-4 columns form-group">
+                <div class="medium-3 columns form-group">
                     <input id="type" name="type" class="to-selectize" type="text" placeholder="Choose an option" data-form="primary" value="{% if packageData %}{{ packageData.primaryContent.type }}{% endif %}" required="" isRequired="true" />
                     <label for="type" class="control-label">Type<span class="required-marker">*</span></label>
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
-                <div class="medium-2 columns form-group length-group"{% if packageData %}{% if packageData.primaryContent.type == 'text' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="length" name="length" data-form="primary" class="form-select-word-count" type="number" value="{% if packageData %}{% if packageData.primaryContent.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if packageData %}{% if packageData.primaryContent.type != 'text' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
-                    <label for="length" class="control-label">Word count</label>
-                    <i class="bar"></i>
+                <div class="medium-3 columns form-group variable-attribute-group">
+                    <div class="length-group"{% if packageData %}{% if packageData.primaryContent.type == 'text' %} style="display: block;"{% endif %}{% endif %}>
+                        <input id="length" name="length" data-form="primary" class="form-select-word-count" type="number" value="{% if packageData %}{% if packageData.primaryContent.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if packageData %}{% if packageData.primaryContent.type != 'text' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
+                        <label for="length" class="control-label">Word count</label>
+                        <i class="bar"></i>
+                    </div>
+
+                    <div class="request-link-group"{% if packageData %}{% if packageData.primaryContent.type in ['graphic', 'photo',' video'] %} style="display: block;"{% endif %}{% endif %}>
+                        <div class="request-button-holder">
+                            <div class="request-link button flat-button"><a href="{{ visualsRequestURL }}" target="_blank"><span>Request visuals</span></a></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
