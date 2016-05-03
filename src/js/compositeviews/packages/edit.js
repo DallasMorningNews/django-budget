@@ -8,6 +8,7 @@ define([
     'quill',
     'selectize',
     'underscore',
+    'underscore.string',
     'collections/additional-content-items',
     'itemviews/additional-content/additional-form',
     'itemviews/modals/modal-window.js',
@@ -27,6 +28,7 @@ define([
     Quill,
     selectize,
     _,
+    _string_,
     AdditionalContentItems,
     AdditionalContentForm,
     ModalView,
@@ -1583,7 +1585,7 @@ define([
                             }
 
                             if (field.type == 'checkbox') {
-                                if (field.name.endsWith('[]')) {
+                                if (_string_.endsWith(field.name, '[]')) {
                                     if (field.checked) {
                                         var fieldKey = field.name.substring(
                                             0,
