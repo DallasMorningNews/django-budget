@@ -47,6 +47,8 @@ define(
                 typeDropdown: '.field-type',
                 lengthGroup: '.length-group',
                 lengthField:  '.length-group .field-length',
+                pitchLinkGroup: '.request-link-group',
+                addRequestButton: '.request-link-group .button',
                 authorsDropdown: '.field-authors',
                 editorsDropdown: '.field-editors',
                 deleteTrigger: '.delete-additional',
@@ -58,6 +60,8 @@ define(
             },
 
             events: {
+                'mousedown @ui.addRequestButton': 'addButtonClickedClass',
+                'click @ui.addRequestButton': 'openVisualsRequestForm',
                 'click @ui.deleteTrigger': 'deleteItem',
             },
 
@@ -101,6 +105,8 @@ define(
                 templateContext.primarySlug = this.options.primarySlug;
 
                 templateContext.slugSuffixRaw = this.slugSuffixRaw;
+
+                templateContext.visualsRequestURL = settings.externalURLs.addVisualsRequest;
 
                 return templateContext;
             },
@@ -180,16 +186,24 @@ define(
                         var typeConfig = settings.contentTypes[$item.data('value')];
 
                         if (typeConfig.usesLengthAttribute) {
-                            this.showLengthAttribute();
+                            this.showField(this.ui.lengthField, this.ui.lengthGroup);
                         } else {
-                            this.hideLengthAttribute();
+                            this.hideField(this.ui.lengthField, this.ui.lengthGroup);
+                        }
+
+                        if (typeConfig.usesPitchSystem) {
+                            this.showField(null, this.ui.pitchLinkGroup);
+                        } else {
+                            this.hideField(null, this.ui.pitchLinkGroup);
                         }
                     }.bind(this),
                     onItemRemove: function(value) {
                         var typeConfig = settings.contentTypes[value];
 
                         if (typeConfig.usesLengthAttribute) {
-                            this.hideLengthAttribute();
+                            this.hideField(this.ui.lengthField, this.ui.lengthGroup);
+                        } else if (typeConfig.usesPitchSystem) {
+                            this.hideField(null, this.ui.pitchLinkGroup);
                         }
                     }.bind(this)
                 });
@@ -308,16 +322,16 @@ define(
                         // var typeConfig = settings.contentTypes[$item.data('value')];
 
                         // if (typeConfig.usesLengthAttribute) {
-                        //     this.showLengthAttribute();
+                        //     this.showField(this.ui.lengthField, this.ui.lengthGroup);
                         // } else {
-                        //     this.hideLengthAttribute();
+                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
                         // }
                     }.bind(this),
                     onItemRemove: function(value) {
                         // var typeConfig = settings.contentTypes[value];
 
                         // if (typeConfig.usesLengthAttribute) {
-                        //     this.hideLengthAttribute();
+                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
                         // }
                     }.bind(this)
                 });
@@ -358,16 +372,16 @@ define(
                         // var typeConfig = settings.contentTypes[$item.data('value')];
 
                         // if (typeConfig.usesLengthAttribute) {
-                        //     this.showLengthAttribute();
+                        //     this.showField(this.ui.lengthField, this.ui.lengthGroup);
                         // } else {
-                        //     this.hideLengthAttribute();
+                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
                         // }
                     }.bind(this),
                     onItemRemove: function(value) {
                         // var typeConfig = settings.contentTypes[value];
 
                         // if (typeConfig.usesLengthAttribute) {
-                        //     this.hideLengthAttribute();
+                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
                         // }
                     }.bind(this)
                 });
@@ -388,23 +402,27 @@ define(
                 }
             },
 
-            hideLengthAttribute: function() {
-                if (!this.ui.lengthField.is(':disabled')) {
-                    this.ui.lengthField.prop('disabled', true);
+            hideField: function(fieldCheckDisabled, fieldCheckHidden) {
+                if (!_.isNull(fieldCheckDisabled)) {
+                    if (!fieldCheckDisabled.is(':disabled')) {
+                        fieldCheckDisabled.prop('disabled', true);
+                    }
                 }
 
-                if (!this.ui.lengthGroup.is(':hidden')) {
-                    this.ui.lengthGroup.fadeOut(140);
+                if (!fieldCheckHidden.is(':hidden')) {
+                    fieldCheckHidden.fadeOut(140);
                 }
             },
 
-            showLengthAttribute: function() {
-                if (this.ui.lengthField.is(':disabled')) {
-                    this.ui.lengthField.prop('disabled', false);
+            showField: function(fieldCheckDisabled, fieldCheckHidden) {
+                if (!_.isNull(fieldCheckDisabled)) {
+                    if (fieldCheckDisabled.is(':disabled')) {
+                        fieldCheckDisabled.prop('disabled', false);
+                    }
                 }
 
-                if (this.ui.lengthGroup.is(':hidden')) {
-                    this.ui.lengthGroup.fadeIn(280);
+                if (fieldCheckHidden.is(':hidden')) {
+                    fieldCheckHidden.fadeIn(280);
                 }
             },
 
@@ -435,6 +453,36 @@ define(
             /*
              *   Event handlers.
              */
+
+            addButtonClickedClass: function(event) {
+                var thisEl = $(event.currentTarget);
+                thisEl.addClass('active-state');
+                thisEl.removeClass('click-init');
+
+                setTimeout(
+                    function() {
+                        thisEl.removeClass('hover').removeClass('active-state');
+                    },
+                    1000
+                );
+
+                setTimeout(
+                    function() {
+                        thisEl.addClass('click-init');
+                    },
+                    2000
+                );
+            },
+
+            openVisualsRequestForm: function(event) {
+                if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
+                    event.preventDefault();
+
+                    var triggerElement = $(event.currentTarget);
+
+                    window.open(triggerElement.find('a').attr('href'), '_blank');
+                }
+            },
 
             deleteItem: function() {
                 if (this.model.has('id')) {

@@ -41,44 +41,55 @@ define(function() {
                 icon: 'fa fa-file-text-o',
                 order: 1,
                 usesLengthAttribute: true,
+                usesPitchSystem: false,
                 verboseName: 'Article'
             },
             'photo': {
                 icon: 'fa fa-picture-o',
                 order: 2,
                 usesLengthAttribute: false,
+                usesPitchSystem: true,
                 verboseName: 'Photo(s)'
             },
             'video': {
                 icon: 'fa fa-film',
                 order: 3,
                 usesLengthAttribute: false,
+                usesPitchSystem: true,
                 verboseName: 'Video'
             },
             'audio': {
                 icon: 'fa fa-volume-up',
                 order: 4,
                 usesLengthAttribute: false,
+                usesPitchSystem: false,
                 verboseName: 'Audio'
             },
             'graphic': {
                 icon: 'fa fa-line-chart',
                 order: 5,
                 usesLengthAttribute: false,
+                usesPitchSystem: true,
                 verboseName: 'Graphic'
             },
             'interactive': {
                 icon: 'fa fa-info-circle',
                 order: 6,
                 usesLengthAttribute: false,
+                usesPitchSystem: false,
                 verboseName: 'Interactive page'
             },
             'other': {
                 icon: 'fa fa-asterisk',
                 order: 7,
                 usesLengthAttribute: false,
+                usesPitchSystem: false,
                 verboseName: 'Other content'
             }
+        },
+
+        externalURLs: {
+            addVisualsRequest: 'https://sites.google.com/a/dallasnews.com/dmnutilities/add-request'
         },
 
         messages: {

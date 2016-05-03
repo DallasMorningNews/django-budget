@@ -79,6 +79,8 @@ define([
             typeDropdown: '#package-form #type',
             lengthGroup: '#package-form .length-group',
             lengthField:  '#package-form #length',
+            pitchLinkGroup: '#package-form .request-link-group',
+            addRequestButton: '#package-form .request-link-group .button',
             budgetLineField: '#package-form #budget_line',
             authorsDropdown: '#package-form #authors',
             editorsDropdown: '#package-form #editors',
@@ -107,6 +109,8 @@ define([
         },
 
         events: {
+            'mousedown @ui.addRequestButton': 'addButtonClickedClass',
+            'click @ui.addRequestButton': 'openVisualsRequestForm',
             'click @ui.collapsibleRowHeaders': 'toggleCollapsibleRow',
             'click @ui.addAdditionalItemTrigger': 'addNewAdditionalItem',
             'mousedown @ui.persistentButton': 'addButtonClickedClass',
@@ -276,6 +280,8 @@ define([
                 }.bind(this)
             );
 
+            templateContext.visualsRequestURL = settings.externalURLs.addVisualsRequest;
+
             return templateContext;
         },
 
@@ -435,27 +441,6 @@ define([
         },
 
 
-        hideField: function(fieldCheckDisabled, fieldCheckHidden) {
-            if (!fieldCheckDisabled.is(':disabled')) {
-                fieldCheckDisabled.prop('disabled', true);
-            }
-
-            if (!fieldCheckHidden.is(':hidden')) {
-                fieldCheckHidden.fadeOut(140);
-            }
-        },
-
-        showField: function(fieldCheckDisabled, fieldCheckHidden) {
-            if (fieldCheckDisabled.is(':disabled')) {
-                fieldCheckDisabled.prop('disabled', false);
-            }
-
-            if (fieldCheckHidden.is(':hidden')) {
-                fieldCheckHidden.fadeIn(280);
-            }
-        },
-
-
          /*
          *   Control initializers (for selectize boxes, datepickers, etc.).
          */
@@ -611,13 +596,22 @@ define([
                     } else {
                         this.hideField(this.ui.lengthField, this.ui.lengthGroup);
                     }
+
+                    if (typeConfig.usesPitchSystem) {
+                        this.showField(null, this.ui.pitchLinkGroup);
+                    } else {
+                        this.hideField(null, this.ui.pitchLinkGroup);
+                    }
                 }.bind(this),
                 onItemRemove: function(value) {
                     var typeConfig = settings.contentTypes[value];
 
                     if (typeConfig.usesLengthAttribute) {
                         this.hideField(this.ui.lengthField, this.ui.lengthGroup);
+                    } else if (typeConfig.usesPitchSystem) {
+                        this.hideField(null, this.ui.pitchLinkGroup);
                     }
+
                 }.bind(this)
             });
         },
@@ -970,6 +964,30 @@ define([
             return 'date';
         },
 
+        hideField: function(fieldCheckDisabled, fieldCheckHidden) {
+            if (!_.isNull(fieldCheckDisabled)) {
+                if (!fieldCheckDisabled.is(':disabled')) {
+                    fieldCheckDisabled.prop('disabled', true);
+                }
+            }
+
+            if (!fieldCheckHidden.is(':hidden')) {
+                fieldCheckHidden.fadeOut(140);
+            }
+        },
+
+        showField: function(fieldCheckDisabled, fieldCheckHidden) {
+            if (!_.isNull(fieldCheckDisabled)) {
+                if (fieldCheckDisabled.is(':disabled')) {
+                    fieldCheckDisabled.prop('disabled', false);
+                }
+            }
+
+            if (fieldCheckHidden.is(':hidden')) {
+                fieldCheckHidden.fadeIn(280);
+            }
+        },
+
 
         /*
          * Control destructors.
@@ -1002,6 +1020,36 @@ define([
             }
         },
 
+        addButtonClickedClass: function(event) {
+            var thisEl = $(event.currentTarget);
+            thisEl.addClass('active-state');
+            thisEl.removeClass('click-init');
+
+            setTimeout(
+                function() {
+                    thisEl.removeClass('hover').removeClass('active-state');
+                },
+                1000
+            );
+
+            setTimeout(
+                function() {
+                    thisEl.addClass('click-init');
+                },
+                2000
+            );
+        },
+
+        openVisualsRequestForm: function(event) {
+            if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+
+                var triggerElement = $(event.currentTarget);
+
+                window.open(triggerElement.find('a').attr('href'), '_blank');
+            }
+        },
+
         toggleCollapsibleRow: function(event) {
             var toggleTarget = $(event.currentTarget),
                 toggleSlug = toggleTarget.data('expand-target'),
@@ -1028,26 +1076,6 @@ define([
             this.collection.add([{
                 // formID: 'additionalUnbound' + this.additionalItemCount,
             }]);
-        },
-
-        addButtonClickedClass: function(event) {
-            var thisEl = $(event.currentTarget);
-            thisEl.addClass('active-state');
-            thisEl.removeClass('click-init');
-
-            setTimeout(
-                function() {
-                    thisEl.removeClass('hover').removeClass('active-state');
-                },
-                1000
-            );
-
-            setTimeout(
-                function() {
-                    thisEl.addClass('click-init');
-                },
-                2000
-            );
         },
 
         savePackage: function() {
