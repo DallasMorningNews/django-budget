@@ -17,6 +17,7 @@ require.config({
         selectize: '../../bower_components/selectize/dist/js/selectize',
         sifter: '../../bower_components/sifter/sifter',
         microplugin: '../../bower_components/microplugin/src/microplugin',
+        'underscore.string': '../../bower_components/underscore.string/dist/underscore.string',
         vex: '../../bower_components/vex/js/vex',
         // 'spin': '../../bower_components/spin.js/spin'
         'foundation': '../../build/js/foundation-transpiled',
@@ -37,6 +38,9 @@ require.config({
         },
         'moment-timezone': {
             deps: ['moment']
+        },
+        'underscore.string': {
+            deps: ['underscore']
         }
     }
 });

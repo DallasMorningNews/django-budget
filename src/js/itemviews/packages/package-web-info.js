@@ -5,6 +5,7 @@ define(
         'moment',
         'moment-timezone',
         'underscore',
+        'underscore.string',
         'itemviews/modals/modal-window.js',
         'itemviews/packages/package-base',
         'itemviews/snackbars/snackbar.js',
@@ -18,6 +19,7 @@ define(
         moment,
         mmtz,
         _,
+        _string_,
         ModalView,
         PackageItemView,
         SnackbarView,
@@ -628,7 +630,7 @@ define(
                                 _.each(
                                     modalContext.$el.find('form input'),
                                     function(inputEl) {
-                                        if (inputEl.name.endsWith('[]')) {
+                                        if (_string_.endsWith(inputEl.name, '[]')) {
                                             var groupName = inputEl.name.substring(
                                                 0,
                                                 inputEl.name.length - 2
