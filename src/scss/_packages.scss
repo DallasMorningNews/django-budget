@@ -50,6 +50,14 @@
                     top: -16px;
                     width: 20px;
                 }
+
+                &:hover {
+                    border-color: #8D8D8D transparent transparent #8D8D8D;
+
+                    i {
+                        color: #111111;
+                    }
+                }
             }
         }
 
