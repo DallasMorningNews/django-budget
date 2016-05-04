@@ -151,6 +151,10 @@
             .selectize-dropdown {
                 z-index: 20;
 
+                &.super-hidden {
+                    display: none !important;
+                }
+
                 .selectize-dropdown-content {
                     background-color: #FAFAFA;
                     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);

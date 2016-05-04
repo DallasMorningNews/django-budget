@@ -92,6 +92,8 @@ define(function() {
             addVisualsRequest: 'https://sites.google.com/a/dallasnews.com/dmnutilities/add-request'
         },
 
+        pollInterval: 20 * 1000,
+
         messages: {
             slugField: {
                 ajaxError: 'Could not check if that slug is unique. Try again later.',

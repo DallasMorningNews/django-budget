@@ -35,11 +35,21 @@ define([
                 plugins: ['remove_button', 'restore_on_backspace'],
                 persist: false,
                 create: function(input) {
+                    this.ui.searchBox.parent().find('.selectize-dropdown').addClass('super-hidden');
+
+                    setTimeout(
+                        function() {
+                            this.ui.searchBox[0].selectize.close();
+                            this.ui.searchBox.parent().find('.selectize-dropdown').removeClass('super-hidden');
+                        }.bind(this),
+                        75
+                    );
+
                     return {
                         name: input,
                         value: input
                     };
-                },
+                }.bind(this),
                 hideSelected: true,
                 valueField: 'value',
                 labelField: 'name',
@@ -86,7 +96,7 @@ define([
                         this.options.stateKey,
                         value
                     );
-                }.bind(this)
+                }.bind(this),
                 // preload: true
             });
 

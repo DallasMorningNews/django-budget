@@ -8,6 +8,7 @@ define([
     'collectionviews/packages/package-collection',
     'itemviews/packages/date-filter',
     'itemviews/packages/search-box',
+    'misc/poller',
     'misc/settings'
 ], function(
     Mn,
@@ -19,6 +20,7 @@ define([
     PackageCollectionView,
     DateFilterView,
     SearchBoxView,
+    Poller,
     settings
 ) {
     return Mn.LayoutView.extend({
@@ -36,6 +38,7 @@ define([
 
         initialize: function() {
             this._radio = Backbone.Wreqr.radio.channel('global');
+            this._poller = new Poller();
 
             this.initialState = this.parseQueryString(
                 this.options.boundData.querystring
@@ -206,13 +209,17 @@ define([
         loadPackages: function(callbackFunction) {
             this.packageCollection.url = this.generateCollectionURL();
 
-            this.packageCollection.fetch().done(
-                function(data, textStatus, jqXHR) {
-                    this.packageCollection.rebuildIndex();
+            this.polledData = [this.packageCollection];
 
-                    callbackFunction(this.packageCollection, jqXHR, {});
-                }.bind(this)
-            );
+            this._poller
+                    .get(this.polledData)
+                        .then(
+                            function(data, textStatus, jqXHR) {
+                                this.packageCollection.rebuildIndex();
+
+                                callbackFunction(this.packageCollection, jqXHR, {});
+                            }.bind(this)
+                        );
         },
 
         onRender: function() {
@@ -238,6 +245,10 @@ define([
             this.showChildView('searchBox', this.searchBoxView);
 
             this.showChildView('packages', this.collectionView);
+        },
+
+        onBeforeDestroy: function() {
+            this._poller.destroy();
         },
 
         parseQueryString: function(querystring, returnValue) {
