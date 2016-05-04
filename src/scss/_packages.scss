@@ -148,6 +148,7 @@
         .action-buttons {
             border-bottom: 1px solid #01649E;
             box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23), 0 2px 4px rgba(0,0,0,0.3);
+            height: 121px;
 
             .action-button {
                 background-color: #0185D3;
@@ -201,9 +202,6 @@
                     background-color: #0179BF;
                     border-color: #01649E;
 
-                    &:hover {
-                    }
-
                     i.fa-plus {
                         display: inline-block;
                     }
@@ -226,6 +224,12 @@
                         visibility: visible;
 
                         transition-delay: 0.6s;
+                    }
+                }
+
+                &.expand-package {
+                    &:hover {
+                        height: 31px;
                     }
                 }
             }
