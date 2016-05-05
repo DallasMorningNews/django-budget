@@ -186,12 +186,22 @@ app.get(
 );
 
 app.get(
+    '/headlines/*',
+    requireLogin,
+    function(req, res) {
+        delete req.session.loginSuccessfulRedirect;
+
+        res.sendFile(path.join(__dirname + '/templates/headline.html'));
+    }
+);
+
+app.get(
     '*',
     requireLogin,
     function(req, res) {
         delete req.session.loginSuccessfulRedirect;
 
-        res.sendFile(path.join(__dirname + '/templates/index.html'));
+        res.sendFile(path.join(__dirname + '/templates/budget.html'));
     }
 );
 
