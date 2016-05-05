@@ -30,6 +30,7 @@
     "lunr.js": "~0.6.0",
     "foundation-sites": "~6.2.0",
     "vex": "^2.3.3",
-    "underscore.string": "^3.3.4"
+    "underscore.string": "^3.3.4",
+    "polymer": "Polymer/polymer#^1.4.0"
   }
 }
