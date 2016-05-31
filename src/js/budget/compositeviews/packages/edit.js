@@ -204,6 +204,10 @@ define([
 
                 templateContext.packageData = this.model.toJSON();
 
+                templateContext.primaryContentType = settings.contentTypes[
+                    this.model.get('primaryContent').type
+                ];
+
                 if (!_.isUndefined(packageHub) && !_.isNull(packageHub)) {
                     templateContext.hub = {
                         color: packageHub.get('color'),
