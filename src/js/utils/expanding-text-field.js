@@ -1,31 +1,7 @@
 define([
-    'jquery',
-    // 'underscore',
-    // 'backbone',
-    // 'marionette',
-    // 'collections/additional-content-items',
-    // 'collectionviews/additional-content/additional-form-holder',
-    // 'misc/settings',
-    // 'misc/tpl',
-    // 'utils/expanding-text-field',
-    // 'selectize',
-    // 'moment',
-    // 'moment-timezone',
-    // 'dateRangePicker'
+    'jquery'
 ], function(
     $
-    // _,
-    // Backbone,
-    // Mn,
-    // AdditionalContentItems,
-    // AdditionalFormHolderView,
-    // settings,
-    // tpl,
-    // expandingTextField,
-    // selectize,
-    // moment,
-    // mmtz,
-    // dateRangePicker
 ) {
     return {
         make: function(expandingEl) {

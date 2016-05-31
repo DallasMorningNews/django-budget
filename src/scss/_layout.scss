@@ -1,3 +1,23 @@
+/// Applies the micro clearfix hack popularized by Nicolas Gallagher.
+// Include this mixin on a container if its children are all floated, to give
+// the container a proper height.
+/// @link http://nicolasgallagher.com/micro-clearfix-hack/
+
+@mixin clearfix {
+    &::before,
+    &::after {
+        content: ' ';
+        display: table;
+    }
+
+    &::after {
+        clear: both;
+    }
+}
+
+
+// Global styles
+
 body {
     background-color: $page-background-color;
     color: $base-text-color;

@@ -1,0 +1,69 @@
+@import 'concannon';
+
+$foiatracker-primary: #77af41;
+
+.panel {
+    h2 {
+        margin-top: 5px;
+    }
+    .col-sm-4 {
+        p {
+            word-break: break-all;
+        }
+    }
+}
+
+.navbar .fa-lock {
+    color: #74F5A9;
+}
+
+.status-pending {
+    color: $brand-info;
+}
+.status-denied {
+    color: $brand-danger;
+}
+.status-relatg,
+.status-relagc {
+    color: $brand-success;
+}
+.status-kicked {
+    color: $brand-warning;
+}
+
+.navbar.navbar-inverse {
+    @include dmn-navbar($foiatracker-primary);
+}
+
+// @import "variables";
+
+// // FontAwesome
+// $fa-font-path: "../fonts/font-awesome";
+// @import "../../bower_components/font-awesome/scss/font-awesome";
+
+// // Longbill-Daterangepicker
+// @import "../../vendored/longbill-daterangepicker/daterangepicker";
+
+// // Quill.js
+// @import "../../bower_components/quill/dist/quill.base";
+
+// // Selectize.js
+// @import "../../bower_components/selectize/dist/css/selectize";
+
+// // Vex.js
+// @import "../../bower_components/vex/sass/vex";
+// @import "../../bower_components/vex/sass/vex-theme-plain";
+// @import "../../bower_components/vex/sass/_keyframes";
+// @import "../../bower_components/vex/sass/_mixins";
+
+// // App styles
+// @import "_layout";
+// @import "_filters";
+// @import "_filters_print_view";
+// @import "_modal_keyframes";
+// @import "_modals";
+// @import "_packages";
+// @import "_package_editing";
+// @import "_quill_theme";
+// @import "_snackbar";
+// @import "_typography";
