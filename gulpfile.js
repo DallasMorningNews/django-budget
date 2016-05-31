@@ -103,6 +103,7 @@ gulp.task('scss', function () {
     var scssOpts = {
         outputStyle: 'compressed',
         includePaths: [
+            './bower_components/concannon/src/scss',
             './bower_components/foundation-sites/scss'
         ]
     };
