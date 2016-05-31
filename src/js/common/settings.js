@@ -79,9 +79,16 @@ define(function() {
                 usesPitchSystem: false,
                 verboseName: 'Interactive page'
             },
+            'aggregation': {
+                icon: 'fa fa-sitemap fa-rotate-90',
+                order: 7,
+                usesLengthAttribute: true,
+                usesPitchSystem: false,
+                verboseName: 'Aggregation'
+            },
             'other': {
                 icon: 'fa fa-asterisk',
-                order: 7,
+                order: 8,
                 usesLengthAttribute: false,
                 usesPitchSystem: false,
                 verboseName: 'Other content'
