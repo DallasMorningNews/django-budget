@@ -91,6 +91,10 @@ define(
 
                 if (!_.isEmpty(modelJSON)) {
                     templateContext.config = modelJSON;
+
+                    templateContext.additionalType = settings.contentTypes[
+                        modelJSON.type
+                    ];
                 }
 
                 templateContext.formID = this.generateFormID();

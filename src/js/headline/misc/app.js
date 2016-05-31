@@ -2,12 +2,14 @@ define(
     [
         'backbone',
         'jquery',
-        'marionette'
+        'marionette',
+        'headline/layoutviews/root-view'
     ],
     function(
         Backbone,
         $,
-        Mn
+        Mn,
+        RootView
     ) {
         'use strict';
 
@@ -68,16 +70,16 @@ define(
                     // selectizeType: 'and',
                 };
 
-                // this.rootView = new RootView({
-                //     currentUser: this.currentUser,
-                //     data: this.data,
-                //     state: this.state,
-                // });
+                this.rootView = new RootView({
+                    currentUser: this.currentUser,
+                    data: this.data,
+                    state: this.state,
+                });
             },
 
             onStart: function() {
 console.log('Started.');
-                // this.rootView.render();
+                this.rootView.render();
 
                 // var CustomRouter = NamedRouter.extend({
                 //     controller: BudgetController,
