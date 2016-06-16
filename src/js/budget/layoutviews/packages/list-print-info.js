@@ -9,7 +9,7 @@ define([
     'budget/itemviews/packages/date-filter',
     'budget/itemviews/packages/package-print-info',
     'budget/itemviews/packages/search-box',
-    'budget/layoutviews/packages/list-base'
+    'budget/layoutviews/packages/list-base',
 ], function(
     _,
     settings,
@@ -31,7 +31,7 @@ define([
             dateFilter: '#filter-holder #date-filter',
             searchBox: '#filter-holder #search-box',
             printPlacementToggle: '#filter-holder #print-placement-toggle',
-            packages: '#package-list'
+            packages: '#package-list',
         },
 
         packageItemView: PackageItemPrintView,
@@ -46,27 +46,28 @@ define([
         extraQueryTerms: [
             {
                 urlSlug: 'printPlacement',
-                parseFunction: function(pkg, stringToMatch, extraContext) {
+                parseFunction: function(pkg, stringToMatch, extraContext) {  // eslint-disable-line no-unused-vars,max-len
                     return _.contains(
                         pkg.get('printPlacement').printPlacements,
                         stringToMatch
                     );
-                }
-            }
+                },
+            },
         ],
 
         extendInitialize: function() {
-            var selectedPrintPlacement = 'all';
+            var selectedPrintPlacement = 'all',
+                placementRaw;
 
             if (_.has(this.initialState.extraContext, 'printPlacement')) {
-                var placementRaw = this.initialState.extraContext.printPlacement;
+                placementRaw = this.initialState.extraContext.printPlacement;
 
                 if (_.contains(
                     _.pluck(settings.printPlacementTypes, 'slug'),
                     placementRaw
                 )) {
                     selectedPrintPlacement = placementRaw;
-                } else if (placementRaw == 'all') {
+                } else if (placementRaw === 'all') {
                     selectedPrintPlacement = placementRaw;
                 }
             }
@@ -97,22 +98,23 @@ define([
 
         extendGenerateQuerystring: function(existingQueryString) {
             var commonPrintPlacement = this._radio.reqres.request(
-                'getState',
-                this.stateKey,
-                'currentPrintPlacement'
-            );
+                    'getState',
+                    this.stateKey,
+                    'currentPrintPlacement'
+                ),
+                newQuerystring = existingQueryString;
 
             if (!_.isUndefined(commonPrintPlacement)) {
-                if (commonPrintPlacement != 'all') {
-                    if (existingQueryString !== '') {
-                        existingQueryString += '&';
+                if (commonPrintPlacement !== 'all') {
+                    if (newQuerystring !== '') {
+                        newQuerystring += '&';
                     }
 
-                    existingQueryString += 'printPlacement=' + commonPrintPlacement;
+                    newQuerystring += 'printPlacement=' + commonPrintPlacement;
                 }
             }
 
-            return existingQueryString;
+            return newQuerystring;
         },
 
         generateCollectionURL: function() {

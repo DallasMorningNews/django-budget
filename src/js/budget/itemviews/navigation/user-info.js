@@ -16,8 +16,8 @@ define([
 
         serializeData: function() {
             return {
-                currentUser: this.options.currentUser
+                currentUser: this.options.currentUser,
             };
-        }
+        },
     });
 });

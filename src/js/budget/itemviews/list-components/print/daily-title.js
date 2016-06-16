@@ -1,7 +1,7 @@
 define([
     'marionette',
     'underscore',
-    'common/tpl'
+    'common/tpl',
 ], function(
     Mn,
     _,

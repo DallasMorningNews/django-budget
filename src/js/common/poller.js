@@ -4,7 +4,7 @@ define(
         'jquery',
         'marionette',
         'underscore',
-        'common/settings'
+        'common/settings',
     ],
     function(
         Backbone,
@@ -15,7 +15,7 @@ define(
     ) {
         'use strict';
 
-        var _radio = Backbone.Wreqr.radio.channel('global');
+        // var radio = Backbone.Wreqr.radio.channel('global');
 
         return Mn.Object.extend({
             initialize: function() {
@@ -30,14 +30,20 @@ define(
 
             _poll: function() {
                 _.each(this._active, function(datum) {
-                    if(datum.static === true) {
-                        console.info('[poller] Skipping update for static data from ' + datum.url());
+                    if (datum.static === true) {
+                        console.info(  // eslint-disable-line no-console
+                            '[poller] Skipping update for static data from ' + datum.url()
+                        );
                         return;
                     }
                     if (datum instanceof Backbone.Model) {
-                        console.info('[poller] Updating model from ' + datum.url);
+                        console.info(  // eslint-disable-line no-console
+                            '[poller] Updating model from ' + datum.url
+                        );
                     } else if (datum instanceof Backbone.Collection) {
-                        console.info('[poller] Updating collection from ' + datum.url);
+                        console.info(  // eslint-disable-line no-console
+                            '[poller] Updating collection from ' + datum.url
+                        );
                     }
                     datum.fetch();
                 });
@@ -57,16 +63,22 @@ define(
              * for all of them and poll for updates until they're killed.
              */
             get: function(data) {
-                if(this._active.length > 0) {
-                    console.info('[poller] Releasing active data.');
+                var loadingDeferreds;
+
+                if (this._active.length > 0) {
+                    console.info(  // eslint-disable-line no-console
+                        '[poller] Releasing active data.'
+                    );
                     this._active = [];
                 }
 
-                var loadingDeferreds = _.map(data, function(datum) {
+                loadingDeferreds = _.map(data, function(datum) {
                     return datum.fetch();
                 });
 
-                console.info('[poller] Loading new active data.');
+                console.info(  // eslint-disable-line no-console
+                    '[poller] Loading new active data.'
+                );
 
                 this.isPolling = true;
 
@@ -78,7 +90,9 @@ define(
             pause: function() {
                 if (this.isPolling) {
                     window.clearInterval(this.interval);
-                    console.info('[poller] Polling paused.');
+                    console.info(  // eslint-disable-line no-console
+                        '[poller] Polling paused.'
+                    );
                     this.isPolling = false;
                 }
             },
@@ -93,7 +107,7 @@ define(
                 if (this.isPolling) {
                     this.pause();
                 }
-            }
+            },
         });
     }
 );

@@ -10,12 +10,12 @@ define(function() {
             reversePattern: '/404/',
         },
         listPage: {
-            pattern: /^([\s\d\w\&\=\-\%\.]*)\/{0,1}$/,
+            pattern: /^([\s\d\w&=\-%\.]*)\/{0,1}$/,
             name: 'home',
             reversePattern: '/',
         },
         printListPage: {
-            pattern: /^print\/([\s\d\w\&\=\-\%\.]*)\/{0,1}$/,
+            pattern: /^print\/([\s\d\w&=\-%\.]*)\/{0,1}$/,
             name: 'printList',
             reversePattern: '/print/',
         },
@@ -28,6 +28,6 @@ define(function() {
             pattern: /^edit\/(\d+)\/{0,1}$/,
             name: 'edit',
             reversePattern: '/edit/',
-        }
+        },
     };
 });

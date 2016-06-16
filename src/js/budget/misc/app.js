@@ -4,19 +4,21 @@ define(
         'foundation',
         'jquery',
         'marionette',
+        'underscore',
         'common/router',
         'common/settings',
         'budget/collections/hubs',
         'budget/collections/staffers',
         'budget/layoutviews/root-view',
         'budget/misc/controller',
-        'budget/misc/urls'
+        'budget/misc/urls',
     ],
     function(
         Backbone,
         Foundation,
         $,
         Mn,
+        _,
         NamedRouter,
         settings,
         HubCollection,
@@ -28,18 +30,18 @@ define(
         'use strict';
 
         // Enable Marionette Inspector
-        if (window.__agent) {
-            window.__agent.start(Backbone, Marionette);
+        if (window.__agent) {  // eslint-disable-line no-underscore-dangle
+            window.__agent.start(Backbone, Mn);  // eslint-disable-line no-underscore-dangle
         }
 
         return Mn.Application.extend({
-            initialize: function(opts) {
+            initialize: function(opts) {  // eslint-disable-line no-unused-vars
                 // Hook into our global Wreqr channel.
                 this._radio = Backbone.Wreqr.radio.channel('global');
 
                 // Add a ReqRes handler to allow controllers to fetch
                 // data of our app instance.
-                this._radio.reqres.setHandler('data', function(type){
+                this._radio.reqres.setHandler('data', function(type) {
                     return this.data[type];
                 }, this);
 
@@ -64,6 +66,8 @@ define(
                 this._radio.commands.setHandler(
                     'setState',
                     function(overallKey, specificKey, assignee, literalFunction) {
+                        var newValue;
+
                         if (!_.has(this.state, overallKey)) {
                             this.state[overallKey] = {};
                         }
@@ -75,7 +79,7 @@ define(
                         if (!_.isUndefined(assignee)) {
                             if (_.isFunction(assignee)) {
                                 if (_.isUndefined(literalFunction) || literalFunction === false) {
-                                    var newValue = assignee(this.state[overallKey][specificKey]);
+                                    newValue = assignee(this.state[overallKey][specificKey]);
 
                                     if (!_.isUndefined(newValue)) {
                                         this.state[overallKey][specificKey] = newValue;
@@ -91,7 +95,7 @@ define(
                 );
 
                 this.currentUser = {
-                    email: 'test.user@dallasnews.com'
+                    email: 'test.user@dallasnews.com',
                 };
             },
 
@@ -145,9 +149,11 @@ define(
             },
 
             onStart: function() {
+                var CustomRouter;
+
                 this.rootView.render();
 
-                var CustomRouter = NamedRouter.extend({
+                CustomRouter = NamedRouter.extend({
                     controller: BudgetController,
                     namedAppRoutes: urlConfig,
                 });
@@ -157,14 +163,12 @@ define(
                 /**
                  * Add a Wreqr command to allow other modules to trigger navigation
                  */
-                this._radio.commands.setHandler('navigate', function(path, options){
+                this._radio.commands.setHandler('navigate', function(path, options) {
                     this.router.navigate(path, options);
                 }, this);
 
-                Backbone.history.start({
-                    pushState: true
-                });
-            }
+                Backbone.history.start({pushState: true});
+            },
         });
     }
 );

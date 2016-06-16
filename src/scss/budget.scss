@@ -47,12 +47,14 @@
 // Bootstrap
 // @import "bootstrap-custom";
 
-// FontAwesome
-$fa-font-path: "../fonts/font-awesome";
-@import "../../bower_components/font-awesome/scss/font-awesome";
-
 // Longbill-Daterangepicker
 @import "../../vendored/longbill-daterangepicker/daterangepicker";
+
+// Air-Datepicker
+@import "../../bower_components/air-datepicker/dist/css/datepicker.min";
+
+// Air-Timepicker
+@import "air-timepicker";
 
 // Quill.js
 @import "../../bower_components/quill/dist/quill.base";

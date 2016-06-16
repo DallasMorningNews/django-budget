@@ -3,7 +3,7 @@ define(
         'backbone',
         'underscore',
         'common/settings',
-        'budget/models/hub'
+        'budget/models/hub',
     ],
     function(
         Backbone,
@@ -39,7 +39,7 @@ define(
                 //     return post;
                 // });
                 return response;
-            }
+            },
         });
     }
 );

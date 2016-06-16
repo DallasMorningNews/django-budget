@@ -3,7 +3,7 @@ define(
         'backbone',
         'underscore',
         'common/settings',
-        'budget/models/additional-content-item'
+        'budget/models/additional-content-item',
     ],
     function(
         Backbone,
@@ -35,7 +35,7 @@ define(
 
             parse: function(response) {
                 return response;
-            }
+            },
         });
     }
 );

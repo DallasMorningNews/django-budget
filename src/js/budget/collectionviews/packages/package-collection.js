@@ -2,7 +2,7 @@ define([
     'backbone',
     'marionette',
     'underscore',
-    'budget/itemviews/packages/no-package'
+    'budget/itemviews/packages/no-package',
 ], function(
     Backbone,
     Mn,
@@ -11,7 +11,7 @@ define([
 ) {
     return Mn.CollectionView.extend({
         collectionEvents: {
-            'updateQuery': 'render'
+            updateQuery: 'render',
         },
 
         // initialize: function() {
@@ -19,7 +19,7 @@ define([
         //     this._radio = Backbone.Wreqr.radio.channel('global');
         // },
 
-        childViewOptions: function(model, index) {
+        childViewOptions: function(model, index) {  // eslint-disable-line no-unused-vars
             return {
                 currentUser: this.options.currentUser,
                 hubConfigs: this.options.hubs,

@@ -2,7 +2,7 @@ define(
     [
         'backbone',
         'underscore',
-        'budget/models/search-option'
+        'budget/models/search-option',
     ],
     function(
         Backbone,
@@ -24,9 +24,9 @@ define(
              */
             comparator: function(model) {
                 var optionTypeWeights = {
-                    'person': 2,
-                    'hub': 3,
-                    'vertical': 4
+                    person: 2,
+                    hub: 3,
+                    vertical: 4,
                 };
                 return optionTypeWeights[model.get('type')] + '_' + model.get('value');
             },
@@ -38,7 +38,7 @@ define(
                 //     return post;
                 // });
                 return response;
-            }
+            },
         });
     }
 );

@@ -3,7 +3,7 @@ define([
     'marionette',
     'underscore',
     'underscore.string',
-    'common/tpl'
+    'common/tpl',
 ], function(
     Backbone,
     Mn,
@@ -25,9 +25,7 @@ define([
         },
 
         initialize: function() {
-            var _radio = Backbone.Wreqr.radio.channel('global');
-
-window.sss = _string_;
-        }
+            this._radio = Backbone.Wreqr.radio.channel('global');
+        },
     });
 });

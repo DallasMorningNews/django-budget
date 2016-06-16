@@ -4,7 +4,7 @@ define(
         'lunr',
         'underscore',
         'common/settings',
-        'budget/models/package'
+        'budget/models/package',
     ],
     function(
         Backbone,
@@ -49,7 +49,8 @@ define(
 
                                     return memo + ' ' + finalValue;
                                 }
-                            ).value();
+                            )
+                            .value();
             },
 
             rebuildIndex: function() {
@@ -93,7 +94,7 @@ define(
             filterAnd: function(queryTerms, extraContext) {
                 this.queryFiltered = this.filter(function(pkg) {
                     return pkg.filterUsingAnd(queryTerms, extraContext);
-                }.bind(this));
+                }.bind(this));  // eslint-disable-line no-extra-bind
 
                 this.trigger('updateQuery', this.queryFiltered);
             },
@@ -101,7 +102,7 @@ define(
             filterOr: function(searchTerms, extraContext) {
                 this.queryFiltered = this.filter(function(pkg) {
                     return pkg.filterUsingOr(searchTerms, extraContext);
-                }.bind(this));
+                }.bind(this));  // eslint-disable-line no-extra-bind
 
                 this.trigger('updateQuery', this.queryFiltered);
             },
@@ -121,7 +122,7 @@ define(
                 //     return post;
                 // });
                 return response;
-            }
+            },
         });
     }
 );

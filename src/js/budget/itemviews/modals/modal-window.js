@@ -1,11 +1,13 @@
 define([
     'backbone',
+    'jquery',
     'marionette',
     'selectize',
     'underscore',
-    'common/tpl'
+    'common/tpl',
 ], function(
     Backbone,
+    $,
     Mn,
     selectize,
     _,
@@ -57,14 +59,13 @@ define([
         },
 
         onButtonClick: function(event) {
-            var thisEl = $(event.currentTarget);
-
-            var modalConfig = _.findWhere(
-                this.options.modalConfig.buttons,
-                {
-                    buttonID: thisEl.attr('id')
-                }
-            );
+            var thisEl = $(event.currentTarget),
+                modalConfig = _.findWhere(
+                    this.options.modalConfig.buttons,
+                    {
+                        buttonID: thisEl.attr('id'),
+                    }
+                );
 
             modalConfig.clickCallback(this);
         },

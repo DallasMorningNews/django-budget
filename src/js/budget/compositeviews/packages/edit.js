@@ -1,5 +1,6 @@
 define([
     'backbone',
+    'datePicker',
     'dateRangePicker',
     'jquery',
     'marionette',
@@ -7,9 +8,9 @@ define([
     'moment-timezone',
     'quill',
     'selectize',
+    'stickit',
     'underscore',
     'underscore.string',
-    'common/date-picker-options',
     'common/settings',
     'common/tpl',
     'budget/collections/additional-content-items',
@@ -17,9 +18,11 @@ define([
     'budget/itemviews/modals/modal-window.js',
     'budget/itemviews/snackbars/snackbar.js',
     'budget/misc/urls',
-    'utils/expanding-text-field'
+    'common/datepicker-language-en_us_apstyle',
+    'misc/air-timepicker',
 ], function(
     Backbone,
+    datePicker,
     dateRangePicker,
     $,
     Mn,
@@ -27,9 +30,9 @@ define([
     mmtz,
     Quill,
     selectize,
+    stickit,
     _,
     _string_,
-    datePickerOptions,
     settings,
     tpl,
     AdditionalContentItems,
@@ -37,15 +40,16 @@ define([
     ModalView,
     SnackbarView,
     urlConfig,
-    expandingTextField
+    datePickerLocale,
+    timePicker  // eslint-disable-line no-unused-vars
 ) {
     return Mn.CompositeView.extend({
         id: 'package-edit',
         template: tpl('packages-edit'),
 
         childView: AdditionalContentForm,
-        childViewContainer: "#additional-content-children",
-        childViewOptions: function(model, index) {
+        childViewContainer: '#additional-content-children',
+        childViewOptions: function(model, index) {  // eslint-disable-line no-unused-vars
             var primarySlug;
 
             if (_.has(this, 'model') && this.model.has('primaryContent')) {
@@ -74,41 +78,1223 @@ define([
         ui: {
             colorDot: '.single-page .package-header .color-dot',
             packageTitle: '.single-page .package-header h1',
-            packageForm: '#package-form',
-            packageErrors: '#package-form .error-message',
-            slugField: '#package-form #slug_key',
+
+packageForm: '#package-form',  // eslint-disable-line indent
+packageErrors: '#package-form .error-message',  // eslint-disable-line indent
             hubDropdown: '#package-form #hub',
             typeDropdown: '#package-form #type',
             lengthGroup: '#package-form .length-group',
-            lengthField:  '#package-form #length',
+            lengthField: '#package-form #length',
             pitchLinkGroup: '#package-form .request-link-group',
             addRequestButton: '#package-form .request-link-group .button',
-            budgetLineField: '#package-form #budget_line',
-            authorsDropdown: '#package-form #authors',
-            editorsDropdown: '#package-form #editors',
+            slugGroup: '#package-form .slug-group-holder',
+            slugField: '#package-form .keyword-group input',
+            slugPlaceholder: '#package-form .keyword-group .keyword-value',
+            budgetLineField: '#package-form #budget_line_holder textarea',
+            budgetLinePlaceholder: '#package-form #budget_line_holder .budget-spacer',
             pubDateResolution: '#package-form #pub_date_resolution',
             pubDateGroup: '#package-form .pub-date-group',
             pubDateField: '#package-form #pub_date',
             pubTimeGroup: '#package-form .pub-time-group',
             pubTimeField: '#package-form #pub_time',
+
+            authorsDropdown: '#package-form #authors',
+            editorsDropdown: '#package-form #editors',
+
             collapsibleRowHeaders: '#package-form .collapsible-row-header',
             collapsibleRows: '#package-form .can-collapse',
+            headlineGroup: '#package-form #headline-fields',
+            headline1: '#package-form #headline-fields #headline1',
+            headline2: '#package-form #headline-fields #headline2',
+            headline3: '#package-form #headline-fields #headline3',
+            headline4: '#package-form #headline-fields #headline4',
+            headlineRadio1: '#package-form #headline-fields #headlineRadio1',
+            headlineRadio2: '#package-form #headline-fields #headlineRadio2',
+            headlineRadio3: '#package-form #headline-fields #headlineRadio3',
+            headlineRadio4: '#package-form #headline-fields #headlineRadio4',
+            headlineVoteSubmissionToggle: '#package-form #headline-fields #vote-submission-toggle',
+            headlineVoteSubmissionToggleInput: '#package-form #vote-submission-toggle input',
             notesField: '#package-form #notes-quill .text-holder',
             notesToolbar: '#package-form #notes-quill .toolbar-holder',
+            urlField: '#package-form #url',
             printRunDateField: '#package-form #print_run_date',
-            addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
-            bottomButtonHolder: '.single-page .bottom-button-holder',
-            persistentHolder: '.edit-bar .button-holder',
-            persistentButton: '.edit-bar .button-holder .button',
+            printPlacementGroup: '#package-form .placement-inputs',
+            printPlacementFields: '#package-form .placement-inputs .pitched_placements',
+            printFinalized: '#package-form #is_placement_finalized',
+/* eslint-disable indent */
+addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
+bottomButtonHolder: '.single-page .bottom-button-holder',
+persistentHolder: '.edit-bar .button-holder',
+persistentButton: '.edit-bar .button-holder .button',
             packageDeleteTrigger: '.edit-bar .button-holder .button.delete-trigger',
-            packageSaveTrigger: '.edit-bar .button-holder .button.save-trigger',
-            packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .button.save-and-continue-editing-trigger'
+packageSaveTrigger: '.edit-bar .button-holder .button.save-trigger',
+packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-continue-editing-trigger',
+/* eslint-enable indent */
         },
 
-        modelEvents: {
-            'change': 'onModelChange'
-            // 'sync': 'render'
+        bindings: function() {
+            var bindingsObj = {},
+                ui = this.ui,
+                model = this.model,
+                data = this.options.data;
+
+            bindingsObj[ui.colorDot.selector] = {
+                observe: 'hub',
+                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                attributes: [
+                    {
+                        name: 'style',
+                        observe: 'hub',
+                        onGet: function(value) {
+                            var matchingHub = data.hubs.findWhere({slug: value});
+
+                            if (matchingHub && matchingHub.has('color')) {
+                                return 'background-color: ' + matchingHub.get('color') + ';';
+                            }
+
+                            return '';
+                        },
+                    },
+                ],
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+            };
+
+            bindingsObj[ui.packageTitle.selector] = {
+                observe: [
+                    'hub',
+                    'primaryContent.slugKey',
+                    'pubDate.resolution',
+                    'pubDate.timestamp',
+                ],
+                update: function($el, values, mdl) {
+                    // TODO: this should also handle the changes triggered in
+                    // the 'updatePackageTitle()' method.
+
+                    // updatePackageTitle: function(hubValue) {
+                    //     // this.children.each(
+                    //     //     function(childView) {
+                    //     //         childView.options.primarySlug = slugText;
+                    //     //     }
+                    //     // );
+
+                    //     // this.childViewOptions = function(model, index) {
+                    //     //     return this.generateChildViewOptions(slugText);
+                    //     // };
+
+                    //     // this._renderChildren();
+                    // },
+
+                    $el.text(mdl.generatePackageTitle());
+                },
+            };
+
+            bindingsObj[ui.hubDropdown.selector] = {
+                observe: 'hub',
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    var hubOpts = {
+                        maxItems: 1,
+
+                        options: this.hubChoices.options,
+                        optgroupField: 'type',
+
+                        optgroups: this.hubChoices.optgroups,
+                        optgroupLabelField: 'name',
+                        optgroupValueField: 'value',
+
+                        render: {
+                            item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                var dataType = 'fullText';
+                                if (typeof(dta.type) !== 'undefined') {
+                                    dataType = dta.type;
+                                }
+                                return '<div data-value="' + dta.value +
+                                            '" data-type="' + dataType +
+                                            '" class="selected-item">' +
+                                            dta.name +
+                                        '</div>';
+                            },
+                        },
+                    };
+
+                    $el.selectize(_.defaults(hubOpts, settings.editDropdownOptions));
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if ($el.val()) {
+                        return $el.val();
+                    }
+
+                    return null;
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (_.isUndefined($el[0].selectize)) {
+                        $el.val(value);
+                    } else if (_.isObject($el[0].selectize)) {
+                        $el[0].selectize.setValue(value, true);
+                    }
+                },
+            };
+
+            bindingsObj[ui.typeDropdown.selector] = {
+                observe: 'primaryContent.type',
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    var typeOpts = {
+                        maxItems: 1,
+
+                        options: this.typeChoices,
+
+                        render: {
+                            item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                var dataType = 'fullText';  // eslint-disable-line no-unused-vars
+
+                                if (typeof(dta.type) !== 'undefined') {
+                                    dataType = dta.type;
+                                }
+                                return '<div data-value="' + dta.value +
+                                            '" class="selected-item">' +
+                                            dta.name +
+                                        '</div>';
+                            },
+                        },
+                    };
+
+                    $el.selectize(_.defaults(typeOpts, settings.editDropdownOptions));
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if ($el.val()) {
+                        return $el.val();
+                    }
+
+                    return null;
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (_.isUndefined($el[0].selectize)) {
+                        $el.val(value);
+                    } else if (_.isObject($el[0].selectize)) {
+                        $el[0].selectize.setValue(value, true);
+                    }
+                },
+            };
+
+            bindingsObj[ui.lengthGroup.selector] = {
+                observe: 'primaryContent.type',
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    var field = $el.find('input');
+
+                    if (value && settings.contentTypes[value].usesLengthAttribute) {
+                        if (field.prop('disabled')) {
+                            field.prop('disabled', false);
+                        }
+                    } else {
+                        if (!field.prop('disabled')) {
+                            field.prop('disabled', true);
+                        }
+                    }
+                },
+                attributes: [
+                    {
+                        name: 'field-active',
+                        observe: 'primaryContent.type',
+                        onGet: function(value) {
+                            if (value && settings.contentTypes[value].usesLengthAttribute) {
+                                return 'true';
+                            }
+
+                            return 'false';
+                        },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.lengthField.selector] = {
+                observe: 'primaryContent.length',
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if ($el.val()) {
+                        return $el.val();
+                    }
+
+                    return null;
+                },
+            };
+
+            bindingsObj[ui.pitchLinkGroup.selector] = {
+                observe: 'primaryContent.type',
+                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                attributes: [
+                    {
+                        name: 'field-active',
+                        observe: 'primaryContent.type',
+                        onGet: function(value) {
+                            if (value && settings.contentTypes[value].usesPitchSystem) {
+                                return 'true';
+                            }
+
+                            return 'false';
+                        },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.pubDateResolution.selector] = {
+                observe: 'pubDate.resolution',
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    var resolutionOpts = {
+                        maxItems: 1,
+
+                        options: [
+                            {name: 'Month only', value: 'm'},
+                            {name: 'Week only', value: 'w'},
+                            {name: 'Day only', value: 'd'},
+                            {name: 'Day & time', value: 't'},
+                        ],
+
+                        render: {
+                            item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                var dataType = 'fullText';  // eslint-disable-line no-unused-vars
+                                if (typeof(dta.type) !== 'undefined') {
+                                    dataType = dta.type;
+                                }
+                                return '<div data-value="' + dta.value +
+                                            '" class="selected-item">' +
+                                            dta.name +
+                                        '</div>';
+                            },
+                        },
+                    };
+
+                    $el.selectize(_.defaults(resolutionOpts, settings.editDropdownOptions));
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if ($el.val()) {
+                        return $el.val();
+                    }
+
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.resetPubDateResolution(value);
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (_.isUndefined($el[0].selectize)) {
+                        $el.val(value);
+                    } else if (_.isObject($el[0].selectize)) {
+                        $el[0].selectize.setValue(value, true);
+                    }
+                },
+            };
+
+            bindingsObj[ui.pubDateGroup.selector] = {
+                observe: 'pubDate.resolution',
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    var control = this.ui.pubDateField.data('datepicker'),
+                        resolution = mdl.get('pubDate.resolution'),
+                        currentDate = (_.has(control, 'currentDate')) ? control.currentDate : null,
+                        hasDate = !_.isNull(currentDate),
+                        resolutionOptions = {},  // eslint-disable-line no-unused-vars
+                        rawDate = hasDate ? moment(currentDate) : null,
+                        weekHasDate = (hasDate) && (resolution === 'w'),
+                        // Weeks need to be passed as the beginning date.
+                        finalDate = weekHasDate ? rawDate.startOf('week') : rawDate;
+
+                    if (!_.isUndefined(control) && !_.isEmpty(control)) {
+                        control.destroy();
+                    }
+
+                    this.ui.pubDateField.datepicker(
+                        _.defaults(
+                            settings.datePickerOptions[value],
+                            settings.datePickerOptions.default
+                        )
+                    );
+
+                    control = this.ui.pubDateField.data('datepicker');
+
+                    if (!_.isNull(rawDate) && !_.isNull(resolution)) {
+                        control.date = finalDate.toDate();
+                        control.selectDate(finalDate.toDate());
+                    }
+
+                    if (_(control.opts).has('customKeyDownFunction')) {
+                        control.$el
+                            .unbind('keydown.adp')
+                            .on(
+                                'keydown.adp',
+                                control.opts.customKeyDownFunction.bind(control)
+                            );
+                    }
+                }.bind(this),
+                attributes: [
+                    {
+                        name: 'field-active',
+                        observe: 'pubDate.resolution',
+                        onGet: function(value) {
+                            if (!_.isNull(value)) {
+                                return 'true';
+                            }
+
+                            return 'false';
+                        },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.pubDateField.selector] = {
+                observe: 'pubDate.formatted',
+                events: ['blur'],
+                update: function($el, value, mdl) {
+                    var datePckr = ui.pubDateField.data('datepicker'),
+                        newDate;
+
+                    if (_.isNull(value) || value === '') {
+                        window.ddd = datePckr;
+                        datePckr.clear();
+                    } else {
+                        if (mdl.has('pubDate.timestamp')) {
+                            newDate = moment.unix(
+                                mdl.get('pubDate.timestamp')
+                            ).tz('America/Chicago');
+
+                            // Weeks need to be passed as the beginning date.
+                            if (mdl.get('pubDate.resolution') === 'w') {
+                                newDate = newDate.startOf('week');
+                            }
+
+                            datePckr.date = newDate.toDate();
+                            datePckr.selectDate(newDate.toDate());
+                        }
+                    }
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if ($el.val() === '') {
+                        return null;
+                    }
+
+                    if (model.get('pubDate.resolution') === 't') {
+                        return [
+                            $el.val(),
+                            model.generateFormattedPubDate()[1],
+                        ].join(' ');
+                    }
+
+                    return $el.val();
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    if (!_.isNull(value)) {
+                        model.updateFormattedPubDate(value);
+                    } else {
+                        model.set('pubDate.timestamp', null);
+                        model.set('pubDate.formatted', null);
+                    }
+                },
+                attributes: [
+                    {
+                        name: 'disabled',
+                        observe: 'pubDate.resolution',
+                        onGet: function(value) {
+                            if (_.isNull(value)) {
+                                return true;
+                            }
+
+                            return false;
+                        },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.pubTimeGroup.selector] = {
+                observe: 'pubDate.resolution',
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    var control,
+                        customOptions = {};
+
+                    if (value === 't') {
+                        control = this.ui.pubTimeField.data('timepicker');
+                    }
+
+                    if (!_.isUndefined(control) && !_.isEmpty(control)) {
+                        control.destroy();
+                    }
+
+                    this.ui.pubTimeField.timepicker(
+                        _.defaults(customOptions, settings.timePickerOptions)
+                    );
+                },
+                attributes: [
+                    {
+                        name: 'field-active',
+                        observe: 'pubDate.resolution',
+                        onGet: function(value) {
+                            if (value === 't') {
+                                return 'true';
+                            }
+
+                            return 'false';
+                        },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.pubTimeField.selector] = {
+                observe: 'pubDate.formatted',
+                events: ['blur'],
+                update: function($el, value, mdl) {
+                    var timePckr = ui.pubTimeField.data('timepicker');
+
+                    if (!_.isNull(mdl.get('pubDate.timestamp'))) {
+                        timePckr.selectTime(
+                            mdl.generateFormattedPubDate(
+                                mdl.get('pubDate.resolution'),
+                                mdl.get('pubDate.timestamp')
+                            )[1]
+                        );
+                    } else {
+                        timePckr.selectTime('12:00 p.m.');
+                    }
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if (model.get('pubDate.resolution') === 't') {
+                        if (_.isUndefined(model.get('timestamp'))) {
+                            return null;
+                        }
+
+                        console.log('O');
+                        return [
+                            model.generateFormattedPubDate()[0],
+                            $el.val(),
+                        ].join(' ');
+                    }
+
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    if (!_.isNull(value)) {
+                        model.updateFormattedPubDate(value);
+                    } else {
+                        model.set('pubDate.timestamp', null);
+                        model.set('pubDate.formatted', null);
+                    }
+                },
+                attributes: [
+                    {
+                        name: 'disabled',
+                        observe: 'pubDate.resolution',
+                        onGet: function(value) {
+                            if (value !== 't') {
+                                return true;
+                            }
+
+                            return false;
+                        },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.slugGroup.selector] = {
+                observe: [
+                    'hub',
+                    'primaryContent.slugKey',
+                    'pubDate.resolution',
+                    'pubDate.timestamp',
+                ],
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    $el.on(
+                        'recalculateSpacing',
+                        function(event) {
+                            var target = $(event.currentTarget),
+                                hubSlug = $(event.currentTarget).find('.hub-slug-value'),
+                                formattedDate = target.find('.formatted-date-value'),
+                                inputPadding = {};
+
+                            inputPadding.left = hubSlug.width() + 5;
+                            inputPadding.right = formattedDate.width();
+
+                            this.ui.slugField.css({
+                                left: -1 * inputPadding.left,
+                            });
+                            this.ui.slugField.css({
+                                'padding-left': inputPadding.left,
+                            });
+                            this.ui.slugField.css({
+                                'padding-right': inputPadding.right,
+                            });
+                            this.ui.slugField.css({
+                                width: $el.width(),
+                            });
+                        }.bind(this)
+                    );
+
+                    setTimeout(function() {
+                        $el.trigger('recalculateSpacing');
+                    }.bind(this), 0);  // eslint-disable-line no-extra-bind
+                },
+                update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
+                    var hubSlug = $el.find('.hub-slug-value'),
+                        formattedDate = $el.find('.formatted-date-value');
+
+                    hubSlug.text(model.generateSlugHub() + '.');
+                    formattedDate.text('.' + model.generateSlugDate());
+
+                    // TODO: Also bind 'recalculateSpacing' on browser resize.
+                    $el.trigger('recalculateSpacing');
+                },
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+            };
+
+            bindingsObj[ui.slugField.selector] = {
+                observe: 'primaryContent.slugKey',
+                initialize: function($el, mdl, options) {
+                    $el.attr(
+                        'data-original-value',
+                        mdl.get(options.observe)
+                    );
+
+                    $el.bind(
+                        'focus',
+                        function() {
+                            $el.closest('.slug-group-holder').addClass('input-focused');
+                        }
+                    );
+
+                    $el.bind(
+                        'blur',
+                        function() {
+                            $el.closest('.slug-group-holder').removeClass('input-focused');
+                        }
+                    );
+
+                    // TODO: Add validation to StickIt version.
+                    // slugField.bind(
+                    //     'input',
+                    //     function() {
+                    //         var formGroup = slugField.closest('.form-group');
+
+                    //         if (slugField.val().match(/[^a-z0-9\-]/)) {
+                    //             if (!formGroup.hasClass('has-error')) {
+                    //                 formGroup.addClass('has-error');
+                    //             }
+
+                    //             formGroup.find('.form-help').html(
+                    //                 'Please use only lowercase letters, ' +
+                    //                 'numbers and hyphens in slugs.'
+                    //             );
+                    //         } else if (slugField.val().length > 20) {
+                    //             if (!formGroup.hasClass('has-error')) {
+                    //                 formGroup.addClass('has-error');
+                    //             }
+
+                    //             formGroup.find('.form-help').html(
+                    //                 'Please keep your slug to 20 characters or less.'
+                    //             );
+                    //         } else {
+                    //             if (formGroup.hasClass('has-error')) {
+                    //                 formGroup.removeClass('has-error');
+                    //             }
+
+                    //             formGroup.find('.form-help').html('');
+                    //         }
+                    //     }.bind(this)
+                    // );
+                },
+            };
+
+            bindingsObj[ui.slugPlaceholder.selector] = {
+                observe: 'primaryContent.slugKey',
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (value !== '') {
+                        $el.text(value);
+                    } else {
+                        $el.text(ui.slugField.attr('placeholder'));
+                    }
+                },
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+            };
+
+            bindingsObj[ui.budgetLineField.selector] = {
+                observe: 'primaryContent.budgetLine',
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    $el.closest('.expanding-holder').addClass('expanding-enabled');
+                    $el.bind('focus', function() { $(this).parent().addClass('input-focused'); });
+                    $el.bind('blur', function() { $(this).parent().removeClass('input-focused'); });
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    $el.text(value);
+                },
+            };
+
+            bindingsObj[ui.budgetLinePlaceholder.selector] = {
+                observe: 'primaryContent.budgetLine',
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (value === '') {
+                        if ($el.closest('.expanding-holder').hasClass('has-value')) {
+                            $el.closest('.expanding-holder').removeClass('has-value');
+                        }
+                    } else {
+                        if (!$el.closest('.expanding-holder').hasClass('has-value')) {
+                            $el.closest('.expanding-holder').addClass('has-value');
+                        }
+                    }
+
+                    $el.text(value);
+                },
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+            };
+
+            bindingsObj[ui.authorsDropdown.selector] = {
+                observe: 'primaryContent.authors',
+                setOptions: {silent: true},
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    var authorOpts = {
+                        closeAfterSelect: false,
+                        plugins: ['remove_button', 'restore_on_backspace'],
+
+                        options: this.stafferChoices,
+
+                        render: {
+                            item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                var dataType = 'fullText';  // eslint-disable-line no-unused-vars
+                                if (typeof(dta.type) !== 'undefined') {
+                                    dataType = dta.type;
+                                }
+                                return '<div data-value="' + dta.value +
+                                            '" class="selected-item-multichoice">' +
+                                            dta.name +
+                                        '</div>';
+                            },
+                        },
+                    };
+
+                    $el.selectize(_.defaults(authorOpts, settings.editDropdownOptions));
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (_.isUndefined($el[0].selectize)) {
+                        $el.val(_(value).pluck('email').join(','));
+                    } else if (_.isObject($el[0].selectize)) {
+                        $el[0].selectize.clear(true);
+
+                        _(value).each(
+                            function(author) {
+                                $el[0].selectize.addItem(author.email, true);
+                            }
+                        );
+                    }
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    var newAuthors = [];
+
+                    _($el.val().split(',')).each(
+                        function(authorKey) {
+                            if (authorKey !== '') {
+                                newAuthors.push(
+                                    this.options.data.staffers.findWhere({
+                                        email: authorKey,
+                                    }).toJSON()
+                                );
+                            }
+                        }.bind(this)
+                    );
+
+                    return newAuthors;
+                },
+            };
+
+            bindingsObj[ui.editorsDropdown.selector] = {
+                observe: 'primaryContent.editors',
+                setOptions: {silent: true},
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    var editorOpts = {
+                        closeAfterSelect: false,
+                        plugins: ['remove_button', 'restore_on_backspace'],
+
+                        options: this.stafferChoices,
+
+                        render: {
+                            item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                var dataType = 'fullText';  // eslint-disable-line no-unused-vars
+                                if (typeof(dta.type) !== 'undefined') {
+                                    dataType = dta.type;
+                                }
+
+                                return '<div data-value="' + dta.value +
+                                            '" class="selected-item-multichoice">' +
+                                            dta.name +
+                                        '</div>';
+                            },
+                        },
+                    };
+
+                    $el.selectize(_.defaults(editorOpts, settings.editDropdownOptions));
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (_.isUndefined($el[0].selectize)) {
+                        $el.val(_(value).pluck('email').join(','));
+                    } else if (_.isObject($el[0].selectize)) {
+                        $el[0].selectize.clear(true);
+
+                        _(value).each(
+                            function(editor) {
+                                $el[0].selectize.addItem(editor.email, true);
+                            }
+                        );
+                    }
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    var newEditors = [];
+
+                    _($el.val().split(',')).each(
+                        function(editorKey) {
+                            if (editorKey !== '') {
+                                newEditors.push(
+                                    this.options.data.staffers.findWhere({
+                                        email: editorKey,
+                                    }).toJSON()
+                                );
+                            }
+                        }.bind(this)
+                    );
+
+                    return newEditors;
+                },
+            };
+
+            bindingsObj[ui.headlineGroup.selector] = {
+                observe: 'headlineStatus',
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    var variableGroupName = (value === 'voting') ? value : 'other',
+                        activeGroup = $el.find(
+                            '.hl-variable-group[data-mode="' + variableGroupName + '"]'
+                        ),
+                        closestCollapsibleGroup = $('#headline-fields').closest(
+                            '.row.can-collapse'
+                        ),
+                        additionalInputHeights = ui.headlineVoteSubmissionToggle.outerHeight(true),
+                        newHeight = (
+                            18 +  // 12px for top spacer, 6 for bottom border/margin.
+                            activeGroup.height()
+                        );
+
+                    if (value === 'drafting') {
+                        newHeight += additionalInputHeights;
+                    }
+
+                    $el.find('.hl-variable-group').removeClass('active');
+                    activeGroup.addClass('active');
+
+                    closestCollapsibleGroup.data('expandedHeight', newHeight);
+
+                    if (closestCollapsibleGroup.height() > 0) {
+                        closestCollapsibleGroup.height(newHeight);
+                    }
+                },
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+            };
+
+            bindingsObj[ui.headline1.selector] = {
+                observe: 'headlineCandidates',
+                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
+                    // TODO: Could this produce stale values?
+                    $el.val(this.orderedHeadlines[0].text);
+                },
+                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
+                    return !_.isNull(val);
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if (!$el.prop('readonly')) {
+                        return {
+                            text: $el.val(),
+                            id: $el.data('headlineId'),
+                        };
+                    }
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.updateHeadlineCandidate(value, {silent: true});
+                },
+                attributes: [
+                    {
+                        name: 'data-headline-id',
+                        observe: 'headlineCandidates',
+                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
+                            return (
+                                _.has(this.orderedHeadlines[0], 'id')
+                            ) ? this.orderedHeadlines[0].id : '';
+                        },
+                    },
+                    {
+                        name: 'readonly',
+                        observe: 'headlineStatus',
+                        onGet: function(value) { return !(value === 'drafting'); },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.headline2.selector] = {
+                observe: 'headlineCandidates',
+                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
+                    $el.val(this.orderedHeadlines[1].text);
+                },
+                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
+                    return !_.isNull(val);
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if (!$el.prop('readonly')) {
+                        return {
+                            text: $el.val(),
+                            id: $el.data('headlineId'),
+                        };
+                    }
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.updateHeadlineCandidate(value, {silent: true});
+                },
+                attributes: [
+                    {
+                        name: 'data-headline-id',
+                        observe: 'headlineCandidates',
+                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
+                            return (
+                                _.has(this.orderedHeadlines[1], 'id')
+                            ) ? this.orderedHeadlines[1].id : '';
+                        },
+                    },
+                    {
+                        name: 'readonly',
+                        observe: 'headlineStatus',
+                        onGet: function(value) { return !(value === 'drafting'); },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.headline3.selector] = {
+                observe: 'headlineCandidates',
+                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
+                    $el.val(this.orderedHeadlines[2].text);
+                },
+                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
+                    return !_.isNull(val);
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if (!$el.prop('readonly')) {
+                        return {
+                            text: $el.val(),
+                            id: $el.data('headlineId'),
+                        };
+                    }
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.updateHeadlineCandidate(value, {silent: true});
+                },
+                attributes: [
+                    {
+                        name: 'data-headline-id',
+                        observe: 'headlineCandidates',
+                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
+                            return (
+                                _.has(this.orderedHeadlines[2], 'id')
+                            ) ? this.orderedHeadlines[2].id : '';
+                        },
+                    },
+                    {
+                        name: 'readonly',
+                        observe: 'headlineStatus',
+                        onGet: function(value) { return !(value === 'drafting'); },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.headline4.selector] = {
+                observe: 'headlineCandidates',
+                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
+                    $el.val(this.orderedHeadlines[3].text);
+                },
+                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
+                    return !_.isNull(val);
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if (!$el.prop('readonly')) {
+                        return {
+                            text: $el.val(),
+                            id: $el.data('headlineId'),
+                        };
+                    }
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.updateHeadlineCandidate(value, {silent: true});
+                },
+                attributes: [
+                    {
+                        name: 'data-headline-id',
+                        observe: 'headlineCandidates',
+                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
+                            return (
+                                _.has(this.orderedHeadlines[3], 'id')
+                            ) ? this.orderedHeadlines[3].id : '';
+                        },
+                    },
+                    {
+                        name: 'readonly',
+                        observe: 'headlineStatus',
+                        onGet: function(value) { return !(value === 'drafting'); },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.headlineRadio1.selector] = {
+                observe: '',
+                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+            };
+
+            bindingsObj[ui.headlineVoteSubmissionToggle.selector] = {
+                observe: 'headlineStatus',
+                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+                attributes: [
+                    {
+                        name: 'data-visible',
+                        observe: 'headlineStatus',
+                        onGet: function(val) { return (val === 'drafting') ? 'true' : 'false'; },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.headlineVoteSubmissionToggleInput.selector] = {
+                observe: 'headlinesSubmitted',
+                update: function($el, value, mdl, config) {
+                    var currentModelValue = mdl.get(config.observe) || false;
+
+                    $el.prop(
+                        'checked',
+                        (_.isBoolean(currentModelValue)) ? currentModelValue : false
+                    );
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    return ($el.prop('checked') === true);
+                },
+                attributes: [
+                    {
+                        name: 'readonly',
+                        observe: 'headlineStatus',
+                        onGet: function(value) { return !(value === 'drafting'); },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.notesField.selector] = {
+                observe: 'notes',
+                events: ['updateText'],
+                initialize: function($el, mdl, opts) {  // eslint-disable-line no-unused-vars
+                    var richNotesField = new Quill($el.selector, {
+                            modules: {
+                                toolbar: this.ui.notesToolbar.selector,
+                                'link-tooltip': true,
+                            },
+                            theme: 'snow',
+                        }),
+                        rnRoot = richNotesField.root,
+                        closestCollapse = $(rnRoot.closest('.row.can-collapse')),
+                        activeHeight = $(rnRoot.closest('.collapsable-inner')).outerHeight(true);
+
+                    richNotesField.on(
+                        'text-change',
+                        function(delta, source) {  // eslint-disable-line no-unused-vars
+                            var newHTML = this.editor.innerHTML;
+                            $el.trigger('updateText', newHTML);
+                        }
+                    );
+
+                    closestCollapse.data('expandedHeight', activeHeight);
+
+                    if (closestCollapse.height > 0) {
+                        $(rnRoot.closest('.row.can-collapse')).height(activeHeight);
+                    }
+
+                    this.richNotesField = richNotesField;
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (!$el.hasClass('ql-container')) {
+                        // Quill has not yet been initialized. Insert the note
+                        // text as raw HTML.
+                        $el.html(value);
+                    } else {
+                        // Quill is active. Insert the note text using its API.
+                        this.richNotesField.setHTML(value);
+                    }
+                },
+                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
+                    return true;
+                },
+                getVal: function($el, event, options, newText) {
+                    return newText[0];
+                },
+            };
+
+            bindingsObj[ui.urlField.selector] = {
+                observe: 'URL',
+            };
+
+            bindingsObj[ui.printPlacementGroup.selector] = {
+                observe: 'printPlacement.printPlacements',
+                initialize: function($el, mdl, opts) {  // eslint-disable-line no-unused-vars
+                    var placementInputs = _.map(
+                        this.printPlacementChoices,
+                        function(choice) {
+                            return '' +
+                                '<label>' +
+                                '    <input id="' + choice.slug + '"' +
+                                            'class="pitched_placements"' +
+                                            'name="pitched_placements[]"' +
+                                            'type="checkbox"' +
+                                            'value="' + choice.slug + '" />' +
+                                    '<i class="helper"></i>' +
+                                    choice.verboseName +
+                                '</label>';
+                        }
+                    );
+
+                    $el.append(placementInputs);
+
+                    setTimeout(function() {
+                        var activeGroup = $el.closest('.collapsable-inner'),
+                            closestCollapsibleGroup = $el.closest('.row.can-collapse'),
+                            newHeight = (
+                                6 +  // 6px for bottom border/margin.
+                                activeGroup.height()
+                            );
+
+                        closestCollapsibleGroup.data('expandedHeight', newHeight);
+
+                        if (closestCollapsibleGroup.height() > 0) {
+                            closestCollapsibleGroup.height(newHeight);
+                        }
+                    }, 0);
+                },
+                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+            };
+
+            bindingsObj[ui.printRunDateField.selector] = {
+                observe: 'printPlacement.printRunDate',
+                events: ['setPrintRunDate'],
+                initialize: function($el, mdl, opts) {
+                    var inputValue = mdl.get(opts.observe),
+                        datePckr,
+                        newDate;
+
+                    $el.datepicker(
+                        _.defaults(
+                            settings.datePickerOptions.d,
+                            settings.datePickerOptions.default
+                        )
+                    );
+
+                    datePckr = $el.data('datepicker');
+
+                    datePckr.preventDefault = false;
+
+                    datePckr.opts.onSelect = function(
+                        formattedDate,
+                        date,
+                        instance  // eslint-disable-line no-unused-vars
+                    ) {
+                        if (!datePckr.preventDefault) {
+                            $el.trigger('setPrintRunDate', date);
+                        }
+                    };
+
+                    if (!_.isNull(inputValue)) {
+                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', inputValue);
+
+                        datePckr.preventDefault = true;
+                        datePckr.date = newDate;
+                        datePckr.selectDate(newDate);
+                        datePckr.preventDefault = false;
+                    }
+                },
+                update: function($el, value, mdl) {
+                    var datePckr = $el.data('datepicker'),
+                        newDate;
+
+                    if (value !== '') {
+                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', value);
+
+                        if (!_.isUndefined(datePckr)) {
+                            datePckr.preventDefault = true;
+                            datePckr.date = newDate;
+                            datePckr.selectDate(newDate);
+                            datePckr.preventDefault = false;
+                        }
+                    } else {
+                        if (!_.isUndefined(datePckr)) {
+                            datePckr.preventDefault = true;
+                            datePckr.clear();
+                            datePckr.preventDefault = false;
+                        }
+                    }
+                },
+                getVal: function($el, event, options, newDate) {
+                    return (
+                        newDate[0] !== ''
+                    ) ? model.parseRunDate('YYYY-MM-DD', newDate[0]) : null;
+                },
+            };
+
+            bindingsObj[ui.printPlacementFields.selector] = {
+                observe: 'printPlacement.printPlacements',
+                update: function($el, activeValues, mdl) {  // eslint-disable-line no-unused-vars
+                    _.each($el, function(choiceEl) {
+                        var $choiceEl = $(choiceEl),
+                            choiceSlug = $choiceEl.val();
+
+                        $choiceEl.prop('checked', _.contains(activeValues, choiceSlug));
+                    });
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    var newValues = _($el).chain()
+                            .filter(function(choiceEl) { return $(choiceEl).is(':checked'); })
+                            .map(function(el) { return $(el).val(); })
+                            .value();
+
+                    return newValues;
+                },
+            };
+
+            bindingsObj[ui.printFinalized.selector] = {
+                observe: 'printPlacement.isFinalized',
+                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    return $el.is(':checked');
+                },
+                attributes: [
+                    {
+                        name: 'checked',
+                        observe: 'printPlacement.isFinalized',
+                        onGet: function(value) {
+                            return (_.isBoolean(value)) ? value : false;
+                        },
+                    },
+                ],
+            };
+
+            bindingsObj[ui.packageDeleteTrigger.selector] = {
+                observe: 'id',
+                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+                attributes: [
+                    {
+                        name: 'data-visible',
+                        observe: 'id',
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            return (_.isUndefined(value)) ? 'false' : 'true';
+                        },
+                    },
+                ],
+            };
+
+            return bindingsObj;
         },
+
+        modelEvents: {},
 
         events: {
             'mousedown @ui.addRequestButton': 'addButtonClickedClass',
@@ -118,7 +1304,7 @@ define([
             'mousedown @ui.persistentButton': 'addButtonClickedClass',
             'click @ui.packageSaveTrigger': 'savePackage',
             'click @ui.packageSaveAndContinueEditingTrigger': 'savePackageAndContinueEditing',
-            'click @ui.packageDeleteTrigger': 'deleteEntirePackage'
+            'click @ui.packageDeleteTrigger': 'deleteEntirePackage',
         },
 
         initialize: function() {
@@ -128,7 +1314,7 @@ define([
 
             /* Prior-path capturing. */
 
-            var priorViewName = this._radio.reqres.request(
+            this.priorViewName = this._radio.reqres.request(
                 'getState',
                 'meta',
                 'listViewType'
@@ -136,22 +1322,22 @@ define([
 
             this.priorPath = '/';
             if (
-                !_.isUndefined(priorViewName) &&
-                _.has(urlConfig, priorViewName)
+                !_.isUndefined(this.priorViewName) &&
+                _.has(urlConfig, this.priorViewName)
             ) {
-                this.priorPath = urlConfig[priorViewName].reversePattern;
+                this.priorPath = urlConfig[this.priorViewName].reversePattern;
             }
 
 
             /* Moment.js configuration. */
 
             moment.locale('en', {
-                meridiem: function (hour, minute, isLowercase) {
+                meridiem: function(hour, minute, isLowercase) {
                     var meridiemString;
                     if (hour < 12) {
-                        meridiemString = "a.m.";
-                    }  else {
-                        meridiemString = "p.m.";
+                        meridiemString = 'a.m.';
+                    } else {
+                        meridiemString = 'p.m.';
                     }
 
                     if (!isLowercase) {
@@ -160,19 +1346,14 @@ define([
 
                     return meridiemString;
                 },
-                monthsShort : [
+                monthsShort: [
                     'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
-                    'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'
-                ]
+                    'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.',
+                ],
+                week: {
+                    dow: 1,
+                },
             });
-
-            $.dateRangePickerLanguages.default['week-1'] = 'M';
-            $.dateRangePickerLanguages.default['week-2'] = 'T';
-            $.dateRangePickerLanguages.default['week-3'] = 'W';
-            $.dateRangePickerLanguages.default['week-4'] = 'T';
-            $.dateRangePickerLanguages.default['week-5'] = 'F';
-            $.dateRangePickerLanguages.default['week-6'] = 'S';
-            $.dateRangePickerLanguages.default['week-7'] = 'S';
 
 
             /* Choice generation for selectize lists. */
@@ -182,6 +1363,11 @@ define([
             this.typeChoices = this.enumerateTypeChoices();
 
             this.stafferChoices = this.enumerateStafferChoices();
+
+
+            /* Print-placement choice generation. */
+
+            this.printPlacementChoices = this.enumeratePrintPlacementChoices();
 
 
             /* Additional-content holding initialization. */
@@ -195,75 +1381,161 @@ define([
         },
 
         serializeData: function() {
-            var templateContext = {};
+            return {
+                csrfToken: '',
+                visualsRequestURL: settings.externalURLs.addVisualsRequest,
+            };
+        },
 
-            if (_.has(this, 'model')) {
-                var packageHub = this.options.data.hubs.findWhere({
-                    slug: this.model.get('hub')
-                });
-
-                templateContext.packageData = this.model.toJSON();
-
-                templateContext.primaryContentType = settings.contentTypes[
-                    this.model.get('primaryContent').type
-                ];
-
-                if (!_.isUndefined(packageHub) && !_.isNull(packageHub)) {
-                    templateContext.hub = {
-                        color: packageHub.get('color'),
-                        name: packageHub.get('name')
-                    };
-                }
-
-                if (_.has(this.model.get('primaryContent'), 'length')) {
-                    templateContext.formattedLength = parseInt(
-                        this.model.get('primaryContent').length,
-                        10
+        updateCollection: function(argument) {  // eslint-disable-line no-unused-vars
+            // Translate each additional content item into a model
+            // in this.collection.
+            if (!_.isUndefined(this.model)) {
+                if (!_.isEmpty(this.model.get('additionalContent'))) {
+                    _.each(
+                        this.model.get('additionalContent'),
+                        function(additionalItem) {
+                            this.collection.add([additionalItem]);
+                        }.bind(this)
                     );
-                }
-
-                if (this.model.has('pubDate')) {
-                    var pubDateObj = this.model.get('pubDate');
-
-                    if (_.contains(['m', 'w', 'd', 't'], pubDateObj.resolution)) {
-                        var datetimeConverted = moment.unix(
-                                pubDateObj.timestamp
-                            ).tz(
-                                'America/Chicago'
-                            );
-
-                        if (pubDateObj.resolution == 'm') {
-                            monthEndFormatted = datetimeConverted.format('MMM D, YYYY');
-                            monthStartFormatted = datetimeConverted.add(1, 's').subtract(1, 'M').format('MMM D, YYYY');
-                            templateContext.formattedPubDate = monthStartFormatted + ' to ' + monthEndFormatted;
-                        } else if (pubDateObj.resolution == 'w') {
-                            weekEndFormatted = datetimeConverted.format('MMM D, YYYY');
-                            weekStartFormatted = datetimeConverted.add(1, 's').subtract(1, 'w').format('MMM D, YYYY');
-                            templateContext.formattedPubDate = weekStartFormatted + ' to ' + weekEndFormatted;
-                        } else if (pubDateObj.resolution == 'd') {
-                            templateContext.formattedPubDate = datetimeConverted.format('MMM D, YYYY');
-                        } else if (pubDateObj.resolution == 't') {
-                            templateContext.formattedPubDate = datetimeConverted.format('MMM D, YYYY');
-                            templateContext.formattedPubTime = datetimeConverted.format('HH:mm');
-                        }
-                    }
-                }
-
-                if (
-                    this.model.has('printPlacement') &&
-                    _.has(this.model.get('printPlacement'), 'printRunDate') &&
-                    !_.isNull(this.model.get('printPlacement').printRunDate)
-                ) {
-                    templateContext.formattedPrintRunDate = moment(
-                        this.model.get('printPlacement').printRunDate,
-                        'YYYY-MM-DD'
-                    ).format('MMM D, YYYY');
                 }
             }
 
-            // TK: Loop through the currently-selected print-placement values,
-            // adding an 'isSelected: true' value to the template context.
-            templateContext.placementChoices = _.map(
+            return this;
+        },
+
+        onBeforeRender: function() {
+            // If there are fewer than 4 headline candidates, generate
+            // placeholder objects for all that are unaccounted for.
+            var currentHeds = this.model.get('headlineCandidates');
+
+            if (currentHeds.length < 4) {
+                this.model.set(
+                    'headlineCandidates',
+                    currentHeds.concat(
+                        _.map(
+                            _.range(4 - currentHeds.length),
+                            function(index) {
+                                return {
+                                    id: '__placeholder' + (index + 1),
+                                    text: '',
+                                    votes: 0,
+                                    winner: false,
+                                };
+                            }
+                        )
+                    )
+                );
+            }
+
+            // Update this.collection to reflect the current additional items.
+            this.updateCollection();
+        },
+
+        onRender: function() {
+            if (this.isFirstRender) {
+                this.isFirstRender = false;
+
+                this.collection.on(
+                    'update',
+                    this.updateBottomButtonVisibility.bind(this)
+                );
+            }
+
+            this.orderedHeadlines = _.sortBy(this.model.get('headlineCandidates'), 'id');
+
+            this.ui.persistentButton.addClass('click-init');
+
+            // Uncomment this line to have an unbound form on every edit page
+            // (the JS equivalent of Django's 'inline.EXTRA=1').
+            // this.addNewAdditionalItem();
+        },
+
+        onAttach: function() {
+            this.ui.packageForm.find('.row.can-collapse').each(function() {
+                var $thisEl = $(this);
+
+                $thisEl.data('expanded-height', $thisEl.outerHeight());
+
+                $thisEl.addClass('collapse-enabled');
+            });
+
+            this.stickit();
+        },
+
+
+        /*
+         *   Choice enumerators.
+         */
+
+        enumerateHubChoices: function() {
+            var choices = [],
+                hubGroupsRaw = [];
+
+            this.options.data.hubs.each(function(hub) {
+                var hubVertical = hub.get('vertical');
+
+                choices.push({
+                    name: hub.get('name'),
+                    type: hubVertical.slug,
+                    value: hub.get('slug'),
+                });
+
+                if (!_.contains(_.pluck(hubGroupsRaw, 'value'), hubVertical.slug)) {
+                    hubGroupsRaw.push({
+                        name: hubVertical.name,
+                        value: hubVertical.slug,
+                    });
+                }
+            });
+
+            return {
+                options: choices,
+                optgroups: _.map(
+                    _.sortBy(hubGroupsRaw, 'value'),
+                    function(obj, index) {
+                        var newObj = _.clone(obj);
+                        newObj.$order = index + 1;
+                        return newObj;
+                    }
+                ),
+            };
+        },
+
+        enumerateTypeChoices: function() {
+            var choices = [];
+
+            _.each(settings.contentTypes, function(v, k, i) {  // eslint-disable-line no-unused-vars
+                choices.push({
+                    name: v.verboseName,
+                    order: v.order,
+                    value: k,
+                });
+            });
+
+            return _.map(
+                _.sortBy(choices, 'order'),
+                function(choice) {
+                    return _.omit(choice, 'order');
+                }
+            );
+        },
+
+        enumerateStafferChoices: function() {
+            var choices = [];
+
+            this.options.data.staffers.each(function(staffer) {
+                choices.push({
+                    name: staffer.get('fullName'),
+                    value: staffer.get('email'),
+                });
+            });
+
+            return choices;
+        },
+
+        enumeratePrintPlacementChoices: function() {
+            return _.map(
                 settings.printPlacementTypes,
                 function(placementConfig) {
                     var configFinalized = _.chain(placementConfig)
@@ -285,728 +1557,6 @@ define([
                     return configFinalized;
                 }.bind(this)
             );
-
-            templateContext.visualsRequestURL = settings.externalURLs.addVisualsRequest;
-
-            return templateContext;
-        },
-
-        onModelChange: function() {
-            this.collection.reset();
-
-            this.updateCollection().render();
-        },
-
-        updateCollection: function(argument) {
-            if (!_.isUndefined(this.model)) {
-                if (!_.isEmpty(this.model.get('additionalContent'))) {
-                    _.each(
-                        this.model.get('additionalContent'),
-                        function(additionalItem) {
-                            this.collection.add([additionalItem]);
-                        }.bind(this)
-                    );
-                }
-            }
-
-            return this;
-        },
-
-        onBeforeRender: function() {
-            this.updateCollection();
-        },
-
-        onRender: function() {
-            if (this.isFirstRender) {
-                this.isFirstRender = false;
-
-                this.collection.on(
-                    'update',
-                    this.updateBottomButtonVisibility.bind(this)
-                );
-            }
-
-            this.ui.persistentButton.addClass('click-init');
-
-            // Uncomment this line to have an unbound form on every edit page
-            // (the JS equivalent of Django's 'inline.EXTRA=1').
-            // this.addNewAdditionalItem();
-        },
-
-        onDomRefresh: function() {
-            this.initializeSlugField();
-            this.updateSlugGroup();
-            this.initializeHubDropdown();
-            this.initializeTypeDropdown();
-            expandingTextField.make(this.ui.budgetLineField);
-            this.initializeAuthorDropdown();
-            this.initializeEditorDropdown();
-            this.initializePubDateResolutionDropdown();
-            this.initializePrintRunDatePicker();
-
-            if (!_.isUndefined(this.model)) {
-                if (
-                    this.model.has('pubDate') &&
-                    _.has(this.model.get('pubDate'), 'resolution') &&
-                    _.contains(['m','w','d','t'], this.model.get('pubDate').resolution)
-                ) {
-                    this.initializeDatePicker(
-                        this.model.get('pubDate').resolution
-                    );
-                }
-            }
-
-            this.ui.packageForm.find('.row.can-collapse').each(function() {
-                var $thisEl = $(this);
-
-                $thisEl.data('expanded-height', $thisEl.outerHeight());
-
-                $thisEl.addClass('collapse-enabled');
-            });
-
-            this.richNotesField = new Quill(this.ui.notesField.selector, {
-                modules: {
-                    toolbar: this.ui.notesToolbar.selector,
-                    'link-tooltip': true
-                },
-                theme: 'snow'
-            });
-        },
-
-
-        /*
-         *   Choice enumerators.
-         */
-
-        enumerateHubChoices: function() {
-            var choices = [],
-                hubGroupsRaw = [],
-                hubGroups;
-
-            this.options.data.hubs.each(function(hub) {
-                var hubVertical = hub.get('vertical');
-
-                choices.push({
-                    name: hub.get('name'),
-                    type: hubVertical.slug,
-                    value: hub.get('slug')
-                });
-
-                if (!_.contains(_.pluck(hubGroupsRaw, 'value'), hubVertical.slug)) {
-                    hubGroupsRaw.push({
-                        name: hubVertical.name,
-                        value: hubVertical.slug,
-                    });
-                }
-            });
-
-            hubGroups = _.map(
-                _.sortBy(hubGroupsRaw, 'value'),
-                function(obj, index) {
-                    obj.$order = index + 1;
-                    return obj;
-                }
-            );
-
-            return {
-                options: choices,
-                optgroups: hubGroups
-            };
-        },
-
-        enumerateTypeChoices: function() {
-            var choices = [];
-
-            _.each(settings.contentTypes, function(v, k, i) {
-                choices.push({
-                    name: v.verboseName,
-                    order: v.order,
-                    value: k
-                });
-            });
-
-            return _.map(
-                _.sortBy(choices, 'order'),
-                function(choice) {
-                    return _.omit(choice, 'order');
-                }
-            );
-        },
-
-        enumerateStafferChoices: function() {
-            var choices = [];
-
-            this.options.data.staffers.each(function(staffer) {
-                choices.push({
-                    name: staffer.get('fullName'),
-                    value: staffer.get('email')
-                });
-            });
-
-            return choices;
-        },
-
-
-         /*
-         *   Control initializers (for selectize boxes, datepickers, etc.).
-         */
-
-        initializeSlugField: function() {
-            var slugField = this.ui.slugField;
-
-            slugField.bind(
-                'focus',
-                function() {
-                    slugField.closest('.slug-group-holder').addClass('input-focused');
-                }
-            );
-
-            slugField.bind(
-                'blur',
-                function() {
-                    slugField.closest('.slug-group-holder').removeClass('input-focused');
-                }
-            );
-
-            slugField.bind(
-                'input',
-                function() {
-                    var formGroup = slugField.closest('.form-group');
-
-                    if (slugField.val().match(/[^a-z0-9\-]/)) {
-                        if (!formGroup.hasClass('has-error')) {
-                            formGroup.addClass('has-error');
-                        }
-
-                        formGroup.find('.form-help').html(
-                            'Please use only lowercase letters, numbers and hyphens in slugs.'
-                        );
-                    } else if (slugField.val().length > 20) {
-                        if (!formGroup.hasClass('has-error')) {
-                            formGroup.addClass('has-error');
-                        }
-
-                        formGroup.find('.form-help').html(
-                            'Please keep your slug to 20 characters or less.'
-                        );
-                    } else {
-                        if (formGroup.hasClass('has-error')) {
-                            formGroup.removeClass('has-error');
-                        }
-
-                        formGroup.find('.form-help').html('');
-                    }
-
-                    slugField.siblings('.keyword-value').html(slugField.val());
-
-                    if ($.trim(slugField.val())) {
-                    } else {
-                        slugField.siblings('.keyword-value').html(
-                            slugField.attr('placeholder')
-                        );
-                    }
-
-                    this.updatePackageTitle();
-                }.bind(this)
-            );
-        },
-
-        initializeHubDropdown: function() {
-            this.ui.hubDropdown.selectize({
-                closeAfterSelect: true,
-                maxItems: 1,
-                openOnFocus: true,
-                plugins: ['restore_on_backspace'],
-                // selectOnTab: true,
-
-                options: this.hubChoices.options,
-                labelField: 'name',
-                optgroupField: 'type',
-                searchField: ['name',],
-                valueField: 'value',
-
-                optgroups: this.hubChoices.optgroups,
-                // lockOptgroupOrder: true,
-                optgroupLabelField: 'name',
-                optgroupValueField: 'value',
-
-                render: {
-                    item: function(data, escape) {
-                        var dataType = 'fullText';
-                        if (typeof(data.type) != "undefined") {
-                            dataType = data.type;
-                        }
-                        return '<div data-value="' + data.value + '" data-type="' + dataType + '" class="selected-item">' + data.name + '</div>';
-                    }
-                },
-                onFocus: function() {
-                    if (!this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().addClass('input-focused');
-                    }
-                },
-                onBlur: function() {
-                    if (this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().removeClass('input-focused');
-                    }
-                },
-                onItemAdd: function(value, $item) {
-                    this.changeColorDot($item.data('value'));
-                    this.updatePackageTitle(value);
-                    this.updateSlugGroup(value);
-                }.bind(this),
-                onItemRemove: function(value) {
-                    this.changeColorDot();
-                    this.updatePackageTitle();
-                    this.updateSlugGroup();
-                }.bind(this)
-            });
-        },
-
-        initializeTypeDropdown: function() {
-            this.ui.typeDropdown.selectize({
-                closeAfterSelect: true,
-                maxItems: 1,
-                openOnFocus: true,
-                plugins: ['restore_on_backspace'],
-                // selectOnTab: true,
-
-                options: this.typeChoices,
-                labelField: 'name',
-                searchField: ['name',],
-                valueField: 'value',
-
-                render: {
-                    item: function(data, escape) {
-                        var dataType = 'fullText';
-                        if (typeof(data.type) != "undefined") {
-                            dataType = data.type;
-                        }
-                        return '<div data-value="' + data.value + '" class="selected-item">' + data.name + '</div>';
-                    }
-                },
-                onFocus: function() {
-                    if (!this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().addClass('input-focused');
-                    }
-                },
-                onBlur: function() {
-                    if (this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().removeClass('input-focused');
-                    }
-                },
-                onItemAdd: function(value, $item) {
-                    var typeConfig = settings.contentTypes[$item.data('value')];
-
-                    if (typeConfig.usesLengthAttribute) {
-                        this.showField(this.ui.lengthField, this.ui.lengthGroup);
-                    } else {
-                        this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                    }
-
-                    if (typeConfig.usesPitchSystem) {
-                        this.showField(null, this.ui.pitchLinkGroup);
-                    } else {
-                        this.hideField(null, this.ui.pitchLinkGroup);
-                    }
-                }.bind(this),
-                onItemRemove: function(value) {
-                    var typeConfig = settings.contentTypes[value];
-
-                    if (typeConfig.usesLengthAttribute) {
-                        this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                    } else if (typeConfig.usesPitchSystem) {
-                        this.hideField(null, this.ui.pitchLinkGroup);
-                    }
-
-                }.bind(this)
-            });
-        },
-
-        initializeAuthorDropdown: function() {
-            this.ui.authorsDropdown.selectize({
-                // closeAfterSelect: true,
-                openOnFocus: true,
-                plugins: ['remove_button', 'restore_on_backspace'],
-                // selectOnTab: true,
-
-                options: this.stafferChoices,
-                labelField: 'name',
-                searchField: ['name',],
-                valueField: 'value',
-
-                render: {
-                    item: function(data, escape) {
-                        var dataType = 'fullText';
-                        if (typeof(data.type) != "undefined") {
-                            dataType = data.type;
-                        }
-                        return '<div data-value="' + data.value + '" class="selected-item-multichoice">' + data.name + '</div>';
-                    }
-                },
-                onFocus: function() {
-                    if (!this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().addClass('input-focused');
-                    }
-                },
-                onBlur: function() {
-                    if (this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().removeClass('input-focused');
-                    }
-                },
-                onItemAdd: function(value, $item) {
-                    // var typeConfig = settings.contentTypes[$item.data('value')];
-
-                    // if (typeConfig.usesLengthAttribute) {
-                    //     this.showField(this.ui.lengthField, this.ui.lengthGroup);
-                    // } else {
-                    //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                    // }
-                }.bind(this),
-                onItemRemove: function(value) {
-                    // var typeConfig = settings.contentTypes[value];
-
-                    // if (typeConfig.usesLengthAttribute) {
-                    //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                    // }
-                }.bind(this)
-            });
-        },
-
-        initializeEditorDropdown: function() {
-            this.ui.editorsDropdown.selectize({
-                // closeAfterSelect: true,
-                openOnFocus: true,
-                plugins: ['remove_button', 'restore_on_backspace'],
-                // selectOnTab: true,
-
-                options: this.stafferChoices,
-                labelField: 'name',
-                searchField: ['name',],
-                valueField: 'value',
-
-                render: {
-                    item: function(data, escape) {
-                        var dataType = 'fullText';
-                        if (typeof(data.type) != "undefined") {
-                            dataType = data.type;
-                        }
-                        return '<div data-value="' + data.value + '" class="selected-item-multichoice">' + data.name + '</div>';
-                    }
-                },
-                onFocus: function() {
-                    if (!this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().addClass('input-focused');
-                    }
-                },
-                onBlur: function() {
-                    if (this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().removeClass('input-focused');
-                    }
-                },
-                onItemAdd: function(value, $item) {
-                    // var typeConfig = settings.contentTypes[$item.data('value')];
-
-                    // if (typeConfig.usesLengthAttribute) {
-                    //     this.showField(this.ui.lengthField, this.ui.lengthGroup);
-                    // } else {
-                    //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                    // }
-                }.bind(this),
-                onItemRemove: function(value) {
-                    // var typeConfig = settings.contentTypes[value];
-
-                    // if (typeConfig.usesLengthAttribute) {
-                    //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                    // }
-                }.bind(this)
-            });
-        },
-
-        initializePubDateResolutionDropdown: function() {
-            this.ui.pubDateResolution.selectize({
-                closeAfterSelect: true,
-                maxItems: 1,
-                openOnFocus: true,
-                plugins: ['restore_on_backspace'],
-                // selectOnTab: true,
-
-                options: [
-                    {
-                        name: 'Month only',
-                        value: 'm'
-                    },
-                    {
-                        name: 'Week only',
-                        value: 'w'
-                    },
-                    {
-                        name: 'Day only',
-                        value: 'd'
-                    },
-                    {
-                        name: 'Day & time',
-                        value: 't'
-                    }
-                ],
-                labelField: 'name',
-                searchField: ['name',],
-                valueField: 'value',
-
-                render: {
-                    item: function(data, escape) {
-                        var dataType = 'fullText';
-                        if (typeof(data.type) != "undefined") {
-                            dataType = data.type;
-                        }
-                        return '<div data-value="' + data.value + '" class="selected-item">' + data.name + '</div>';
-                    }
-                },
-                onFocus: function() {
-                    if (!this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().addClass('input-focused');
-                    }
-                },
-                onBlur: function() {
-                    if (this.$control.parent().hasClass('input-focused')) {
-                        this.$control.parent().removeClass('input-focused');
-                    }
-                },
-                onItemAdd: function(value, $item) {
-                    var scheduleType = $item.data('value');
-
-                    this.initializeDatePicker(scheduleType);
-                }.bind(this),
-                onItemRemove: function(value) {
-                    this.hideField(this.ui.pubDateField, this.ui.pubDateGroup);
-                    this.hideField(this.ui.pubTimeField, this.ui.pubTimeGroup);
-
-                    this.destroyCurrentDatePicker();
-                }.bind(this)
-            });
-        },
-
-        initializeDatePicker: function(dateMode) {
-            if (dateMode == 'm') {
-                this.showField(this.ui.pubDateField, this.ui.pubDateGroup);
-                this.hideField(this.ui.pubTimeField, this.ui.pubTimeGroup);
-
-                this.destroyCurrentDatePicker();
-
-                var monthOptions = _.clone(datePickerOptions);
-                monthOptions.batchMode = 'month';
-
-                this.ui.pubDateField.dateRangePicker(monthOptions).bind(
-                    'datepicker-change',
-                    function() {
-                        this.updatePackageTitle();
-                        this.updateSlugGroup();
-                    }.bind(this)
-                );
-            } else if (dateMode == 'w') {
-                this.showField(this.ui.pubDateField, this.ui.pubDateGroup);
-                this.hideField(this.ui.pubTimeField, this.ui.pubTimeGroup);
-
-                this.destroyCurrentDatePicker();
-
-                var weekOptions = _.clone(datePickerOptions);
-                weekOptions.batchMode = 'week';
-
-                this.ui.pubDateField.dateRangePicker(weekOptions).bind(
-                    'datepicker-change',
-                    function() {
-                        this.updatePackageTitle();
-                        this.updateSlugGroup();
-                    }.bind(this)
-                );
-            } else if (dateMode == 'd') {
-                this.showField(this.ui.pubDateField, this.ui.pubDateGroup);
-                this.hideField(this.ui.pubTimeField, this.ui.pubTimeGroup);
-
-                this.destroyCurrentDatePicker();
-
-                var dayOptions = _.clone(datePickerOptions);
-                dayOptions.singleDate = true;
-
-                this.ui.pubDateField.dateRangePicker(dayOptions).bind(
-                    'datepicker-change',
-                    function() {
-                        this.updatePackageTitle();
-                        this.updateSlugGroup();
-                    }.bind(this)
-                );
-            } else if (dateMode == 't') {
-                this.showField(this.ui.pubDateField, this.ui.pubDateGroup);
-                this.showField(this.ui.pubTimeField, this.ui.pubTimeGroup);
-
-                this.destroyCurrentDatePicker();
-
-                var dayTimeOptions = _.clone(datePickerOptions);
-                dayTimeOptions.singleDate = true;
-
-                this.ui.pubDateField.dateRangePicker(dayTimeOptions).bind(
-                    'datepicker-change',
-                    function() {
-                        this.updatePackageTitle();
-                        this.updateSlugGroup();
-                    }.bind(this)
-                );
-            }
-        },
-
-        initializePrintRunDatePicker: function() {
-            var dayOptions = _.clone(datePickerOptions);
-            dayOptions.singleDate = true;
-
-            this.ui.printRunDateField.dateRangePicker(dayOptions);
-        },
-
-        /*
-         * Control modifiers.
-         */
-
-        changeColorDot: function(newHubSlug) {
-            var newDotColor;
-
-            if (typeof(newHubSlug) == "undefined") {
-                newDotColor = '#9E9E9E';
-            } else {
-                var packageHub = this.options.data.hubs.findWhere({
-                    slug: newHubSlug
-                });
-
-                newDotColor = packageHub.get('color');
-            }
-
-
-            this.ui.colorDot.css({'background-color': newDotColor});
-        },
-
-        updatePackageTitle: function(hubValue) {
-            var slugText = this.generateSlugHub(hubValue) +
-                            '.' +
-                            this.ui.slugField.val() +
-                            '.' +
-                            this.generateSlugDate();
-
-            this.ui.packageTitle.html(slugText);
-
-            this.children.each(
-                function(childView) {
-                    childView.options.primarySlug = slugText;
-                    // childView.render().trigger('attach');
-                }
-            );
-
-            this.childViewOptions = function(model, index) {
-                return this.generateChildViewOptions(slugText);
-            };
-
-            this._renderChildren();
-        },
-
-        updateSlugGroup: function(hubValue) {
-            var slugField = this.ui.slugField,
-                slugGroup = slugField.closest('.slug-group-holder');
-
-            slugGroup.find('.hub-slug-value').html(this.generateSlugHub(hubValue) + '.');
-
-            slugGroup.find('.formatted-date-value').html('.' + this.generateSlugDate());
-
-            var inputPadding = {};
-
-            inputPadding.left = slugGroup.find('.hub-slug-value').width() + 5;
-            inputPadding.right = slugGroup.find('.formatted-date-value').width();
-
-            slugField.css({
-                'left': -1 * inputPadding.left
-            });
-            slugField.css({
-                'padding-left': inputPadding.left
-            });
-            slugField.css({
-                'padding-right': inputPadding.right
-            });
-            slugField.css({
-                'width': slugGroup.width()
-            });
-        },
-
-        generateSlugHub: function(hubValue) {
-            if (!_.isUndefined(hubValue)) {
-                return hubValue;
-            } else {
-                var hubRaw = this.ui.hubDropdown.val();
-
-                if (!_.isEmpty(hubRaw)) {
-                    return hubRaw;
-                }
-            }
-
-            return 'hub';
-        },
-
-        generateSlugDate: function() {
-            var dateResolution = this.ui.pubDateResolution.val();
-
-            if (!_.isEmpty(dateResolution)) {
-                var rawDate = this.ui.pubDateField.val();
-
-                if (!_.isEmpty(rawDate)) {
-                    if (_.contains(['m', 'w'], dateResolution)) {
-                        var convertedMonthDate = moment(
-                            rawDate.split(' to ')[1],
-                            'MMM D, YYYY'
-                        );
-
-                        return convertedMonthDate.format('MM--YY');
-                    } else {
-                        var convertedDate = moment(rawDate, 'MMM D, YYYY');
-
-                        return convertedDate.format('MMDDYY');
-                    }
-                }
-            }
-
-            return 'date';
-        },
-
-        hideField: function(fieldCheckDisabled, fieldCheckHidden) {
-            if (!_.isNull(fieldCheckDisabled)) {
-                if (!fieldCheckDisabled.is(':disabled')) {
-                    fieldCheckDisabled.prop('disabled', true);
-                }
-            }
-
-            if (!fieldCheckHidden.is(':hidden')) {
-                fieldCheckHidden.fadeOut(140);
-            }
-        },
-
-        showField: function(fieldCheckDisabled, fieldCheckHidden) {
-            if (!_.isNull(fieldCheckDisabled)) {
-                if (fieldCheckDisabled.is(':disabled')) {
-                    fieldCheckDisabled.prop('disabled', false);
-                }
-            }
-
-            if (fieldCheckHidden.is(':hidden')) {
-                fieldCheckHidden.fadeIn(280);
-            }
-        },
-
-
-        /*
-         * Control destructors.
-         */
-
-        destroyCurrentDatePicker: function() {
-            if (
-                (typeof(this.ui.pubDateField.data('dateRangePicker')) != "undefined") &&
-                (this.ui.pubDateField.data('dateRangePicker') !== '')
-            ) {
-                this.ui.pubDateField.data('dateRangePicker').destroy();
-                this.ui.pubDateField.val('');
-            }
         },
 
 
@@ -1047,10 +1597,10 @@ define([
         },
 
         openVisualsRequestForm: function(event) {
+            var triggerElement = $(event.currentTarget);
+
             if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
-
-                var triggerElement = $(event.currentTarget);
 
                 window.open(triggerElement.find('a').attr('href'), '_blank');
             }
@@ -1067,12 +1617,12 @@ define([
                 toggleTarget.find('h4').addClass('section-expanded');
 
                 toggleReceiver.css({
-                    'height': toggleReceiver.data('expandedHeight')
+                    height: toggleReceiver.data('expandedHeight'),
                 });
             } else {
                 toggleTarget.find('h4').removeClass('section-expanded');
 
-                toggleReceiver.css({'height': 0});
+                toggleReceiver.css({height: 0});
             }
         },
 
@@ -1085,12 +1635,8 @@ define([
         },
 
         savePackage: function() {
-            var packageDict = this.serializeForm();
-
-            if (_.isNull(packageDict)) {
-                this.raiseFormErrors();
-            } else {
-                var saveProgressModal = {
+            var packageDict = this.serializeForm(),
+                saveProgressModal = {
                     modalTitle: '',
                     innerID: 'package-save-progress-modal',
                     contentClassName: 'package-modal',
@@ -1100,9 +1646,10 @@ define([
                     buttons: [],
                 };
 
-                this.modalView = new ModalView({
-                    modalConfig: saveProgressModal
-                });
+            if (_.isNull(packageDict)) {
+                this.raiseFormErrors();
+            } else {
+                this.modalView = new ModalView({modalConfig: saveProgressModal});
 
                 setTimeout(
                     function() {
@@ -1134,7 +1681,7 @@ define([
                 );
 
                 $.ajax({
-                    type: "POST",
+                    type: 'POST',
                     url: settings.apiEndpoints.POST.package.save,
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(packageDict),
@@ -1149,20 +1696,24 @@ define([
                         }.bind(this), 1500);
                     }.bind(this),
                     error: function(jqXHR, textStatus, errorThrown) {
-                        this.saveErrorCallback('saveOnly', 'hardError', [jqXHR, textStatus, errorThrown]);
+                        this.saveErrorCallback(
+                            'saveOnly',
+                            'hardError',
+                            [
+                                jqXHR,
+                                textStatus,
+                                errorThrown,
+                            ]
+                        );
                     }.bind(this),
-                    dataType: 'json'
+                    dataType: 'json',
                 });
             }
         },
 
         savePackageAndContinueEditing: function() {
-            var packageDict = this.serializeForm();
-
-            if (_.isNull(packageDict)) {
-                this.raiseFormErrors();
-            } else {
-                var saveProgressModal = {
+            var packageDict = this.serializeForm(),
+                saveProgressModal = {
                     modalTitle: 'Are you sure?',
                     innerID: 'package-save-progress-modal',
                     contentClassName: 'package-modal',
@@ -1172,9 +1723,10 @@ define([
                     buttons: [],
                 };
 
-                this.modalView = new ModalView({
-                    modalConfig: saveProgressModal
-                });
+            if (_.isNull(packageDict)) {
+                this.raiseFormErrors();
+            } else {
+                this.modalView = new ModalView({modalConfig: saveProgressModal});
 
                 setTimeout(
                     function() {
@@ -1206,7 +1758,7 @@ define([
                 );
 
                 $.ajax({
-                    type: "POST",
+                    type: 'POST',
                     url: settings.apiEndpoints.POST.package.save,
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(packageDict),
@@ -1216,43 +1768,151 @@ define([
                             if (data.success) {
                                 this.saveSuccessCallback('saveAndContinue', data);
                             } else {
-                                this.saveErrorCallback('saveAndContinue', 'processingError', [data]);
+                                this.saveErrorCallback(
+                                    'saveAndContinue',
+                                    'processingError',
+                                    [data]
+                                );
                             }
                         }.bind(this), 1500);
                     }.bind(this),
                     error: function(jqXHR, textStatus, errorThrown) {
-                        this.saveErrorCallback('saveAndContinue', 'hardError', [jqXHR, textStatus, errorThrown]);
+                        this.saveErrorCallback(
+                            'saveAndContinue',
+                            'hardError',
+                            [jqXHR, textStatus, errorThrown]
+                        );
                     }.bind(this),
-                    dataType: 'json'
+                    dataType: 'json',
                 });
             }
         },
 
         deleteEntirePackage: function() {
-            var serializedForm = this.serializeForm();
+            var serializedForm = this.serializeForm(),
+                dbPrimarySlug,
+                currentPrimarySlug,
+                itemSlugEndings,
+                itemsToDelete,
+                deleteConfirmationModal = {
+                    modalTitle: 'Are you sure?',
+                    innerID: 'additional-delete-confirmation-modal',
+                    contentClassName: 'package-modal',
+                    escapeButtonCloses: false,
+                    overlayClosesOnClick: false,
+                    buttons: [
+                        {
+                            buttonID: 'delete-package-delete-button',
+                            buttonClass: 'flat-button delete-action expand-past-button ' +
+                                            'delete-trigger',
+                            innerLabel: 'Delete',
+                            clickCallback: function(modalContext) {
+                                var toDeleteDict = {packageID: this.model.id},
+                                    $el = modalContext.$el;
+
+                                $el.parent()
+                                    .addClass('waiting-transition')
+                                    .addClass('delete-waiting-transition');
+
+                                $el.append(
+                                    '<div class="loading-animation deletion-loading-animation">' +
+                                        '<div class="loader">' +
+                                            '<svg class="circular" viewBox="25 25 50 50">' +
+                                                '<circle class="path" cx="50" cy="50" r="20" ' +
+                                                        'fill="none" stroke-width="2" ' +
+                                                        'stroke-miterlimit="10"/>' +
+                                            '</svg>' +
+                                            '<i class="fa fa-trash fa-2x fa-fw"></i>' +
+                                        '</div>' +
+                                        '<p class="loading-text">Deleting content...</p>' +
+                                    '</div>'
+                                );
+
+                                setTimeout(function() {
+                                    $el.find('.loading-animation').addClass('active');
+                                }.bind(this), 600);  // eslint-disable-line no-extra-bind
+
+                                setTimeout(function() {
+                                    $el.find('.modal-inner').css({visibility: 'hidden'});
+                                    $el.addClass('red-background');
+                                }, 450);
+
+                                setTimeout(function() {
+                                    $el.parent().addClass('waiting').addClass('delete-waiting')
+                                                .removeClass('waiting-transition')
+                                                .removeClass('delete-waiting-transition');
+                                }, 500);
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: settings.apiEndpoints.POST.package.delete,
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify(toDeleteDict),
+                                    processData: false,
+                                    success: function(data) {
+                                        setTimeout(function() {
+                                            if (data.success) {
+                                                this.deleteSuccessCallback(data);
+                                            } else {
+                                                this.deleteErrorCallback('processingError', [data]);
+                                            }
+                                        }.bind(this), 1500);
+                                    }.bind(this),
+                                    error: function(jqXHR, textStatus, errorThrown) {
+                                        this.deleteErrorCallback(
+                                            'hardError',
+                                            [jqXHR, textStatus, errorThrown]
+                                        );
+                                    }.bind(this),
+                                    dataType: 'json',
+                                });
+                            }.bind(this),
+                        },
+                        {
+                            buttonID: 'delete-package-cancel-button',
+                            buttonClass: 'flat-button primary-action cancel-trigger',
+                            innerLabel: 'Cancel',
+                            clickCallback: function(ctx) {  // eslint-disable-line no-unused-vars
+                                this._radio.commands.execute('destroyModal');
+                            }.bind(this),
+                        },
+                    ],
+                };
 
             if (_.isNull(serializedForm)) {
                 this.raiseFormErrors();
             } else {
-                // var itemSlugs = _.pluck(serializedForm.additionalContent, 'slug');
-                // itemSlugs.unshift(serializedForm.primaryContent.slug);
-
-                var dbPrimarySlug = this.model.get('primaryContent').slug,
-                    currentPrimarySlug = this.ui.packageTitle.text(),
-                    itemSlugEndings = _.map(
-                        this.model.get('additionalContent'),
-                        function(additionalItem) {
-                            return _.last(
-                                additionalItem.slug.split(
-                                    dbPrimarySlug + '.'
-                                )
-                            );
-                        }
-                    );
+                dbPrimarySlug = this.model.get('primaryContent').slug;
+                currentPrimarySlug = this.ui.packageTitle.text();
+                itemSlugEndings = _.map(
+                    this.model.get('additionalContent'),
+                    function(additionalItem) {
+                        return _.last(
+                            additionalItem.slug.split(
+                                dbPrimarySlug + '.'
+                            )
+                        );
+                    }
+                );
 
                 itemSlugEndings.unshift('');
 
-                var itemSlugs = _.map(
+                // var itemSlugs = _.map(
+                //         itemSlugEndings,
+                //         function(slugEnding) {
+                //             var slugSuffix = '';
+                //
+                //             if (slugEnding !== '') {
+                //                 slugSuffix = '.' + slugEnding;
+                //             }
+                //
+                //             return currentPrimarySlug + slugSuffix;
+                //         }
+                //     );
+
+
+                itemsToDelete = '<ul class="to-be-deleted-list">' + _.chain(
+                    _.map(
                         itemSlugEndings,
                         function(slugEnding) {
                             var slugSuffix = '';
@@ -1263,21 +1923,20 @@ define([
 
                             return currentPrimarySlug + slugSuffix;
                         }
-                    );
-
-                var itemsToDelete = '<ul class="to-be-deleted-list">' + _.chain(itemSlugs)
+                    )
+                )
                     .map(
                         function(additionalSlug) {
                             return '<li class="to-be-deleted-item">' + additionalSlug + '</li>';
                         }
                     )
                     .reduce(
-                        function(memo, num){ return memo + num; },
+                        function(memo, num) { return memo + num; },
                         ''
                     )
                     .value() + '</ul>';
 
-                var deleteExtraHTML = '' +
+                deleteConfirmationModal.extraHTML = '' +
                     '<p class="delete-confirmation-text">' +
                         'You are about to delete the following budgeted content:' +
                     '</p>' +
@@ -1293,110 +1952,11 @@ define([
                         'below.' +
                     '</p>';
 
-                var deleteConfirmationModal = {
-                    modalTitle: 'Are you sure?',
-                    innerID: 'additional-delete-confirmation-modal',
-                    contentClassName: 'package-modal',
-                    extraHTML: deleteExtraHTML,
-                    escapeButtonCloses: false,
-                    overlayClosesOnClick: false,
-                    buttons: [
-                        {
-                            'buttonID': 'delete-package-delete-button',
-                            'buttonClass': 'flat-button delete-action expand-past-button delete-trigger',
-                            'innerLabel': 'Delete',
-                            'clickCallback': function(modalContext) {
-                                var toDeleteDict = {
-                                    'packageID': this.model.id
-                                };
+                this.modalView = new ModalView({modalConfig: deleteConfirmationModal});
 
-                                modalContext.$el.parent()
-                                                .addClass('waiting-transition')
-                                                .addClass('delete-waiting-transition');
-
-                                modalContext.$el.append(
-                                    '<div class="loading-animation deletion-loading-animation">' +
-                                        '<div class="loader">' +
-                                            '<svg class="circular" viewBox="25 25 50 50">' +
-                                                '<circle class="path" cx="50" cy="50" r="20" ' +
-                                                        'fill="none" stroke-width="2" ' +
-                                                        'stroke-miterlimit="10"/>' +
-                                            '</svg>' +
-                                            '<i class="fa fa-trash fa-2x fa-fw"></i>' +
-                                        '</div>' +
-                                        '<p class="loading-text">Deleting content...</p>' +
-                                    '</div>'
-                                );
-
-                                setTimeout(function() {
-                                    modalContext.$el.find('.loading-animation').addClass('active');
-                                }.bind(this), 600);
-
-                                setTimeout(
-                                    function() {
-                                        modalContext.$el.find('.modal-inner').css({
-                                            'visibility': 'hidden'
-                                        });
-
-                                        modalContext.$el.addClass('red-background');
-                                    },
-                                    450
-                                );
-
-                                setTimeout(
-                                    function() {
-                                        modalContext.$el.parent()
-                                                            .addClass('waiting')
-                                                            .addClass('delete-waiting')
-                                                            .removeClass('waiting-transition')
-                                                            .removeClass('delete-waiting-transition');
-                                    },
-                                    500
-                                );
-
-                                $.ajax({
-                                    type: "POST",
-                                    url: settings.apiEndpoints.POST.package.delete,
-                                    contentType: 'application/json; charset=utf-8',
-                                    data: JSON.stringify(toDeleteDict),
-                                    processData: false,
-                                    success: function(data) {
-                                        setTimeout(function() {
-                                            if (data.success) {
-                                                this.deleteSuccessCallback(data);
-                                            } else {
-                                                this.deleteErrorCallback('processingError', [data]);
-                                            }
-                                        }.bind(this), 1500);
-                                    }.bind(this),
-                                    error: function(jqXHR, textStatus, errorThrown) {
-                                        this.deleteErrorCallback('hardError', [jqXHR, textStatus, errorThrown]);
-                                    }.bind(this),
-                                    dataType: 'json'
-                                });
-                            }.bind(this),
-                        },
-                        {
-                            'buttonID': 'delete-package-cancel-button',
-                            'buttonClass': 'flat-button primary-action cancel-trigger',
-                            'innerLabel': 'Cancel',
-                            'clickCallback': function(modalContext) {
-                                this._radio.commands.execute('destroyModal');
-                            }.bind(this),
-                        },
-                    ],
-                };
-
-                this.modalView = new ModalView({
-                    modalConfig: deleteConfirmationModal
-                });
-
-                setTimeout(
-                    function() {
-                        this._radio.commands.execute('showModal', this.modalView);
-                    }.bind(this),
-                    200
-                );
+                setTimeout(function() {
+                    this._radio.commands.execute('showModal', this.modalView);
+                }.bind(this), 200);
             }
         },
 
@@ -1416,10 +1976,10 @@ define([
             _.each(
                 this.ui.packageForm.find("[data-form][isRequired='true']"),
                 function(field) {
-                    if (_.isEmpty(field.value)) {
-                        var fieldEl = $(field),
-                            formGroup = fieldEl.closest('.form-group');
+                    var fieldEl = $(field),
+                        formGroup = fieldEl.closest('.form-group');
 
+                    if (_.isEmpty(field.value)) {
                         formGroup.addClass('has-error');
                         formGroup.find('.form-help').text('This value is required.');
 
@@ -1440,7 +2000,7 @@ define([
          *   Save & delete callbacks.
          */
 
-        deleteSuccessCallback: function(data) {
+        deleteSuccessCallback: function(data) {  // eslint-disable-line no-unused-vars
             // Close this popup and destroy it.
             setTimeout(function() {
                 this._radio.commands.execute('destroyModal');
@@ -1451,13 +2011,7 @@ define([
             // TK.
 
             // Navigate to the index view
-            this._radio.commands.execute(
-                'navigate',
-                this.priorPath,
-                {
-                    trigger: true
-                }
-            );
+            this._radio.commands.execute('navigate', this.priorPath, {trigger: true});
 
             // Display snackbar:
             this._radio.commands.execute(
@@ -1465,19 +2019,16 @@ define([
                 new SnackbarView({
                     snackbarClass: 'success',
                     text: 'Item has been successfully deleted.',
-                    action: {
-                        promptText: 'Dismiss'
-                    },
+                    action: {promptText: 'Dismiss'},
                 })
             );
         },
 
-        deleteErrorCallback: function(errorType, errorArgs) {
+        deleteErrorCallback: function(errorType, errorArgs) {  // eslint-disable-line no-unused-vars
             // Close this popup and destroy it:
             setTimeout(function() {
                 this._radio.commands.execute('destroyModal');
-            }.bind(this),
-            500);
+            }.bind(this), 500);
 
             // Display snackbar:
             this._radio.commands.execute(
@@ -1491,41 +2042,31 @@ define([
         },
 
         saveSuccessCallback: function(mode, data) {
+            // Configure success-message snackbar.
+            var successSnackbarOpts = {
+                snackbarClass: 'success',
+                text: 'Item successfully saved.',
+                action: {promptText: 'Dismiss'},
+            };
+
             // Close this popup and destroy it.
             setTimeout(function() {
                 this._radio.commands.execute('destroyModal');
             }.bind(this),
             500);
 
-            // Add/update item in the local colle ction.
+            // Add/update item in the local collection.
             // TK.
 
-            // Configure success-message snackbar:
-            var successSnackbarOpts = {
-                snackbarClass: 'success',
-                text: 'Item successfully saved.',
-                action: {
-                    promptText: 'Dismiss'
-                },
-            };
-
             // Navigate to the index view (or to the same page if save and continue)
-            if (mode == 'saveOnly') {
-                this._radio.commands.execute(
-                    'navigate',
-                    this.priorPath,
-                    {
-                        trigger: true
-                    }
-                );
-            } else if (mode == 'saveAndContinue') {
+            if (mode === 'saveOnly') {
+                this._radio.commands.execute('navigate', this.priorPath, {trigger: true});
+            } else if (mode === 'saveAndContinue') {
                 if (_.isUndefined(this.model)) {
                     this._radio.commands.execute(
                         'navigate',
                         'edit/' + data.packageID + '/',
-                        {
-                            trigger: true
-                        }
+                        {trigger: true}
                     );
                 } else {
                     this.model.fetch();
@@ -1541,7 +2082,7 @@ define([
             );
         },
 
-        saveErrorCallback: function(mode, errorType, errorArgs) {
+        saveErrorCallback: function(mode, errorType, args) {  // eslint-disable-line no-unused-vars
             // Close this popup and destroy it.
             setTimeout(function() {
                 this._radio.commands.execute('destroyModal');
@@ -1565,251 +2106,6 @@ define([
          */
 
         serializeForm: function() {
-            var rawFormData = {};
-
-            var requiredValues = _.map(
-                this.ui.packageForm.find("[data-form][isRequired='true']"),
-                function(field) {
-                    return field.value;
-                }
-            );
-
-            if (_.compact(requiredValues).length != requiredValues.length) {
-                return null;
-            } else if (this.ui.slugField.closest('.form-group').hasClass('has-error')) {
-                return null;
-            } else {
-                _.each(
-                    this.ui.packageForm.find("[data-form]"),
-                    function(field) {
-                        if (!field.disabled && !field.readOnly) {
-                            var formTypeKey = field.dataset.form + 'Fields';
-                            if (!_.has(rawFormData, formTypeKey)) {
-                                rawFormData[formTypeKey] = {};
-                            }
-
-                            if (field.type == 'checkbox') {
-                                if (_string_.endsWith(field.name, '[]')) {
-                                    if (field.checked) {
-                                        var fieldKey = field.name.substring(
-                                            0,
-                                            field.name.length - 2
-                                        );
-
-                                        if (!_.has(rawFormData[formTypeKey], fieldKey)) {
-                                            rawFormData[formTypeKey][fieldKey] = [];
-                                        }
-                                        rawFormData[formTypeKey][fieldKey].push(field.value);
-                                    }
-                                } else {
-                                    rawFormData[formTypeKey][field.name] = field.checked;
-                                }
-                            } else if (field.type == 'radio') {
-                                if (!_.has(rawFormData[formTypeKey], field.name)) {
-                                    rawFormData[formTypeKey][field.name] = null;
-                                }
-
-                                if (field.checked) {
-                                    rawFormData[formTypeKey][field.name] = field.value;
-                                }
-                            } else {
-                                rawFormData[formTypeKey][field.name] = field.value;
-                            }
-                        }
-                    }
-                );
-
-                var finalPackage = {},
-                    finalPrimaryItem = {},
-                    additionalContentItems = [],
-                    userEmail = this.options.currentUser.email;
-
-                // Package-wide processing.
-                finalPackage.hub = rawFormData.packageFields.hub;
-                finalPackage.notes = this.richNotesField.getHTML();
-                finalPackage.id = rawFormData.packageFields.package_id;
-                finalPackage.lastChangedBy = userEmail;
-
-                if (!_.isUndefined(this.model)) {
-                    finalPackage.createdBy = userEmail;
-                }
-
-                if (!_.isEmpty(rawFormData.packageFields.URL)) {
-                    finalPackage.URL = rawFormData.packageFields.URL;
-                }
-
-                // Print-placement processing.
-                var printPlacement = {};
-
-                printPlacement.isPlacementFinalized = rawFormData.packageFields.is_placement_finalized;
-
-                if (!_.isEmpty(rawFormData.packageFields.print_run_date)) {
-                    printPlacement.printRunDate = moment(
-                        rawFormData.packageFields.print_run_date,
-                        'MMM D, YYYY'
-                    ).format('YYYY-MM-DD');
-                } else {
-                    printPlacement.printRunDate = null;
-                }
-
-                printPlacement.pitchedPlacements = [];
-                if (_.has(rawFormData.packageFields, 'pitched_placements')) {
-                    printPlacement.pitchedPlacements = rawFormData.packageFields.pitched_placements;
-                }
-
-                finalPackage.printPlacement = printPlacement;
-
-
-                // Headline processing.
-
-                if (_.has(rawFormData.packageFields, 'headline1')) {
-                    finalPackage.headlineCandidates = [];
-
-                    _.each(
-                        [
-                            rawFormData.packageFields.headline1,
-                            rawFormData.packageFields.headline2,
-                            rawFormData.packageFields.headline3,
-                            rawFormData.packageFields.headline4
-                        ],
-                        function(hed, i) {
-                            var headlineID = this.ui.packageForm.find('#headline' + (i + 1)).data('headline-id');
-
-                            if (typeof(hed) != 'undefined' && hed !== '') {
-                                finalPackage.headlineCandidates.push({
-                                    'text': hed,
-                                    'id': headlineID
-                                });
-                            }
-                        },
-                        this
-                    );
-
-                    if (rawFormData.packageFields.headlinesReady) {
-                        finalPackage.headlineStatus = 'voting';
-                    } else {
-                        finalPackage.headlineStatus = 'drafting';
-                    }
-                } else if (_.has(rawFormData.packageFields, 'headlineChoices')) {
-                    finalPackage.headlineCandidates = [];
-
-                    this.ui.packageForm.find("[name='headlineChoices']").each(
-                        function(index, element) {
-
-                            if (element.id != 'headlineOther') {
-                                var headlineConfig = {
-                                    text: element.parentElement.getElementsByTagName('span')[0].innerHTML,
-                                    id: element.value
-                                };
-
-                                if (!_.isNull(rawFormData.packageFields.headlineChoices)) {
-                                    if (element.value == rawFormData.packageFields.headlineChoices) {
-                                        headlineConfig.winner = true;
-                                    }
-                                }
-
-                                finalPackage.headlineCandidates.push(headlineConfig);
-                            }
-                        }
-                    );
-
-                    if (_.isNull(rawFormData.packageFields.headlineChoices)) {
-                        finalPackage.headlineStatus = 'voting';
-                    } else {
-                        finalPackage.headlineStatus = 'finalized';
-                    }
-                }
-
-                finalPackage.pubDate = {
-                    resolution: rawFormData.packageFields.pub_date_resolution
-                };
-
-                if (rawFormData.packageFields.pub_date_resolution == 'm') {
-                    var endOfMonthString = rawFormData.packageFields.pub_date.split(' to ')[1],
-                        endOfMonth = moment.tz(
-                            endOfMonthString + ' 23:59:59',
-                            'MMM D, YYYY HH:mm:ss',
-                            'America/Chicago'
-                        );
-
-                    finalPackage.pubDate.timestamp = endOfMonth.unix();
-                    finalPackage.pubDate.formatted = endOfMonth.format('MMMM YYYY');
-                } else if (rawFormData.packageFields.pub_date_resolution == 'w') {
-                    var endOfWeekString = rawFormData.packageFields.pub_date.split(' to ')[1],
-                        endOfWeek = moment.tz(
-                            endOfWeekString + ' 23:59:59',
-                            'MMM D, YYYY HH:mm:ss',
-                            'America/Chicago'
-                        );
-
-                    finalPackage.pubDate.timestamp = endOfWeek.unix();
-                    finalPackage.pubDate.formatted = 'Week of ' + endOfWeek.format('MMM D, YYYY');
-                } else if (rawFormData.packageFields.pub_date_resolution == 'd') {
-                    var endOfDay = moment.tz(
-                        rawFormData.packageFields.pub_date + ' 23:59:59',
-                        'MMM D, YYYY HH:mm:ss',
-                        'America/Chicago'
-                    );
-
-                    finalPackage.pubDate.timestamp = endOfDay.unix();
-                    finalPackage.pubDate.formatted = endOfDay.format('MMM D, YYYY');
-                } else if (rawFormData.packageFields.pub_date_resolution == 't') {
-                    var chosenDate = moment.tz(
-                        rawFormData.packageFields.pub_date + ' ' + rawFormData.packageFields.pub_time,
-                        'MMM D, YYYY HH:mm',
-                        'America/Chicago'
-                    );
-
-                    finalPackage.pubDate.timestamp = chosenDate.unix();
-                    finalPackage.pubDate.formatted = chosenDate.format('MMM D, YYYY h:mm a');
-                }
-
-                finalPackage.primaryContent = finalPrimaryItem;
-
-
-                // Primary content item processing.
-
-                finalPrimaryItem.id = rawFormData.primaryFields.primary_id;
-                finalPrimaryItem.slugKey = rawFormData.primaryFields.slug_key;
-                finalPrimaryItem.type = rawFormData.primaryFields.type;
-                finalPrimaryItem.budgetLine = rawFormData.primaryFields.budget_line;
-
-                if (_.has(rawFormData.primaryFields, 'length')) {
-                    finalPrimaryItem.length = rawFormData.primaryFields.length;
-                }
-
-                if (rawFormData.primaryFields.authors !== '') {
-                    finalPrimaryItem.authors = _.map(
-                        rawFormData.primaryFields.authors.split(','),
-                        function(authorEmail) {
-                            return this.options.data.staffers.findWhere({'email': authorEmail}).toJSON();
-                        }.bind(this)
-                    );
-                }
-
-                if (rawFormData.primaryFields.editors !== '') {
-                    finalPrimaryItem.editors = _.map(
-                        rawFormData.primaryFields.editors.split(','),
-                        function(editorEmail) {
-                            return this.options.data.staffers.findWhere({'email': editorEmail}).toJSON();
-                        }.bind(this)
-                    );
-                }
-
-
-                // Additional content item processing.
-                finalPackage.additionalContent = additionalContentItems;
-
-                this.children.each(function(additionalItemView) {
-                    var serializedItem = additionalItemView.serializeForm();
-
-                    if (!_.isEmpty(serializedItem)) {
-                        additionalContentItems.push(serializedItem);
-                    }
-                });
-
-                return finalPackage;
-            }
-        }
+        },  // End serializeForm.
     });
 });

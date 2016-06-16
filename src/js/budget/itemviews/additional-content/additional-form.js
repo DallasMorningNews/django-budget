@@ -9,7 +9,7 @@ define(
         'common/tpl',
         'budget/itemviews/modals/modal-window.js',
         'budget/itemviews/snackbars/snackbar.js',
-        'utils/expanding-text-field'
+        // 'utils/expanding-text-field'
     ],
     function(
         $,
@@ -20,8 +20,8 @@ define(
         settings,
         tpl,
         ModalView,
-        SnackbarView,
-        expandingTextField
+        SnackbarView
+        // expandingTextField
     ) {
         'use strict';
 
@@ -33,9 +33,7 @@ define(
             className: 'additional-item-form',
 
             attributes: function() {
-                return {
-                    id: this.generateFormID()
-                };
+                return {id: this.generateFormID()};
             },
 
             ui: {
@@ -46,7 +44,7 @@ define(
                 budgetLineField: '.field-budgetline',
                 typeDropdown: '.field-type',
                 lengthGroup: '.length-group',
-                lengthField:  '.length-group .field-length',
+                lengthField: '.length-group .field-length',
                 pitchLinkGroup: '.request-link-group',
                 addRequestButton: '.request-link-group .button',
                 authorsDropdown: '.field-authors',
@@ -118,7 +116,7 @@ define(
             onRender: function() {
                 this.initializeTypeDropdown();
                 this.initializeSlugField();
-                expandingTextField.make(this.ui.budgetLineField);
+                // expandingTextField.make(this.ui.budgetLineField);
                 this.initializeAuthorDropdown();
                 this.initializeEditorDropdown();
             },
@@ -137,16 +135,19 @@ define(
              */
 
             generateFormID: function() {
+                var thisIndex,
+                    boundFormCount;
+
                 if (this.model.has('id')) {
                     return 'additionalBound' + this.model.get('id');
-                } else {
-                    var thisIndex = this.model.collection.indexOf(this.model),
-                        boundFormCount = this.model.collection.filter(
-                            function(i) { return i.has('id'); }
-                        ).length,
-                        unboundIndex = (thisIndex - boundFormCount + 1);
-                    return 'additionalUnbound' + unboundIndex;
                 }
+
+                thisIndex = this.model.collection.indexOf(this.model);
+                boundFormCount = this.model.collection.filter(
+                    function(i) { return i.has('id'); }
+                ).length;
+
+                return 'additionalUnbound' + (thisIndex - boundFormCount + 1);
             },
 
 
@@ -164,17 +165,20 @@ define(
 
                     options: this.options.typeChoices,
                     labelField: 'name',
-                    searchField: ['name',],
+                    searchField: ['name'],
                     valueField: 'value',
 
                     render: {
-                        item: function(data, escape) {
-                            var dataType = 'fullText';
-                            if (typeof(data.type) != "undefined") {
+                        item: function(data, escape) {  // eslint-disable-line no-unused-vars
+                            var dataType = 'fullText';  // eslint-disable-line no-unused-vars
+                            if (typeof(data.type) !== 'undefined') {
                                 dataType = data.type;
                             }
-                            return '<div data-value="' + data.value + '" class="selected-item">' + data.name + '</div>';
-                        }
+
+                            return '<div data-value="' + data.value +
+                                        '" class="selected-item">' + data.name +
+                                    '</div>';
+                        },
                     },
                     onFocus: function() {
                         if (!this.$control.parent().hasClass('input-focused')) {
@@ -205,7 +209,7 @@ define(
                             this.ui.slugField.val(value);
                         } else {
                             if (!_.isUndefined(this.$el.data('type'))) {
-                                if (this.ui.slugField.val() == this.$el.data('type')) {
+                                if (this.ui.slugField.val() === this.$el.data('type')) {
                                     this.ui.slugField.val(value);
                                 }
                             }
@@ -223,13 +227,13 @@ define(
                         }
 
                         if (!_.isEmpty(this.ui.slugField.val())) {
-                            if (value == this.ui.slugField.val()) {
+                            if (value === this.ui.slugField.val()) {
                                 this.ui.slugField.val('');
                             }
                         }
 
                         this.$el.removeData('type', value);
-                    }.bind(this)
+                    }.bind(this),
                 });
             },
 
@@ -267,8 +271,7 @@ define(
 
                         slugField.siblings('.keyword-value').html(slugField.val());
 
-                        if ($.trim(slugField.val())) {
-                        } else {
+                        if (!($.trim(slugField.val()))) {
                             slugField.siblings('.keyword-value').html(
                                 slugField.attr('placeholder')
                             );
@@ -320,17 +323,21 @@ define(
 
                     options: this.options.stafferChoices,
                     labelField: 'name',
-                    searchField: ['name',],
+                    searchField: ['name'],
                     valueField: 'value',
 
                     render: {
-                        item: function(data, escape) {
-                            var dataType = 'fullText';
-                            if (typeof(data.type) != "undefined") {
+                        item: function(data, escape) {  // eslint-disable-line no-unused-vars
+                            var dataType = 'fullText';  // eslint-disable-line no-unused-vars
+                            if (typeof(data.type) !== 'undefined') {
                                 dataType = data.type;
                             }
-                            return '<div data-value="' + data.value + '" class="selected-item-multichoice">' + data.name + '</div>';
-                        }
+
+                            return '<div data-value="' + data.value +
+                                        '" class="selected-item-multichoice">' +
+                                        data.name +
+                                    '</div>';
+                        },
                     },
                     onFocus: function() {
                         if (!this.$control.parent().hasClass('input-focused')) {
@@ -342,22 +349,8 @@ define(
                             this.$control.parent().removeClass('input-focused');
                         }
                     },
-                    onItemAdd: function(value, $item) {
-                        // var typeConfig = settings.contentTypes[$item.data('value')];
-
-                        // if (typeConfig.usesLengthAttribute) {
-                        //     this.showField(this.ui.lengthField, this.ui.lengthGroup);
-                        // } else {
-                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                        // }
-                    }.bind(this),
-                    onItemRemove: function(value) {
-                        // var typeConfig = settings.contentTypes[value];
-
-                        // if (typeConfig.usesLengthAttribute) {
-                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                        // }
-                    }.bind(this)
+                    onItemAdd: function(value, $item) {},  // eslint-disable-line no-unused-vars
+                    onItemRemove: function(value) {},  // eslint-disable-line no-unused-vars
                 });
             },
 
@@ -370,17 +363,21 @@ define(
 
                     options: this.options.stafferChoices,
                     labelField: 'name',
-                    searchField: ['name',],
+                    searchField: ['name'],
                     valueField: 'value',
 
                     render: {
-                        item: function(data, escape) {
-                            var dataType = 'fullText';
-                            if (typeof(data.type) != "undefined") {
+                        item: function(data, escape) {  // eslint-disable-line no-unused-vars
+                            var dataType = 'fullText';  // eslint-disable-line no-unused-vars
+                            if (typeof(data.type) !== 'undefined') {
                                 dataType = data.type;
                             }
-                            return '<div data-value="' + data.value + '" class="selected-item-multichoice">' + data.name + '</div>';
-                        }
+
+                            return '<div data-value="' + data.value +
+                                        '" class="selected-item-multichoice">' +
+                                        data.name +
+                                    '</div>';
+                        },
                     },
                     onFocus: function() {
                         if (!this.$control.parent().hasClass('input-focused')) {
@@ -392,22 +389,8 @@ define(
                             this.$control.parent().removeClass('input-focused');
                         }
                     },
-                    onItemAdd: function(value, $item) {
-                        // var typeConfig = settings.contentTypes[$item.data('value')];
-
-                        // if (typeConfig.usesLengthAttribute) {
-                        //     this.showField(this.ui.lengthField, this.ui.lengthGroup);
-                        // } else {
-                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                        // }
-                    }.bind(this),
-                    onItemRemove: function(value) {
-                        // var typeConfig = settings.contentTypes[value];
-
-                        // if (typeConfig.usesLengthAttribute) {
-                        //     this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                        // }
-                    }.bind(this)
+                    onItemAdd: function(value, $item) {},  // eslint-disable-line no-unused-vars
+                    onItemRemove: function(value) {},  // eslint-disable-line no-unused-vars
                 });
             },
 
@@ -450,26 +433,25 @@ define(
                 }
             },
 
-            updateSlugGroup: function(hubValue) {
+            updateSlugGroup: function(hubValue) {  // eslint-disable-line no-unused-vars
                 var slugField = this.ui.slugField,
-                    slugGroup = slugField.closest('.slug-group-holder');
-
-                var inputPadding = {};
+                    slugGroup = slugField.closest('.slug-group-holder'),
+                    inputPadding = {};
 
                 inputPadding.left = slugGroup.find('.primary-content-slug').width() + 5;
                 inputPadding.right = slugGroup.find('.slug-suffix').width();
 
                 slugField.css({
-                    'left': -1 * inputPadding.left
+                    left: -1 * inputPadding.left,
                 });
                 slugField.css({
-                    'padding-left': inputPadding.left
+                    'padding-left': inputPadding.left,
                 });
                 slugField.css({
-                    'padding-right': inputPadding.right
+                    'padding-right': inputPadding.right,
                 });
                 slugField.css({
-                    'width': slugGroup.width()
+                    width: slugGroup.width(),
                 });
             },
 
@@ -499,127 +481,134 @@ define(
             },
 
             openVisualsRequestForm: function(event) {
+                var triggerElement = $(event.currentTarget);
+
                 if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
                     event.preventDefault();
-
-                    var triggerElement = $(event.currentTarget);
 
                     window.open(triggerElement.find('a').attr('href'), '_blank');
                 }
             },
 
             deleteItem: function() {
-                if (this.model.has('id')) {
-                    var deleteConfirmationModal = {
-                        modalTitle: 'Are you sure?',
-                        innerID: 'additional-delete-confirmation-modal',
-                        contentClassName: 'package-modal',
-                        extraHTML: '<p class="delete-confirmation-text">' +
-                                         'You are about to delete the following budgeted content:' +
-                                     '</p>' +
-                                     '<ul class="to-be-deleted-list">' +
-                                         '<li class="to-be-deleted-item">' +
-                                             this.model.get('slug') +
-                                         '</li>' +
-                                     '</ul>' +
-                                     '<p class="delete-confirmation-text">' +
-                                         'Items can&rsquo;t be recovered once they&rsquo;ve been deleted.' +
-                                     '</p>' +
-                                     '<p class="delete-confirmation-text">' +
-                                         'If you&rsquo;re sure you want to delete this item, click the <span class="button-text-inline">delete</span> button below.' +
-                                     '</p>',
-                        escapeButtonCloses: false,
-                        overlayClosesOnClick: false,
-                        buttons: [
-                            {
+                var deleteConfirmationModal = {
+                    modalTitle: 'Are you sure?',
+                    innerID: 'additional-delete-confirmation-modal',
+                    contentClassName: 'package-modal',
+                    extraHTML: '<p class="delete-confirmation-text">' +
+                                     'You are about to delete the following budgeted content:' +
+                                 '</p>' +
+                                 '<ul class="to-be-deleted-list">' +
+                                     '<li class="to-be-deleted-item">' +
+                                         this.model.get('slug') +
+                                     '</li>' +
+                                 '</ul>' +
+                                 '<p class="delete-confirmation-text">' +
+                                     'Items can&rsquo;t be recovered once they&rsquo;ve ' +
+                                     'been deleted.' +
+                                 '</p>' +
+                                 '<p class="delete-confirmation-text">' +
+                                     'If you&rsquo;re sure you want to delete this item, ' +
+                                     'click the <span class="button-text-inline">delete</span> ' +
+                                     'button below.' +
+                                 '</p>',
+                    escapeButtonCloses: false,
+                    overlayClosesOnClick: false,
+                    buttons: [
+                        {
 
-                                buttonID: 'delete-package-delete-button',
-                                buttonClass: 'flat-button delete-action expand-past-button delete-trigger',
-                                innerLabel: 'Delete',
-                                clickCallback: function(modalContext) {
-                                    var toDeleteDict = {
-                                        'itemToDeleteID': this.model.id
-                                    };
+                            buttonID: 'delete-package-delete-button',
+                            buttonClass: 'flat-button delete-action ' +
+                                            'expand-past-button delete-trigger',
+                            innerLabel: 'Delete',
+                            clickCallback: function(modalContext) {
+                                var toDeleteDict = {
+                                    itemToDeleteID: this.model.id,
+                                };
 
-                                    modalContext.$el.parent()
-                                                    .addClass('waiting-transition')
-                                                    .addClass('delete-waiting-transition');
+                                modalContext.$el.parent()
+                                                .addClass('waiting-transition')
+                                                .addClass('delete-waiting-transition');
 
-                                    modalContext.$el.append(
-                                        '<div class="loading-animation deletion-loading-animation">' +
-                                            '<div class="loader">' +
-                                                '<svg class="circular" viewBox="25 25 50 50">' +
-                                                    '<circle class="path" cx="50" cy="50" r="20" ' +
-                                                            'fill="none" stroke-width="2" ' +
-                                                            'stroke-miterlimit="10"/>' +
-                                                '</svg>' +
-                                                '<i class="fa fa-trash fa-2x fa-fw"></i>' +
-                                            '</div>' +
-                                            '<p class="loading-text">Deleting content...</p>' +
-                                        '</div>'
-                                    );
+                                modalContext.$el.append(
+                                    '<div class="loading-animation deletion-loading-animation">' +
+                                        '<div class="loader">' +
+                                            '<svg class="circular" viewBox="25 25 50 50">' +
+                                                '<circle class="path" cx="50" cy="50" r="20" ' +
+                                                        'fill="none" stroke-width="2" ' +
+                                                        'stroke-miterlimit="10"/>' +
+                                            '</svg>' +
+                                            '<i class="fa fa-trash fa-2x fa-fw"></i>' +
+                                        '</div>' +
+                                        '<p class="loading-text">Deleting content...</p>' +
+                                    '</div>'
+                                );
 
-                                    setTimeout(function() {
-                                        modalContext.$el.find('.loading-animation').addClass('active');
-                                    }.bind(this), 600);
+                                setTimeout(function() {
+                                    modalContext.$el.find('.loading-animation').addClass('active');
+                                }.bind(this), 600);  // eslint-disable-line no-extra-bind
 
-                                    setTimeout(
-                                        function() {
-                                            modalContext.$el.find('.modal-inner').css({
-                                                'visibility': 'hidden'
-                                            });
-
-                                            modalContext.$el.addClass('red-background');
-                                        },
-                                        450
-                                    );
-
-                                    setTimeout(
-                                        function() {
-                                            modalContext.$el.parent()
-                                                                .addClass('waiting')
-                                                                .addClass('delete-waiting')
-                                                                .removeClass('waiting-transition')
-                                                                .removeClass('delete-waiting-transition');
-                                        },
-                                        500
-                                    );
-
-                                    $.ajax({
-                                        type: "POST",
-                                        url: settings.apiEndpoints.POST.additionalItem.delete,
-                                        contentType: 'application/json; charset=utf-8',
-                                        data: JSON.stringify(toDeleteDict),
-                                        processData: false,
-                                        success: function(data) {
-                                            setTimeout(function() {
-                                                if (data.success) {
-                                                    this.deleteSuccessCallback(data);
-                                                } else {
-                                                    this.deleteErrorCallback('processingError', [data]);
-                                                }
-                                            }.bind(this), 1500);
-                                        }.bind(this),
-                                        error: function(jqXHR, textStatus, errorThrown) {
-                                            this.deleteErrorCallback('hardError', [jqXHR, textStatus, errorThrown]);
-                                        }.bind(this),
-                                        dataType: 'json'
+                                setTimeout(function() {
+                                    modalContext.$el.find('.modal-inner').css({
+                                        visibility: 'hidden',
                                     });
-                                }.bind(this),
-                            },
-                            {
-                                buttonID: 'delete-additional-content-cancel-button',
-                                buttonClass: 'flat-button primary-action cancel-trigger',
-                                innerLabel: 'Cancel',
-                                clickCallback: function(modalContext) {
-                                    this._radio.commands.execute('destroyModal');
-                                }.bind(this),
-                            }
-                        ]
-                    };
 
+                                    modalContext.$el.addClass('red-background');
+                                }, 450);
+
+                                setTimeout(
+                                    function() {
+                                        modalContext.$el.parent()
+                                            .addClass('waiting')
+                                            .addClass('delete-waiting')
+                                            .removeClass('waiting-transition')
+                                            .removeClass('delete-waiting-transition');
+                                    },
+                                    500
+                                );
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: settings.apiEndpoints.POST.additionalItem.delete,
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify(toDeleteDict),
+                                    processData: false,
+                                    success: function(data) {
+                                        setTimeout(function() {
+                                            if (data.success) {
+                                                this.deleteSuccessCallback(data);
+                                            } else {
+                                                this.deleteErrorCallback(
+                                                    'processingError',
+                                                    [data]
+                                                );
+                                            }
+                                        }.bind(this), 1500);
+                                    }.bind(this),
+                                    error: function(jqXHR, textStatus, errorThrown) {
+                                        this.deleteErrorCallback(
+                                            'hardError',
+                                            [jqXHR, textStatus, errorThrown]
+                                        );
+                                    }.bind(this),
+                                    dataType: 'json',
+                                });
+                            }.bind(this),
+                        },
+                        {
+                            buttonID: 'delete-additional-content-cancel-button',
+                            buttonClass: 'flat-button primary-action cancel-trigger',
+                            innerLabel: 'Cancel',
+                            clickCallback: function(modalContext) {  // eslint-disable-line no-unused-vars,max-len
+                                this._radio.commands.execute('destroyModal');
+                            }.bind(this),
+                        },
+                    ],
+                };
+
+                if (this.model.has('id')) {
                     this.modalView = new ModalView({
-                        modalConfig: deleteConfirmationModal
+                        modalConfig: deleteConfirmationModal,
                     });
 
                     this._radio.commands.execute('showModal', this.modalView);
@@ -632,7 +621,7 @@ define(
              *   Save & delete callbacks.
              */
 
-            deleteSuccessCallback: function(data) {
+            deleteSuccessCallback: function(data) {  // eslint-disable-line no-unused-vars
                 // Close this popup and destroy it.
                 setTimeout(function() {
                     this._radio.commands.execute('destroyModal');
@@ -653,13 +642,13 @@ define(
                         snackbarClass: 'success',
                         text: 'Successfully deleted additional item.',
                         action: {
-                            promptText: 'Dismiss'
+                            promptText: 'Dismiss',
                         },
                     })
                 );
             },
 
-            deleteErrorCallback: function(errorType, errorArgs) {
+            deleteErrorCallback: function(errorType, errorArgs) {  // eslint-disable-line no-unused-vars,max-len
                 // Close this popup and destroy it:
                 setTimeout(function() {
                     this._radio.commands.execute('destroyModal');
@@ -684,7 +673,9 @@ define(
 
             serializeForm: function() {
                 var rawFormData = {},
-                    formIsUnbound = false;
+                    formIsUnbound = false,
+                    finalAdditionalContent = {},
+                    nonNullValues;
 
                 if (!this.model.has('id')) {
                     formIsUnbound = true;
@@ -701,8 +692,6 @@ define(
                     }
                 );
 
-                var finalAdditionalContent = {};
-
                 finalAdditionalContent.slugKey = rawFormData.slugkey;
                 finalAdditionalContent.type = rawFormData.type;
                 finalAdditionalContent.budgetLine = rawFormData.budgetline;
@@ -716,7 +705,7 @@ define(
                         rawFormData.authors.split(','),
                         function(authorEmail) {
                             return this.options.staffers.findWhere({
-                                'email': authorEmail
+                                email: authorEmail,
                             }).toJSON();
                         }.bind(this)
                     );
@@ -727,14 +716,14 @@ define(
                         rawFormData.editors.split(','),
                         function(editorEmail) {
                             return this.options.staffers.findWhere({
-                                'email': editorEmail
+                                email: editorEmail,
                             }).toJSON();
                         }.bind(this)
                     );
                 }
 
                 if (formIsUnbound) {
-                    var nonNullValues = _.chain(finalAdditionalContent)
+                    nonNullValues = _.chain(finalAdditionalContent)
                                             .values()
                                             .uniq()
                                             .compact()

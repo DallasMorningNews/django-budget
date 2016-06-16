@@ -5,7 +5,7 @@ define([
     'marionette',
     'moment',
     'underscore',
-    'common/tpl'
+    'common/tpl',
 ], function(
     Backbone,
     dateRangePicker,
@@ -36,7 +36,7 @@ define([
             this._radio = Backbone.Wreqr.radio.channel('global');
 
             moment.locale('en', {
-                monthsShort : [
+                monthsShort: [
                     'Jan.',
                     'Feb.',
                     'March',
@@ -48,21 +48,23 @@ define([
                     'Sept.',
                     'Oct.',
                     'Nov.',
-                    'Dec.'
-                ]
+                    'Dec.',
+                ],
             });
         },
 
         onRender: function() {
+            var commonDateRange;
+
             this.ui.rippleButton.addClass('click-init');
 
             this.ui.dateChooser.dateRangePicker({
                 getValue: function() {
                     if (this.ui.datesStart.val() && this.ui.datesEnd.val()) {
                         return this.ui.datesStart.val() + ' to ' + this.ui.datesEnd.val();
-                    } else {
-                        return '';
                     }
+
+                    return '';
                 }.bind(this),
                 setValue: function(s, s1, s2) {
                     this.ui.datesStart.val(s1);
@@ -78,60 +80,75 @@ define([
                 format: 'MMM D, YYYY',
                 startOfWeek: 'monday',
                 showShortcuts: true,
-                shortcuts : null,
+                shortcuts: null,
                 customShortcuts: [
                     {
                         name: 'Today',
-                        dates : function()
-                        {
-                            var start = moment().startOf('day').toDate();
-                            var end = moment().startOf('day').add(1, 'day').subtract(1, 'second').toDate();
-                            return [start,end];
-                        }
+                        dates: function() {
+                            var start = moment().startOf('day')
+                                                .toDate(),
+                                end = moment().startOf('day')
+                                                .add(1, 'day')
+                                                .subtract(1, 'second')
+                                                .toDate();
+                            return [start, end];
+                        },
                     },
                     {
                         name: 'Tomorrow',
-                        dates : function()
-                        {
-                            var start = moment().startOf('day').add(1, 'day').toDate();
-                            var end = moment().startOf('day').add(2, 'days').subtract(1, 'second').toDate();
-                            return [start,end];
-                        }
+                        dates: function() {
+                            var start = moment().startOf('day')
+                                                .add(1, 'day')
+                                                .toDate(),
+                                end = moment().startOf('day')
+                                                .add(2, 'days')
+                                                .subtract(1, 'second')
+                                                .toDate();
+                            return [start, end];
+                        },
                     },
                     {
                         name: 'This week',
-                        dates : function()
-                        {
-                            var start = moment().startOf('day').toDate();
-                            var end = moment().startOf('day').add(7, 'days').subtract(1, 'second').toDate();
-                            return [start,end];
-                        }
+                        dates: function() {
+                            var start = moment().startOf('day')
+                                                .toDate(),
+                                end = moment().startOf('day')
+                                                .add(7, 'days')
+                                                .subtract(1, 'second')
+                                                .toDate();
+                            return [start, end];
+                        },
                     },
                     {
                         name: 'This month',
-                        dates : function()
-                        {
-                            var start = moment().startOf('day').toDate();
-                            var end = moment().startOf('day').add(1, 'month').subtract(1, 'second').toDate();
-                            return [start,end];
-                        }
-                    }
-                ]
+                        dates: function() {
+                            var start = moment().startOf('day')
+                                                .toDate(),
+                                end = moment().startOf('day')
+                                                .add(1, 'month')
+                                                .subtract(1, 'second')
+                                                .toDate();
+                            return [start, end];
+                        },
+                    },
+                ],
             }).bind(
                 'datepicker-apply',
                 function(event, obj) {
-                    o2 = obj;
+                    var o2 = obj,
+                        newDateRange;
+
                     if (
                         (!isNaN(o2.date1.valueOf())) &&
                         (!isNaN(o2.date2.valueOf()))
                     ) {
-                        var newDateRange = {
+                        newDateRange = {
                             start: moment(
                                 obj.date1
                             ).format('YYYY-MM-DD'),
                             end: moment(
                                 obj.date2
-                            ).format('YYYY-MM-DD')
+                            ).format('YYYY-MM-DD'),
                         };
 
                         this._radio.commands.execute(
@@ -143,7 +160,7 @@ define([
                 }.bind(this)
             );
 
-            var commonDateRange = this._radio.reqres.request(
+            commonDateRange = this._radio.reqres.request(
                 'getState',
                 this.options.stateKey,
                 'dateRange'
@@ -161,8 +178,10 @@ define([
                 );
             } else {
                 this.ui.dateChooser.data('dateRangePicker').setDateRange(
-                    moment().tz("America/Chicago").format('MMM D, YYYY'),
-                    moment().tz("America/Chicago").add(2, 'days').format('MMM D, YYYY'),
+                    moment().tz('America/Chicago')
+                                .format('MMM D, YYYY'),
+                    moment().tz('America/Chicago').add(2, 'days')
+                                .format('MMM D, YYYY'),
                     true
                 );
             }
@@ -189,19 +208,19 @@ define([
         },
 
         showPackageCreate: function(event) {
+            var triggerElement;
+
             if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
 
-                var triggerElement = $(event.currentTarget);
+                triggerElement = $(event.currentTarget);
 
                 setTimeout(
                     function() {
                         this._radio.commands.execute(
                             'navigate',
                             triggerElement.find('a').attr('href'),
-                            {
-                                trigger: true
-                            }
+                            {trigger: true}
                         );
                     }.bind(this),
                     450

@@ -11,7 +11,7 @@ define(
         'common/tpl',
         'budget/itemviews/modals/modal-window.js',
         'budget/itemviews/packages/package-base',
-        'budget/itemviews/snackbars/snackbar.js'
+        'budget/itemviews/snackbars/snackbar.js',
     ],
     function(
         dateRangePicker,
@@ -61,12 +61,12 @@ define(
                 this.primaryIsExpanded = false;
 
                 moment.locale('en', {
-                    meridiem: function (hour, minute, isLowercase) {
+                    meridiem: function(hour, minute, isLowercase) {
                         var meridiemString;
                         if (hour < 12) {
-                            meridiemString = "a.m.";
-                        }  else {
-                            meridiemString = "p.m.";
+                            meridiemString = 'a.m.';
+                        } else {
+                            meridiemString = 'p.m.';
                         }
 
                         if (!isLowercase) {
@@ -75,26 +75,29 @@ define(
 
                         return meridiemString;
                     },
-                    monthsShort : [
+                    monthsShort: [
                         'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
-                        'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'
-                    ]
+                        'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.',
+                    ],
+                    week: {
+                        dow: 1,
+                    },
                 });
 
-                $.dateRangePickerLanguages.default['week-1'] = 'M';
-                $.dateRangePickerLanguages.default['week-2'] = 'T';
-                $.dateRangePickerLanguages.default['week-3'] = 'W';
-                $.dateRangePickerLanguages.default['week-4'] = 'T';
-                $.dateRangePickerLanguages.default['week-5'] = 'F';
-                $.dateRangePickerLanguages.default['week-6'] = 'S';
-                $.dateRangePickerLanguages.default['week-7'] = 'S';
+                $.dateRangePickerLanguages.default['week-1'] = 'M';  // eslint-disable-line no-param-reassign,max-len
+                $.dateRangePickerLanguages.default['week-2'] = 'T';  // eslint-disable-line no-param-reassign,max-len
+                $.dateRangePickerLanguages.default['week-3'] = 'W';  // eslint-disable-line no-param-reassign,max-len
+                $.dateRangePickerLanguages.default['week-4'] = 'T';  // eslint-disable-line no-param-reassign,max-len
+                $.dateRangePickerLanguages.default['week-5'] = 'F';  // eslint-disable-line no-param-reassign,max-len
+                $.dateRangePickerLanguages.default['week-6'] = 'S';  // eslint-disable-line no-param-reassign,max-len
+                $.dateRangePickerLanguages.default['week-7'] = 'S';  // eslint-disable-line no-param-reassign,max-len
             },
 
             serializeData: function() {
                 var templateContext = {},
                     packageObj = this.model.toJSON(),
                     packageHub = this.options.hubConfigs.findWhere({
-                        slug: packageObj.hub
+                        slug: packageObj.hub,
                     });
 
                 // Template context, in order of appearance:
@@ -115,7 +118,7 @@ define(
                 }
 
                 // Hub color and vertical slug.
-                if (!_.isUndefined(packageHub)){
+                if (!_.isUndefined(packageHub)) {
                     templateContext.hubDotColor = packageHub.get('color');
                     templateContext.verticalSlug = packageHub.get('vertical').slug;
                 }
@@ -212,29 +215,27 @@ define(
              *   Event handlers.
              */
 
-            expandOnMobile: function(e) {
+            expandOnMobile: function(e) {  // eslint-disable-line no-unused-vars
                 if ($(window).width() < settings.buttonHideWidth) {
                     this.expandPackageSheet();
                 }
             },
 
             showPackageEdit: function(event) {
+                var triggerElement = $(event.currentTarget);
+
                 if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
                     event.preventDefault();
-
-                    var triggerElement = $(event.currentTarget);
 
                     this._radio.commands.execute(
                         'navigate',
                         triggerElement.find('a').attr('href'),
-                        {
-                            trigger: true
-                        }
+                        {trigger: true}
                     );
                 }
             },
 
-            expandPackageSheet: function(e) {
+            expandPackageSheet: function(e) {  // eslint-disable-line no-unused-vars
                 if (this.primaryIsExpanded) {
                     // Strike the 'is-expanded' class, then remove the
                     // 'overflow-visible' class at the end of the
@@ -265,78 +266,219 @@ define(
                 }
             },
 
-            showNotesModal: function(e) {
+            showNotesModal: function(e) {  // eslint-disable-line no-unused-vars
                 var notesModal = {
-                    'modalTitle': 'Production notes',
-                    'innerID': 'production-notes-modal',
-                    'contentClassName': 'package-modal',
-                    'extraHTML': '<div class="mode-toggle">' +
+                    modalTitle: 'Production notes',
+                    innerID: 'production-notes-modal',
+                    contentClassName: 'package-modal',
+                    extraHTML: '<div class="mode-toggle">' +
                                  '    <div trigger-mode="read-only">Read</div>' +
                                  '    <div trigger-mode="edit">Edit</div>' +
                                  '</div>' +
                                  '<div class="modes">' +
-                                 '    <div class="read-only">' + this.model.get('notes') + '</div>' +
-                                 '    <div class="edit"><textarea>' + this.model.get('notes') + '</textarea></div>' +
+                                 '    <div class="read-only">' +
+                                            this.model.get('notes') +
+                                    '</div>' +
+                                 '    <div class="edit"><textarea>' +
+                                            this.model.get('notes') +
+                                    '</textarea></div>' +
                                  '</div>',
-                    'buttons': [
+                    buttons: [
                         {
                             buttonID: 'package-notes-save-button',
-                            buttonClass: 'flat-button primary-action save-trigger expand-past-button',
+                            buttonClass: 'flat-button primary-action ' +
+                                            'save-trigger expand-past-button',
                             innerLabel: 'Save',
-                            clickCallback: function(modalContext) {},
+                            clickCallback: function(modalContext) {},  // eslint-disable-line no-unused-vars,max-len
                         },
                         {
                             buttonID: 'package-notes-close-button',
                             buttonClass: 'flat-button primary-action close-trigger',
                             innerLabel: 'Close',
-                            clickCallback: function(modalContext) {
+                            clickCallback: function(modalContext) {  // eslint-disable-line no-unused-vars,max-len
                                 this._radio.commands.execute('destroyModal');
                             }.bind(this),
                         },
-                    ]
+                    ],
                 };
 
                 this.modalView = new ModalView({
-                    modalConfig: notesModal
+                    modalConfig: notesModal,
                 });
 
                 this._radio.commands.execute('showModal', this.modalView);
             },
 
-            showSubscriptionModal: function(e) {
+            showSubscriptionModal: function(e) {  // eslint-disable-line no-unused-vars
                 var subscriptionModal = {
-                    'modalTitle': 'Coming soon',
-                    'innerID': 'subscription-modal',
-                    'contentClassName': 'package-modal',
-                    'extraHTML': '' +
-                        '<p>Soon you will be able to follow budgeted content on Slack. We&rsquo;ll keep track of everything you follow, and let you know any time it&rsquo;s updated.</p>' +
+                    modalTitle: 'Coming soon',
+                    innerID: 'subscription-modal',
+                    contentClassName: 'package-modal',
+                    extraHTML: '' +
+                        '<p>Soon you will be able to follow budgeted content on Slack. ' +
+                                'We&rsquo;ll keep track of everything you follow, and let you ' +
+                                'know any time it&rsquo;s updated.</p>' +
                         '<p>Check back shortly as we finish implementing this feature.</p>',
-                    'buttons': [
+                    buttons: [
                         {
                             buttonID: 'package-notes-close-button',
                             buttonClass: 'flat-button primary-action close-trigger',
                             innerLabel: 'Close',
-                            clickCallback: function(modalContext) {
+                            clickCallback: function(modalContext) {  // eslint-disable-line no-unused-vars,max-len
                                 this._radio.commands.execute('destroyModal');
                             }.bind(this),
                         },
-                    ]
+                    ],
                 };
 
                 this.modalView = new ModalView({
-                    modalConfig: subscriptionModal
+                    modalConfig: subscriptionModal,
                 });
 
                 this._radio.commands.execute('showModal', this.modalView);
             },
 
-            showWebInfoModal: function(e) {
+            showWebInfoModal: function(e) {  // eslint-disable-line no-unused-vars
                 var parsedPubDate = moment.unix(
                         this.model.get('pubDate').timestamp
                     ).tz('America/Chicago'),
                     headlineStatus = this.model.get('headlineStatus'),
                     formRows = [],
-                    headlineFields = [];
+                    headlineFields = [],
+                    radioExtraClasses,
+                    radioRowHeader,
+                    webInfoModal = {
+                        modalTitle: 'Web publishing info',
+                        innerID: 'package-web-info',
+                        contentClassName: 'package-modal',
+                        escapeButtonCloses: false,
+                        overlayClosesOnClick: false,
+                        buttons: [
+                            {
+                                buttonID: 'package-web-info-save-button',
+                                buttonClass: 'flat-button save-action ' +
+                                                'expand-past-button save-trigger',
+                                innerLabel: 'Save',
+                                clickCallback: function(modalContext) {
+                                    // First, serialize the form:
+                                    var packageWebData = {},
+                                        formValues = _.chain(
+                                            modalContext.$el.find('form').serializeArray()
+                                        )
+                                            .map(function(i) { return [i.name, i.value]; })
+                                            .object()
+                                            .value();
+
+                                    packageWebData.packageID = this.model.get('id');
+                                    packageWebData.packageURL = formValues.url;
+                                    packageWebData.pubDate = {
+                                        timestamp: moment.tz(
+                                                        formValues.pub_date +
+                                                            ' ' +
+                                                            formValues.pub_time,
+                                                        'MMM D, YYYY HH:mm',
+                                                        'America/Chicago'
+                                                    ).unix(),
+                                        resolution: 't',
+                                    };
+
+                                    if (_.has(formValues, 'headlineChoices')) {
+                                        if (headlineStatus !== 'finalized') {
+                                            packageWebData.headlineID = formValues.headlineChoices;
+                                        }
+                                    }
+
+                                    // Next, add animation classes to the modal:
+                                    modalContext.$el.parent()
+                                        .addClass('waiting')
+                                        .addClass('save-waiting');
+
+                                    modalContext.$el.append(
+                                        '<div class="loading-animation save-loading-animation">' +
+                                            '<div class="loader">' +
+                                                '<svg class="circular" viewBox="25 25 50 50">' +
+                                                    '<circle class="path" cx="50" cy="50" r="20" ' +
+                                                            'fill="none" stroke-width="2" ' +
+                                                            'stroke-miterlimit="10"/>' +
+                                                '</svg>' +
+                                                '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+                                            '</div>' +
+                                            '<p class="loading-text">Saving content...</p>' +
+                                        '</div>'
+                                    );
+
+                                    setTimeout(function() {
+                                        modalContext.$el.find('.loading-animation')
+                                                                    .addClass('active');
+                                    }.bind(this), 600);  // eslint-disable-line no-extra-bind
+
+                                    setTimeout(
+                                        function() {
+                                            modalContext.$el.find('.modal-inner').css({
+                                                visibility: 'hidden',
+                                            });
+
+                                            modalContext.$el.addClass('blue-background');
+                                        },
+                                        450
+                                    );
+
+                                    setTimeout(
+                                        function() {
+                                            modalContext.$el.parent()
+                                                .addClass('waiting')
+                                                .addClass('save-waiting')
+                                                .removeClass('waiting-transition')
+                                                .removeClass('save-waiting-transition');
+                                        },
+                                        500
+                                    );
+
+                                    // Finally, execute the AJAX:
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: settings.apiEndpoints.POST.package.updateWebInfo,
+                                        contentType: 'application/json; charset=utf-8',
+                                        data: JSON.stringify(packageWebData),
+                                        processData: false,
+                                        success: function(data) {
+                                            setTimeout(
+                                                function() {
+                                                    if (data.success) {
+                                                        this.infoModalSuccessCallback('web');
+                                                    } else {
+                                                        this.infoModalErrorCallback();
+                                                    }
+                                                }.bind(this),
+                                                1500
+                                            );
+                                        }.bind(this),
+                                        error: function(
+                                            jqXHR,
+                                            textStatus,
+                                            errorThrown  // eslint-disable-line no-unused-vars
+                                        ) {
+                                            setTimeout(
+                                                function() {
+                                                    this.infoModalErrorCallback();
+                                                }.bind(this),
+                                                1500
+                                            );
+                                        }.bind(this),
+                                        dataType: 'json',
+                                    });
+                                }.bind(this),
+                            },
+                            {
+                                buttonID: 'package-web-info-cancel-button',
+                                buttonClass: 'flat-button primary-action cancel-trigger',
+                                innerLabel: 'Cancel',
+                                clickCallback: function(modalContext) {  // eslint-disable-line no-unused-vars,max-len
+                                    this._radio.commands.execute('destroyModal');
+                                }.bind(this),
+                            },
+                        ],
+                    };
 
                 if (this.model.get('headlineCandidates').length > 0) {
                     _.each(this.model.get('headlineCandidates'), function(hed) {
@@ -351,7 +493,7 @@ define(
                             isChecked: false,
                         };
 
-                        if (headlineStatus == 'finalized') {
+                        if (headlineStatus === 'finalized') {
                             if (hed.winner) {
                                 radioFieldConfig.isChecked = true;
                             } else {
@@ -362,23 +504,35 @@ define(
                         headlineFields.push(radioFieldConfig);
                     });
 
-                    var radioExtraClasses = '',
-                        radioRowHeader = 'Choose a winning headline';
+                    radioExtraClasses = '';
+                    radioRowHeader = 'Choose a winning headline';
 
-                    if (headlineStatus == 'finalized') {
+                    if (headlineStatus === 'finalized') {
                         radioExtraClasses += 'headlines-finalized';
                         radioRowHeader = 'Headlines (winner already chosen)';
                     }
 
-                    formRows.push({ extraClasses: radioExtraClasses, rowType: 'radio-buttons', fields: headlineFields, rowHeader: radioRowHeader });
+                    formRows.push({
+                        extraClasses: radioExtraClasses,
+                        rowType: 'radio-buttons',
+                        fields: headlineFields,
+                        rowHeader: radioRowHeader,
+                    });
                 }
 
                 formRows.push(
                     {
                         extraClasses: '',
                         fields: [
-                            { type: 'input', widthClasses: 'small-12 medium-12 large-12', labelText: 'URL', inputName: 'url', inputType: 'text', inputValue: this.model.get('URL') }
-                        ]
+                            {
+                                type: 'input',
+                                widthClasses: 'small-12 medium-12 large-12',
+                                labelText: 'URL',
+                                inputName: 'url',
+                                inputType: 'text',
+                                inputValue: this.model.get('URL'),
+                            },
+                        ],
                     }
                 );
 
@@ -386,137 +540,29 @@ define(
                     {
                         extraClasses: '',
                         fields: [
-                            { type: 'input', widthClasses: 'small-6 medium-8 large-8', labelText: 'Date published (online)', inputID: 'pubDate', inputName: 'pub_date', inputType: 'text', inputValue: parsedPubDate.format('MMM D, YYYY'), },
-                            { type: 'input', widthClasses: 'small-6 medium-4 large-4', labelText: 'Time published', inputID: 'pubTime', inputName: 'pub_time', inputType: 'time', inputValue: parsedPubDate.format('HH:mm'), },
-                        ]
+                            {
+                                type: 'input',
+                                widthClasses: 'small-6 medium-8 large-8',
+                                labelText: 'Date published (online)',
+                                inputID: 'pubDate',
+                                inputName: 'pub_date',
+                                inputType: 'text',
+                                inputValue: parsedPubDate.format('MMM D, YYYY'),
+                            },
+                            {
+                                type: 'input',
+                                widthClasses: 'small-6 medium-4 large-4',
+                                labelText: 'Time published',
+                                inputID: 'pubTime',
+                                inputName: 'pub_time',
+                                inputType: 'time',
+                                inputValue: parsedPubDate.format('HH:mm'),
+                            },
+                        ],
                     }
                 );
 
-                var webInfoModal = {
-                    modalTitle: 'Web publishing info',
-                    innerID: 'package-web-info',
-                    contentClassName: 'package-modal',
-                    formConfig: { rows: formRows },
-                    escapeButtonCloses: false,
-                    overlayClosesOnClick: false,
-                    buttons: [
-                        {
-                            buttonID: 'package-web-info-save-button',
-                            buttonClass: 'flat-button save-action expand-past-button save-trigger',
-                            innerLabel: 'Save',
-                            clickCallback: function(modalContext) {
-                                // First, serialize the form:
-                                var packageWebData = {},
-                                    formValues = _.chain(modalContext.$el.find('form').serializeArray())
-                                                        .map(function(i) {return [i.name, i.value];})
-                                                        .object()
-                                                        .value();
-
-                                packageWebData.packageID = this.model.get('id');
-                                packageWebData.packageURL = formValues.url;
-                                packageWebData.pubDate = {
-                                    timestamp: moment.tz(
-                                                    formValues.pub_date +
-                                                        ' ' +
-                                                        formValues.pub_time,
-                                                    'MMM D, YYYY HH:mm',
-                                                    'America/Chicago'
-                                                ).unix(),
-                                    resolution: 't',
-                                };
-
-                                if (_.has(formValues, 'headlineChoices')) {
-                                    if (headlineStatus != 'finalized') {
-                                        packageWebData.headlineID = formValues.headlineChoices;
-                                    }
-                                }
-
-                                // Next, add animation classes to the modal:
-                                modalContext.$el.parent()
-                                    .addClass('waiting')
-                                    .addClass('save-waiting');
-
-                                modalContext.$el.append(
-                                    '<div class="loading-animation save-loading-animation">' +
-                                        '<div class="loader">' +
-                                            '<svg class="circular" viewBox="25 25 50 50">' +
-                                                '<circle class="path" cx="50" cy="50" r="20" ' +
-                                                        'fill="none" stroke-width="2" ' +
-                                                        'stroke-miterlimit="10"/>' +
-                                            '</svg>' +
-                                            '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-                                        '</div>' +
-                                        '<p class="loading-text">Saving content...</p>' +
-                                    '</div>'
-                                );
-
-                                setTimeout(function() {
-                                    modalContext.$el.find('.loading-animation').addClass('active');
-                                }.bind(this), 600);
-
-                                setTimeout(
-                                    function() {
-                                        modalContext.$el.find('.modal-inner').css({
-                                            'visibility': 'hidden'
-                                        });
-
-                                        modalContext.$el.addClass('blue-background');
-                                    },
-                                    450
-                                );
-
-                                setTimeout(
-                                    function() {
-                                        modalContext.$el.parent()
-                                                            .addClass('waiting')
-                                                            .addClass('save-waiting')
-                                                            .removeClass('waiting-transition')
-                                                            .removeClass('save-waiting-transition');
-                                    },
-                                    500
-                                );
-
-                                // Finally, execute the AJAX:
-                                $.ajax({
-                                    type: "POST",
-                                    url: settings.apiEndpoints.POST.package.updateWebInfo,
-                                    contentType: 'application/json; charset=utf-8',
-                                    data: JSON.stringify(packageWebData),
-                                    processData: false,
-                                    success: function(data) {
-                                        setTimeout(
-                                            function() {
-                                                if (data.success) {
-                                                    this.infoModalSuccessCallback('web');
-                                                } else {
-                                                    this.infoModalErrorCallback();
-                                                }
-                                            }.bind(this),
-                                            1500
-                                        );
-                                    }.bind(this),
-                                    error: function(jqXHR, textStatus, errorThrown) {
-                                        setTimeout(
-                                            function() {
-                                                this.infoModalErrorCallback();
-                                            }.bind(this),
-                                            1500
-                                        );
-                                    }.bind(this),
-                                    dataType: 'json'
-                                });
-                            }.bind(this),
-                        },
-                        {
-                            buttonID: 'package-web-info-cancel-button',
-                            buttonClass: 'flat-button primary-action cancel-trigger',
-                            innerLabel: 'Cancel',
-                            clickCallback: function(modalContext) {
-                                this._radio.commands.execute('destroyModal');
-                            }.bind(this),
-                        },
-                    ]
-                };
+                webInfoModal.formConfig = {rows: formRows};
 
                 this.modalView = new ModalView({
                     modalConfig: webInfoModal,
@@ -526,14 +572,194 @@ define(
                         dayOptions.extraClass = 'package-web-info-date';
 
                         modal.$el.find('form #pubDate').dateRangePicker(dayOptions);
-                    }
+                    },
                 });
 
                 this._radio.commands.execute('showModal', this.modalView);
             },
 
-            showPrintInfoModal: function(e) {
-                var formattedPrintRunDate = '';
+            showPrintInfoModal: function(e) {  // eslint-disable-line no-unused-vars
+                var formattedPrintRunDate = '',
+                    placementFields,
+                    finalizedOption,
+                    printInfoModal = {
+                        modalTitle: 'Print publishing info',
+                        innerID: 'package-print-info',
+                        contentClassName: 'package-modal',
+                        formConfig: {
+                            rows: [
+                                {
+                                    extraClasses: '',
+                                    fields: [
+                                        {
+                                            type: 'input',
+                                            widthClasses: 'small-12 medium-12 large-12',
+                                            labelText: 'Print run date',
+                                            inputID: 'print_run_date',
+                                            inputName: 'print_run_date',
+                                            inputType: 'text',
+                                            inputValue: formattedPrintRunDate,
+                                        },
+                                    ],
+                                },
+                                {
+                                    extraClasses: 'checkbox checkbox-group-first',
+                                    fields: placementFields,
+                                    rowHeader: 'Print placements',
+                                    rowHeaderExtraClasses: 'placements-header',
+                                },
+                                {
+                                    extraClasses: 'checkbox',
+                                    fields: [finalizedOption],
+                                },
+                            ],
+                        },
+                        escapeButtonCloses: false,
+                        overlayClosesOnClick: false,
+                        buttons: [
+                            {
+                                buttonID: 'package-print-info-save-button',
+                                buttonClass: 'flat-button save-action ' +
+                                                'expand-past-button save-trigger',
+                                innerLabel: 'Save',
+                                clickCallback: function(modalContext) {
+                                    // First, serialize the form:
+                                    var prData = {},
+                                        formValues = {};
+                                    _.each(
+                                        modalContext.$el.find('form input'),
+                                        function(inputEl) {
+                                            var groupName;
+                                            if (_string_.endsWith(inputEl.name, '[]')) {
+                                                groupName = inputEl.name.substring(
+                                                    0,
+                                                    inputEl.name.length - 2
+                                                );
+
+                                                if (!_.has(formValues, groupName)) {
+                                                    formValues[groupName] = [];
+                                                }
+
+                                                if (inputEl.checked) {
+                                                    formValues[groupName].push(
+                                                        inputEl.value
+                                                    );
+                                                }
+                                            } else if (inputEl.type === 'checkbox') {
+                                                if (inputEl.checked) {
+                                                    formValues[inputEl.name] = true;
+                                                } else {
+                                                    formValues[inputEl.name] = false;
+                                                }
+                                            } else {
+                                                formValues[inputEl.name] = inputEl.value;
+                                            }
+                                        }
+                                    );
+
+                                    prData.packageID = this.model.get('id');
+
+                                    prData.printRunDate = moment(
+                                        formValues.print_run_date,
+                                        'MMM D, YYYY'
+                                    ).format('YYYY-MM-DD');
+
+                                    prData.pitchedPlacements = formValues.pitched_placements;
+
+                                    prData.isPlacementFinalized = formValues.is_placement_finalized;
+
+                                    // Next, add animation classes to the modal:
+                                    modalContext.$el.parent()
+                                        .addClass('waiting')
+                                        .addClass('save-waiting');
+
+                                    modalContext.$el.append(
+                                        '<div class="loading-animation save-loading-animation">' +
+                                            '<div class="loader">' +
+                                                '<svg class="circular" viewBox="25 25 50 50">' +
+                                                    '<circle class="path" cx="50" cy="50" r="20" ' +
+                                                            'fill="none" stroke-width="2" ' +
+                                                            'stroke-miterlimit="10"/>' +
+                                                '</svg>' +
+                                                '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+                                            '</div>' +
+                                            '<p class="loading-text">Saving content...</p>' +
+                                        '</div>'
+                                    );
+
+                                    setTimeout(function() {
+                                        modalContext.$el.find('.loading-animation')
+                                                            .addClass('active');
+                                    }.bind(this), 600);  // eslint-disable-line no-extra-bind
+
+                                    setTimeout(
+                                        function() {
+                                            modalContext.$el.find('.modal-inner').css({
+                                                visibility: 'hidden',
+                                            });
+
+                                            modalContext.$el.addClass('blue-background');
+                                        },
+                                        450
+                                    );
+
+                                    setTimeout(
+                                        function() {
+                                            modalContext.$el.parent()
+                                                .addClass('waiting')
+                                                .addClass('save-waiting')
+                                                .removeClass('waiting-transition')
+                                                .removeClass('save-waiting-transition');
+                                        },
+                                        500
+                                    );
+
+                                    // Finally, execute the AJAX:
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: settings.apiEndpoints.POST.package.updatePrintInfo,
+                                        contentType: 'application/json; charset=utf-8',
+                                        data: JSON.stringify(prData),
+                                        processData: false,
+                                        success: function(data) {
+                                            setTimeout(
+                                                function() {
+                                                    if (data.success) {
+                                                        this.infoModalSuccessCallback('print');
+                                                    } else {
+                                                        this.infoModalErrorCallback();
+                                                    }
+                                                }.bind(this),
+                                                1500
+                                            );
+                                        }.bind(this),
+                                        error: function(
+                                            jqXHR,
+                                            textStatus,
+                                            errorThrown  // eslint-disable-line no-unused-vars
+                                        ) {
+                                            setTimeout(
+                                                function() {
+                                                    this.infoModalErrorCallback();
+                                                }.bind(this),
+                                                1500
+                                            );
+                                        }.bind(this),
+                                        dataType: 'json',
+                                    });
+                                }.bind(this),
+                            },
+                            {
+                                buttonID: 'package-print-info-cancel-button',
+                                buttonClass: 'flat-button primary-action cancel-trigger',
+                                innerLabel: 'Cancel',
+                                clickCallback: function(modalContext) {  // eslint-disable-line no-unused-vars,max-len
+                                    this._radio.commands.execute('destroyModal');
+                                }.bind(this),
+                            },
+                        ],
+                    };
+
                 if (!_.isNull(this.model.get('printPlacement').printIssue)) {
                     formattedPrintRunDate = moment(
                         this.model.get('printPlacement').printRunDate,
@@ -541,7 +767,7 @@ define(
                     ).format('MMM D, Y');
                 }
 
-                var placementFields = _.map(
+                placementFields = _.map(
                     settings.printPlacementTypes,
                     function(placementTypeConfig) {
                         var fieldOpts = {
@@ -556,7 +782,6 @@ define(
                             this.model.get('printPlacement').printPlacements,
                             placementTypeConfig.slug
                         )) {
-
                             fieldOpts.isChecked = true;
                         }
 
@@ -564,7 +789,7 @@ define(
                     }.bind(this)
                 );
 
-                var finalizedOption = {
+                finalizedOption = {
                     type: 'checkbox',
                     labelText: 'Print placement finalized?',
                     inputID: 'is_placement_finalized',
@@ -580,179 +805,6 @@ define(
                     finalizedOption.isChecked = true;
                 }
 
-                var printInfoModal = {
-                    modalTitle: 'Print publishing info',
-                    innerID: 'package-print-info',
-                    contentClassName: 'package-modal',
-                    formConfig: {
-                        rows: [
-                            {
-                                extraClasses: '',
-                                fields: [
-                                    {
-                                        type: 'input',
-                                        widthClasses: 'small-12 medium-12 large-12',
-                                        labelText: 'Print run date',
-                                        inputID: 'print_run_date',
-                                        inputName: 'print_run_date',
-                                        inputType: 'text',
-                                        inputValue: formattedPrintRunDate,
-                                    }
-                                ]
-                            },
-                            {
-                                extraClasses: 'checkbox checkbox-group-first',
-                                fields: placementFields,
-                                rowHeader: 'Print placements',
-                                rowHeaderExtraClasses: 'placements-header',
-                            },
-                            {
-                                extraClasses: 'checkbox',
-                                fields: [
-                                    finalizedOption
-                                ]
-                            }
-                        ]
-                    },
-                    escapeButtonCloses: false,
-                    overlayClosesOnClick: false,
-                    buttons: [
-                        {
-                            buttonID: 'package-print-info-save-button',
-                            buttonClass: 'flat-button save-action expand-past-button save-trigger',
-                            innerLabel: 'Save',
-                            clickCallback: function(modalContext) {
-                                // First, serialize the form:
-                                var packagePrintData = {},
-                                    formValues = {};
-                                _.each(
-                                    modalContext.$el.find('form input'),
-                                    function(inputEl) {
-                                        if (_string_.endsWith(inputEl.name, '[]')) {
-                                            var groupName = inputEl.name.substring(
-                                                0,
-                                                inputEl.name.length - 2
-                                            );
-
-                                            if (!_.has(formValues, groupName)) {
-                                                formValues[groupName] = [];
-                                            }
-
-                                            if (inputEl.checked) {
-                                                formValues[groupName].push(
-                                                    inputEl.value
-                                                );
-                                            }
-                                        } else if (inputEl.type == 'checkbox') {
-                                            if (inputEl.checked) {
-                                                formValues[inputEl.name] = true;
-                                            } else {
-                                                formValues[inputEl.name] = false;
-                                            }
-                                        } else {
-                                            formValues[inputEl.name] = inputEl.value;
-                                        }
-                                    }
-                                );
-
-                                packagePrintData.packageID = this.model.get('id');
-
-                                packagePrintData.printRunDate = moment(
-                                    formValues.print_run_date,
-                                    'MMM D, YYYY'
-                                ).format('YYYY-MM-DD');
-
-                                packagePrintData.pitchedPlacements = formValues.pitched_placements;
-
-                                packagePrintData.isPlacementFinalized = formValues.is_placement_finalized;
-
-                                // Next, add animation classes to the modal:
-                                modalContext.$el.parent()
-                                    .addClass('waiting')
-                                    .addClass('save-waiting');
-
-                                modalContext.$el.append(
-                                    '<div class="loading-animation save-loading-animation">' +
-                                        '<div class="loader">' +
-                                            '<svg class="circular" viewBox="25 25 50 50">' +
-                                                '<circle class="path" cx="50" cy="50" r="20" ' +
-                                                        'fill="none" stroke-width="2" ' +
-                                                        'stroke-miterlimit="10"/>' +
-                                            '</svg>' +
-                                            '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-                                        '</div>' +
-                                        '<p class="loading-text">Saving content...</p>' +
-                                    '</div>'
-                                );
-
-                                setTimeout(function() {
-                                    modalContext.$el.find('.loading-animation').addClass('active');
-                                }.bind(this), 600);
-
-                                setTimeout(
-                                    function() {
-                                        modalContext.$el.find('.modal-inner').css({
-                                            'visibility': 'hidden'
-                                        });
-
-                                        modalContext.$el.addClass('blue-background');
-                                    },
-                                    450
-                                );
-
-                                setTimeout(
-                                    function() {
-                                        modalContext.$el.parent()
-                                                            .addClass('waiting')
-                                                            .addClass('save-waiting')
-                                                            .removeClass('waiting-transition')
-                                                            .removeClass('save-waiting-transition');
-                                    },
-                                    500
-                                );
-
-                                // Finally, execute the AJAX:
-                                $.ajax({
-                                    type: "POST",
-                                    url: settings.apiEndpoints.POST.package.updatePrintInfo,
-                                    contentType: 'application/json; charset=utf-8',
-                                    data: JSON.stringify(packagePrintData),
-                                    processData: false,
-                                    success: function(data) {
-                                        setTimeout(
-                                            function() {
-                                                if (data.success) {
-                                                    this.infoModalSuccessCallback('print');
-                                                } else {
-                                                    this.infoModalErrorCallback();
-                                                }
-                                            }.bind(this),
-                                            1500
-                                        );
-                                    }.bind(this),
-                                    error: function(jqXHR, textStatus, errorThrown) {
-                                        setTimeout(
-                                            function() {
-                                                this.infoModalErrorCallback();
-                                            }.bind(this),
-                                            1500
-                                        );
-                                    }.bind(this),
-                                    dataType: 'json'
-                                });
-                            }.bind(this),
-                        },
-                        {
-                            buttonID: 'package-print-info-cancel-button',
-                            buttonClass: 'flat-button primary-action cancel-trigger',
-                            innerLabel: 'Cancel',
-                            clickCallback: function(modalContext) {
-                                this._radio.commands.execute('destroyModal');
-                            }.bind(this),
-                        },
-                    ]
-                };
-
                 this.modalView = new ModalView({
                     modalConfig: printInfoModal,
                     renderCallback: function(modal) {
@@ -761,7 +813,7 @@ define(
                         dayOptions.extraClass = 'package-print-info-date';
 
                         modal.$el.find('form #print_run_date').dateRangePicker(dayOptions);
-                    }
+                    },
                 });
 
                 this._radio.commands.execute('showModal', this.modalView);
@@ -773,6 +825,8 @@ define(
              */
 
             infoModalSuccessCallback: function(infoType) {
+                var snackbarText;
+
                 // Close this popup and destroy it:
                 setTimeout(function() {
                     this._radio.commands.execute('destroyModal');
@@ -780,10 +834,9 @@ define(
                 500);
 
                 // Set snackbar text:
-                var snackbarText;
-                if (infoType == 'print') {
+                if (infoType === 'print') {
                     snackbarText = 'Updated print publishing info.';
-                } else if (infoType == 'web') {
+                } else if (infoType === 'web') {
                     snackbarText = 'Updated web publishing info.';
                 }
 
@@ -793,9 +846,7 @@ define(
                     new SnackbarView({
                         snackbarClass: 'success',
                         text: snackbarText,
-                        action: {
-                            promptText: 'Dismiss'
-                        },
+                        action: {promptText: 'Dismiss'},
                     })
                 );
             },

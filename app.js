@@ -1,20 +1,36 @@
-var express = require('express');
-var path = require('path');
-var passport = require('passport');
-var expressSession = require('express-session');
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
-var nunjucks = require('nunjucks');
-var cors = require('cors');
-var flash = require('connect-flash');
-var _ = require('underscore');
-var RedisStore = require('connect-redis')(expressSession);
+var express = require('express'),
+    path = require('path'),
+    passport = require('passport'),
+    expressSession = require('express-session'),
+    GoogleStrategy = require('passport-google-oauth20').Strategy,
+    nunjucks = require('nunjucks'),
+    cors = require('cors'),
+    flash = require('connect-flash'),
+    _ = require('underscore'),
+    RedisStore = require('connect-redis')(expressSession),
+    app = express(),
+    nenv = nunjucks.configure('templates', {  // eslint-disable-line no-unused-vars
+        autoescape: true,
+        express: app,
+        watch: true,
+    }),
+    cookieAge = 7 * 24 * 60 * 60 * 1000,
+    // Authentication check.
+    requireLogin = function(req, res, next) {
+        if (req.isAuthenticated()) {
+            next();
+        } else {
+            req.session.loginSuccessfulRedirect = req.path;  // eslint-disable-line no-param-reassign,max-len
+
+            res.redirect('/login/google');
+        }
+    };
+
 
 require('dotenv').load();
 
-var app = express();
-
 app.use(require('cookie-parser')());
-app.use(require('body-parser').urlencoded({ extended: true }));
+app.use(require('body-parser').urlencoded({extended: true}));
 
 app.use(cors());
 
@@ -22,37 +38,38 @@ process.env.PWD = process.cwd();
 
 app.use(express.static(__dirname + '/dist'));
 
-var nenv = nunjucks.configure('templates', {
-    autoescape: true,
-    express: app,
-    watch: true
-});
-
 
 // Settings (based on environment variables).
 
 app.set('port', (process.env.PORT || 5000));
 
-app.set('google_auth_client_id', (process.env.GOOGLE_AUTH_CLIENT_ID || ''));  // This needs a value.
-app.set('google_auth_secret_key', (process.env.GOOGLE_AUTH_SECRET_KEY || ''));  // This needs a value
-app.set('google_auth_callback_url', (process.env.GOOGLE_AUTH_CALLBACK_URL || ''));  // This needs a value.
+app.set(
+    'google_auth_client_id',
+    (process.env.GOOGLE_AUTH_CLIENT_ID || '')  // This needs a value.
+);
+app.set(
+    'google_auth_secret_key',
+    (process.env.GOOGLE_AUTH_SECRET_KEY || '')  // This needs a value
+);
+app.set(
+    'google_auth_callback_url',
+    (process.env.GOOGLE_AUTH_CALLBACK_URL || '')  // This needs a value.
+);
 
 app.set('express_session_store', (process.env.EXPRESS_SESSION_STORE || ''));
 app.set('express_session_secret_key', (process.env.EXPRESS_SESSION_SECRET_KEY || 'keyboard cat'));
 
 
 // Session, Passport and flash-messaging setup.
-var cookieAge = 7 * 24 * 60 * 60 * 1000;
-
 app.use(
     expressSession({
         store: new RedisStore({
-            url: app.get('express_session_store')
+            url: app.get('express_session_store'),
         }),
         secret: app.get('express_session_secret_key'),
         resave: false,
         saveUninitialized: true,
-        cookie: { maxAge: cookieAge }
+        cookie: {maxAge: cookieAge},
     })
 );
 app.use(passport.initialize());
@@ -84,32 +101,20 @@ passport.use(
             clientID: app.get('google_auth_client_id'),
             clientSecret: app.get('google_auth_secret_key'),
             callbackURL: app.get('google_auth_callback_url'),
-            passReqToCallback: true
+            passReqToCallback: true,
         },
         function(req, accessToken, refreshToken, profile, done) {
-            if (!_.isUndefined(profile._json.domain) && profile._json.domain == 'dallasnews.com') {
+            if (
+                (!_.isUndefined(profile._json.domain)) &&   // eslint-disable-line no-underscore-dangle,max-len
+                (profile._json.domain === 'dallasnews.com')   // eslint-disable-line no-underscore-dangle,max-len
+            ) {
                 return done(null, profile);
             }
 
-            return done(null, false, {
-                message: "Invalid host domain."
-            });
+            return done(null, false, {message: 'Invalid host domain.'});
         }
     )
 );
-
-
-// Authentication check.
-
-var requireLogin = function (req, res, next) {
-    if (req.isAuthenticated()) {
-        next();
-    } else {
-        req.session.loginSuccessfulRedirect = req.path;
-
-        res.redirect('/login/google');
-    }
-};
 
 
 // Routes.
@@ -118,9 +123,7 @@ app.get(
     '/login/google',
     passport.authenticate(
         'dmn-google-apps',
-        {
-            scope: ['email', 'profile']
-        }
+        {scope: ['email', 'profile']}
     )
 );
 
@@ -130,7 +133,7 @@ app.get(
         'dmn-google-apps',
         {
             failureRedirect: '/login/failure',
-            failureFlash: true
+            failureFlash: true,
         }
     ),
     function(req, res) {
@@ -170,7 +173,7 @@ app.get(
                 userID: req.user.id,
                 email: _.find(req.user.emails, {type: 'account'}).value,
                 displayName: req.user.displayName,
-                nameComponents: _.clone(req.user.name)
+                nameComponents: _.clone(req.user.name),
             };
 
             if (
@@ -189,7 +192,7 @@ app.get(
     '/headlines/*',
     requireLogin,
     function(req, res) {
-        delete req.session.loginSuccessfulRedirect;
+        delete req.session.loginSuccessfulRedirect;  // eslint-disable-line no-param-reassign,max-len
 
         res.sendFile(path.join(__dirname + '/templates/headline.html'));
     }
@@ -199,7 +202,7 @@ app.get(
     '*',
     requireLogin,
     function(req, res) {
-        delete req.session.loginSuccessfulRedirect;
+        delete req.session.loginSuccessfulRedirect;  // eslint-disable-line no-param-reassign,max-len
 
         res.sendFile(path.join(__dirname + '/templates/budget.html'));
     }
@@ -209,5 +212,5 @@ app.get(
 // App binding to specified port.
 
 app.listen(app.get('port'), function() {
-    console.log('Node app is running on port', app.get('port'));
+    console.log('Node app is running on port', app.get('port'));  // eslint-disable-line no-console,max-len
 });

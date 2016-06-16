@@ -12,6 +12,6 @@ define([
 
         onRender: function() {
             this.setElement(this.el.innerHTML);
-        }
+        },
     });
 });

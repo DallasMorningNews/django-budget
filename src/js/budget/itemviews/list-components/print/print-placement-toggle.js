@@ -1,11 +1,13 @@
 define([
+    'backbone',
     'jquery',
     'marionette',
     'selectize',
     'underscore',
     'common/settings',
-    'common/tpl'
+    'common/tpl',
 ], function(
+    Backbone,
     $,
     Mn,
     selectize,
@@ -32,7 +34,7 @@ define([
         serializeData: function() {
             var allTypesTrigger = {
                     slug: 'all',
-                    verboseName: 'All'
+                    verboseName: 'All',
                 },
                 commonPrintPlacement = this._radio.reqres.request(
                     'getState',
@@ -41,7 +43,7 @@ define([
                 ),
                 placementTypes;
 
-            if (commonPrintPlacement == 'all') {
+            if (commonPrintPlacement === 'all') {
                 allTypesTrigger.isActive = true;
             }
 
@@ -53,18 +55,18 @@ define([
                                                 .clone()
                                                 .value();
 
-                    if (placementType.slug == commonPrintPlacement) {
+                    if (placementType.slug === commonPrintPlacement) {
                         typeConfig.isActive = true;
                     }
 
                     return typeConfig;
-                }.bind(this)
+                }.bind(this)  // eslint-disable-line no-extra-bind
             );
 
             placementTypes.push(allTypesTrigger);
 
             return {
-                placementTypes: placementTypes
+                placementTypes: placementTypes,
             };
         },
 
@@ -74,7 +76,7 @@ define([
             dropdownOpts.push({
                 verboseName: 'All',
                 slug: 'all',
-                order: settings.printPlacementTypes.length + 1
+                order: settings.printPlacementTypes.length + 1,
             });
 
             this.ui.dropdownHolder.selectize({
@@ -83,9 +85,9 @@ define([
                 options: dropdownOpts,
                 valueField: 'slug',
                 labelField: 'verboseName',
-                searchField: ['verboseName',],
+                searchField: ['verboseName'],
                 maxItems: 1,
-                onItemAdd: function(value, $item) {
+                onItemAdd: function(value, $item) {  // eslint-disable-line no-unused-vars
                     this.toggleActivePlacement(value);
 
                     // Set toggle device active state accordingly.
@@ -94,7 +96,7 @@ define([
                         "[data-placement-type='" + value + "']"
                     ).addClass('active');
                 }.bind(this),
-                onItemRemove: function(value) {
+                onItemRemove: function(value) {  // eslint-disable-line no-unused-vars
                     this.toggleActivePlacement('all');
 
                     // Set toggle device active state accordingly.
@@ -140,7 +142,7 @@ define([
                     'currentPrintPlacement'
                 );
 
-            if (newPlacement != commonPrintPlacement) {
+            if (newPlacement !== commonPrintPlacement) {
                 // Update internal state to reflect new placement choice.
                 this._radio.commands.execute(
                     'setState',
@@ -157,14 +159,12 @@ define([
                     'queryTerms',
                     function(terms) {
                         terms.remove(
-                            terms.where({
-                                type: 'printPlacement'
-                            })
+                            terms.where({type: 'printPlacement'})
                         );
-                    }.bind(this)
+                    }.bind(this)  // eslint-disable-line no-extra-bind
                 );
 
-                if (newPlacement != 'all') {
+                if (newPlacement !== 'all') {
                     // Add new placement filter to query term collection.
                     // Handler for adding a query term.
                     this._radio.commands.execute(
@@ -174,9 +174,9 @@ define([
                         function(terms) {
                             terms.push({
                                 type: 'printPlacement',
-                                value: newPlacement
+                                value: newPlacement,
                             });
-                        }.bind(this)
+                        }.bind(this)  // eslint-disable-line no-extra-bind
                     );
                 }
             }

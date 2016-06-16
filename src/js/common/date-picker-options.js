@@ -1,4 +1,8 @@
-define(function() {
+define([
+    'jquery',
+], function(
+    $
+) {
     'use strict';
 
     return {
@@ -14,6 +18,6 @@ define(function() {
         separator: ' to ',
         showShortcuts: false,
         singleMonth: true,
-        startOfWeek: 'monday'
+        startOfWeek: 'monday',
     };
 });

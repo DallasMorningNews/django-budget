@@ -3,13 +3,11 @@ define(
         'backbone',
         'jquery',
         'marionette',
-        'underscore'
     ],
     function(
         Backbone,
         $,
-        Mn,
-        _
+        Mn
     ) {
         'use strict';
 
@@ -17,7 +15,7 @@ define(
             className: 'package-sheet-holder',
 
             modelEvents: {
-                'change': 'render'
+                change: 'render',
             },
 
             initialize: function() {
@@ -33,10 +31,10 @@ define(
             },
 
             onAttach: function() {
-                this.$el.find('.might-overflow').bind('mouseenter', function(){
+                this.$el.find('.might-overflow').bind('mouseenter', function() {
                     var $this = $(this);
 
-                    if(this.offsetWidth < this.scrollWidth && !$this.attr('title')){
+                    if (this.offsetWidth < this.scrollWidth && !$this.attr('title')) {
                         $this.attr('title', $this.text());
                     }
                 });

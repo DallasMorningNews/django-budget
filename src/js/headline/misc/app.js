@@ -3,28 +3,30 @@ define(
         'backbone',
         'jquery',
         'marionette',
-        'headline/layoutviews/root-view'
+        'underscore',
+        'headline/layoutviews/root-view',
     ],
     function(
         Backbone,
         $,
         Mn,
+        _,
         RootView
     ) {
         'use strict';
 
         // Enable Marionette Inspector
-        if (window.__agent) {
-            window.__agent.start(Backbone, Marionette);
+        if (window.__agent) {  // eslint-disable-line no-underscore-dangle
+            window.__agent.start(Backbone, Mn);  // eslint-disable-line no-underscore-dangle
         }
 
         return Mn.Application.extend({
-            initialize: function(opts) {
+            initialize: function(opts) {  // eslint-disable-line no-unused-vars
                 // Hook into our global Wreqr channel.
                 this._radio = Backbone.Wreqr.radio.channel('global');
 
                 this.currentUser = {
-                    email: 'test.user@dallasnews.com'
+                    email: 'test.user@dallasnews.com',
                 };
             },
 
@@ -78,7 +80,7 @@ define(
             },
 
             onStart: function() {
-console.log('Started.');
+console.log('Started.');  // eslint-disable-line indent,no-console
                 this.rootView.render();
 
                 // var CustomRouter = NamedRouter.extend({
@@ -98,7 +100,7 @@ console.log('Started.');
                 // Backbone.history.start({
                 //     pushState: true
                 // });
-            }
+            },
         });
     }
 );

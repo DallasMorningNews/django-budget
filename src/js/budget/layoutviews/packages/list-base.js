@@ -1,4 +1,5 @@
 define([
+    'backbone',
     'marionette',
     'moment',
     'underscore',
@@ -9,8 +10,9 @@ define([
     'budget/collections/query-terms',
     'budget/collectionviews/packages/package-collection',
     'budget/itemviews/packages/date-filter',
-    'budget/itemviews/packages/search-box'
+    'budget/itemviews/packages/search-box',
 ], function(
+    Backbone,
     Mn,
     moment,
     _,
@@ -27,9 +29,9 @@ define([
         id: 'package-archive',
 
         regions: {
-            dateFilter: "#filter-holder #date-filter",
-            searchBox: "#filter-holder #search-box",
-            packages: "#package-list"
+            dateFilter: '#filter-holder #date-filter',
+            searchBox: '#filter-holder #search-box',
+            packages: '#package-list',
         },
 
         extraChildViews: {},
@@ -37,6 +39,8 @@ define([
         extraQueryTerms: [],
 
         initialize: function() {
+            var initialQueryTerms;
+
             this._radio = Backbone.Wreqr.radio.channel('global');
             this._poller = new Poller();
 
@@ -61,7 +65,7 @@ define([
                 );
             }
 
-            var initialQueryTerms = this._radio.reqres.request(
+            initialQueryTerms = this._radio.reqres.request(
                 'getState',
                 this.stateKey,
                 'queryTerms'
@@ -85,7 +89,8 @@ define([
             }
 
             this.loadPackages(
-                function(collection, request, options) {
+                function(collection, request, options) {  // eslint-disable-line no-unused-vars
+                    var PackageCollectionViewForType;
 
                     if (!_.isUndefined(initialQueryTerms)) {
                         this.updateQuery(collection);
@@ -103,7 +108,7 @@ define([
                                         function(value, key) {
                                             terms.add({
                                                 type: key,
-                                                value: value
+                                                value: value,
                                             });
                                         }
                                     );
@@ -114,7 +119,7 @@ define([
                         this.updateQuery(collection);
                     }
 
-                    var PackageCollectionViewForType = PackageCollectionView.extend({
+                    PackageCollectionViewForType = PackageCollectionView.extend({
                         childView: this.packageItemView,
                     });
 
@@ -153,7 +158,7 @@ define([
                     this._radio.commands.execute('setState', stateKey, 'dateRange', newDates);
 
                     this.loadPackages(
-                        function(collection, response, options) {
+                        function(collection, response, options) {  // eslint-disable-line no-unused-vars,max-len
                             this.updateQuery(collection);
                         }.bind(this)
                     );
@@ -173,7 +178,7 @@ define([
                         'queryTerms',
                         function(terms) {
                             terms.push(queryObject);
-                        }.bind(this)
+                        }.bind(this)  // eslint-disable-line no-extra-bind
                     );
 
                     this.updateQuery(this.packageCollection);
@@ -191,12 +196,8 @@ define([
                         stateKey,
                         'queryTerms',
                         function(terms) {
-                            terms.remove(
-                                terms.where({
-                                    value: queryValue
-                                })
-                            );
-                        }.bind(this)
+                            terms.remove(terms.where({value: queryValue}));
+                        }.bind(this)  // eslint-disable-line no-extra-bind
                     );
 
                     this.updateQuery(this.packageCollection);
@@ -229,8 +230,8 @@ define([
 
                 _.each(
                     this.extraChildViews,
-                    function(viewClass, region) {
-                        var viewInstance = new viewClass({
+                    function(ViewClass, region) {
+                        var viewInstance = new ViewClass({
                             data: this.options.data,
                             stateKey: this.stateKey,
                         });
@@ -251,7 +252,7 @@ define([
             this._poller.destroy();
         },
 
-        parseQueryString: function(querystring, returnValue) {
+        parseQueryString: function(querystring, returnValue) {  // eslint-disable-line no-unused-vars,max-len
             var parsedQueryTerms = [],
                 parsedDateRange = {},
                 extraContext = {},
@@ -264,48 +265,46 @@ define([
                 ],
                 dateQueryTerms = [
                     'startDate',
-                    'endDate'
+                    'endDate',
                 ];
 
             if (!_.isNull(querystring)) {
                 parsedQueryTerms = _.chain(querystring.split('&'))
-                    .map(
-                        function(component){
-                            var termParts = _.map(
-                                    component.split('='),
-                                    decodeURIComponent
-                                );
+                    .map(function(component) {
+                        var termParts = _.map(
+                                component.split('='),
+                                decodeURIComponent
+                            );
 
-                            if (_.contains(searchQueryTerms, termParts[0])) {
-                                return {
-                                    type: termParts[0],
-                                    value: termParts[1]
-                                };
-                            } else if (_.contains(dateQueryTerms, termParts[0])) {
-                                parsedDateRange[
-                                    termParts[0].slice(0, -4)
-                                ] = moment(
-                                    termParts[1]
-                                ).format('YYYY-MM-DD');
+                        if (_.contains(searchQueryTerms, termParts[0])) {
+                            return {
+                                type: termParts[0],
+                                value: termParts[1],
+                            };
+                        } else if (_.contains(dateQueryTerms, termParts[0])) {
+                            parsedDateRange[
+                                termParts[0].slice(0, -4)
+                            ] = moment(
+                                termParts[1]
+                            ).format('YYYY-MM-DD');
 
-                                return null;
-                            } else if (
-                                _.contains(
-                                    _.pluck(this.extraQueryTerms, 'urlSlug'),
-                                    termParts[0]
-                                )
-                            ) {
-                                extraContext[termParts[0]] = termParts[1];
-                            } else {
-                                invalidTerms.push({
-                                    type: termParts[0],
-                                    value: termParts[1],
-                                });
+                            return null;
+                        } else if (
+                            _.contains(
+                                _.pluck(this.extraQueryTerms, 'urlSlug'),
+                                termParts[0]
+                            )
+                        ) {
+                            extraContext[termParts[0]] = termParts[1];
+                        } else {
+                            invalidTerms.push({
+                                type: termParts[0],
+                                value: termParts[1],
+                            });
+                        }
 
-                                return null;
-                            }
-                        }.bind(this)
-                    )
+                        return null;
+                    }.bind(this))
                     .compact()
                     .value();
 
@@ -319,7 +318,7 @@ define([
                                 encodeURIComponent(term.type) + '=' +
                                 encodeURIComponent(term.value) + '" ' +
                                 '(ignored)';
-                            console.log(message);
+                            console.log(message);  // eslint-disable-line no-console
                         }
                     );
                 }
@@ -339,12 +338,8 @@ define([
                     this.stateKey,
                     'queryTerms'
                 ),
-                extraQueryContext = {
-                    hubs: this.options.data.hubs
-                },
-                fullTextQueries = commonQueryTerms.where({
-                    type: 'fullText'
-                });
+                extraQueryContext = {hubs: this.options.data.hubs},
+                fullTextQueries = commonQueryTerms.where({type: 'fullText'});
 
             if (!_.isEmpty(fullTextQueries)) {
                 extraQueryContext.fullTextSearches = {};
@@ -468,9 +463,7 @@ define([
             this._radio.commands.execute(
                 'navigate',
                 newURL,
-                {
-                    trigger: false
-                }
+                {trigger: false}
             );
         },
     });

@@ -8,7 +8,7 @@ define(
         'budget/itemviews/snackbars/snackbar.js',
         'budget/layoutviews/packages/list-print-info',
         'budget/layoutviews/packages/list-web-info',
-        'budget/models/package'
+        'budget/models/package',
     ],
     function(
         Backbone,
@@ -23,62 +23,59 @@ define(
     ) {
         'use strict';
 
-        var _radio = Backbone.Wreqr.radio.channel('global');
+        var radio = Backbone.Wreqr.radio.channel('global');
 
         return {
-            home: function(querystring){
-                _radio.commands.execute(
+            home: function(querystring) {
+                radio.commands.execute(
                     'setState',
                     'meta',
                     'listViewType',
                     'listPage'
                 );
 
-                _radio.commands.execute(
+                radio.commands.execute(
                     'switchMainView',
                     PackageWebListView,
-                    {
-                        'querystring': querystring
-                    }
+                    {querystring: querystring}
                 );
             },
-            printList: function(querystring){
-                _radio.commands.execute(
-                    'setState',
-                    'meta',
-                    'listViewType',
-                    'printListPage'
-                );
+            printList: function(querystring) {
+                radio.commands.execute('setState', 'meta', 'listViewType', 'printListPage');
 
-                _radio.commands.execute(
+                radio.commands.execute(
                     'switchMainView',
                     PackagePrintListView,
-                    {
-                        'querystring': querystring
-                    }
+                    {querystring: querystring}
                 );
             },
             edit: function(packageID) {
-                var additionalItemCollection = new AdditionalContentItems();
+                var additionalItemCollection = new AdditionalContentItems(),
+                    packageToEdit;
 
                 if (_.isUndefined(packageID)) {
-                    _radio.commands.execute(
+                    packageToEdit = new Package();
+
+                    radio.commands.execute(
                         'switchMainView',
                         PackageEditView,
                         {
+                            model: packageToEdit,
                             collection: additionalItemCollection,
                         }
                     );
                 } else {
-                    var packageToEdit = new Package({
-                        id: parseInt(packageID, 10)
+                    packageToEdit = new Package({
+                        id: parseInt(packageID, 10),
                     });
 
                     packageToEdit.fetch({
-                        success: function(model, response, options) {
-                            console.log("Fetched package with ID '" + model.id + "'.");
+                        success: function(model, response, options) {  // eslint-disable-line no-unused-vars,max-len
+                            console.log(  // eslint-disable-line no-console
+                                "Fetched package with ID '" + model.id + "'."
+                            );
 
-                            _radio.commands.execute(
+                            radio.commands.execute(
                                 'switchMainView',
                                 PackageEditView,
                                 {
@@ -87,13 +84,13 @@ define(
                                 }
                             );
                         },
-                        error: function(model, response, options) {
-                            if (response.status == 404) {
+                        error: function(model, response, options) {  // eslint-disable-line no-unused-vars,max-len
+                            if (response.status === 404) {
                                 // Redirect to the home page.
-                                _radio.commands.execute('navigate', '', {trigger: true});
+                                radio.commands.execute('navigate', '', {trigger: true});
 
                                 // Display snackbar:
-                                _radio.commands.execute(
+                                radio.commands.execute(
                                     'showSnackbar',
                                     new SnackbarView({
                                         snackbarClass: 'failure',
@@ -102,10 +99,10 @@ define(
                                 );
                             } else {
                                 // Redirect to the home page.
-                                _radio.commands.execute('navigate', '', {trigger: true});
+                                radio.commands.execute('navigate', '', {trigger: true});
 
                                 // Display snackbar:
-                                _radio.commands.execute(
+                                radio.commands.execute(
                                     'showSnackbar',
                                     new SnackbarView({
                                         snackbarClass: 'failure',
@@ -117,8 +114,8 @@ define(
                     });
                 }
             },
-            fourohfour: function(){
-                console.log("404.");
+            fourohfour: function() {
+                console.log('404.');  // eslint-disable-line no-console
             },
         };
     }

@@ -78,7 +78,10 @@ define(
                     monthsShort : [
                         'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
                         'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'
-                    ]
+                    ],
+                    week: {
+                        dow: 1
+                    }
                 });
 
                 $.dateRangePickerLanguages.default['week-1'] = 'M';

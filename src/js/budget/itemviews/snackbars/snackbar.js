@@ -1,8 +1,12 @@
 define([
+    'backbone',
+    'jquery',
     'marionette',
     'underscore',
-    'common/tpl'
+    'common/tpl',
 ], function(
+    Backbone,
+    $,
     Mn,
     _,
     tpl
@@ -26,14 +30,14 @@ define([
         },
 
         attributes: function() {
-            if (typeof(this.config) == "undefined") {
+            if (typeof(this.config) === 'undefined') {
                 return {};
-            } else {
-                return {
-                    class: 'snackbar ' + this.config.snackbarClass + ' ' + this.config.lineCount + '-line'
-                };
             }
 
+            return {
+                class: 'snackbar ' + this.config.snackbarClass + ' ' +
+                            this.config.lineCount + '-line',
+            };
         },
 
         initialize: function() {
@@ -42,12 +46,12 @@ define([
                 text: '',
                 lineCount: 1,
                 snackbarClass: 'generic-snackbar',
-                action: null
+                action: null,
             };
 
             this.config = _.chain(this.options)
                                 .defaults(defaultConfig)
-                                .omit(function(value, key, object) {
+                                .omit(function(value, key, object) {  // eslint-disable-line no-unused-vars,max-len
                                     return !_.chain(defaultConfig)
                                                 .keys()
                                                 .contains(key)
@@ -57,16 +61,11 @@ define([
         },
 
         onRender: function() {
-            this.$el.attr(
-                _.result(this,'attributes')
-            );
-            // setTimeout(function() {
-            //     this.$el.addClass('active');
-            // }.bind(this), 30);
+            this.$el.attr(_.result(this, 'attributes'));
         },
 
         onDomRefresh: function() {
-            var _radio = Backbone.Wreqr.radio.channel('global');
+            var radio = Backbone.Wreqr.radio.channel('global');
 
             if (!_.isNull(this.config.containerClass)) {
                 this.$el.parent().removeClass().addClass(this.config.containerClass);
@@ -90,7 +89,7 @@ define([
             this.$el
                 .delay(1000).queue(
                     function() {
-                        _radio.commands.execute('clearRegion', 'snackbarHolder');
+                        radio.commands.execute('clearRegion', 'snackbarHolder');
                         $(this).dequeue();
                     }
                 );

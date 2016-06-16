@@ -7,7 +7,7 @@ define([
     'budget/itemviews/packages/date-filter',
     'budget/itemviews/packages/package-web-info',
     'budget/itemviews/packages/search-box',
-    'budget/layoutviews/packages/list-base'
+    'budget/layoutviews/packages/list-base',
 ], function(
     _,
     settings,
