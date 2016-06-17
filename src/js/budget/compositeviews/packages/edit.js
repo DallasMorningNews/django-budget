@@ -556,7 +556,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             return null;
                         }
 
-                        console.log('O');
                         return [
                             model.generateFormattedPubDate()[0],
                             $el.val(),
