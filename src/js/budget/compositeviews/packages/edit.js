@@ -857,7 +857,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             bindingsObj[ui.headlineGroup.selector] = {
                 observe: 'headlineStatus',
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
-                    var variableGroupName = (value === 'voting') ? value : 'other',
+                    var variableGroupName = (
+                            mdl.initialHeadlineStatus === 'voting'
+                        ) ? mdl.initialHeadlineStatus : 'other',
                         activeGroup = $el.find(
                             '.hl-variable-group[data-mode="' + variableGroupName + '"]'
                         ),
@@ -870,7 +872,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             activeGroup.height()
                         );
 
-                    if (value === 'drafting') {
+                    if (mdl.initialHeadlineStatus === 'drafting') {
                         newHeight += additionalInputHeights;
                     }
 
@@ -920,7 +922,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) { return !(value === 'drafting'); },
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            return !(model.initialHeadlineStatus === 'drafting');
+                        },
                     },
                 ],
             };
@@ -958,7 +962,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) { return !(value === 'drafting'); },
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            return !(model.initialHeadlineStatus === 'drafting');
+                        },
                     },
                 ],
             };
@@ -996,7 +1002,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) { return !(value === 'drafting'); },
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            return !(model.initialHeadlineStatus === 'drafting');
+                        },
                     },
                 ],
             };
@@ -1034,7 +1042,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) { return !(value === 'drafting'); },
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            return !(model.initialHeadlineStatus === 'drafting');
+                        },
                     },
                 ],
             };
@@ -1052,29 +1062,49 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'data-visible',
                         observe: 'headlineStatus',
-                        onGet: function(val) { return (val === 'drafting') ? 'true' : 'false'; },
+                        onGet: function(val) {  // eslint-disable-line no-unused-vars
+                            return (model.initialHeadlineStatus === 'drafting') ? 'true' : 'false';
+                        },
                     },
                 ],
             };
 
             bindingsObj[ui.headlineVoteSubmissionToggleInput.selector] = {
-                observe: 'headlinesSubmitted',
-                update: function($el, value, mdl, config) {
-                    var currentModelValue = mdl.get(config.observe) || false;
+                observe: 'headlineStatus',
+                update: function($el, value, mdl, config) {},  // eslint-disable-line no-unused-vars
+                updateModel: function(value, event, options) {  // eslint-disable-line no-unused-vars,max-len
+                    if (model.initialHeadlineStatus === 'drafting') {
+                        if (model.get('headlineStatus') === 'drafting' && value === 'voting') {
+                            return true;
+                        }
 
-                    $el.prop(
-                        'checked',
-                        (_.isBoolean(currentModelValue)) ? currentModelValue : false
-                    );
+                        if (model.get('headlineStatus') === 'voting' && value === 'drafting') {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    return ($el.prop('checked') === true);
+                    return ($el.prop('checked') === true) ? 'voting' : 'drafting';
                 },
                 attributes: [
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) { return !(value === 'drafting'); },
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            return (model.initialHeadlineStatus !== 'drafting');
+                        },
+                    },
+                    {
+                        name: 'checked',
+                        observe: 'headlineStatus',
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            return (
+                                (model.initialHeadlineStatus === 'drafting') &&
+                                (value === 'voting')
+                            );
+                        },
                     },
                 ],
             };

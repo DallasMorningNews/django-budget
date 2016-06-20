@@ -60,6 +60,12 @@ function(
             });
         },
 
+        parse: function(data) {
+            this.initialHeadlineStatus = data.headlineStatus;
+
+            return data;
+        },
+
         url: function() {
             return this.urlRoot + this.id + (settings.apiPostfix || '/');
         },
