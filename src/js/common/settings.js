@@ -24,11 +24,14 @@ define(['underscore'], function(_) {
                     staffer: {
                         list: 'http://datalab.dallasnews.com/staff/api/staff/',
                     },
+                    headlineCandidate: 'http://datalab-budget-dev.herokuapp.com/budget/api/headlines/',  // eslint-disable-line max-len
+                    item: 'http://datalab-budget-dev.herokuapp.com/budget/api/items/',
                     package: {
-                        detail: 'http://datalab.dallasnews.com/budget/packages/',
+                        // detail: 'http://datalab.dallasnews.com/budget/packages/',
+                        detail: 'http://datalab-budget-dev.herokuapp.com/budget/api/packages/',
                         list: {
                             print: 'http://datalab.dallasnews.com/budget/packages/for-print/',
-                            web: 'http://datalab.dallasnews.com/budget/packages/',
+                            // web: 'http://datalab.dallasnews.com/budget/packages/',
                         },
                     },
                 },

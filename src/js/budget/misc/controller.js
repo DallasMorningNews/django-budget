@@ -3,7 +3,6 @@ define(
         'backbone',
         'moment',
         'underscore',
-        'budget/collections/additional-content-items',
         'budget/compositeviews/packages/edit',
         'budget/itemviews/snackbars/snackbar.js',
         'budget/layoutviews/packages/list-print-info',
@@ -14,7 +13,6 @@ define(
         Backbone,
         moment,
         _,
-        AdditionalContentItems,
         PackageEditView,
         SnackbarView,
         PackagePrintListView,
@@ -50,41 +48,26 @@ define(
                 );
             },
             edit: function(packageID) {
-                var additionalItemCollection = new AdditionalContentItems(),
-                    packageToEdit;
+                var packageOpts = (_.isUndefined(packageID)) ? {} : {
+                        id: parseInt(packageID, 10),
+                    },
+                    packageToEdit = new Package(packageOpts);
 
                 if (_.isUndefined(packageID)) {
-                    packageToEdit = new Package();
-
                     radio.commands.execute(
                         'switchMainView',
                         PackageEditView,
-                        {
-                            model: packageToEdit,
-                            collection: additionalItemCollection,
-                        }
+                        {model: packageToEdit}
                     );
                 } else {
-                    packageToEdit = new Package({
-                        id: parseInt(packageID, 10),
-                    });
-
-                    packageToEdit.fetch({
-                        success: function(model, response, options) {  // eslint-disable-line no-unused-vars,max-len
-                            console.log(  // eslint-disable-line no-console
-                                "Fetched package with ID '" + model.id + "'."
-                            );
-
-                            radio.commands.execute(
-                                'switchMainView',
-                                PackageEditView,
-                                {
-                                    model: packageToEdit,
-                                    collection: additionalItemCollection,
-                                }
-                            );
-                        },
-                        error: function(model, response, options) {  // eslint-disable-line no-unused-vars,max-len
+                    packageToEdit.load().done(function() {
+                        radio.commands.execute(
+                            'switchMainView',
+                            PackageEditView,
+                            {model: packageToEdit}
+                        );
+                    }).fail(function(stage, response) {
+                        if (stage === 'package') {
                             if (response.status === 404) {
                                 // Redirect to the home page.
                                 radio.commands.execute('navigate', '', {trigger: true});
@@ -110,7 +93,7 @@ define(
                                     })
                                 );
                             }
-                        },
+                        }
                     });
                 }
             },

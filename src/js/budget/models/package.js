@@ -1,15 +1,21 @@
 define([
     'backbone',
     'deepModel',
+    'jquery',
     'moment',
     'underscore',
+    'budget/collections/headline-candidates',
+    'budget/collections/items',
     'common/settings',
 ],
 function(
     Backbone,
     deepModel,
+    $,
     moment,
     _,
+    HeadlineCandidateCollection,
+    BudgetItemCollection,
     settings
 ) {
     'use strict';
@@ -21,17 +27,16 @@ function(
         defaults: {
             headlineCandidates: [],
             headlineStatus: 'drafting',
-            printPlacement: {
-                printPlacements: null,
-                isFinalized: false,
-                printRunDate: null,
-                publication: null,
-            },
-            pubDate: {
-                formatted: null,
-                resolution: null,
-                timestamp: null,
-            },
+
+            printPlacements: null,
+            isPrintPlacementFinalized: false,
+            printRunDate: null,
+            publication: null,
+
+            pubDate: null,
+            pubDateFormatted: null,
+            pubDateResolution: null,
+            pubDateTimestamp: null,
         },
 
         initialize: function() {
@@ -58,10 +63,131 @@ function(
                     dow: 1,
                 },
             });
+
+            this.additionalItems = new BudgetItemCollection();
+        },
+
+        load: function() {
+            var packageRequest = this.fetch({
+                    xhrFields: {
+                        withCredentials: true,
+                    },
+                }),
+                itemRequestPromise = new $.Deferred(),
+                additionalRequestPromise = new $.Deferred();
+
+            // Load the package, then fire each request for the additional
+            // information we'll need to fully construct the object.
+            packageRequest.done(function(model, request, options) {  // eslint-disable-line no-unused-vars,max-len
+                var items,
+                    itemsRequest,
+                    additionalItems,
+                    headlines,
+                    headlinesRequest,
+                    allAdditionalRequests = [itemRequestPromise];
+
+                // Log that the package fetch was successful.
+                console.log(  // eslint-disable-line no-console
+                    "Fetched package with ID '" + this.id + "'."
+                );
+
+                // Instantiate an item collection associated with this package, and
+                // retrieve its starting values from the API.
+                items = new BudgetItemCollection();
+                itemsRequest = items.fetch({
+                    xhrFields: {
+                        withCredentials: true,
+                    },
+                    data: {
+                        id__in: this.primaryID + ',' + this.additionalIDs.join(','),
+                    },
+                });
+
+                // Once primary and additional items are loaded, incorporate
+                // their attributes into the package model.
+                itemsRequest.done(function(itColl, itRequest, itOptions) {  // eslint-disable-line no-unused-vars,max-len
+                    var primaryItem = items.get(this.primaryID),
+                        additionalText = (
+                            !_.isEmpty(this.additionalIDs)
+                        ) ? ", '" + this.additionalIDs.join("', '") + "'" : '';
+
+                    additionalItems = items.clone();
+                    additionalItems.remove(primaryItem);
+
+                    console.log(  // eslint-disable-line no-console
+                        "Fetched items with IDs '" + primaryItem.id + "'" + additionalText + '.'
+                    );
+
+                    this.set('primaryContent', primaryItem.toJSON());
+                    this.set('additionalContent', additionalItems.toJSON());
+
+                    this.additionalItems = additionalItems;
+
+                    return '';
+                }.bind(this)).done(function() {
+                    itemRequestPromise.resolve();
+                });
+
+                // If the item request fails, pass back the error.
+                itemsRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
+                    additionalRequestPromise.reject('items', response);
+                });
+
+                if (!_.isEmpty(this.headlineIDs)) {
+                    // Instantiate and retrieve data for a collection
+                    // containing each headline in this package.
+                    headlines = new HeadlineCandidateCollection();
+                    headlinesRequest = headlines.fetch({
+                        xhrFields: {
+                            withCredentials: true,
+                        },
+                        data: {
+                            id__in: this.headlineIDs.join(','),
+                        },
+                    });
+
+                    // Add this request to the list of simultaneous
+                    // additional-information queries.
+                    allAdditionalRequests.push(headlinesRequest);
+
+                    // Once the headlines have been loaded, update the value of
+                    // the package model's headline candidates.
+                    headlinesRequest.done(function(hlColl, hlResponse, hlOpts) {  // eslint-disable-line no-unused-vars,max-len
+                        console.log(  // eslint-disable-line no-console
+                            "Fetched headlines with IDs '" +
+                            headlines.pluck('id').join("', '") +
+                            "'."
+                        );
+                        this.set('headlineCandidates', headlines.toJSON());
+                    }.bind(this));  // eslint-disable-line no-extra-bind
+
+                    // If the headline request fails, pass back the error.
+                    headlinesRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
+                        additionalRequestPromise.reject('headlines', response);
+                    });
+                }
+
+
+                // When all additional queries have returned successfully, pass
+                // a successful resolution the underlying Deferred promise.
+                $.when.apply($, allAdditionalRequests).done(function() {
+                    additionalRequestPromise.resolve(this);
+                }.bind(this));
+            }.bind(this));
+
+            // If the package request fails, pass back the error.
+            packageRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
+                additionalRequestPromise.reject('package', response);
+            });
+
+            return additionalRequestPromise.promise();
         },
 
         parse: function(data) {
             this.initialHeadlineStatus = data.headlineStatus;
+            this.primaryID = data.primaryContent;
+            this.additionalIDs = data.additionalContent;
+            this.headlineIDs = _.clone(data.headlineCandidates);
 
             return data;
         },
@@ -215,9 +341,9 @@ function(
                 latestDate,
                 intervalMap;
 
-            if (this.has('pubDate.resolution')) {
-                resolution = this.get('pubDate.resolution');
-                timestamp = this.get('pubDate.timestamp');
+            if (this.has('pubDateResolution')) {
+                resolution = this.get('pubDateResolution');
+                timestamp = this.get('pubDateTimestamp');
 
                 if (!_.isNull(timestamp)) {
                     latestDate = moment.unix(timestamp).tz('America/Chicago');
@@ -260,13 +386,13 @@ function(
 
             // Use the model values if no parameters have been passed.
             if (_.isUndefined(resolutionRaw)) {
-                resolution = this.get('pubDate.resolution');
+                resolution = this.get('pubDateResolution');
             } else {
                 resolution = resolutionRaw;
             }
 
             if (_.isUndefined(timestampRaw)) {
-                timestamp = this.get('pubDate.timestamp');
+                timestamp = this.get('pubDateTimestamp');
             } else {
                 timestamp = timestampRaw;
             }
@@ -292,8 +418,7 @@ function(
         },
 
         updateFormattedPubDate: function(newPubDate) {
-            // var currentPubDate = this.get('pubDate.formatted'),
-            var resolution = this.get('pubDate.resolution'),
+            var resolution = this.get('pubDateResolution'),
                 roughDate = moment(
                     newPubDate,
                     this.dateFormats[resolution].join(' ')
@@ -303,14 +428,14 @@ function(
             finalDate = roughDate.endOf(this.intervalRoundings[resolution]);
 
             this.set(
-                {'pubDate.timestamp': finalDate.unix()},
+                {pubDateTimestamp: finalDate.unix()},
                 {
                     // silent: true
                 }
             );
             this.set(
                 {
-                    'pubDate.formatted': this.generateFormattedPubDate(
+                    pubDateFormatted: this.generateFormattedPubDate(
                         resolution,
                         finalDate.unix()
                     ).join(' '),
@@ -351,20 +476,20 @@ function(
         },
 
         resetPubDateResolution: function(newResolution) {
-            var currentResolution = this.get('pubDate.resolution'),
+            var currentResolution = this.get('pubDateResolution'),
                 oldEnd,
                 newEnd;
 
-            this.set('pubDate.resolution', newResolution);
+            this.set('pubDateResolution', newResolution);
 
             if (currentResolution !== newResolution) {
                 if (_.isNull(newResolution)) {
-                    this.set('pubDate.formatted', null);
-                    this.set('pubDate.timestamp', null);
+                    this.set('pubDateFormatted', null);
+                    this.set('pubDateTimestamp', null);
                 } else {
-                    if (!_.isNull(this.get('pubDate.timestamp'))) {
+                    if (!_.isNull(this.get('pubDateTimestamp'))) {
                         oldEnd = moment.unix(
-                            this.get('pubDate.timestamp')
+                            this.get('pubDateTimestamp')
                         ).tz('America/Chicago');
                         newEnd = oldEnd.endOf(
                             this.intervalRoundings[newResolution]
@@ -378,16 +503,16 @@ function(
                             }
                         }
 
-                        this.set('pubDate.timestamp', newEnd.unix());
+                        this.set('pubDateTimestamp', newEnd.unix());
                         this.set(
-                            'pubDate.formatted',
+                            'pubDateFormatted',
                             this.generateFormattedPubDate(
                                 newResolution,
                                 newEnd.unix()
                             ).join(' ')
                         );
                     } else {
-                        this.set('pubDate.formatted', null);
+                        this.set('pubDateFormatted', null);
                     }
                 }
             }
@@ -396,7 +521,7 @@ function(
         generateFormattedRunDate: function(formatString, runDateValue) {
             var value = (
                 !_.isUndefined(runDateValue)
-            ) ? runDateValue : this.get('printPlacement.printRunDate');
+            ) ? runDateValue : this.get('printRunDate');
 
             return moment(value, formatString).tz('America/Chicago').toDate();
         },

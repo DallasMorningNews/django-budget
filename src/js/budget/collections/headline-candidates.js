@@ -3,22 +3,26 @@ define(
         'backbone',
         'underscore',
         'common/settings',
-        'budget/models/additional-content-item',
+        'budget/models/headline-candidate',
     ],
     function(
         Backbone,
         _,
         settings,
-        AdditionalContentItem
+        HeadlineCandidate
     ) {
         'use strict';
 
         return Backbone.Collection.extend({
             // A boolean to track whether we've populated our collection with
             // search options for the first time
-            model: AdditionalContentItem,
+            model: HeadlineCandidate,
+
+            url: settings.apiEndpoints.GET.headlineCandidate,
 
             events: {},
+
+            comparator: 'id',
 
             /**
              * Sort the collection by pinned status first (pinned on top) then by
@@ -34,7 +38,7 @@ define(
             // },
 
             parse: function(response) {
-                return response;
+                return response.results;
             },
         });
     }

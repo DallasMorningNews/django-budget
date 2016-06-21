@@ -13,7 +13,6 @@ define([
     'underscore.string',
     'common/settings',
     'common/tpl',
-    'budget/collections/additional-content-items',
     'budget/itemviews/additional-content/additional-form',
     'budget/itemviews/modals/modal-window.js',
     'budget/itemviews/snackbars/snackbar.js',
@@ -35,7 +34,6 @@ define([
     _string_,
     settings,
     tpl,
-    AdditionalContentItems,
     AdditionalContentForm,
     ModalView,
     SnackbarView,
@@ -163,8 +161,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 observe: [
                     'hub',
                     'primaryContent.slugKey',
-                    'pubDate.resolution',
-                    'pubDate.timestamp',
+                    'pubDateResolution',
+                    'pubDateTimestamp',
                 ],
                 update: function($el, values, mdl) {
                     // TODO: this should also handle the changes triggered in
@@ -335,7 +333,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubDateResolution.selector] = {
-                observe: 'pubDate.resolution',
+                observe: 'pubDateResolution',
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     var resolutionOpts = {
                         maxItems: 1,
@@ -383,10 +381,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubDateGroup.selector] = {
-                observe: 'pubDate.resolution',
+                observe: 'pubDateResolution',
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     var control = this.ui.pubDateField.data('datepicker'),
-                        resolution = mdl.get('pubDate.resolution'),
+                        resolution = mdl.get('pubDateResolution'),
                         currentDate = (_.has(control, 'currentDate')) ? control.currentDate : null,
                         hasDate = !_.isNull(currentDate),
                         resolutionOptions = {},  // eslint-disable-line no-unused-vars
@@ -425,7 +423,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 attributes: [
                     {
                         name: 'field-active',
-                        observe: 'pubDate.resolution',
+                        observe: 'pubDateResolution',
                         onGet: function(value) {
                             if (!_.isNull(value)) {
                                 return 'true';
@@ -438,23 +436,22 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubDateField.selector] = {
-                observe: 'pubDate.formatted',
+                observe: 'pubDateFormatted',
                 events: ['blur'],
                 update: function($el, value, mdl) {
                     var datePckr = ui.pubDateField.data('datepicker'),
                         newDate;
 
                     if (_.isNull(value) || value === '') {
-                        window.ddd = datePckr;
                         datePckr.clear();
                     } else {
-                        if (mdl.has('pubDate.timestamp')) {
+                        if (mdl.has('pubDateTimestamp')) {
                             newDate = moment.unix(
-                                mdl.get('pubDate.timestamp')
+                                mdl.get('pubDateTimestamp')
                             ).tz('America/Chicago');
 
                             // Weeks need to be passed as the beginning date.
-                            if (mdl.get('pubDate.resolution') === 'w') {
+                            if (mdl.get('pubDateResolution') === 'w') {
                                 newDate = newDate.startOf('week');
                             }
 
@@ -468,7 +465,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         return null;
                     }
 
-                    if (model.get('pubDate.resolution') === 't') {
+                    if (model.get('pubDateResolution') === 't') {
                         return [
                             $el.val(),
                             model.generateFormattedPubDate()[1],
@@ -481,14 +478,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     if (!_.isNull(value)) {
                         model.updateFormattedPubDate(value);
                     } else {
-                        model.set('pubDate.timestamp', null);
-                        model.set('pubDate.formatted', null);
+                        model.set('pubDateTimestamp', null);
+                        model.set('pubDateFormatted', null);
                     }
                 },
                 attributes: [
                     {
                         name: 'disabled',
-                        observe: 'pubDate.resolution',
+                        observe: 'pubDateResolution',
                         onGet: function(value) {
                             if (_.isNull(value)) {
                                 return true;
@@ -501,7 +498,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubTimeGroup.selector] = {
-                observe: 'pubDate.resolution',
+                observe: 'pubDateResolution',
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     var control,
                         customOptions = {};
@@ -521,7 +518,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 attributes: [
                     {
                         name: 'field-active',
-                        observe: 'pubDate.resolution',
+                        observe: 'pubDateResolution',
                         onGet: function(value) {
                             if (value === 't') {
                                 return 'true';
@@ -534,16 +531,16 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubTimeField.selector] = {
-                observe: 'pubDate.formatted',
+                observe: 'pubDateFormatted',
                 events: ['blur'],
                 update: function($el, value, mdl) {
                     var timePckr = ui.pubTimeField.data('timepicker');
 
-                    if (!_.isNull(mdl.get('pubDate.timestamp'))) {
+                    if (!_.isNull(mdl.get('pubDateTimestamp'))) {
                         timePckr.selectTime(
                             mdl.generateFormattedPubDate(
-                                mdl.get('pubDate.resolution'),
-                                mdl.get('pubDate.timestamp')
+                                mdl.get('pubDateResolution'),
+                                mdl.get('pubDateTimestamp')
                             )[1]
                         );
                     } else {
@@ -551,8 +548,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     }
                 },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if (model.get('pubDate.resolution') === 't') {
-                        if (_.isUndefined(model.get('timestamp'))) {
+                    if (model.get('pubDateResolution') === 't') {
+                        if (_.isUndefined(model.get('pubDateTimestamp'))) {
                             return null;
                         }
 
@@ -568,14 +565,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     if (!_.isNull(value)) {
                         model.updateFormattedPubDate(value);
                     } else {
-                        model.set('pubDate.timestamp', null);
-                        model.set('pubDate.formatted', null);
+                        model.set('pubDateTimestamp', null);
+                        model.set('pubDateFormatted', null);
                     }
                 },
                 attributes: [
                     {
                         name: 'disabled',
-                        observe: 'pubDate.resolution',
+                        observe: 'pubDateResolution',
                         onGet: function(value) {
                             if (value !== 't') {
                                 return true;
@@ -591,8 +588,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 observe: [
                     'hub',
                     'primaryContent.slugKey',
-                    'pubDate.resolution',
-                    'pubDate.timestamp',
+                    'pubDateResolution',
+                    'pubDateTimestamp',
                 ],
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     $el.on(
@@ -1159,11 +1156,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.urlField.selector] = {
-                observe: 'URL',
+                observe: 'publishedUrl',
             };
 
             bindingsObj[ui.printPlacementGroup.selector] = {
-                observe: 'printPlacement.printPlacements',
+                observe: 'printPlacements',
                 initialize: function($el, mdl, opts) {  // eslint-disable-line no-unused-vars
                     var placementInputs = _.map(
                         this.printPlacementChoices,
@@ -1203,7 +1200,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.printRunDateField.selector] = {
-                observe: 'printPlacement.printRunDate',
+                observe: 'printRunDate',
                 events: ['setPrintRunDate'],
                 initialize: function($el, mdl, opts) {
                     var inputValue = mdl.get(opts.observe),
@@ -1269,7 +1266,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.printPlacementFields.selector] = {
-                observe: 'printPlacement.printPlacements',
+                observe: 'printPlacements',
                 update: function($el, activeValues, mdl) {  // eslint-disable-line no-unused-vars
                     _.each($el, function(choiceEl) {
                         var $choiceEl = $(choiceEl),
@@ -1289,7 +1286,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.printFinalized.selector] = {
-                observe: 'printPlacement.isFinalized',
+                observe: 'isPrintPlacementFinalized',
                 update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
                     return $el.is(':checked');
@@ -1297,7 +1294,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 attributes: [
                     {
                         name: 'checked',
-                        observe: 'printPlacement.isFinalized',
+                        observe: 'isPrintPlacementFinalized',
                         onGet: function(value) {
                             return (_.isBoolean(value)) ? value : false;
                         },
@@ -1340,6 +1337,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             this.isFirstRender = true;
 
             this._radio = Backbone.Wreqr.radio.channel('global');
+
+            this.collection = this.model.additionalItems;
 
             /* Prior-path capturing. */
 
@@ -1416,23 +1415,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
         },
 
-        updateCollection: function(argument) {  // eslint-disable-line no-unused-vars
-            // Translate each additional content item into a model
-            // in this.collection.
-            if (!_.isUndefined(this.model)) {
-                if (!_.isEmpty(this.model.get('additionalContent'))) {
-                    _.each(
-                        this.model.get('additionalContent'),
-                        function(additionalItem) {
-                            this.collection.add([additionalItem]);
-                        }.bind(this)
-                    );
-                }
-            }
-
-            return this;
-        },
-
         onBeforeRender: function() {
             // If there are fewer than 4 headline candidates, generate
             // placeholder objects for all that are unaccounted for.
@@ -1456,9 +1438,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     )
                 );
             }
-
-            // Update this.collection to reflect the current additional items.
-            this.updateCollection();
         },
 
         onRender: function() {
@@ -2036,9 +2015,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             }.bind(this),
             500);
 
-            // Pop item from the local collection.
-            // TK.
-
             // Navigate to the index view
             this._radio.commands.execute('navigate', this.priorPath, {trigger: true});
 
@@ -2083,9 +2059,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 this._radio.commands.execute('destroyModal');
             }.bind(this),
             500);
-
-            // Add/update item in the local collection.
-            // TK.
 
             // Navigate to the index view (or to the same page if save and continue)
             if (mode === 'saveOnly') {
