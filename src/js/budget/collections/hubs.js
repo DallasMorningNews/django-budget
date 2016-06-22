@@ -33,11 +33,6 @@ define(
             },
 
             parse: function(response) {
-                // window.resp = response;
-                // response.posts = _.map(response.posts, function(post) {
-                //     post.updated = new Date(post.updated);
-                //     return post;
-                // });
                 return response;
             },
         });

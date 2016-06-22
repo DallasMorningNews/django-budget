@@ -80,7 +80,6 @@ define(
             },
 
             onStart: function() {
-console.log('Started.');  // eslint-disable-line indent,no-console
                 this.rootView.render();
 
                 // var CustomRouter = NamedRouter.extend({
