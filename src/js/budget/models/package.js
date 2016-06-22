@@ -4,6 +4,7 @@ define([
     'jquery',
     'moment',
     'underscore',
+    'underscore.string',
     'budget/collections/headline-candidates',
     'budget/collections/items',
     'common/settings',
@@ -14,6 +15,7 @@ function(
     $,
     moment,
     _,
+    _string_,
     HeadlineCandidateCollection,
     BudgetItemCollection,
     settings
@@ -40,9 +42,7 @@ function(
             publication: null,
 
             pubDate: null,
-            pubDateFormatted: null,
             pubDateResolution: null,
-            pubDateTimestamp: null,
         },
 
         initialize: function() {
@@ -130,7 +130,9 @@ function(
                     var primaryItem = this.get('additionalContent').get(this.primaryID),
                         additionalText = (
                             !_.isEmpty(this.additionalIDs)
-                        ) ? ", '" + this.additionalIDs.join("', '") + "'" : '';
+                        ) ? ", '" + this.additionalIDs.join("', '") + "'" : '',
+                        entireSlug,
+                        generatedSlug;
 
                     additionalItems = this.get('additionalContent').clone();
                     additionalItems.remove(primaryItem);
@@ -141,6 +143,18 @@ function(
 
                     this.set('primaryContent', primaryItem.toJSON());
                     this.set('additionalContent', additionalItems);
+
+                    entireSlug = primaryItem.get('slug');
+                    generatedSlug = this.generatePackageTitle();
+                    if (
+                        (entireSlug !== generatedSlug) &&
+                        (_string_.startsWith(entireSlug, generatedSlug))
+                    ) {
+                        this.set(
+                            'primaryContent.slugSuffix',
+                            _string_.strRight(entireSlug, generatedSlug)
+                        );
+                    }
 
                     return '';
                 }.bind(this)).done(function() {
@@ -360,17 +374,13 @@ function(
         },
 
         generateSlugDate: function() {
-            var resolution,
-                timestamp,
+            var resolution = this.get('pubDateResolution'),
                 latestDate,
                 intervalMap;
 
-            if (this.has('pubDateResolution')) {
-                resolution = this.get('pubDateResolution');
-                timestamp = this.get('pubDateTimestamp');
-
-                if (!_.isNull(timestamp)) {
-                    latestDate = moment.unix(timestamp).tz('America/Chicago');
+            if (!_.isUndefined(resolution)) {
+                if (this.has('pubDate')) {
+                    latestDate = moment(this.get('pubDate')).tz('America/Chicago');
 
                     // If this is a month or a week-resolution date, use the
                     // earliest moment of the time period to generate a dayless
@@ -404,39 +414,62 @@ function(
             ].join('.');
         },
 
+        updatePubDateResolution: function(newResolution) {
+            var currentResolution = this.get('pubDateResolution'),
+                oldEnd,
+                newEnd = null;
+
+            this.set('pubDateResolution', newResolution);
+
+            if (currentResolution !== newResolution) {
+                if (!_.isNull(newResolution)) {
+                    if (!_.isNull(this.get('pubDate'))) {
+                        oldEnd = moment(this.get('pubDate')).tz('America/Chicago');
+                        newEnd = oldEnd.endOf(this.intervalRoundings[newResolution]);
+
+                        if (_.contains(['m', 'w', 'd'], currentResolution)) {
+                            if (newResolution === 't') {
+                                newEnd = newEnd.endOf('day').add({hours: -12, seconds: 1});
+                            }
+                        }
+                    }
+                }
+
+                this.set('pubDate', (!_.isNull(newEnd)) ? newEnd.toISOString() : newEnd);
+            }
+        },
+
+        updatePubDate: function(newResolution, newPubDate) {
+            var resolution = this.get('pubDateResolution'),
+                roughDate,
+                returnValue = null;
+
+            if (newResolution === resolution) {
+                if (!_.isNull(newPubDate)) {
+                    roughDate = moment(
+                        newPubDate,
+                        this.dateFormats[resolution].join(' ')
+                    ).tz('America/Chicago');
+
+                    returnValue = roughDate.endOf(this.intervalRoundings[resolution]).toISOString();
+                }
+
+                this.set({pubDate: returnValue}, {silent: true});
+            }
+        },
+
         generateFormattedPubDate: function(resolutionRaw, timestampRaw) {
-            var resolution,
-                timestamp,
-                endDate,
-                processedEndDate;
-
-            // Use the model values if no parameters have been passed.
-            if (_.isUndefined(resolutionRaw)) {
-                resolution = this.get('pubDateResolution');
-            } else {
-                resolution = resolutionRaw;
-            }
-
-            if (_.isUndefined(timestampRaw)) {
-                timestamp = this.get('pubDateTimestamp');
-            } else {
-                timestamp = timestampRaw;
-            }
-
-            endDate = moment.unix(timestamp).tz('America/Chicago');
-
-            if (_.contains(['m', 'w', 'd', 't'], resolution)) {
+            var resolution = resolutionRaw || this.get('pubDateResolution'),
+                timestamp = timestampRaw || this.get('pubDate'),
+                endDate = moment(timestamp).tz('America/Chicago'),
                 processedEndDate = endDate;
 
-                if (resolution === 'w') {
-                    processedEndDate = endDate.startOf('week');
-                }
+            if (_.contains(['m', 'w', 'd', 't'], resolution)) {
+                if (resolution === 'w') { processedEndDate = endDate.startOf('week'); }
 
                 return _.map(
                     this.dateFormats[resolution],
-                    function(formatString) {
-                        return processedEndDate.format(formatString);
-                    }
+                    function(formatString) { return processedEndDate.format(formatString); }
                 );
             }
 
@@ -453,66 +486,7 @@ function(
 
             finalDate = roughDate.endOf(this.intervalRoundings[resolution]);
 
-            this.set(
-                {pubDateTimestamp: finalDate.unix()},
-                {
-                    // silent: true
-                }
-            );
-            this.set(
-                {
-                    pubDateFormatted: this.generateFormattedPubDate(
-                        resolution,
-                        finalDate.unix()
-                    ).join(' '),
-                },
-                {
-                    // silent: true
-                }
-            );
-        },
-
-        resetPubDateResolution: function(newResolution) {
-            var currentResolution = this.get('pubDateResolution'),
-                oldEnd,
-                newEnd;
-
-            this.set('pubDateResolution', newResolution);
-
-            if (currentResolution !== newResolution) {
-                if (_.isNull(newResolution)) {
-                    this.set('pubDateFormatted', null);
-                    this.set('pubDateTimestamp', null);
-                } else {
-                    if (!_.isNull(this.get('pubDateTimestamp'))) {
-                        oldEnd = moment.unix(
-                            this.get('pubDateTimestamp')
-                        ).tz('America/Chicago');
-                        newEnd = oldEnd.endOf(
-                            this.intervalRoundings[newResolution]
-                        );
-
-                        if (_.contains(['m', 'w', 'd'], currentResolution)) {
-                            if (newResolution === 't') {
-                                newEnd = newEnd.endOf('day')
-                                                .subtract(12, 'hours')
-                                                .add({seconds: 1});
-                            }
-                        }
-
-                        this.set('pubDateTimestamp', newEnd.unix());
-                        this.set(
-                            'pubDateFormatted',
-                            this.generateFormattedPubDate(
-                                newResolution,
-                                newEnd.unix()
-                            ).join(' ')
-                        );
-                    } else {
-                        this.set('pubDateFormatted', null);
-                    }
-                }
-            }
+            this.set({pubDate: finalDate.toISOString()}, {});
         },
 
         generateFormattedRunDate: function(formatString, runDateValue) {

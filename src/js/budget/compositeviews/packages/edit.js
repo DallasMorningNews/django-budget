@@ -145,7 +145,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     'hub',
                     'primaryContent.slugKey',
                     'pubDateResolution',
-                    'pubDateTimestamp',
+                    'pubDate',
                 ],
                 update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
                     var newPackageTitle = this.model.generatePackageTitle();
@@ -358,7 +358,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     return null;
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    model.resetPubDateResolution(value);
+                    model.updatePubDateResolution(value);
                 },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     if (_.isUndefined($el[0].selectize)) {
@@ -425,24 +425,20 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubDateField.selector] = {
-                observe: 'pubDateFormatted',
+                observe: ['pubDateResolution', 'pubDate'],
                 events: ['blur'],
-                update: function($el, value, mdl) {
+                update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
                     var datePckr = ui.pubDateField.data('datepicker'),
                         newDate;
 
-                    if (_.isNull(value) || value === '') {
+                    if (_.isNull(values[1]) || values[1] === '') {
                         datePckr.clear();
                     } else {
-                        if (mdl.has('pubDateTimestamp')) {
-                            newDate = moment.unix(
-                                mdl.get('pubDateTimestamp')
-                            ).tz('America/Chicago');
+                        if ((!_.isUndefined(values[0])) && (values[0] !== '')) {
+                            newDate = moment(values[1]).tz('America/Chicago');
 
                             // Weeks need to be passed as the beginning date.
-                            if (mdl.get('pubDateResolution') === 'w') {
-                                newDate = newDate.startOf('week');
-                            }
+                            if (values[0] === 'w') { newDate = newDate.startOf('week'); }
 
                             datePckr.date = newDate.toDate();
                             datePckr.selectDate(newDate.toDate());
@@ -450,38 +446,23 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     }
                 },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if ($el.val() === '') {
-                        return null;
-                    }
+                    if ($el.val() === '') { return null; }
 
                     if (model.get('pubDateResolution') === 't') {
                         return [
-                            $el.val(),
-                            model.generateFormattedPubDate()[1],
-                        ].join(' ');
+                            ui.pubDateResolution.val(),
+                            [$el.val(), model.generateFormattedPubDate()[1]].join(' '),
+                        ];
                     }
 
-                    return $el.val();
+                    return [$el.val()];
                 },
-                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    if (!_.isNull(value)) {
-                        model.updateFormattedPubDate(value);
-                    } else {
-                        model.set('pubDateTimestamp', null);
-                        model.set('pubDateFormatted', null);
-                    }
-                },
+                set: function(attr, values) { model.updatePubDate.apply(model, values); },  // eslint-disable-line no-unused-vars,max-len
                 attributes: [
                     {
                         name: 'disabled',
                         observe: 'pubDateResolution',
-                        onGet: function(value) {
-                            if (_.isNull(value)) {
-                                return true;
-                            }
-
-                            return false;
-                        },
+                        onGet: function(value) { return _.isNull(value); },
                     },
                 ],
             };
@@ -520,55 +501,38 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubTimeField.selector] = {
-                observe: 'pubDateFormatted',
+                observe: ['pubDateResolution', 'pubDate'],
                 events: ['blur'],
-                update: function($el, value, mdl) {
+                update: function($el, values, mdl) {
                     var timePckr = ui.pubTimeField.data('timepicker');
 
-                    if (!_.isNull(mdl.get('pubDateTimestamp'))) {
-                        timePckr.selectTime(
-                            mdl.generateFormattedPubDate(
-                                mdl.get('pubDateResolution'),
-                                mdl.get('pubDateTimestamp')
-                            )[1]
-                        );
-                    } else {
+                    if (_.isNull(values[1]) || values[1] === '') {
                         timePckr.selectTime('12:00 p.m.');
+                    } else {
+                        timePckr.selectTime(
+                            mdl.generateFormattedPubDate(values[0], values[1])[1]
+                        );
                     }
                 },
+
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
                     if (model.get('pubDateResolution') === 't') {
-                        if (_.isUndefined(model.get('pubDateTimestamp'))) {
-                            return null;
-                        }
+                        if (_.isUndefined(model.get('pubDate'))) { return null; }
 
                         return [
-                            model.generateFormattedPubDate()[0],
-                            $el.val(),
-                        ].join(' ');
+                            ui.pubDateResolution.val(),
+                            [model.generateFormattedPubDate()[0], $el.val()].join(' '),
+                        ];
                     }
 
                     return null;
                 },
-                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    if (!_.isNull(value)) {
-                        model.updateFormattedPubDate(value);
-                    } else {
-                        model.set('pubDateTimestamp', null);
-                        model.set('pubDateFormatted', null);
-                    }
-                },
+                set: function(attr, values) { model.updatePubDate.apply(model, values); },  // eslint-disable-line no-unused-vars,max-len
                 attributes: [
                     {
                         name: 'disabled',
                         observe: 'pubDateResolution',
-                        onGet: function(value) {
-                            if (value !== 't') {
-                                return true;
-                            }
-
-                            return false;
-                        },
+                        onGet: function(value) { return (value !== 't'); },
                     },
                 ],
             };
@@ -578,7 +542,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     'hub',
                     'primaryContent.slugKey',
                     'pubDateResolution',
-                    'pubDateTimestamp',
+                    'pubDate',
                 ],
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     $el.on(
