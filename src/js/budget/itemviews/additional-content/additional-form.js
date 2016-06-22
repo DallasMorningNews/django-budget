@@ -27,34 +27,367 @@ define(
 
         return Mn.ItemView.extend({
             template: tpl('additional-content-form'),
-
             tagName: 'form',
-
             className: 'additional-item-form',
 
             attributes: function() {
                 return {id: this.generateFormID()};
             },
 
+/* eslint-disable indent */
             ui: {
-                titleKeyword: '.content-header .keyword',
-                titleUniqueModifier: '.content-header .unique-modifier',
-                slugField: '.field-slugkey',
-                slugSuffixHolder: '.slug-group-holder .slug-suffix',
-                budgetLineField: '.field-budgetline',
+                packageTitle: '.content-header .package-title',
                 typeDropdown: '.field-type',
                 lengthGroup: '.length-group',
                 lengthField: '.length-group .field-length',
                 pitchLinkGroup: '.request-link-group',
                 addRequestButton: '.request-link-group .button',
+                slugGroup: '.slug-group-holder',
+                slugField: '.keyword-group input',
+                slugPlaceholder: '.keyword-group .keyword-value',
+slugSuffixHolder: '.slug-group-holder .slug-suffix',
+                budgetLineField: '.expanding-holder .field-budgetline',
+                budgetLinePlaceholder: '.expanding-holder .budget-spacer',
                 authorsDropdown: '.field-authors',
                 editorsDropdown: '.field-editors',
-                deleteTrigger: '.delete-additional',
-                // packageSheetOuter: '.package-sheet',
-                // expansionTrigger: '.expand-package',
-                // notesModalTrigger: '.notes',
-                // printInfoModalTrigger: '.print-info',
-                // webInfoModalTrigger: '.web-info'
+deleteTrigger: '.delete-additional',
+            },
+/* eslint-enable indent */
+
+            bindings: function() {
+                var bindingsObj = {},
+                    ui = this.ui;
+
+                bindingsObj[ui.packageTitle.selector] = {
+                    observe: [
+                        'parentSlug',
+                        'slugKey',
+                    ],
+                    onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                        return [
+                            this.options.primarySlug,
+                            values[1],
+                        ];
+                    },
+                    update: function($el, vals, mdl) {  // eslint-disable-line no-unused-vars
+                        $el.text((vals[1] !== '') ? vals.join('.') : vals[0] + '.keyword');
+                    },
+                };
+
+                bindingsObj[ui.typeDropdown.selector] = {
+                    observe: 'type',
+                    initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                        var typeOpts = {
+                            maxItems: 1,
+                            options: this.options.typeChoices,
+                            render: {
+                                item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                    var dataType = 'fullText';  // eslint-disable-line no-unused-vars,max-len
+                                    if (typeof(dta.type) !== 'undefined') { dataType = dta.type; }
+                                    return '<div data-value="' + dta.value +
+                                                '" class="selected-item">' +
+                                                dta.name +
+                                            '</div>';
+                                },
+                            },
+                        };
+                        $el.selectize(_.defaults(typeOpts, settings.editDropdownOptions));
+                    },
+                    getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                        if ($el.val()) { return $el.val(); }
+                        return null;
+                    },
+                    update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                        if (_.isUndefined($el[0].selectize)) {
+                            $el.val(value);
+                        } else if (_.isObject($el[0].selectize)) {
+                            $el[0].selectize.setValue(value, true);
+                        }
+                    },
+                };
+
+                bindingsObj[ui.lengthGroup.selector] = {
+                    observe: 'type',
+                    update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                        var field = $el.find('input');
+
+                        if (value && settings.contentTypes[value].usesLengthAttribute) {
+                            if (field.prop('disabled')) { field.prop('disabled', false); }
+                        } else {
+                            if (!field.prop('disabled')) { field.prop('disabled', true); }
+                        }
+                    },
+                    attributes: [
+                        {
+                            name: 'field-active',
+                            observe: 'type',
+                            onGet: function(value) {
+                                if (value && settings.contentTypes[value].usesLengthAttribute) {
+                                    return 'true';
+                                }
+                                return 'false';
+                            },
+                        },
+                    ],
+                };
+
+                bindingsObj[ui.lengthField.selector] = {
+                    observe: 'length',
+                    getVal: function($el, event, options) { return $el.val() || null; },   // eslint-disable-line no-unused-vars,max-len
+                };
+
+                bindingsObj[ui.pitchLinkGroup.selector] = {
+                    observe: 'type',
+                    update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                    attributes: [
+                        {
+                            name: 'field-active',
+                            observe: 'type',
+                            onGet: function(value) {
+                                if (value && settings.contentTypes[value].usesPitchSystem) {
+                                    return 'true';
+                                }
+
+                                return 'false';
+                            },
+                        },
+                    ],
+                };
+
+                bindingsObj[ui.slugGroup.selector] = {
+                    observe: [
+                        'parentSlug',
+                        'slugKey',
+                    ],
+                    initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                        $el.on(
+                            'recalculateSpacing',
+                            function(event) {  // eslint-disable-line no-unused-vars
+                                var slugGroup = ui.slugField.closest('.slug-group-holder'),
+                                    primaryWidth = slugGroup.find('.primary-content-slug').width(),
+                                    inputPadding = {};
+
+                                inputPadding.left = primaryWidth + 5;
+                                inputPadding.right = slugGroup.find('.slug-suffix').width();
+
+                                ui.slugField.css({
+                                    left: -1 * inputPadding.left,
+                                });
+                                ui.slugField.css({
+                                    'padding-left': inputPadding.left,
+                                });
+                                ui.slugField.css({
+                                    'padding-right': inputPadding.right,
+                                });
+                                ui.slugField.css({
+                                    width: slugGroup.width(),
+                                });
+                            }.bind(this)  // eslint-disable-line no-extra-bind
+                        );
+
+                        setTimeout(function() {
+                            $el.trigger('recalculateSpacing');
+                        }.bind(this), 0);  // eslint-disable-line no-extra-bind
+                    },
+                    onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                        return [
+                            this.options.primarySlug,
+                            values[1],
+                        ];
+                    },
+                    update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
+                        var slugGroup = ui.slugField.closest('.slug-group-holder'),
+                            primaryWidth = slugGroup.find('.primary-content-slug');
+
+                        primaryWidth.text(values[0] + '.');
+
+                        // TODO: Also bind 'recalculateSpacing' on browser resize.
+                        $el.trigger('recalculateSpacing');
+                    },
+                    getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+                };
+
+                bindingsObj[ui.slugField.selector] = {
+                    observe: 'slugKey',
+                    initialize: function($el, mdl, options) {
+                        $el.attr('data-original-value', mdl.get(options.observe));
+
+                        $el.bind(
+                            'focus',
+                            function() {
+                                $el.closest('.slug-group-holder').addClass('input-focused');
+                            }
+                        );
+
+                        $el.bind(
+                            'blur',
+                            function() {
+                                $el.closest('.slug-group-holder').removeClass('input-focused');
+                            }
+                        );
+                    },
+                };
+
+                bindingsObj[ui.slugPlaceholder.selector] = {
+                    observe: 'slugKey',
+                    update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                        $el.text((value !== '') ? value : ui.slugField.attr('placeholder'));
+                    },
+                    getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+                };
+
+                bindingsObj[ui.budgetLineField.selector] = {
+                    observe: 'budgetLine',
+                    initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                        $el.closest('.expanding-holder').addClass('expanding-enabled');
+                        $el.bind('focus', function() {
+                            $(this).parent().addClass('input-focused');
+                        });
+                        $el.bind('blur', function() {
+                            $(this).parent().removeClass('input-focused');
+                        });
+                    },
+                    update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                        $el.text(value);
+                    },
+                };
+
+                bindingsObj[ui.budgetLinePlaceholder.selector] = {
+                    observe: 'budgetLine',
+                    update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                        if (value === '') {
+                            if ($el.closest('.expanding-holder').hasClass('has-value')) {
+                                $el.closest('.expanding-holder').removeClass('has-value');
+                            }
+                        } else {
+                            if (!$el.closest('.expanding-holder').hasClass('has-value')) {
+                                $el.closest('.expanding-holder').addClass('has-value');
+                            }
+                        }
+
+                        $el.text(value);
+                    },
+                    getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+                };
+
+                bindingsObj[ui.authorsDropdown.selector] = {
+                    observe: 'authors',
+                    setOptions: {silent: true},
+                    initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                        var authorOpts = {
+                            closeAfterSelect: false,
+                            plugins: ['remove_button', 'restore_on_backspace'],
+
+                            options: this.options.stafferChoices,
+
+                            render: {
+                                item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                    var dataType = 'fullText';  // eslint-disable-line no-unused-vars,max-len
+                                    if (typeof(dta.type) !== 'undefined') {
+                                        dataType = dta.type;
+                                    }
+                                    return '<div data-value="' + dta.value +
+                                                '" class="selected-item-multichoice">' +
+                                                dta.name +
+                                            '</div>';
+                                },
+                            },
+                        };
+
+                        $el.selectize(_.defaults(authorOpts, settings.editDropdownOptions));
+                    },
+                    update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                        if (_.isUndefined($el[0].selectize)) {
+                            $el.val(_(value).pluck('email').join(','));
+                        } else if (_.isObject($el[0].selectize)) {
+                            $el[0].selectize.clear(true);
+
+                            _(value).each(
+                                function(author) {
+                                    $el[0].selectize.addItem(author.email, true);
+                                }
+                            );
+                        }
+                    },
+                    getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                        var newAuthors = [];
+
+                        _($el.val().split(',')).each(
+                            function(authorKey) {
+                                if (authorKey !== '') {
+                                    newAuthors.push(
+                                        this.options.staffers.findWhere({
+                                            email: authorKey,
+                                        }).toJSON()
+                                    );
+                                }
+                            }.bind(this)
+                        );
+
+                        return newAuthors;
+                    },
+                };
+
+                bindingsObj[ui.editorsDropdown.selector] = {
+                    observe: 'editors',
+                    setOptions: {silent: true},
+                    initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                        var editorOpts = {
+                            closeAfterSelect: false,
+                            plugins: ['remove_button', 'restore_on_backspace'],
+
+                            options: this.options.stafferChoices,
+
+                            render: {
+                                item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                    var dataType = 'fullText';  // eslint-disable-line no-unused-vars,max-len
+                                    if (typeof(dta.type) !== 'undefined') {
+                                        dataType = dta.type;
+                                    }
+
+                                    return '<div data-value="' + dta.value +
+                                                '" class="selected-item-multichoice">' +
+                                                dta.name +
+                                            '</div>';
+                                },
+                            },
+                        };
+
+                        $el.selectize(_.defaults(editorOpts, settings.editDropdownOptions));
+                    },
+                    update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                        if (_.isUndefined($el[0].selectize)) {
+                            $el.val(_(value).pluck('email').join(','));
+                        } else if (_.isObject($el[0].selectize)) {
+                            $el[0].selectize.clear(true);
+
+                            _(value).each(
+                                function(editor) {
+                                    $el[0].selectize.addItem(editor.email, true);
+                                }
+                            );
+                        }
+                    },
+                    getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                        var newEditors = [];
+
+                        _($el.val().split(',')).each(
+                            function(editorKey) {
+                                if (editorKey !== '') {
+                                    newEditors.push(
+                                        this.options.staffers.findWhere({
+                                            email: editorKey,
+                                        }).toJSON()
+                                    );
+                                }
+                            }.bind(this)
+                        );
+
+                        return newEditors;
+                    },
+                };
+
+                return bindingsObj;
             },
 
             events: {
@@ -84,50 +417,19 @@ define(
             },
 
             serializeData: function() {
-                var modelJSON = this.model.toJSON(),
-                    templateContext = {};
-
-                if (!_.isEmpty(modelJSON)) {
-                    templateContext.config = modelJSON;
-
-                    templateContext.additionalType = settings.contentTypes[
-                        modelJSON.type
-                    ];
-                }
-
-                templateContext.formID = this.generateFormID();
-
-                if (this.model.has('id') && this.model.has('length')) {
-                    templateContext.formattedLength = parseInt(
-                        this.model.get('length'),
-                        10
-                    );
-                }
-
-                templateContext.primarySlug = this.options.primarySlug;
-
-                templateContext.slugSuffixRaw = this.slugSuffixRaw;
-
-                templateContext.visualsRequestURL = settings.externalURLs.addVisualsRequest;
-
-                return templateContext;
+                return {
+                    formID: this.generateFormID(),
+                    visualsRequestURL: settings.externalURLs.addVisualsRequest,
+                };
             },
 
             onRender: function() {
-                this.initializeTypeDropdown();
-                this.initializeSlugField();
-                // expandingTextField.make(this.ui.budgetLineField);
-                this.initializeAuthorDropdown();
-                this.initializeEditorDropdown();
+                this.stickit();
             },
 
-            onShow: function() {
-                this.updateSlugGroup();
-            },
+            onShow: function() {},
 
-            onAttach: function() {
-                this.updateSlugGroup();
-            },
+            onAttach: function() {},
 
 
             /*
@@ -148,311 +450,6 @@ define(
                 ).length;
 
                 return 'additionalUnbound' + (thisIndex - boundFormCount + 1);
-            },
-
-
-            /*
-             *   Control initializers (for selectize boxes, datepickers, etc.).
-             */
-
-            initializeTypeDropdown: function() {
-                this.ui.typeDropdown.selectize({
-                    closeAfterSelect: true,
-                    maxItems: 1,
-                    openOnFocus: true,
-                    plugins: ['restore_on_backspace'],
-                    // selectOnTab: true,
-
-                    options: this.options.typeChoices,
-                    labelField: 'name',
-                    searchField: ['name'],
-                    valueField: 'value',
-
-                    render: {
-                        item: function(data, escape) {  // eslint-disable-line no-unused-vars
-                            var dataType = 'fullText';  // eslint-disable-line no-unused-vars
-                            if (typeof(data.type) !== 'undefined') {
-                                dataType = data.type;
-                            }
-
-                            return '<div data-value="' + data.value +
-                                        '" class="selected-item">' + data.name +
-                                    '</div>';
-                        },
-                    },
-                    onFocus: function() {
-                        if (!this.$control.parent().hasClass('input-focused')) {
-                            this.$control.parent().addClass('input-focused');
-                        }
-                    },
-                    onBlur: function() {
-                        if (this.$control.parent().hasClass('input-focused')) {
-                            this.$control.parent().removeClass('input-focused');
-                        }
-                    },
-                    onItemAdd: function(value, $item) {
-                        var typeConfig = settings.contentTypes[$item.data('value')];
-
-                        if (typeConfig.usesLengthAttribute) {
-                            this.showField(this.ui.lengthField, this.ui.lengthGroup);
-                        } else {
-                            this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                        }
-
-                        if (typeConfig.usesPitchSystem) {
-                            this.showField(null, this.ui.pitchLinkGroup);
-                        } else {
-                            this.hideField(null, this.ui.pitchLinkGroup);
-                        }
-
-                        if (_.isEmpty(this.ui.slugField.val())) {
-                            this.ui.slugField.val(value);
-                        } else {
-                            if (!_.isUndefined(this.$el.data('type'))) {
-                                if (this.ui.slugField.val() === this.$el.data('type')) {
-                                    this.ui.slugField.val(value);
-                                }
-                            }
-                        }
-
-                        this.$el.data('type', value);
-                    }.bind(this),
-                    onItemRemove: function(value) {
-                        var typeConfig = settings.contentTypes[value];
-
-                        if (typeConfig.usesLengthAttribute) {
-                            this.hideField(this.ui.lengthField, this.ui.lengthGroup);
-                        } else if (typeConfig.usesPitchSystem) {
-                            this.hideField(null, this.ui.pitchLinkGroup);
-                        }
-
-                        if (!_.isEmpty(this.ui.slugField.val())) {
-                            if (value === this.ui.slugField.val()) {
-                                this.ui.slugField.val('');
-                            }
-                        }
-
-                        this.$el.removeData('type', value);
-                    }.bind(this),
-                });
-            },
-
-            initializeSlugField: function() {
-                var slugField = this.ui.slugField;
-
-                slugField.bind(
-                    'input',
-                    function() {
-                        var formGroup = slugField.closest('.form-group');
-
-                        if (slugField.val().match(/[^a-z0-9\-]/)) {
-                            if (!formGroup.hasClass('has-error')) {
-                                formGroup.addClass('has-error');
-                            }
-
-                            formGroup.find('.form-help').html(
-                                'Please use only lowercase letters, numbers and hyphens in slugs.'
-                            );
-                        } else if (slugField.val().length > 20) {
-                            if (!formGroup.hasClass('has-error')) {
-                                formGroup.addClass('has-error');
-                            }
-
-                            formGroup.find('.form-help').html(
-                                'Please keep your slug to 20 characters or less.'
-                            );
-                        } else {
-                            if (formGroup.hasClass('has-error')) {
-                                formGroup.removeClass('has-error');
-                            }
-
-                            formGroup.find('.form-help').html('');
-                        }
-
-                        slugField.siblings('.keyword-value').html(slugField.val());
-
-                        if (!($.trim(slugField.val()))) {
-                            slugField.siblings('.keyword-value').html(
-                                slugField.attr('placeholder')
-                            );
-                        }
-
-                        if (this.model.has('id')) {
-                            if (
-                                _.isEmpty(this.slugSuffixRaw)
-                            ) {
-                                // There is no initial trailing number at the
-                                // end of this slug.
-                                this.ui.slugSuffixHolder.text('');
-                                this.ui.slugSuffixHolder.hide();
-
-                                this.updateAdditionalTitle(
-                                    slugField.val(),
-                                    null
-                                );
-                            } else {
-                                // There is an initial trailing number at the
-                                // end of this slug.
-                                this.ui.slugSuffixHolder.text('');
-                                this.ui.slugSuffixHolder.show();
-
-                                this.updateAdditionalTitle(
-                                    slugField.val(),
-                                    this.slugSuffixRaw
-                                );
-                            }
-                        } else {
-                            this.ui.slugSuffixHolder.text('');
-                            this.ui.slugSuffixHolder.show();
-
-                            this.updateAdditionalTitle(
-                                slugField.val(),
-                                null
-                            );
-                        }
-                    }.bind(this)
-                );
-            },
-
-            initializeAuthorDropdown: function() {
-                this.ui.authorsDropdown.selectize({
-                    // closeAfterSelect: true,
-                    openOnFocus: true,
-                    plugins: ['remove_button', 'restore_on_backspace'],
-                    // selectOnTab: true,
-
-                    options: this.options.stafferChoices,
-                    labelField: 'name',
-                    searchField: ['name'],
-                    valueField: 'value',
-
-                    render: {
-                        item: function(data, escape) {  // eslint-disable-line no-unused-vars
-                            var dataType = 'fullText';  // eslint-disable-line no-unused-vars
-                            if (typeof(data.type) !== 'undefined') {
-                                dataType = data.type;
-                            }
-
-                            return '<div data-value="' + data.value +
-                                        '" class="selected-item-multichoice">' +
-                                        data.name +
-                                    '</div>';
-                        },
-                    },
-                    onFocus: function() {
-                        if (!this.$control.parent().hasClass('input-focused')) {
-                            this.$control.parent().addClass('input-focused');
-                        }
-                    },
-                    onBlur: function() {
-                        if (this.$control.parent().hasClass('input-focused')) {
-                            this.$control.parent().removeClass('input-focused');
-                        }
-                    },
-                    onItemAdd: function(value, $item) {},  // eslint-disable-line no-unused-vars
-                    onItemRemove: function(value) {},  // eslint-disable-line no-unused-vars
-                });
-            },
-
-            initializeEditorDropdown: function() {
-                this.ui.editorsDropdown.selectize({
-                    // closeAfterSelect: true,
-                    openOnFocus: true,
-                    plugins: ['remove_button', 'restore_on_backspace'],
-                    // selectOnTab: true,
-
-                    options: this.options.stafferChoices,
-                    labelField: 'name',
-                    searchField: ['name'],
-                    valueField: 'value',
-
-                    render: {
-                        item: function(data, escape) {  // eslint-disable-line no-unused-vars
-                            var dataType = 'fullText';  // eslint-disable-line no-unused-vars
-                            if (typeof(data.type) !== 'undefined') {
-                                dataType = data.type;
-                            }
-
-                            return '<div data-value="' + data.value +
-                                        '" class="selected-item-multichoice">' +
-                                        data.name +
-                                    '</div>';
-                        },
-                    },
-                    onFocus: function() {
-                        if (!this.$control.parent().hasClass('input-focused')) {
-                            this.$control.parent().addClass('input-focused');
-                        }
-                    },
-                    onBlur: function() {
-                        if (this.$control.parent().hasClass('input-focused')) {
-                            this.$control.parent().removeClass('input-focused');
-                        }
-                    },
-                    onItemAdd: function(value, $item) {},  // eslint-disable-line no-unused-vars
-                    onItemRemove: function(value) {},  // eslint-disable-line no-unused-vars
-                });
-            },
-
-
-            /*
-             * Control modifiers.
-             */
-
-            updateAdditionalTitle: function(newSlugValue, newSuffixValue) {
-                this.ui.titleKeyword.text(newSlugValue);
-
-                if (!_.isNull(newSlugValue)) {
-                    this.ui.titleUniqueModifier.text(newSuffixValue);
-                } else {
-                    this.ui.titleUniqueModifier.text('');
-                }
-            },
-
-            hideField: function(fieldCheckDisabled, fieldCheckHidden) {
-                if (!_.isNull(fieldCheckDisabled)) {
-                    if (!fieldCheckDisabled.is(':disabled')) {
-                        fieldCheckDisabled.prop('disabled', true);
-                    }
-                }
-
-                if (!fieldCheckHidden.is(':hidden')) {
-                    fieldCheckHidden.fadeOut(140);
-                }
-            },
-
-            showField: function(fieldCheckDisabled, fieldCheckHidden) {
-                if (!_.isNull(fieldCheckDisabled)) {
-                    if (fieldCheckDisabled.is(':disabled')) {
-                        fieldCheckDisabled.prop('disabled', false);
-                    }
-                }
-
-                if (fieldCheckHidden.is(':hidden')) {
-                    fieldCheckHidden.fadeIn(280);
-                }
-            },
-
-            updateSlugGroup: function(hubValue) {  // eslint-disable-line no-unused-vars
-                var slugField = this.ui.slugField,
-                    slugGroup = slugField.closest('.slug-group-holder'),
-                    inputPadding = {};
-
-                inputPadding.left = slugGroup.find('.primary-content-slug').width() + 5;
-                inputPadding.right = slugGroup.find('.slug-suffix').width();
-
-                slugField.css({
-                    left: -1 * inputPadding.left,
-                });
-                slugField.css({
-                    'padding-left': inputPadding.left,
-                });
-                slugField.css({
-                    'padding-right': inputPadding.right,
-                });
-                slugField.css({
-                    width: slugGroup.width(),
-                });
             },
 
 

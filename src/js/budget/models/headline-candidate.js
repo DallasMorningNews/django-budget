@@ -15,6 +15,11 @@ define(
             url: function() {
                 return this.urlRoot + this.id + (settings.apiPostfix || '/');
             },
+
+            defaults: {
+                text: '',
+                winner: false,
+            },
         });
     }
 );

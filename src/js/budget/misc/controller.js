@@ -54,11 +54,15 @@ define(
                     packageToEdit = new Package(packageOpts);
 
                 if (_.isUndefined(packageID)) {
-                    radio.commands.execute(
-                        'switchMainView',
-                        PackageEditView,
-                        {model: packageToEdit}
-                    );
+                    // Instantiate an item collection associated with this package, and
+                    // retrieve its starting values from the API.
+                    packageToEdit.loadInitial().done(function() {
+                        radio.commands.execute(
+                            'switchMainView',
+                            PackageEditView,
+                            {model: packageToEdit}
+                        );
+                    });
                 } else {
                     packageToEdit.load().done(function() {
                         radio.commands.execute(

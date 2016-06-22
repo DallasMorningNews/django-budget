@@ -24,7 +24,13 @@ function(
     return deepModel.DeepModel.extend({
         urlRoot: settings.apiEndpoints.GET.package.detail,
 
+        url: function() {
+            return this.urlRoot + this.id + (settings.apiPostfix || '/');
+        },
+
         defaults: {
+            additionalContent: [],
+
             headlineCandidates: [],
             headlineStatus: 'drafting',
 
@@ -63,8 +69,26 @@ function(
                     dow: 1,
                 },
             });
+        },
 
-            this.additionalItems = new BudgetItemCollection();
+        loadInitial: function() {
+            var initialLoadPromise = new $.Deferred();
+
+            // Instantiate an item collection associated with this package.
+            this.set(
+                {
+                    additionalContent: new BudgetItemCollection(),
+                    headlineCandidates: new HeadlineCandidateCollection(),
+                }
+            );
+
+            // Create four empty headline objects in this package's
+            // 'headlineCandidates' collection.
+            this.get('headlineCandidates').add([{}, {}, {}, {}]);
+
+            initialLoadPromise.resolve();
+
+            return initialLoadPromise;
         },
 
         load: function() {
@@ -79,22 +103,19 @@ function(
             // Load the package, then fire each request for the additional
             // information we'll need to fully construct the object.
             packageRequest.done(function(model, request, options) {  // eslint-disable-line no-unused-vars,max-len
-                var items,
-                    itemsRequest,
+                var itemsRequest,
                     additionalItems,
-                    headlines,
                     headlinesRequest,
                     allAdditionalRequests = [itemRequestPromise];
 
                 // Log that the package fetch was successful.
-                console.log(  // eslint-disable-line no-console
-                    "Fetched package with ID '" + this.id + "'."
-                );
+                console.log("Fetched package with ID '" + this.id + "'.");  // eslint-disable-line no-console,max-len
 
                 // Instantiate an item collection associated with this package, and
                 // retrieve its starting values from the API.
-                items = new BudgetItemCollection();
-                itemsRequest = items.fetch({
+                this.set('additionalContent', new BudgetItemCollection());
+
+                itemsRequest = this.get('additionalContent').fetch({
                     xhrFields: {
                         withCredentials: true,
                     },
@@ -106,12 +127,12 @@ function(
                 // Once primary and additional items are loaded, incorporate
                 // their attributes into the package model.
                 itemsRequest.done(function(itColl, itRequest, itOptions) {  // eslint-disable-line no-unused-vars,max-len
-                    var primaryItem = items.get(this.primaryID),
+                    var primaryItem = this.get('additionalContent').get(this.primaryID),
                         additionalText = (
                             !_.isEmpty(this.additionalIDs)
                         ) ? ", '" + this.additionalIDs.join("', '") + "'" : '';
 
-                    additionalItems = items.clone();
+                    additionalItems = this.get('additionalContent').clone();
                     additionalItems.remove(primaryItem);
 
                     console.log(  // eslint-disable-line no-console
@@ -119,9 +140,7 @@ function(
                     );
 
                     this.set('primaryContent', primaryItem.toJSON());
-                    this.set('additionalContent', additionalItems.toJSON());
-
-                    this.additionalItems = additionalItems;
+                    this.set('additionalContent', additionalItems);
 
                     return '';
                 }.bind(this)).done(function() {
@@ -133,39 +152,47 @@ function(
                     additionalRequestPromise.reject('items', response);
                 });
 
-                if (!_.isEmpty(this.headlineIDs)) {
-                    // Instantiate and retrieve data for a collection
-                    // containing each headline in this package.
-                    headlines = new HeadlineCandidateCollection();
-                    headlinesRequest = headlines.fetch({
-                        xhrFields: {
-                            withCredentials: true,
-                        },
-                        data: {
-                            id__in: this.headlineIDs.join(','),
-                        },
-                    });
+                // Create an empty collection for headlines.
+                this.set('headlineCandidates', new HeadlineCandidateCollection());
+                this.get('headlineCandidates').on(
+                    'change',
+                    function() { this.trigger('change:headlineCandidates'); }.bind(this)
+                );
 
-                    // Add this request to the list of simultaneous
-                    // additional-information queries.
-                    allAdditionalRequests.push(headlinesRequest);
+                // Instantiate and retrieve data for a collection
+                // containing each headline in this package.
+                headlinesRequest = this.get('headlineCandidates').fetch({
+                    xhrFields: {withCredentials: true},
+                    data: {id__in: this.headlineIDs.join(',')},
+                });
 
-                    // Once the headlines have been loaded, update the value of
-                    // the package model's headline candidates.
-                    headlinesRequest.done(function(hlColl, hlResponse, hlOpts) {  // eslint-disable-line no-unused-vars,max-len
+                // Add this request to the list of simultaneous
+                // additional-information queries.
+                allAdditionalRequests.push(headlinesRequest);
+
+                // Once the headlines have been loaded, update the value of
+                // the package model's headline candidates.
+                headlinesRequest.done(function(hlColl, hlResponse, hlOpts) {  // eslint-disable-line no-unused-vars,max-len
+                    if (!_.isEmpty(this.headlineIDs)) {
                         console.log(  // eslint-disable-line no-console
                             "Fetched headlines with IDs '" +
-                            headlines.pluck('id').join("', '") +
+                            this.get('headlineCandidates').pluck('id').join("', '") +
                             "'."
                         );
-                        this.set('headlineCandidates', headlines.toJSON());
-                    }.bind(this));  // eslint-disable-line no-extra-bind
+                    }
 
-                    // If the headline request fails, pass back the error.
-                    headlinesRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
-                        additionalRequestPromise.reject('headlines', response);
-                    });
-                }
+                    _.each(
+                        _.range(4 - this.get('headlineCandidates').length),
+                        function(index) {  // eslint-disable-line no-unused-vars
+                            this.get('headlineCandidates').add([{}]);
+                        }.bind(this)
+                    );
+                }.bind(this));  // eslint-disable-line no-extra-bind
+
+                // If the headline request fails, pass back the error.
+                headlinesRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
+                    additionalRequestPromise.reject('headlines', response);
+                });
 
 
                 // When all additional queries have returned successfully, pass
@@ -192,10 +219,6 @@ function(
             return data;
         },
 
-        url: function() {
-            return this.urlRoot + this.id + (settings.apiPostfix || '/');
-        },
-
         dateFormats: {
             m: ['MMMM YYYY'],
             w: ['[Week of] MMM D, YYYY'],
@@ -212,6 +235,7 @@ function(
 
         facetFilters: {
             person: function(pkg, stringToMatch, context) {  // eslint-disable-line no-unused-vars
+                // TODO: Update this to reflect 'additionalContent' being a collection.
                 var allPeople = _.union(
                         _.pluck(pkg.get('primaryContent').editors, 'email'),
                         _.pluck(pkg.get('primaryContent').authors, 'email'),
@@ -371,9 +395,11 @@ function(
         },
 
         generatePackageTitle: function() {
+            var rawKey = this.get('primaryContent.slugKey');
+
             return [
                 this.generateSlugHub(),
-                this.get('primaryContent.slugKey'),
+                ((rawKey !== '') && (!_.isUndefined(rawKey))) ? rawKey : 'keyword',
                 this.generateSlugDate(),
             ].join('.');
         },
@@ -444,35 +470,6 @@ function(
                     // silent: true
                 }
             );
-        },
-
-        updateHeadlineCandidate: function(updates, options) {
-            var headlinesList = _.clone(this.get('headlineCandidates')),
-                newAttrs = _.clone(updates),
-                updateID,
-                newHeds,
-                setOptions;  // eslint-disable-line no-unused-vars
-
-            newAttrs = _.omit(newAttrs, 'id');
-
-            if (_.has(updates, 'id')) {
-                updateID = updates.id;
-                newHeds = _(headlinesList)
-                            .chain()
-                                .findWhere({id: updateID})
-                                .extend(newAttrs)
-                            .value();
-
-                setOptions = options;
-                if (!_.isObject(options)) {
-                    setOptions = {};
-                }
-
-                this.set(
-                    {headlineCandidates: newHeds},
-                    options
-                );
-            }
         },
 
         resetPubDateResolution: function(newResolution) {

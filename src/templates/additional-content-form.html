@@ -1,21 +1,19 @@
-<div class="content-header">{% if config %}{{ primarySlug }}.<span class="keyword">{{ config.slugKey }}</span><span class="unique-modifier">{% if slugSuffixRaw %}{{ slugSuffixRaw }}{% endif %}</span>{% else %}New additional content{% endif %}<i class="fa fa-times delete-additional" data-confirm=""></i></div>
-
-<input type="hidden" id="{{ formID }}_id" class="field-id" name="{{ formID }}_id" value="{{ config.id }}" data-form="{{ formID }}">
+<div class="content-header"><span class="package-title">New additional content</span><i class="fa fa-times delete-additional" data-confirm=""></i></div>
 
 <div class="row">
     <div class="medium-4 columns form-group">
-        <input id="{{ formID }}_type" class="field-type to-selectize" name="{{ formID }}_type" type="text" placeholder="Choose an option" data-form="{{ formID }}" value="{% if config %}{{ config.type }}{% endif %}" required="" />
+        <input id="{{ formID }}_type" class="field-type to-selectize" name="{{ formID }}_type" type="text" placeholder="Choose an option" value="" required="" />
         <label for="{{ formID }}_type" class="control-label">Type<span class="required-marker">*</span></label>
         <i class="bar"></i>
     </div>
-    <div class="medium-3 columns form-group variable-attribute-group"{% if config %}{% if additionalType.usesLengthAttribute %} style="display: block;"{% endif %}{% endif %}>
-        <div class="length-group"{% if config %}{% if additionalType.usesLengthAttribute %} style="display: block;"{% endif %}{% endif %}>
-            <input id="{{ formID }}_length" class="field-length form-select-word-count" name="{{ formID }}_length" data-form="{{ formID }}" type="number" value="{% if config %}{% if config.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if config %}{% if not additionalType.usesLengthAttribute %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
+    <div class="medium-3 columns form-group variable-attribute-group">
+        <div class="length-group variable-attribute">
+            <input id="{{ formID }}_length" class="field-length form-select-word-count" name="{{ formID }}_length" data-form="{{ formID }}" type="number" value="" required="" />
             <label for="{{ formID }}_length" class="control-label">Word count</label>
             <i class="bar"></i>
         </div>
 
-        <div class="request-link-group"{% if config %}{% if additionalType.usesPitchSystem %} style="display: block;"{% endif %}{% endif %}>
+        <div class="request-link-group variable-attribute">
             <div class="request-button-holder">
                 <div class="request-link button flat-button"><a href="{{ visualsRequestURL }}" target="_blank"><span>Request visuals</span></a></div>
             </div>
@@ -27,12 +25,12 @@
 <div class="row">
     <div class="medium-12 columns form-group">
         <div class="slug-group-holder">
-            <div class="primary-content-slug">{{ primarySlug }}.</div>
+            <div class="primary-content-slug"></div>
             <div class="keyword-group">
-                <div class="keyword-value">{% if config %}{{ config.slugKey }}{% else %}keyword{% endif %}</div>
-                <input id="{{ formID }}_slugkey" class="field-slugkey" name="{{ formID }}_slugkey" data-form="{{ formID }}" type="text" placeholder="keyword" autocomplete="off" {% if config %}data-original-value="{{ config.slugKey }}" {% endif %}value="{% if config %}{{ config.slugKey }}{% endif %}" required="">
+                <div class="keyword-value">keyword</div>
+                <input id="{{ formID }}_slugkey" class="field-slugkey" name="{{ formID }}_slugkey" data-form="{{ formID }}" type="text" placeholder="keyword" autocomplete="off" required="">
             </div>
-            <div class="slug-suffix">{% if slugSuffixRaw %}{{ slugSuffixRaw }}{% endif %}</div>
+            <div class="slug-suffix"></div>
             <div class="clearer"></div>
         </div>
         <label for="{{ formID }}_slugkey" class="control-label">Slug<span class="required-marker">*</span></label>
@@ -46,22 +44,24 @@
 <div class="row">
     <!--  -->
     <div class="medium-12 columns form-group">
-        <div class="expanding-holder{% if config %}{% if config.budgetLine|length > 0 %} has-value{% endif %}{% endif %}">
-            <textarea id="{{ formID }}_budgetline" class="field-budgetline" name="{{ formID }}_budgetline" data-form="{{ formID }}" rows="1" required="">{% if config %}{{ config.budgetLine }}{% endif %}</textarea>
+        <div class="expanding-holder">
+            <textarea id="{{ formID }}_budgetline" class="field-budgetline" name="{{ formID }}_budgetline" data-form="{{ formID }}" rows="1" required=""></textarea>
+            <pre class="budget-spacer"><span></span><br></pre>
         </div>
         <label for="{{ formID }}_budgetline" class="control-label">Budget line<span class="required-marker">*</span></label>
         <i class="bar"></i>
+        <div class="form-help"></div>
     </div>
 </div>
 
 <div class="row">
     <div class="medium-6 columns form-group set-authors">
-        <input id="{{ formID }}_authors" class="field-authors to-selectize staff-select reporter" name="{{ formID }}_authors" data-form="{{ formID }}" type="text" value="{% if config %}{% for author in config.authors %}{{ author.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
+        <input id="{{ formID }}_authors" class="field-authors to-selectize staff-select reporter" name="{{ formID }}_authors" data-form="{{ formID }}" type="text" value="" />
         <label for="{{ formID }}_authors" class="control-label">Author(s)<span class="required-marker">*</span></label>
         <i class="bar"></i>
     </div>
     <div class="medium-6 columns form-group set-editors">
-        <input id="{{ formID }}_editors" class="field-editors to-selectize staff-select editor" name="{{ formID }}_editors" data-form="{{ formID }}" type="text" value="{% if config %}{% if config.editors %}{% for editor in config.editors %}{{ editor.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}{% endif %}" />
+        <input id="{{ formID }}_editors" class="field-editors to-selectize staff-select editor" name="{{ formID }}_editors" data-form="{{ formID }}" type="text" value="" />
         <label for="{{ formID }}_editors" class="control-label">Editor(s)</label>
         <i class="bar"></i>
     </div>

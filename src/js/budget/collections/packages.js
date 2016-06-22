@@ -38,6 +38,7 @@ define(
             },
 
             combineAdditionalItemValues: function(model, field, fieldFormat) {
+                // TODO: Change this to reflect 'additionalContent' is now a collection.
                 return _.chain(model.get('additionalContent'))
                             .pluck(field)
                             .reduce(
@@ -116,11 +117,6 @@ define(
             },
 
             parse: function(response) {
-                // window.resp = response;
-                // response.posts = _.map(response.posts, function(post) {
-                //     post.updated = new Date(post.updated);
-                //     return post;
-                // });
                 return response;
             },
         });

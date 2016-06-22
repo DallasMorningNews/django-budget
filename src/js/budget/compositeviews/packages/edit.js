@@ -48,29 +48,12 @@ define([
         childView: AdditionalContentForm,
         childViewContainer: '#additional-content-children',
         childViewOptions: function(model, index) {  // eslint-disable-line no-unused-vars
-            var primarySlug;
-
-            if (_.has(this, 'model') && this.model.has('primaryContent')) {
-                primarySlug = this.model.get('primaryContent').slug;
-            }
-
-            return this.generateChildViewOptions(primarySlug);
-        },
-
-        generateChildViewOptions: function(primarySlug) {
-            var opts = {
-                stafferChoices: this.enumerateStafferChoices(),
+            return {
+                primarySlug: this.model.generatePackageTitle(),
                 staffers: this.options.data.staffers,
+                stafferChoices: this.enumerateStafferChoices(),
                 typeChoices: this.enumerateTypeChoices(),
             };
-
-            if (!_.isUndefined(primarySlug)) {
-                opts.primarySlug = primarySlug;
-            } else {
-                opts.primarySlug = '[main-slug]';
-            }
-
-            return opts;
         },
 
         ui: {
@@ -164,25 +147,17 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     'pubDateResolution',
                     'pubDateTimestamp',
                 ],
-                update: function($el, values, mdl) {
-                    // TODO: this should also handle the changes triggered in
-                    // the 'updatePackageTitle()' method.
+                update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
+                    var newPackageTitle = this.model.generatePackageTitle();
 
-                    // updatePackageTitle: function(hubValue) {
-                    //     // this.children.each(
-                    //     //     function(childView) {
-                    //     //         childView.options.primarySlug = slugText;
-                    //     //     }
-                    //     // );
+                    $el.text(newPackageTitle);
 
-                    //     // this.childViewOptions = function(model, index) {
-                    //     //     return this.generateChildViewOptions(slugText);
-                    //     // };
-
-                    //     // this._renderChildren();
-                    // },
-
-                    $el.text(mdl.generatePackageTitle());
+                    // Propagate package-title changes to all additional
+                    // content models.
+                    this.children.each(function(childView) {
+                        childView.options.primarySlug = newPackageTitle;  // eslint-disable-line max-len,no-param-reassign
+                        childView.model.trigger('change:parentSlug');
+                    });
                 },
             };
 
@@ -887,168 +862,114 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.headline1.selector] = {
                 observe: 'headlineCandidates',
-                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
-                    // TODO: Could this produce stale values?
-                    $el.val(this.orderedHeadlines[0].text);
+                update: function($el, vals) {
+                    var cID = $el.data('cid'),
+                        thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(0);
+                    $el.val(thisVal.get('text'));
                 },
-                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
-                    return !_.isNull(val);
-                },
+                updateModel: function(val) { return !_.isNull(val); },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if (!$el.prop('readonly')) {
-                        return {
-                            text: $el.val(),
-                            id: $el.data('headlineId'),
-                        };
-                    }
-                    return null;
+                    return ($el.prop('readonly')) ? null : {text: $el.val(), cid: $el.data('cid')};
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    model.updateHeadlineCandidate(value, {silent: true});
+                    model.get(attr).get({cid: value.cid}).set(_.omit(_.clone(value), 'cid'));
                 },
                 attributes: [
                     {
-                        name: 'data-headline-id',
+                        name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
-                            return (
-                                _.has(this.orderedHeadlines[0], 'id')
-                            ) ? this.orderedHeadlines[0].id : '';
-                        },
+                        onGet: function(values) { return values.at(0).cid; },
                     },
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) {  // eslint-disable-line no-unused-vars
-                            return !(model.initialHeadlineStatus === 'drafting');
-                        },
+                        onGet: function() { return !(model.initialHeadlineStatus === 'drafting'); },
                     },
                 ],
             };
 
             bindingsObj[ui.headline2.selector] = {
                 observe: 'headlineCandidates',
-                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
-                    $el.val(this.orderedHeadlines[1].text);
+                update: function($el, vals) {
+                    var cID = $el.data('cid'),
+                        thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(1);
+                    $el.val(thisVal.get('text'));
                 },
-                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
-                    return !_.isNull(val);
-                },
+                updateModel: function(val) { return !_.isNull(val); },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if (!$el.prop('readonly')) {
-                        return {
-                            text: $el.val(),
-                            id: $el.data('headlineId'),
-                        };
-                    }
-                    return null;
+                    return ($el.prop('readonly')) ? null : {text: $el.val(), cid: $el.data('cid')};
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    model.updateHeadlineCandidate(value, {silent: true});
+                    model.get(attr).get({cid: value.cid}).set(_.omit(_.clone(value), 'cid'));
                 },
                 attributes: [
                     {
-                        name: 'data-headline-id',
+                        name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
-                            return (
-                                _.has(this.orderedHeadlines[1], 'id')
-                            ) ? this.orderedHeadlines[1].id : '';
-                        },
+                        onGet: function(values) { return values.at(1).cid; },
                     },
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) {  // eslint-disable-line no-unused-vars
-                            return !(model.initialHeadlineStatus === 'drafting');
-                        },
+                        onGet: function() { return !(model.initialHeadlineStatus === 'drafting'); },
                     },
                 ],
             };
 
             bindingsObj[ui.headline3.selector] = {
                 observe: 'headlineCandidates',
-                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
-                    $el.val(this.orderedHeadlines[2].text);
+                update: function($el, vals) {
+                    var cID = $el.data('cid'),
+                        thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(2);
+                    $el.val(thisVal.get('text'));
                 },
-                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
-                    return !_.isNull(val);
-                },
+                updateModel: function(val) { return !_.isNull(val); },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if (!$el.prop('readonly')) {
-                        return {
-                            text: $el.val(),
-                            id: $el.data('headlineId'),
-                        };
-                    }
-                    return null;
+                    return ($el.prop('readonly')) ? null : {text: $el.val(), cid: $el.data('cid')};
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    model.updateHeadlineCandidate(value, {silent: true});
+                    model.get(attr).get({cid: value.cid}).set(_.omit(_.clone(value), 'cid'));
                 },
                 attributes: [
                     {
-                        name: 'data-headline-id',
+                        name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
-                            return (
-                                _.has(this.orderedHeadlines[2], 'id')
-                            ) ? this.orderedHeadlines[2].id : '';
-                        },
+                        onGet: function(values) { return values.at(2).cid; },
                     },
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) {  // eslint-disable-line no-unused-vars
-                            return !(model.initialHeadlineStatus === 'drafting');
-                        },
+                        onGet: function() { return !(model.initialHeadlineStatus === 'drafting'); },
                     },
                 ],
             };
 
             bindingsObj[ui.headline4.selector] = {
                 observe: 'headlineCandidates',
-                update: function($el, valueList, mdl) {  // eslint-disable-line no-unused-vars
-                    $el.val(this.orderedHeadlines[3].text);
+                update: function($el, vals) {
+                    var cID = $el.data('cid'),
+                        thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(3);
+                    $el.val(thisVal.get('text'));
                 },
-                updateModel: function(val, event, options) {  // eslint-disable-line no-unused-vars
-                    return !_.isNull(val);
-                },
+                updateModel: function(val) { return !_.isNull(val); },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if (!$el.prop('readonly')) {
-                        return {
-                            text: $el.val(),
-                            id: $el.data('headlineId'),
-                        };
-                    }
-                    return null;
+                    return ($el.prop('readonly')) ? null : {text: $el.val(), cid: $el.data('cid')};
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    model.updateHeadlineCandidate(value, {silent: true});
+                    model.get(attr).get({cid: value.cid}).set(_.omit(_.clone(value), 'cid'));
                 },
                 attributes: [
                     {
-                        name: 'data-headline-id',
+                        name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(valueList) {  // eslint-disable-line no-unused-vars
-                            return (
-                                _.has(this.orderedHeadlines[3], 'id')
-                            ) ? this.orderedHeadlines[3].id : '';
-                        },
+                        onGet: function(values) { return values.at(3).cid; },
                     },
                     {
                         name: 'readonly',
                         observe: 'headlineStatus',
-                        onGet: function(value) {  // eslint-disable-line no-unused-vars
-                            return !(model.initialHeadlineStatus === 'drafting');
-                        },
+                        onGet: function() { return !(model.initialHeadlineStatus === 'drafting'); },
                     },
                 ],
-            };
-
-            bindingsObj[ui.headlineRadio1.selector] = {
-                observe: '',
-                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
             };
 
             bindingsObj[ui.headlineVoteSubmissionToggle.selector] = {
@@ -1320,8 +1241,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             return bindingsObj;
         },
 
-        modelEvents: {},
-
         events: {
             'mousedown @ui.addRequestButton': 'addButtonClickedClass',
             'click @ui.addRequestButton': 'openVisualsRequestForm',
@@ -1333,12 +1252,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             'click @ui.packageDeleteTrigger': 'deleteEntirePackage',
         },
 
+        modelEvents: {},
+
         initialize: function() {
             this.isFirstRender = true;
 
             this._radio = Backbone.Wreqr.radio.channel('global');
 
-            this.collection = this.model.additionalItems;
+            this.collection = this.model.get('additionalContent');
 
             /* Prior-path capturing. */
 
@@ -1416,28 +1337,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
         },
 
         onBeforeRender: function() {
-            // If there are fewer than 4 headline candidates, generate
-            // placeholder objects for all that are unaccounted for.
-            var currentHeds = this.model.get('headlineCandidates');
-
-            if (currentHeds.length < 4) {
-                this.model.set(
-                    'headlineCandidates',
-                    currentHeds.concat(
-                        _.map(
-                            _.range(4 - currentHeds.length),
-                            function(index) {
-                                return {
-                                    id: '__placeholder' + (index + 1),
-                                    text: '',
-                                    votes: 0,
-                                    winner: false,
-                                };
-                            }
-                        )
-                    )
-                );
-            }
         },
 
         onRender: function() {
@@ -1449,8 +1348,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     this.updateBottomButtonVisibility.bind(this)
                 );
             }
-
-            this.orderedHeadlines = _.sortBy(this.model.get('headlineCandidates'), 'id');
 
             this.ui.persistentButton.addClass('click-init');
 
@@ -1893,6 +1790,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 dbPrimarySlug = this.model.get('primaryContent').slug;
                 currentPrimarySlug = this.ui.packageTitle.text();
                 itemSlugEndings = _.map(
+                    // TODO: Change this to reflect 'additionalContent' is now a collection.
                     this.model.get('additionalContent'),
                     function(additionalItem) {
                         return _.last(
