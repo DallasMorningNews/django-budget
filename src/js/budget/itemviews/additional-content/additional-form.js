@@ -56,7 +56,8 @@ deleteTrigger: '.delete-additional',
 
             bindings: function() {
                 var bindingsObj = {},
-                    ui = this.ui;
+                    ui = this.ui,
+                    model = this.model;
 
                 bindingsObj[ui.packageTitle.selector] = {
                     observe: [
@@ -94,7 +95,24 @@ deleteTrigger: '.delete-additional',
                         $el.selectize(_.defaults(typeOpts, settings.editDropdownOptions));
                     },
                     getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                        if ($el.val()) { return $el.val(); }
+                        var oldType = model.get('type'),
+                            oldKeyMatch = (oldType === 'text') ? 'article' : oldType;
+
+                        if ($el.val()) {
+                            if (
+                                (!model.has('slugKey')) ||
+                                (model.get('slugKey') === '') ||
+                                (model.get('slugKey') === oldKeyMatch)
+                            ) {
+                                model.set(
+                                    'slugKey',
+                                    ($el.val() === 'text') ? 'article' : $el.val()
+                                );
+                            }
+
+                            return $el.val();
+                        }
+
                         return null;
                     },
                     update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars

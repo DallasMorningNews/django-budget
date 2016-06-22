@@ -233,7 +233,21 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     $el.selectize(_.defaults(typeOpts, settings.editDropdownOptions));
                 },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    // var oldType = model.get('primaryContent.type'),
+                    //     oldKeyMatch = (oldType === 'text') ? 'article' : oldType;
+
                     if ($el.val()) {
+                        // if (
+                        //     (!model.has('primaryContent.slugKey')) ||
+                        //     (model.get('primaryContent.slugKey') === '') ||
+                        //     (model.get('primaryContent.slugKey') === oldKeyMatch)
+                        // ) {
+                        //     model.set(
+                        //         'primaryContent.slugKey',
+                        //         ($el.val() === 'text') ? 'article' : $el.val()
+                        //     );
+                        // }
+
                         return $el.val();
                     }
 
