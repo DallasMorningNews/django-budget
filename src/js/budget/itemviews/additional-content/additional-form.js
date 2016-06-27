@@ -71,7 +71,10 @@ deleteTrigger: '.delete-additional',
                         ];
                     },
                     update: function($el, vals, mdl) {  // eslint-disable-line no-unused-vars
-                        $el.text((vals[1] !== '') ? vals.join('.') : vals[0] + '.keyword');
+                        var newSlug = (vals[1] !== '') ? vals.join('.') : vals[0] + '.keyword';
+
+                        $el.text(newSlug);
+                        model.set('slug', newSlug);
                     },
                 };
 

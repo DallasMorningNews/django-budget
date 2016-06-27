@@ -38,20 +38,19 @@ define(
             },
 
             combineAdditionalItemValues: function(model, field, fieldFormat) {
-                // TODO: Change this to reflect 'additionalContent' is now a collection.
-                return _.chain(model.get('additionalContent'))
-                            .pluck(field)
-                            .reduce(
-                                function(memo, value) {
-                                    var finalValue = value;
-                                    if (!_.isUndefined(fieldFormat)) {
-                                        finalValue = fieldFormat(finalValue);
-                                    }
+                return _.chain(
+                        model.additionalContentCollection.pluck(field)
+                    ).reduce(
+                        function(memo, value) {
+                            var finalValue = value;
+                            if (!_.isUndefined(fieldFormat)) {
+                                finalValue = fieldFormat(finalValue);
+                            }
 
-                                    return memo + ' ' + finalValue;
-                                }
-                            )
-                            .value();
+                            return memo + ' ' + finalValue;
+                        }
+                    )
+                    .value();
             },
 
             rebuildIndex: function() {
@@ -83,11 +82,11 @@ define(
                             pkg,
                             'budgetLine'
                         ),
-                        primarySlug: pkg.get('primaryContent').slug,
+                        primarySlug: pkg.primaryContentItem.get('slug'),
                         primarySlugCleaned: this.cleanSlug(
-                            pkg.get('primaryContent').slug
+                            pkg.primaryContentItem.get('slug')
                         ),
-                        primaryBudgetLine: pkg.get('primaryContent').budgetLine,
+                        primaryBudgetLine: pkg.primaryContentItem.get('budgetLine'),
                     });
                 }.bind(this));
             },
@@ -112,6 +111,7 @@ define(
              * Sort the collection by pinned status first (pinned on top) then by
              * created timestamp in reverse chronological order
              */
+            // BBTODO: Change this to reflect the loss of timestamps.
             comparator: function(model) {
                 return model.get('pubDate').timestamp;
             },

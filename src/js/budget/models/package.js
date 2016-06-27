@@ -7,6 +7,7 @@ define([
     'underscore.string',
     'budget/collections/headline-candidates',
     'budget/collections/items',
+    'budget/models/item',
     'common/settings',
 ],
 function(
@@ -18,6 +19,7 @@ function(
     _string_,
     HeadlineCandidateCollection,
     BudgetItemCollection,
+    BudgetItem,
     settings
 ) {
     'use strict';
@@ -27,7 +29,11 @@ function(
         urlRoot: settings.apiEndpoints.GET.package.detail,
 
         url: function() {
-            return this.urlRoot + this.id + (settings.apiPostfix || '/');
+            if (this.has('id')) {
+                return this.urlRoot + this.id + (settings.apiPostfix || '/');
+            }
+
+            return this.urlRoot;
         },
 
         defaults: {
@@ -41,8 +47,8 @@ function(
             printRunDate: null,
             publication: null,
 
-            pubDate: null,
-            pubDateResolution: null,
+            publishDate: [],
+            publishDateResolution: null,
         },
 
         initialize: function() {
@@ -69,22 +75,18 @@ function(
                     dow: 1,
                 },
             });
+
+            this.primaryContentItem = new BudgetItem();
+            this.additionalContentCollection = new BudgetItemCollection();
+            this.headlineCandidateCollection = new HeadlineCandidateCollection();
         },
 
         loadInitial: function() {
             var initialLoadPromise = new $.Deferred();
 
-            // Instantiate an item collection associated with this package.
-            this.set(
-                {
-                    additionalContent: new BudgetItemCollection(),
-                    headlineCandidates: new HeadlineCandidateCollection(),
-                }
-            );
-
             // Create four empty headline objects in this package's
-            // 'headlineCandidates' collection.
-            this.get('headlineCandidates').add([{}, {}, {}, {}]);
+            // headlineCandidatesCollection property.
+            this.headlineCandidateCollection.add([{}, {}, {}, {}]);
 
             initialLoadPromise.resolve();
 
@@ -93,65 +95,75 @@ function(
 
         load: function() {
             var packageRequest = this.fetch({
-                    xhrFields: {
-                        withCredentials: true,
-                    },
-                }),
+                xhrFields: {
+                    withCredentials: true,
+                },
+            });
+            return packageRequest;
+        },
+
+        parse: function(data, config) {
+            var deepLoad = (_.isBoolean(config.deepLoad)) ? config.deepLoad : true,
+                itemsRequest,
                 itemRequestPromise = new $.Deferred(),
-                additionalRequestPromise = new $.Deferred();
+                headlinesRequest,
+                allAdditionalRequests = [itemRequestPromise];
 
-            // Load the package, then fire each request for the additional
-            // information we'll need to fully construct the object.
-            packageRequest.done(function(model, request, options) {  // eslint-disable-line no-unused-vars,max-len
-                var itemsRequest,
-                    additionalItems,
-                    headlinesRequest,
-                    allAdditionalRequests = [itemRequestPromise];
+            this.initialHeadlineStatus = data.headlineStatus;
 
-                // Log that the package fetch was successful.
-                console.log("Fetched package with ID '" + this.id + "'.");  // eslint-disable-line no-console,max-len
+            // Log that the package fetch was successful.
+            console.log("Fetched package with ID '" + this.id + "'.");  // eslint-disable-line no-console,max-len
 
-                // Instantiate an item collection associated with this package, and
-                // retrieve its starting values from the API.
-                this.set('additionalContent', new BudgetItemCollection());
-
-                itemsRequest = this.get('additionalContent').fetch({
+            if (deepLoad) {
+                // Retrieve the additional item collection's starting values from
+                // the API.
+                itemsRequest = this.additionalContentCollection.fetch({
                     xhrFields: {
                         withCredentials: true,
                     },
                     data: {
-                        id__in: this.primaryID + ',' + this.additionalIDs.join(','),
+                        id__in: data.primaryContent + ',' + data.additionalContent.join(','),
                     },
+                    silent: true,
                 });
 
                 // Once primary and additional items are loaded, incorporate
                 // their attributes into the package model.
                 itemsRequest.done(function(itColl, itRequest, itOptions) {  // eslint-disable-line no-unused-vars,max-len
-                    var primaryItem = this.get('additionalContent').get(this.primaryID),
+                    var primaryItem = this.additionalContentCollection.get(data.primaryContent),
                         additionalText = (
-                            !_.isEmpty(this.additionalIDs)
-                        ) ? ", '" + this.additionalIDs.join("', '") + "'" : '',
+                            !_.isEmpty(data.additionalContent)
+                        ) ? ", '" + data.additionalContent.join("', '") + "'" : '',
                         entireSlug,
                         generatedSlug;
-
-                    additionalItems = this.get('additionalContent').clone();
-                    additionalItems.remove(primaryItem);
 
                     console.log(  // eslint-disable-line no-console
                         "Fetched items with IDs '" + primaryItem.id + "'" + additionalText + '.'
                     );
 
-                    this.set('primaryContent', primaryItem.toJSON());
-                    this.set('additionalContent', additionalItems);
+                    this.primaryContentItem = primaryItem;
+                    this.additionalContentCollection.remove(primaryItem);
+                    this.additionalContentCollection.trigger('reset');
 
+                    this.primaryContentItem.on('change', function(mdl, opts) {  // eslint-disable-line max-len,no-unused-vars
+                        _.each(
+                            _.keys(this.primaryContentItem.changedAttributes()),
+                            function(changedKey) {
+                                this.trigger('change:primaryContent.' + changedKey);
+                            }.bind(this)
+                        );
+                    }.bind(this));
+
+                    // Evaluate whether there's a suffix on the primary content
+                    // item's slug.
                     entireSlug = primaryItem.get('slug');
                     generatedSlug = this.generatePackageTitle();
                     if (
                         (entireSlug !== generatedSlug) &&
                         (_string_.startsWith(entireSlug, generatedSlug))
                     ) {
-                        this.set(
-                            'primaryContent.slugSuffix',
+                        this.primaryContentItem.set(
+                            'slugSuffix',
                             _string_.strRight(entireSlug, generatedSlug)
                         );
                     }
@@ -163,21 +175,20 @@ function(
 
                 // If the item request fails, pass back the error.
                 itemsRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
-                    additionalRequestPromise.reject('items', response);
+                    this.trigger('packageLoadFailed', 'items');
                 });
 
-                // Create an empty collection for headlines.
-                this.set('headlineCandidates', new HeadlineCandidateCollection());
-                this.get('headlineCandidates').on(
+                // Load headlines' information.
+                this.headlineCandidateCollection.on(
                     'change',
                     function() { this.trigger('change:headlineCandidates'); }.bind(this)
                 );
 
                 // Instantiate and retrieve data for a collection
                 // containing each headline in this package.
-                headlinesRequest = this.get('headlineCandidates').fetch({
+                headlinesRequest = this.headlineCandidateCollection.fetch({
                     xhrFields: {withCredentials: true},
-                    data: {id__in: this.headlineIDs.join(',')},
+                    data: {id__in: data.headlineCandidates.join(',')},
                 });
 
                 // Add this request to the list of simultaneous
@@ -187,48 +198,36 @@ function(
                 // Once the headlines have been loaded, update the value of
                 // the package model's headline candidates.
                 headlinesRequest.done(function(hlColl, hlResponse, hlOpts) {  // eslint-disable-line no-unused-vars,max-len
-                    if (!_.isEmpty(this.headlineIDs)) {
+                    if (!_.isEmpty(data.headlineCandidates)) {
                         console.log(  // eslint-disable-line no-console
                             "Fetched headlines with IDs '" +
-                            this.get('headlineCandidates').pluck('id').join("', '") +
+                            this.headlineCandidateCollection.pluck('id').join("', '") +
                             "'."
                         );
                     }
 
                     _.each(
-                        _.range(4 - this.get('headlineCandidates').length),
+                        _.range(4 - this.headlineCandidateCollection.length),
                         function(index) {  // eslint-disable-line no-unused-vars
-                            this.get('headlineCandidates').add([{}]);
+                            this.headlineCandidateCollection.add([{}]);
                         }.bind(this)
                     );
                 }.bind(this));  // eslint-disable-line no-extra-bind
 
                 // If the headline request fails, pass back the error.
                 headlinesRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
-                    additionalRequestPromise.reject('headlines', response);
+                    this.trigger('packageLoadFailed', 'headlines');
                 });
 
 
                 // When all additional queries have returned successfully, pass
                 // a successful resolution the underlying Deferred promise.
                 $.when.apply($, allAdditionalRequests).done(function() {
-                    additionalRequestPromise.resolve(this);
-                }.bind(this));
-            }.bind(this));
-
-            // If the package request fails, pass back the error.
-            packageRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
-                additionalRequestPromise.reject('package', response);
-            });
-
-            return additionalRequestPromise.promise();
-        },
-
-        parse: function(data) {
-            this.initialHeadlineStatus = data.headlineStatus;
-            this.primaryID = data.primaryContent;
-            this.additionalIDs = data.additionalContent;
-            this.headlineIDs = _.clone(data.headlineCandidates);
+                    this.trigger('packageLoaded');
+                }.bind(this));  // eslint-disable-line no-extra-bind
+            } else {
+                this.trigger('packageLoaded');
+            }
 
             return data;
         },
@@ -241,7 +240,7 @@ function(
         },
 
         intervalRoundings: {
-            t: 'second',
+            t: 'minute',
             d: 'day',
             w: 'week',
             m: 'month',
@@ -251,24 +250,14 @@ function(
             person: function(pkg, stringToMatch, context) {  // eslint-disable-line no-unused-vars
                 // TODO: Update this to reflect 'additionalContent' being a collection.
                 var allPeople = _.union(
-                        _.pluck(pkg.get('primaryContent').editors, 'email'),
-                        _.pluck(pkg.get('primaryContent').authors, 'email'),
+                        _.pluck(pkg.primaryContentItem.get('editors'), 'email'),
+                        _.pluck(pkg.primaryContentItem.get('authors'), 'email'),
                         _.pluck(
-                            _.flatten(
-                                _.pluck(
-                                    pkg.get('additionalContent'),
-                                    'editors'
-                                )
-                            ),
+                            _.flatten(pkg.additionalContentCollection.pluck('editors')),
                             'email'
                         ),
                         _.pluck(
-                            _.flatten(
-                                _.pluck(
-                                    pkg.get('additionalContent'),
-                                    'authors'
-                                )
-                            ),
+                            _.flatten(pkg.additionalContentCollection.pluck('authors')),
                             'email'
                         )
                     );
@@ -374,13 +363,15 @@ function(
         },
 
         generateSlugDate: function() {
-            var resolution = this.get('pubDateResolution'),
+            var resolution = this.get('publishDateResolution'),
                 latestDate,
                 intervalMap;
 
             if (!_.isUndefined(resolution)) {
-                if (this.has('pubDate')) {
-                    latestDate = moment(this.get('pubDate')).tz('America/Chicago');
+                if (this.has('publishDate') && !_.isEmpty(this.get('publishDate'))) {
+                    latestDate = moment(
+                        this.get('publishDate')[1]
+                    ).tz('America/Chicago').subtract({seconds: 1});
 
                     // If this is a month or a week-resolution date, use the
                     // earliest moment of the time period to generate a dayless
@@ -405,7 +396,11 @@ function(
         },
 
         generatePackageTitle: function() {
-            var rawKey = this.get('primaryContent.slugKey');
+            var rawKey;
+
+            if (!_.isUndefined(this.primaryContentItem)) {
+                rawKey = this.primaryContentItem.get('slugKey');
+            }
 
             return [
                 this.generateSlugHub(),
@@ -414,79 +409,84 @@ function(
             ].join('.');
         },
 
-        updatePubDateResolution: function(newResolution) {
-            var currentResolution = this.get('pubDateResolution'),
+        updatePublishDateResolution: function(newResolution) {
+            var currentResolution = this.get('publishDateResolution'),
                 oldEnd,
-                newEnd = null;
+                newEnd = null,
+                newStart = null;
 
-            this.set('pubDateResolution', newResolution);
+            this.set('publishDateResolution', newResolution);
 
             if (currentResolution !== newResolution) {
                 if (!_.isNull(newResolution)) {
-                    if (!_.isNull(this.get('pubDate'))) {
-                        oldEnd = moment(this.get('pubDate')).tz('America/Chicago');
+                    if (!_.isEmpty(this.get('publishDate'))) {
+                        oldEnd = moment(
+                            this.get('publishDate')[1]
+                        ).tz('America/Chicago').subtract({seconds: 1});
                         newEnd = oldEnd.endOf(this.intervalRoundings[newResolution]);
 
                         if (_.contains(['m', 'w', 'd'], currentResolution)) {
                             if (newResolution === 't') {
-                                newEnd = newEnd.endOf('day').add({hours: -12, seconds: 1});
+                                newEnd = newEnd.endOf('day').add({hours: -12, minutes: 1});
                             }
                         }
+
+                        newStart = newEnd.clone().startOf(this.intervalRoundings[newResolution]);
                     }
                 }
 
-                this.set('pubDate', (!_.isNull(newEnd)) ? newEnd.toISOString() : newEnd);
+                this.set(
+                    'publishDate',
+                    (!_.isNull(newEnd)) ? [newStart.toISOString(), newEnd.toISOString()] : []
+                );
             }
         },
 
-        updatePubDate: function(newResolution, newPubDate) {
-            var resolution = this.get('pubDateResolution'),
+        updatePublishDate: function(newResolution, newPublishDate) {
+            var resolution = this.get('publishDateResolution'),
+                roundingResolution = this.intervalRoundings[resolution],
                 roughDate,
-                returnValue = null;
+                start = null,
+                end = null;
 
             if (newResolution === resolution) {
-                if (!_.isNull(newPubDate)) {
+                if (!_.isNull(newPublishDate)) {
                     roughDate = moment(
-                        newPubDate,
+                        newPublishDate,
                         this.dateFormats[resolution].join(' ')
                     ).tz('America/Chicago');
 
-                    returnValue = roughDate.endOf(this.intervalRoundings[resolution]).toISOString();
+                    end = roughDate.endOf(roundingResolution);
+                    start = end.clone().startOf(roundingResolution);
+
+                    end.add({milliseconds: 1});
                 }
 
-                this.set({pubDate: returnValue}, {silent: true});
+                this.set(
+                    {
+                        publishDate: !_.isNull(end) ? [start.toISOString(), end.toISOString()] : [],
+                    },
+                    {}
+                );
             }
         },
 
-        generateFormattedPubDate: function(resolutionRaw, timestampRaw) {
-            var resolution = resolutionRaw || this.get('pubDateResolution'),
-                timestamp = timestampRaw || this.get('pubDate'),
-                endDate = moment(timestamp).tz('America/Chicago'),
-                processedEndDate = endDate;
+        generateFormattedPublishDate: function(resolutionRaw, endTimestampRaw) {
+            var resolution = resolutionRaw || this.get('publishDateResolution'),
+                endTimestamp = endTimestampRaw || this.get('publishDate')[1],
+                endDate = moment(endTimestamp).tz('America/Chicago').subtract({seconds: 1}),
+                processedDate = endDate;
 
             if (_.contains(['m', 'w', 'd', 't'], resolution)) {
-                if (resolution === 'w') { processedEndDate = endDate.startOf('week'); }
+                if (resolution === 'w') { processedDate = endDate.startOf('week'); }
 
                 return _.map(
                     this.dateFormats[resolution],
-                    function(formatString) { return processedEndDate.format(formatString); }
+                    function(formatString) { return processedDate.format(formatString); }
                 );
             }
 
             return ['Invalid date'];
-        },
-
-        updateFormattedPubDate: function(newPubDate) {
-            var resolution = this.get('pubDateResolution'),
-                roughDate = moment(
-                    newPubDate,
-                    this.dateFormats[resolution].join(' ')
-                ).tz('America/Chicago'),
-                finalDate;
-
-            finalDate = roughDate.endOf(this.intervalRoundings[resolution]);
-
-            this.set({pubDate: finalDate.toISOString()}, {});
         },
 
         generateFormattedRunDate: function(formatString, runDateValue) {

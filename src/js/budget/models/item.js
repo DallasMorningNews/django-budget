@@ -13,7 +13,18 @@ define(
             urlRoot: settings.apiEndpoints.GET.item,
 
             url: function() {
-                return this.urlRoot + this.id + (settings.apiPostfix || '/');
+                if (this.has('id')) {
+                    return this.urlRoot + this.id + (settings.apiPostfix || '/');
+                }
+
+                return this.urlRoot;
+            },
+
+            defaults: {
+                type: null,
+                slugKey: '',
+                authors: [],
+                budgetLine: '',
             },
         });
     }

@@ -122,6 +122,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             bindingsObj[ui.colorDot.selector] = {
                 observe: 'hub',
                 update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
                 attributes: [
                     {
                         name: 'style',
@@ -137,18 +138,30 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         },
                     },
                 ],
-                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
             };
 
             bindingsObj[ui.packageTitle.selector] = {
                 observe: [
                     'hub',
                     'primaryContent.slugKey',
-                    'pubDateResolution',
-                    'pubDate',
+                    'publishDateResolution',
+                    'publishDate',
                 ],
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return [
+                        values[0],
+                        model.primaryContentItem.get('slugKey'),
+                        values[2],
+                        values[3],
+                    ];
+                },
                 update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
-                    var newPackageTitle = this.model.generatePackageTitle();
+                    var newPackageTitle = model.generatePackageTitle();
+
+                    model.primaryContentItem.set('slug', newPackageTitle);
+                    model.additionalContentCollection.each(function(item) {
+                        item.set('slug', newPackageTitle + '.' + item.get('slugKey'));
+                    });
 
                     $el.text(newPackageTitle);
 
@@ -191,19 +204,19 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     $el.selectize(_.defaults(hubOpts, settings.editDropdownOptions));
                 },
-                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if ($el.val()) {
-                        return $el.val();
-                    }
-
-                    return null;
-                },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     if (_.isUndefined($el[0].selectize)) {
                         $el.val(value);
                     } else if (_.isObject($el[0].selectize)) {
                         $el[0].selectize.setValue(value, true);
                     }
+                },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if ($el.val()) {
+                        return $el.val();
+                    }
+
+                    return null;
                 },
             };
 
@@ -232,27 +245,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     $el.selectize(_.defaults(typeOpts, settings.editDropdownOptions));
                 },
-                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    // var oldType = model.get('primaryContent.type'),
-                    //     oldKeyMatch = (oldType === 'text') ? 'article' : oldType;
-
-                    if ($el.val()) {
-                        // if (
-                        //     (!model.has('primaryContent.slugKey')) ||
-                        //     (model.get('primaryContent.slugKey') === '') ||
-                        //     (model.get('primaryContent.slugKey') === oldKeyMatch)
-                        // ) {
-                        //     model.set(
-                        //         'primaryContent.slugKey',
-                        //         ($el.val() === 'text') ? 'article' : $el.val()
-                        //     );
-                        // }
-
-                        return $el.val();
-                    }
-
-                    return null;
-                },
+                onGet: function(values, options) { return model.primaryContentItem.get('type'); },  // eslint-disable-line no-unused-vars,max-len
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     if (_.isUndefined($el[0].selectize)) {
                         $el.val(value);
@@ -260,10 +253,21 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         $el[0].selectize.setValue(value, true);
                     }
                 },
+                getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
+                    if ($el.val()) {
+                        return $el.val();
+                    }
+
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.primaryContentItem.set('type', value);
+                },
             };
 
             bindingsObj[ui.lengthGroup.selector] = {
                 observe: 'primaryContent.type',
+                onGet: function(values, options) { return model.primaryContentItem.get('type'); },  // eslint-disable-line no-unused-vars, max-len
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     var field = $el.find('input');
 
@@ -281,8 +285,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'field-active',
                         observe: 'primaryContent.type',
-                        onGet: function(value) {
-                            if (value && settings.contentTypes[value].usesLengthAttribute) {
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            var val = model.primaryContentItem.get('type');
+
+                            if (val && settings.contentTypes[val].usesLengthAttribute) {
                                 return 'true';
                             }
 
@@ -294,6 +300,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.lengthField.selector] = {
                 observe: 'primaryContent.length',
+                onGet: function(values, options) { return model.primaryContentItem.get('length'); },  // eslint-disable-line no-unused-vars,max-len
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
                     if ($el.val()) {
                         return $el.val();
@@ -301,17 +308,23 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     return null;
                 },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.primaryContentItem.set('length', value);
+                },
             };
 
             bindingsObj[ui.pitchLinkGroup.selector] = {
                 observe: 'primaryContent.type',
+                onGet: function(values, options) { return model.primaryContentItem.get('type'); },  // eslint-disable-line no-unused-vars,max-len
                 update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
                 attributes: [
                     {
                         name: 'field-active',
                         observe: 'primaryContent.type',
-                        onGet: function(value) {
-                            if (value && settings.contentTypes[value].usesPitchSystem) {
+                        onGet: function(value) {  // eslint-disable-line no-unused-vars
+                            var val = model.primaryContentItem.get('type');
+
+                            if (val && settings.contentTypes[val].usesPitchSystem) {
                                 return 'true';
                             }
 
@@ -322,7 +335,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubDateResolution.selector] = {
-                observe: 'pubDateResolution',
+                observe: 'publishDateResolution',
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     var resolutionOpts = {
                         maxItems: 1,
@@ -350,6 +363,13 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     $el.selectize(_.defaults(resolutionOpts, settings.editDropdownOptions));
                 },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (_.isUndefined($el[0].selectize)) {
+                        $el.val(value);
+                    } else if (_.isObject($el[0].selectize)) {
+                        $el[0].selectize.setValue(value, true);
+                    }
+                },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
                     if ($el.val()) {
                         return $el.val();
@@ -358,22 +378,15 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     return null;
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    model.updatePubDateResolution(value);
-                },
-                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
-                    if (_.isUndefined($el[0].selectize)) {
-                        $el.val(value);
-                    } else if (_.isObject($el[0].selectize)) {
-                        $el[0].selectize.setValue(value, true);
-                    }
+                    model.updatePublishDateResolution(value);
                 },
             };
 
             bindingsObj[ui.pubDateGroup.selector] = {
-                observe: 'pubDateResolution',
+                observe: 'publishDateResolution',
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     var control = this.ui.pubDateField.data('datepicker'),
-                        resolution = mdl.get('pubDateResolution'),
+                        resolution = mdl.get('publishDateResolution'),
                         currentDate = (_.has(control, 'currentDate')) ? control.currentDate : null,
                         hasDate = !_.isNull(currentDate),
                         resolutionOptions = {},  // eslint-disable-line no-unused-vars
@@ -388,6 +401,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     this.ui.pubDateField.datepicker(
                         _.defaults(
+                            {
+                                onSelect: function(dateString, date, config) {
+                                    config.$el.trigger('updatePublishDate');
+                                },
+                            },
                             settings.datePickerOptions[value],
                             settings.datePickerOptions.default
                         )
@@ -412,7 +430,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 attributes: [
                     {
                         name: 'field-active',
-                        observe: 'pubDateResolution',
+                        observe: 'publishDateResolution',
                         onGet: function(value) {
                             if (!_.isNull(value)) {
                                 return 'true';
@@ -425,8 +443,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubDateField.selector] = {
-                observe: ['pubDateResolution', 'pubDate'],
-                events: ['blur'],
+                observe: ['publishDateResolution', 'publishDate'],
+                events: ['updatePublishDate'],
                 update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
                     var datePckr = ui.pubDateField.data('datepicker'),
                         newDate;
@@ -435,7 +453,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         datePckr.clear();
                     } else {
                         if ((!_.isUndefined(values[0])) && (values[0] !== '')) {
-                            newDate = moment(values[1]).tz('America/Chicago');
+                            newDate = moment(
+                                values[1][1]
+                            ).tz('America/Chicago').subtract({seconds: 1});
 
                             // Weeks need to be passed as the beginning date.
                             if (values[0] === 'w') { newDate = newDate.startOf('week'); }
@@ -446,29 +466,31 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     }
                 },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if ($el.val() === '') { return null; }
+                    if ($el.val() === '') { return [ui.pubDateResolution.val(), null]; }
 
-                    if (model.get('pubDateResolution') === 't') {
+                    if (model.get('publishDateResolution') === 't') {
                         return [
                             ui.pubDateResolution.val(),
-                            [$el.val(), model.generateFormattedPubDate()[1]].join(' '),
+                            [$el.val(), model.generateFormattedPublishDate()[1]].join(' '),
                         ];
                     }
 
-                    return [$el.val()];
+                    return [ui.pubDateResolution.val(), $el.val()];
                 },
-                set: function(attr, values) { model.updatePubDate.apply(model, values); },  // eslint-disable-line no-unused-vars,max-len
+                set: function(attr, values) {
+                    model.updatePublishDate.apply(model, values);
+                },
                 attributes: [
                     {
                         name: 'disabled',
-                        observe: 'pubDateResolution',
+                        observe: 'publishDateResolution',
                         onGet: function(value) { return _.isNull(value); },
                     },
                 ],
             };
 
             bindingsObj[ui.pubTimeGroup.selector] = {
-                observe: 'pubDateResolution',
+                observe: 'publishDateResolution',
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     var control,
                         customOptions = {};
@@ -488,7 +510,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 attributes: [
                     {
                         name: 'field-active',
-                        observe: 'pubDateResolution',
+                        observe: 'publishDateResolution',
                         onGet: function(value) {
                             if (value === 't') {
                                 return 'true';
@@ -501,7 +523,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             };
 
             bindingsObj[ui.pubTimeField.selector] = {
-                observe: ['pubDateResolution', 'pubDate'],
+                observe: ['publishDateResolution', 'publishDate'],
                 events: ['blur'],
                 update: function($el, values, mdl) {
                     var timePckr = ui.pubTimeField.data('timepicker');
@@ -510,28 +532,30 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         timePckr.selectTime('12:00 p.m.');
                     } else {
                         timePckr.selectTime(
-                            mdl.generateFormattedPubDate(values[0], values[1])[1]
+                            mdl.generateFormattedPublishDate(values[0], values[1][1])[1]
                         );
                     }
                 },
-
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    if (model.get('pubDateResolution') === 't') {
-                        if (_.isUndefined(model.get('pubDate'))) { return null; }
+                    if (model.get('publishDateResolution') === 't') {
+                        if (
+                            (_.isUndefined(model.get('publishDate'))) ||
+                            (_.isEmpty(model.get('publishDate')))
+                        ) { return null; }
 
                         return [
                             ui.pubDateResolution.val(),
-                            [model.generateFormattedPubDate()[0], $el.val()].join(' '),
+                            [model.generateFormattedPublishDate()[0], $el.val()].join(' '),
                         ];
                     }
 
                     return null;
                 },
-                set: function(attr, values) { model.updatePubDate.apply(model, values); },  // eslint-disable-line no-unused-vars,max-len
+                set: function(attr, values) { model.updatePublishDate.apply(model, values); },  // eslint-disable-line no-unused-vars,max-len
                 attributes: [
                     {
                         name: 'disabled',
-                        observe: 'pubDateResolution',
+                        observe: 'publishDateResolution',
                         onGet: function(value) { return (value !== 't'); },
                     },
                 ],
@@ -541,8 +565,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 observe: [
                     'hub',
                     'primaryContent.slugKey',
-                    'pubDateResolution',
-                    'pubDate',
+                    'publishDateResolution',
+                    'publishDate',
                 ],
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     $el.on(
@@ -574,6 +598,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     setTimeout(function() {
                         $el.trigger('recalculateSpacing');
                     }.bind(this), 0);  // eslint-disable-line no-extra-bind
+                },
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return [
+                        values[0],
+                        model.primaryContentItem.get('slugKey'),
+                        values[2],
+                        values[3],
+                    ];
                 },
                 update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
                     var hubSlug = $el.find('.hub-slug-value'),
@@ -609,44 +641,20 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             $el.closest('.slug-group-holder').removeClass('input-focused');
                         }
                     );
-
-                    // TODO: Add validation to StickIt version.
-                    // slugField.bind(
-                    //     'input',
-                    //     function() {
-                    //         var formGroup = slugField.closest('.form-group');
-
-                    //         if (slugField.val().match(/[^a-z0-9\-]/)) {
-                    //             if (!formGroup.hasClass('has-error')) {
-                    //                 formGroup.addClass('has-error');
-                    //             }
-
-                    //             formGroup.find('.form-help').html(
-                    //                 'Please use only lowercase letters, ' +
-                    //                 'numbers and hyphens in slugs.'
-                    //             );
-                    //         } else if (slugField.val().length > 20) {
-                    //             if (!formGroup.hasClass('has-error')) {
-                    //                 formGroup.addClass('has-error');
-                    //             }
-
-                    //             formGroup.find('.form-help').html(
-                    //                 'Please keep your slug to 20 characters or less.'
-                    //             );
-                    //         } else {
-                    //             if (formGroup.hasClass('has-error')) {
-                    //                 formGroup.removeClass('has-error');
-                    //             }
-
-                    //             formGroup.find('.form-help').html('');
-                    //         }
-                    //     }.bind(this)
-                    // );
+                },
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return model.primaryContentItem.get('slugKey');
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.primaryContentItem.set('slugKey', value);
                 },
             };
 
             bindingsObj[ui.slugPlaceholder.selector] = {
                 observe: 'primaryContent.slugKey',
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return model.primaryContentItem.get('slugKey');
+                },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     if (value !== '') {
                         $el.text(value);
@@ -664,13 +672,22 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     $el.bind('focus', function() { $(this).parent().addClass('input-focused'); });
                     $el.bind('blur', function() { $(this).parent().removeClass('input-focused'); });
                 },
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return model.primaryContentItem.get('budgetLine');
+                },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     $el.text(value);
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.primaryContentItem.set('budgetLine', value);
                 },
             };
 
             bindingsObj[ui.budgetLinePlaceholder.selector] = {
                 observe: 'primaryContent.budgetLine',
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return model.primaryContentItem.get('budgetLine');
+                },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     if (value === '') {
                         if ($el.closest('.expanding-holder').hasClass('has-value')) {
@@ -713,6 +730,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     $el.selectize(_.defaults(authorOpts, settings.editDropdownOptions));
                 },
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return model.primaryContentItem.get('authors');
+                },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     if (_.isUndefined($el[0].selectize)) {
                         $el.val(_(value).pluck('email').join(','));
@@ -743,6 +763,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     return newAuthors;
                 },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.primaryContentItem.set('authors', value);
+                },
             };
 
             bindingsObj[ui.editorsDropdown.selector] = {
@@ -771,6 +794,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     };
 
                     $el.selectize(_.defaults(editorOpts, settings.editDropdownOptions));
+                },
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars
+                    return model.primaryContentItem.get('editors');
                 },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
                     if (_.isUndefined($el[0].selectize)) {
@@ -801,6 +827,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     );
 
                     return newEditors;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    model.primaryContentItem.set('editors', value);
                 },
             };
 
@@ -840,6 +869,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.headline1.selector] = {
                 observe: 'headlineCandidates',
+                onGet: function(values, options) { return model.headlineCandidateCollection; },  // eslint-disable-line no-unused-vars,max-len
                 update: function($el, vals) {
                     var cID = $el.data('cid'),
                         thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(0);
@@ -856,7 +886,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(values) { return values.at(0).cid; },
+                        onGet: function(values) {  // eslint-disable-line no-unused-vars
+                            return model.headlineCandidateCollection.at(0).cid;
+                        },
                     },
                     {
                         name: 'readonly',
@@ -868,6 +900,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.headline2.selector] = {
                 observe: 'headlineCandidates',
+                onGet: function(values, options) { return model.headlineCandidateCollection; },  // eslint-disable-line no-unused-vars,max-len
                 update: function($el, vals) {
                     var cID = $el.data('cid'),
                         thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(1);
@@ -884,7 +917,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(values) { return values.at(1).cid; },
+                        onGet: function(values) {  // eslint-disable-line no-unused-vars
+                            return model.headlineCandidateCollection.at(1).cid;
+                        },
                     },
                     {
                         name: 'readonly',
@@ -896,6 +931,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.headline3.selector] = {
                 observe: 'headlineCandidates',
+                onGet: function(values, options) { return model.headlineCandidateCollection; },  // eslint-disable-line no-unused-vars,max-len
                 update: function($el, vals) {
                     var cID = $el.data('cid'),
                         thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(2);
@@ -912,7 +948,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(values) { return values.at(2).cid; },
+                        onGet: function(values) {  // eslint-disable-line no-unused-vars
+                            return model.headlineCandidateCollection.at(2).cid;
+                        },
                     },
                     {
                         name: 'readonly',
@@ -924,6 +962,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.headline4.selector] = {
                 observe: 'headlineCandidates',
+                onGet: function(values, options) { return model.headlineCandidateCollection; },  // eslint-disable-line no-unused-vars,max-len
                 update: function($el, vals) {
                     var cID = $el.data('cid'),
                         thisVal = (cID !== '' && cID !== null) ? vals.get({cid: cID}) : vals.at(3);
@@ -940,7 +979,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     {
                         name: 'data-cid',
                         observe: 'headlineCandidates',
-                        onGet: function(values) { return values.at(3).cid; },
+                        onGet: function(values) {  // eslint-disable-line no-unused-vars
+                            return model.headlineCandidateCollection.at(3).cid;
+                        },
                     },
                     {
                         name: 'readonly',
@@ -1230,14 +1271,16 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             'click @ui.packageDeleteTrigger': 'deleteEntirePackage',
         },
 
-        modelEvents: {},
+        modelEvents: {
+            packageLoaded: 'bindForm',
+        },
 
         initialize: function() {
             this.isFirstRender = true;
 
             this._radio = Backbone.Wreqr.radio.channel('global');
 
-            this.collection = this.model.get('additionalContent');
+            this.collection = this.model.additionalContentCollection;
 
             /* Prior-path capturing. */
 
@@ -1307,6 +1350,15 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             this.options.initFinishedCallback(this);
         },
 
+        filter: function(child, index, collection) {  // eslint-disable-line no-unused-vars
+            // Only show child views for items in 'this.collection' that
+            // represent additional content (and not primary items).
+            return (
+                (!child.has('additionalForPackage')) ||
+                (!_.isNull(child.get('additionalForPackage')))
+            );
+        },
+
         serializeData: function() {
             return {
                 csrfToken: '',
@@ -1343,6 +1395,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 $thisEl.addClass('collapse-enabled');
             });
 
+            if (_.has(this.options, 'boundData') && _.has(this.options.boundData, 'isEmpty')) {
+                if (this.options.boundData.isEmpty === true) {
+                    this.model.trigger('packageLoaded');
+                }
+            }
+        },
+
+        bindForm: function() {
             this.stickit();
         },
 
@@ -1512,14 +1572,107 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
         addNewAdditionalItem: function() {
             this.additionalItemCount++;
 
-            this.collection.add([{
-                // formID: 'additionalUnbound' + this.additionalItemCount,
-            }]);
+            this.collection.add([
+                (!_.isUndefined(this.model.id)) ? {additionalForPackage: this.model.id} : {},
+            ]);
+        },
+
+        saveAllComponents: function() {
+            var packageSave,
+                savePromise = new $.Deferred();
+
+            // TODO(ajv): Remove this line when 'pubDate' has been deprecated.
+            this.model.set('pubDate', this.model.get('publishDate')[1]);
+
+            // TODO(ajv): Remove this line when 'publishedUrl' is no longer required.
+            this.model.set('publishedUrl', 'http://www.dallasnews.com/');
+
+            packageSave = this.model.save(
+                undefined,
+                {
+                    xhrFields: {
+                        withCredentials: true,
+                    },
+                    deepLoad: false,
+                }
+            );
+
+            packageSave.done(function(mdl, resp, opts) {  // eslint-disable-line no-unused-vars
+                var packageID = mdl.id,
+                    primaryContentSave,
+                    allSaveRequests = [primaryContentSave];
+
+                this.model.primaryContentItem.set('primaryForPackage', packageID);
+
+                primaryContentSave = this.model.primaryContentItem.save(
+                    undefined,
+                    {
+                        xhrFields: {
+                            withCredentials: true,
+                        },
+                    }
+                );
+
+                primaryContentSave.done(function(model, response, options) {  // eslint-disable-line max-len,no-unused-vars
+                    // console.log('PCS');
+                });
+
+                primaryContentSave.fail(function(response, errorText) {  // eslint-disable-line max-len,no-unused-vars
+                    savePromise.reject('primary-item');
+                });
+
+                this.model.additionalContentCollection.each(function(item) {
+                    var additionalItemSave;
+
+                    item.set('additionalForPackage', packageID);
+
+                    if (
+                        (!item.isNew()) ||
+                        (!_.isNull(item.get('type'))) ||
+                        (!_.isEmpty(item.get('slugKey'))) ||
+                        (!_.isEmpty(item.get('authors'))) ||
+                        (!_.isEmpty(item.get('budgetLine')))
+                    ) {
+                        additionalItemSave = item.save(
+                            undefined,
+                            {
+                                xhrFields: {
+                                    withCredentials: true,
+                                },
+                            }
+                        );
+
+                        allSaveRequests.push(additionalItemSave);
+
+                        additionalItemSave.done(function(model, response, options) {  // eslint-disable-line max-len,no-unused-vars
+                        });
+
+                        additionalItemSave.fail(function() {
+                            savePromise.reject('additional-item');
+                        });
+                    } else {
+                        // If all four empty-by-default fields are still empty
+                        // on this model (and it has no ID), the model should
+                        // get removed from the collection rather than being
+                        // saved across the API.
+                        item.destroy();
+                    }
+                });
+
+                $.when.apply($, allSaveRequests).done(function(returnOne, returnTwo) {
+                    savePromise.resolve(returnTwo);
+                }.bind(this));  // eslint-disable-line no-extra-bind
+            }.bind(this));
+
+            packageSave.fail(function(response, errorText) {  // eslint-disable-line max-len,no-unused-vars
+                savePromise.reject('package');
+            });
+
+            return savePromise;
         },
 
         savePackage: function() {
-            var packageDict = this.serializeForm(),
-                saveProgressModal = {
+            var saveProgressModal = {
                     modalTitle: '',
                     innerID: 'package-save-progress-modal',
                     contentClassName: 'package-modal',
@@ -1527,76 +1680,67 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     escapeButtonCloses: false,
                     overlayClosesOnClick: false,
                     buttons: [],
-                };
+                },
+                allComponentsSave;
 
-            if (_.isNull(packageDict)) {
-                this.raiseFormErrors();
-            } else {
-                this.modalView = new ModalView({modalConfig: saveProgressModal});
+            this.modalView = new ModalView({modalConfig: saveProgressModal});
 
-                setTimeout(
-                    function() {
-                        this._radio.commands.execute('showModal', this.modalView);
+            setTimeout(
+                function() {
+                    this._radio.commands.execute('showModal', this.modalView);
 
-                        this.modalView.$el.parent()
-                                        .addClass('waiting')
-                                        .addClass('save-waiting');
+                    this.modalView.$el.parent()
+                                    .addClass('waiting')
+                                    .addClass('save-waiting');
 
-                        this.modalView.$el.append(
-                            '<div class="loading-animation save-loading-animation">' +
-                                '<div class="loader">' +
-                                    '<svg class="circular" viewBox="25 25 50 50">' +
-                                        '<circle class="path" cx="50" cy="50" r="20" ' +
-                                                'fill="none" stroke-width="2" ' +
-                                                'stroke-miterlimit="10"/>' +
-                                    '</svg>' +
-                                    '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-                                '</div>' +
-                                '<p class="loading-text">Saving content...</p>' +
-                            '</div>'
-                        );
+                    this.modalView.$el.append(
+                        '<div class="loading-animation save-loading-animation">' +
+                            '<div class="loader">' +
+                                '<svg class="circular" viewBox="25 25 50 50">' +
+                                    '<circle class="path" cx="50" cy="50" r="20" ' +
+                                            'fill="none" stroke-width="2" ' +
+                                            'stroke-miterlimit="10"/>' +
+                                '</svg>' +
+                                '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+                            '</div>' +
+                            '<p class="loading-text">Saving content...</p>' +
+                        '</div>'
+                    );
 
-                        setTimeout(function() {
-                            this.modalView.$el.find('.loading-animation').addClass('active');
-                        }.bind(this), 270);
-                    }.bind(this),
-                    200
+                    setTimeout(function() {
+                        this.modalView.$el.find('.loading-animation').addClass('active');
+                    }.bind(this), 270);
+                }.bind(this),
+                200
+            );
+
+            allComponentsSave = this.saveAllComponents();
+
+            allComponentsSave.done(function(requestParams) {
+                setTimeout(function() {
+                    if (requestParams[2].status === 200) {
+                        this.saveSuccessCallback('saveOnly', requestParams[0]);
+                    } else {
+                        this.saveErrorCallback('saveOnly', 'processingError', [requestParams[0]]);
+                    }
+                }.bind(this), 1500);
+            }.bind(this));
+
+            allComponentsSave.fail(function(jqXHR, textStatus, errorThrown) {
+                this.saveErrorCallback(
+                    'saveOnly',
+                    'hardError',
+                    [
+                        jqXHR,
+                        textStatus,
+                        errorThrown,
+                    ]
                 );
-
-                $.ajax({
-                    type: 'POST',
-                    url: settings.apiEndpoints.POST.package.save,
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(packageDict),
-                    processData: false,
-                    success: function(data) {
-                        setTimeout(function() {
-                            if (data.success) {
-                                this.saveSuccessCallback('saveOnly', data);
-                            } else {
-                                this.saveErrorCallback('saveOnly', 'processingError', [data]);
-                            }
-                        }.bind(this), 1500);
-                    }.bind(this),
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        this.saveErrorCallback(
-                            'saveOnly',
-                            'hardError',
-                            [
-                                jqXHR,
-                                textStatus,
-                                errorThrown,
-                            ]
-                        );
-                    }.bind(this),
-                    dataType: 'json',
-                });
-            }
+            }.bind(this));
         },
 
         savePackageAndContinueEditing: function() {
-            var packageDict = this.serializeForm(),
-                saveProgressModal = {
+            var saveProgressModal = {
                     modalTitle: 'Are you sure?',
                     innerID: 'package-save-progress-modal',
                     contentClassName: 'package-modal',
@@ -1604,71 +1748,67 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     escapeButtonCloses: false,
                     overlayClosesOnClick: false,
                     buttons: [],
-                };
+                },
+                allComponentsSave;
 
-            if (_.isNull(packageDict)) {
-                this.raiseFormErrors();
-            } else {
-                this.modalView = new ModalView({modalConfig: saveProgressModal});
+            this.modalView = new ModalView({modalConfig: saveProgressModal});
 
-                setTimeout(
-                    function() {
-                        this._radio.commands.execute('showModal', this.modalView);
+            setTimeout(
+                function() {
+                    this._radio.commands.execute('showModal', this.modalView);
 
-                        this.modalView.$el.parent()
-                                        .addClass('waiting')
-                                        .addClass('save-waiting');
+                    this.modalView.$el.parent()
+                                    .addClass('waiting')
+                                    .addClass('save-waiting');
 
-                        this.modalView.$el.append(
-                            '<div class="loading-animation save-loading-animation">' +
-                                '<div class="loader">' +
-                                    '<svg class="circular" viewBox="25 25 50 50">' +
-                                        '<circle class="path" cx="50" cy="50" r="20" ' +
-                                                'fill="none" stroke-width="2" ' +
-                                                'stroke-miterlimit="10"/>' +
-                                    '</svg>' +
-                                    '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-                                '</div>' +
-                                '<p class="loading-text">Saving content...</p>' +
-                            '</div>'
-                        );
+                    this.modalView.$el.append(
+                        '<div class="loading-animation save-loading-animation">' +
+                            '<div class="loader">' +
+                                '<svg class="circular" viewBox="25 25 50 50">' +
+                                    '<circle class="path" cx="50" cy="50" r="20" ' +
+                                            'fill="none" stroke-width="2" ' +
+                                            'stroke-miterlimit="10"/>' +
+                                '</svg>' +
+                                '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+                            '</div>' +
+                            '<p class="loading-text">Saving content...</p>' +
+                        '</div>'
+                    );
 
-                        setTimeout(function() {
-                            this.modalView.$el.find('.loading-animation').addClass('active');
-                        }.bind(this), 270);
-                    }.bind(this),
-                    200
-                );
+                    setTimeout(function() {
+                        this.modalView.$el.find('.loading-animation').addClass('active');
+                    }.bind(this), 270);
+                }.bind(this),
+                200
+            );
 
-                $.ajax({
-                    type: 'POST',
-                    url: settings.apiEndpoints.POST.package.save,
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(packageDict),
-                    processData: false,
-                    success: function(data) {
-                        setTimeout(function() {
-                            if (data.success) {
-                                this.saveSuccessCallback('saveAndContinue', data);
-                            } else {
-                                this.saveErrorCallback(
-                                    'saveAndContinue',
-                                    'processingError',
-                                    [data]
-                                );
-                            }
-                        }.bind(this), 1500);
-                    }.bind(this),
-                    error: function(jqXHR, textStatus, errorThrown) {
+            allComponentsSave = this.saveAllComponents();
+
+            allComponentsSave.done(function(requestParams) {
+                setTimeout(function() {
+                    if (requestParams[2].status === 200) {
+                        this.saveSuccessCallback('saveAndContinue', requestParams[0]);
+                    } else {
                         this.saveErrorCallback(
                             'saveAndContinue',
-                            'hardError',
-                            [jqXHR, textStatus, errorThrown]
+                            'processingError',
+                            [requestParams[0]]
                         );
-                    }.bind(this),
-                    dataType: 'json',
-                });
-            }
+                    }
+                }.bind(this), 1500);
+            }.bind(this));
+
+            allComponentsSave.fail(function(jqXHR, textStatus, errorThrown) {
+                this.saveErrorCallback(
+                    'saveAndContinue',
+                    'hardError',
+                    [
+                        jqXHR,
+                        textStatus,
+                        errorThrown,
+                    ]
+                );
+            }.bind(this));
         },
 
         deleteEntirePackage: function() {
@@ -1765,7 +1905,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             if (_.isNull(serializedForm)) {
                 this.raiseFormErrors();
             } else {
-                dbPrimarySlug = this.model.get('primaryContent').slug;
+                dbPrimarySlug = this.model.primaryContentItem.get('slug');
                 currentPrimarySlug = this.ui.packageTitle.text();
                 itemSlugEndings = _.map(
                     // TODO: Change this to reflect 'additionalContent' is now a collection.
@@ -1946,8 +2086,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         'edit/' + data.packageID + '/',
                         {trigger: true}
                     );
-                } else {
-                    this.model.fetch();
                 }
 
                 successSnackbarOpts.containerClass = 'edit-page';

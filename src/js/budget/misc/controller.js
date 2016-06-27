@@ -60,11 +60,15 @@ define(
                         radio.commands.execute(
                             'switchMainView',
                             PackageEditView,
-                            {model: packageToEdit}
+                            {model: packageToEdit, isEmpty: true}
                         );
                     });
                 } else {
-                    packageToEdit.load().done(function() {
+                    packageToEdit.fetch({
+                        xhrFields: {
+                            withCredentials: true,
+                        },
+                    }).done(function() {
                         radio.commands.execute(
                             'switchMainView',
                             PackageEditView,
