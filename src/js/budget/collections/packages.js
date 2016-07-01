@@ -2,6 +2,7 @@ define(
     [
         'backbone',
         'lunr',
+        'moment',
         'underscore',
         'common/settings',
         'budget/models/package',
@@ -9,6 +10,7 @@ define(
     function(
         Backbone,
         lunr,
+        moment,
         _,
         settings,
         Package
@@ -113,11 +115,11 @@ define(
              */
             // BBTODO: Change this to reflect the loss of timestamps.
             comparator: function(model) {
-                return model.get('pubDate').timestamp;
+                return moment(model.get('publishDate')[1]).unix();
             },
 
             parse: function(response) {
-                return response;
+                return response.results;
             },
         });
     }
