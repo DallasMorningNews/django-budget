@@ -97,11 +97,12 @@ packageErrors: '#package-form .error-message',  // eslint-disable-line indent
             headlineVoteSubmissionToggleInput: '#package-form #vote-submission-toggle input',
             notesField: '#package-form #notes-quill .text-holder',
             notesToolbar: '#package-form #notes-quill .toolbar-holder',
+            publishingGroup: '#package-form #publishing-fields',
             urlField: '#package-form #url',
             printRunDateStartField: '#package-form #print_run_date_start',
             printRunDateEndField: '#package-form #print_run_date_end',
-            printPlacementGroup: '#package-form .placement-inputs',
-            printPlacementFields: '#package-form .placement-inputs .pitched_placements',
+            printPublicationDropdown: '#package-form #print-publication',
+            printSectionCheckboxes: '#package-form #print-sections',
             printFinalized: '#package-form #is_placement_finalized',
 /* eslint-disable indent */
 addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
@@ -1096,48 +1097,28 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 },
             };
 
-            bindingsObj[ui.urlField.selector] = {
-                observe: 'publishedUrl',
+            bindingsObj[ui.publishingGroup.selector] = {
+                observe: 'publishGroupHeight',
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    var closestCollapsibleGroup = $el.closest(
+                            '.row.can-collapse'
+                        ),
+                        newHeight = (
+                            18 +  // 12px for top spacer, 6 for bottom border/margin.
+                            $el.outerHeight()
+                        );
+
+                    closestCollapsibleGroup.data('expandedHeight', newHeight);
+
+                    if (closestCollapsibleGroup.height() > 0) {
+                        closestCollapsibleGroup.height(newHeight);
+                    }
+                },
+                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
             };
 
-            bindingsObj[ui.printPlacementGroup.selector] = {
-                observe: 'printPlacements',
-                initialize: function($el, mdl, opts) {  // eslint-disable-line no-unused-vars
-                    var placementInputs = _.map(
-                        this.printPlacementChoices,
-                        function(choice) {
-                            return '' +
-                                '<label>' +
-                                '    <input id="' + choice.slug + '"' +
-                                            'class="pitched_placements"' +
-                                            'name="pitched_placements[]"' +
-                                            'type="checkbox"' +
-                                            'value="' + choice.slug + '" />' +
-                                    '<i class="helper"></i>' +
-                                    choice.verboseName +
-                                '</label>';
-                        }
-                    );
-
-                    $el.append(placementInputs);
-
-                    setTimeout(function() {
-                        var activeGroup = $el.closest('.collapsable-inner'),
-                            closestCollapsibleGroup = $el.closest('.row.can-collapse'),
-                            newHeight = (
-                                6 +  // 6px for bottom border/margin.
-                                activeGroup.height()
-                            );
-
-                        closestCollapsibleGroup.data('expandedHeight', newHeight);
-
-                        if (closestCollapsibleGroup.height() > 0) {
-                            closestCollapsibleGroup.height(newHeight);
-                        }
-                    }, 0);
-                },
-                update: function($el, value, mdl) {},  // eslint-disable-line no-unused-vars
-                getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
+            bindingsObj[ui.urlField.selector] = {
+                observe: 'publishedUrl',
             };
 
             bindingsObj[ui.printRunDateStartField.selector] = {
@@ -1342,23 +1323,129 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 },
             };
 
-            bindingsObj[ui.printPlacementFields.selector] = {
-                observe: 'printPlacements',
-                update: function($el, activeValues, mdl) {  // eslint-disable-line no-unused-vars
-                    _.each($el, function(choiceEl) {
-                        var $choiceEl = $(choiceEl),
-                            choiceSlug = $choiceEl.val();
+            bindingsObj[ui.printPublicationDropdown.selector] = {
+                observe: 'printSection',
+                initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
+                    var typeOpts = {
+                        maxItems: 1,
+                        options: this.printPlacementChoices,
+                        render: {
+                            item: function(dta, escape) {  // eslint-disable-line no-unused-vars
+                                var dataType = 'fullText';  // eslint-disable-line no-unused-vars
 
-                        $choiceEl.prop('checked', _.contains(activeValues, choiceSlug));
-                    });
+                                if (typeof(dta.type) !== 'undefined') {
+                                    dataType = dta.type;
+                                }
+                                return '<div data-value="' + dta.value +
+                                            '" class="selected-item">' +
+                                            dta.name +
+                                        '</div>';
+                            },
+                        },
+                    };
+
+                    $el.selectize(_.defaults(typeOpts, settings.editDropdownOptions));
+                },
+                onGet: function(values, options) {  // eslint-disable-line no-unused-vars,max-len
+                    if (_.isEmpty(model.get('printSection'))) { return ''; }
+
+                    return this.sectionPublicationMap[
+                        model.get('printSection')[0]
+                    ];
+                },
+                update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
+                    if (_.isUndefined($el[0].selectize)) {
+                        $el.val(value);
+                    } else if (_.isObject($el[0].selectize)) {
+                        $el[0].selectize.setValue(value, true);
+                    }
+
+                    this.activePublication = value;
                 },
                 getVal: function($el, event, options) {  // eslint-disable-line no-unused-vars
-                    var newValues = _($el).chain()
-                            .filter(function(choiceEl) { return $(choiceEl).is(':checked'); })
-                            .map(function(el) { return $(el).val(); })
-                            .value();
+                    // On select, reset the selected sections to an empty list.
+                    // Use 'silent: true' to prevent changing the dropdown to
+                    // reflect a null value.
+                    this.model.set('printSection', [], {silent: true});
 
-                    return newValues;
+                    if ($el.val()) {
+                        return $el.val();
+                    }
+
+                    return null;
+                },
+                set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    this.activePublication = value;
+                    this.model.trigger('change:activePublication');
+                },
+            };
+
+            bindingsObj[ui.printSectionCheckboxes.selector] = {
+                observe: ['activePublication', 'printSection'],
+                // eslint-disable-next-line no-unused-vars
+                onGet: function(values, options) { return [this.activePublication, values[1]]; },
+                update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
+                    var newPublication = values[0],
+                        selectedValues = model.get('printSection');
+
+                    // Clear existing toggles.
+                    $el.empty();
+
+                    if (_.has(this.printPublicationSections, newPublication)) {
+                        $el.show();
+
+                        $el.append('<h5>Sections</h5>');
+
+                        _.each(
+                            this.printPublicationSections[newPublication],
+                            function(section) {
+                                var sectionCheckbox = $('' +
+                                        '<label>' +
+                                            '<input ' +
+                                            'id="placement-" ' +
+                                            'name="print_sections" ' +
+                                            'data-form="package" ' +
+                                            'type="checkbox" ' +
+                                            'value="' + section.id + '">' +
+                                                '<i class="helper"></i>' +
+                                                section.name +
+                                        '</label>'
+                                );
+
+                                if (_.contains(selectedValues, section.id)) {
+                                    sectionCheckbox.find('input').prop('checked', true);
+                                }
+
+                                sectionCheckbox.find('input').change(function(event) {
+                                    var thisEl = $(event.currentTarget),
+                                        sectionID = parseInt(thisEl.val(), 10),
+                                        newSections = _.clone(model.get('printSection'));
+
+                                    if (thisEl.prop('checked')) {
+                                        newSections = _.union(newSections, [sectionID]);
+                                    } else {
+                                        newSections = _.difference(newSections, [sectionID]);
+                                    }
+
+                                    // If 'newSections' is empty, apply these
+                                    // changes silently.
+                                    // That way, the selected publication won't
+                                    // also be reset.
+                                    model.set(
+                                        'printSection',
+                                        newSections,
+                                        (_.isEmpty(newSections)) ? {silent: true} : {}
+                                    );
+                                });
+
+                                $el.append(sectionCheckbox);
+                            }
+                        );
+                    } else {
+                        $el.hide();
+                    }
+
+                    this.model.trigger('change:publishGroupHeight');
                 },
             };
 
@@ -1615,28 +1702,54 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
         },
 
         enumeratePrintPlacementChoices: function() {
-            return _.map(
-                settings.printPlacementTypes,
-                function(placementConfig) {
-                    var configFinalized = _.chain(placementConfig)
-                                                .omit('order')
-                                                .clone()
-                                                .value();
+            var sectionPublicationValues = [],
+                publicationSections = [],
+                placementChoices = _.compact(
+                    this.options.data.printPublications.map(function(publication) {
+                        if (publication.get('isActive') === true) {
+                            // Generate a second map with this publications'
+                            // section IDs and the publication's slug.
+                            // This gets used on the selectize 'select' event.
+                            sectionPublicationValues.push(
+                                _.map(
+                                    publication.get('sections'),
+                                    function(section) {
+                                        return [section.id, publication.get('slug')];
+                                    }
+                                )
+                            );
 
-                    if (
-                        _.has(this, 'model') &&
-                        this.model.has('printPlacement') &&
-                        _.contains(
-                            this.model.get('printPlacement').printPlacements,
-                            configFinalized.slug
-                        )
-                    ) {
-                        configFinalized.isChecked = true;
-                    }
+                            publicationSections.push(
+                                [
+                                    publication.get('slug'),
+                                    publication.get('sections'),
+                                ]
+                            );
 
-                    return configFinalized;
-                }.bind(this)
-            );
+                            return {
+                                name: publication.get('name'),
+                                value: publication.get('slug'),
+                            };
+                        }
+
+                        return null;
+                    })
+                );
+
+            this.printPublicationSections = _.chain(publicationSections)
+                    .compact()
+                    .reject(function(mapping) { return _.isEmpty(mapping[1]); })
+                    .object()
+                    .value();
+
+            this.sectionPublicationMap = _.chain(sectionPublicationValues)
+                    .compact()
+                    .reject(_.isEmpty)
+                    .flatten(true)
+                    .object()
+                    .value();
+
+            return placementChoices;
         },
 
 
@@ -1699,10 +1812,12 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 toggleReceiver.css({
                     height: toggleReceiver.data('expandedHeight'),
                 });
+                toggleReceiver.addClass('expanded');
             } else {
                 toggleTarget.find('h4').removeClass('section-expanded');
 
                 toggleReceiver.css({height: 0});
+                toggleReceiver.removeClass('expanded');
             }
         },
 
@@ -1716,7 +1831,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
         saveAllComponents: function() {
             var packageSave,
-                savePromise = new $.Deferred();
+                savePromise = new $.Deferred(),
+                cachedPrintSections = _.clone(this.model.get('printSection'));
 
             // TODO(ajv): Remove this line when 'pubDate' has been deprecated.
             this.model.set('pubDate', this.model.get('publishDate')[1]);
@@ -1738,6 +1854,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 var packageID = mdl.id,
                     primaryContentSave,
                     allSaveRequests = [primaryContentSave];
+
+                // Restore the print sections that were cached on save -- for
+                // some reason, they revert to their old values in the
+                // re-hydration at the end of 'save()'.
+                // That glitch is momentary, though: the correct updates still
+                // get applied to the remote version. This is just a shim for
+                // local rendering.
+                this.model.set('printSection', cachedPrintSections);
 
                 this.model.primaryContentItem.set('primaryForPackage', packageID);
 
@@ -2000,7 +2124,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                                 $.ajax({
                                     type: 'POST',
-                                    url: settings.apiEndpoints.POST.package.delete,
+                                    url: '',  // BBTODO
                                     contentType: 'application/json; charset=utf-8',
                                     data: JSON.stringify(toDeleteDict),
                                     processData: false,

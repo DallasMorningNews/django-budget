@@ -99,8 +99,7 @@ define(
                     printDateEnd = moment(
                         this.model.get('printRunDate')[1],
                         'YYYY-MM-DD'
-                    ).tz('America/Chicago').subtract({days: 1}),
-                    formattedRange;
+                    ).tz('America/Chicago').subtract({days: 1});
 
                 // Template context, in order of appearance:
 

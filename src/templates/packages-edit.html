@@ -185,6 +185,8 @@
                 </div>
             </div>
 
+            <div class="clearer"></div>
+
             <div class="row collapsible-row-header" data-expand-target="production-notes">
                 <h4>Production notes</h4>
             </div>
@@ -287,12 +289,14 @@
                 </div>
             </div>
 
+            <div class="clearer"></div>
+
             <div class="row collapsible-row-header" data-expand-target="publishing-details">
                 <h4>Publishing details</h4>
             </div>
 
             <div class="row can-collapse" data-expand-receiver="publishing-details">
-                <div class="collapsable-inner">
+                <div id="publishing-fields" class="collapsable-inner">
                     <div class="extra-spacing"></div>
 
                     <div class="medium-12 columns form-group">
@@ -314,9 +318,15 @@
                         <label for="print_run_date_end" class="control-label">Print run date (end)</label>
                         <i class="bar"></i>
                     </div>
-                    <div class="medium-12 columns checkbox pitched-print-placements">
-                        <h5>Print placements</h5>
-                        <div class="placement-inputs"></div>
+                    <div class="medium-4 columns form-group publication-group">
+                        <input id="print-publication" name="print-publication" class="to-selectize" type="text" placeholder="Choose an option" autocomplete="off" autocorrect="off" data-form="primary" value="" required="" isRequired="true" />
+                        <label for="print-publication" class="control-label">Publication<span class="required-marker">*</span></label>
+                        <i class="bar"></i>
+                        <div class="form-help"></div>
+                    </div>
+
+                    <div id="print-sections" class="medium-12 columns checkbox">
+                        <div></div>
                     </div>
 
                     <div class="medium-12 columns checkbox">
@@ -328,6 +338,8 @@
                     <div class="clearer"></div>
                 </div>
             </div>
+
+            <div class="clearer"></div>
         </form>
     </div>
 

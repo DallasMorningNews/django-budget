@@ -8,6 +8,7 @@ define(
         'common/router',
         'common/settings',
         'budget/collections/hubs',
+        'budget/collections/print-publications',
         'budget/collections/staffers',
         'budget/layoutviews/root-view',
         'budget/misc/controller',
@@ -22,6 +23,7 @@ define(
         NamedRouter,
         settings,
         HubCollection,
+        PrintPublicationCollection,
         StafferCollection,
         RootView,
         BudgetController,
@@ -110,6 +112,7 @@ define(
                  * on the app class for later access w/ reqres.
                  */
                 this.data.hubs = new HubCollection();
+                this.data.printPublications = new PrintPublicationCollection();
                 this.data.staffers = new StafferCollection();
 
                 /**
@@ -117,6 +120,7 @@ define(
                  */
                 return $.when(
                     this.data.hubs.fetch(),
+                    this.data.printPublications.fetch({xhrFields: {withCredentials: true}}),
                     this.data.staffers.fetch(),
                     $.ajax({
                         dataType: 'json',

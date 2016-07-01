@@ -140,6 +140,8 @@ $mf-transition-speed: 0.28s !default;
 
             .row.collapsible-row-header {
                 margin: 1rem auto 0;
+                position: relative;
+                z-index: 3;
 
                 h4 {
                     background: #F5F5F5;
@@ -352,8 +354,9 @@ $mf-transition-speed: 0.28s !default;
 
                 &.can-collapse {
                     display: none;
-                    // padding-bottom: 5px;
-
+                    height: 0;
+                    transform: translateY(-30px) scaleY(0);
+                    transform-origin: 0 0 0;
 
                     .collapsable-inner {
                         border: 1px solid #DEDEDE;
@@ -364,13 +367,18 @@ $mf-transition-speed: 0.28s !default;
                     }
 
                     &.collapse-enabled {
-                        display: block;
+                        display: inline-block;
+                        float: left;
                         margin-bottom: 0;
-                        height: 0;
-                        overflow: hidden;
                         padding-bottom: 0;
+                        position: relative;
+                        transition: height 0.75s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.75s cubic-bezier(0.25, 0.8, 0.25, 1);
+                        width: 100%;
+                        z-index: 2;
 
-                        transition: height 0.75s cubic-bezier(0.25, 0.8, 0.25, 1);
+                        &.expanded {
+                            transform: translateY(0) scaleY(1);
+                        }
 
                         .collapsable-inner {
                             box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
@@ -996,7 +1004,7 @@ fieldset {
         }
     }
 
-    &.pitched-print-placements {
+    &#print-sections {
         h5 {
             color: gray;
             font-size: 0.8rem;
@@ -1481,6 +1489,10 @@ fieldset {
             }
         }
     }
+}
+
+.publication-group {
+    margin-bottom: 0;
 }
 
 .print-dates-divider {
