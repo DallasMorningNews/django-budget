@@ -1,4 +1,4 @@
-<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageIsReady }}">
+<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row{% if hasPrimary %} has-primary{% endif %}" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageIsReady }}">
 
     <div class="minimal-card column small-11 medium-11 large-11">
         {% if packageObj %}{% if packageObj.URL %}<a href="{{ packageObj.URL }}" target="_blank">{% endif %}{% endif %}
