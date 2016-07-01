@@ -213,7 +213,7 @@ define([
             );
         },
 
-        generateCollectionURL: function() { return settings.apiEndpoints.GET.package.detail; },
+        generateCollectionURL: function() { return settings.apiEndpoints.package; },
 
         generateCollectionFetchOptions: function() { return {}; },
 

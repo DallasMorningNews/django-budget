@@ -34,7 +34,7 @@ define(
             // },
 
             url: function() {
-                return settings.apiEndpoints.GET.staffer.list;
+                return settings.apiEndpoints.staffer;
             },
 
             parse: function(response) {

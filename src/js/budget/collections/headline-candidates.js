@@ -18,7 +18,7 @@ define(
             // search options for the first time
             model: HeadlineCandidate,
 
-            url: settings.apiEndpoints.GET.headlineCandidate,
+            url: settings.apiEndpoints.headlineCandidate,
 
             events: {},
 

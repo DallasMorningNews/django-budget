@@ -26,7 +26,7 @@ function(
     _.noConflict();
 
     return deepModel.DeepModel.extend({
-        urlRoot: settings.apiEndpoints.GET.package.detail,
+        urlRoot: settings.apiEndpoints.package,
 
         url: function() {
             if (this.has('id')) {

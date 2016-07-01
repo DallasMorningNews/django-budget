@@ -18,7 +18,7 @@ define(
             // search options for the first time
             model: BudgetItem,
 
-            url: settings.apiEndpoints.GET.item,
+            url: settings.apiEndpoints.item,
 
             events: {},
 

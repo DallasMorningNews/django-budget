@@ -10,7 +10,7 @@ define(
         'use strict';
 
         return Backbone.Model.extend({
-            urlRoot: settings.apiEndpoints.GET.item,
+            urlRoot: settings.apiEndpoints.item,
 
             url: function() {
                 if (this.has('id')) {

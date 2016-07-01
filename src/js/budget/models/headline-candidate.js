@@ -10,7 +10,7 @@ define(
         'use strict';
 
         return Backbone.Model.extend({
-            urlRoot: settings.apiEndpoints.GET.headlineCandidate,
+            urlRoot: settings.apiEndpoints.headlineCandidate,
 
             url: function() {
                 return this.urlRoot + this.id + (settings.apiPostfix || '/');

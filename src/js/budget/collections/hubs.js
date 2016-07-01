@@ -29,7 +29,7 @@ define(
             },
 
             url: function() {
-                return settings.apiEndpoints.GET.hub.list;
+                return settings.apiEndpoints.hub;
             },
 
             parse: function(response) {

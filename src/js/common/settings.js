@@ -1,40 +1,18 @@
 define(['underscore'], function(_) {
     'use strict';
 
-    var standardSettings = {
+    var apiBases = {
+            budget: 'http://datalab-budget-dev.herokuapp.com/budget/api/',
+            staff: 'http://datalab.dallasnews.com/staff/api/',
+        },
+        standardSettings = {
             apiEndpoints: {
-                POST: {
-                    additionalItem: {
-                        delete: 'http://datalab.dallasnews.com/budget/delete-additional-item/',
-                    },
-                    headline: {
-                        submitVote: 'http://datalab.dallasnews.com/budget/headline/vote/',
-                    },
-                    package: {
-                        delete: 'http://datalab.dallasnews.com/budget/package/delete/',
-                        save: 'http://datalab.dallasnews.com/budget/package/',  // To be migrated to in the app.
-                        updatePrintInfo: 'http://datalab.dallasnews.com/budget/package/print/',
-                        updateWebInfo: 'http://datalab.dallasnews.com/budget/package/web/',
-                    },
-                },
-                GET: {
-                    hub: {
-                        list: 'http://datalab.dallasnews.com/staff/api/hub/',
-                    },
-                    staffer: {
-                        list: 'http://datalab.dallasnews.com/staff/api/staff/',
-                    },
-                    headlineCandidate: 'http://datalab-budget-dev.herokuapp.com/budget/api/headlines/',  // eslint-disable-line max-len
-                    item: 'http://datalab-budget-dev.herokuapp.com/budget/api/items/',
-                    package: {
-                        // detail: 'http://datalab.dallasnews.com/budget/packages/',
-                        detail: 'http://datalab-budget-dev.herokuapp.com/budget/api/packages/',
-                        list: {
-                            print: 'http://datalab.dallasnews.com/budget/packages/for-print/',
-                            // web: 'http://datalab.dallasnews.com/budget/packages/',
-                        },
-                    },
-                },
+                headlineCandidate: apiBases.budget + 'headlines/',
+                hub: apiBases.staff + 'hub/',
+                item: apiBases.budget + 'items/',
+                staffer: apiBases.staff + 'staff/',
+                package: apiBases.budget + 'packages/',
+                printPublication: apiBases.budget + 'print-publications/',
             },
 
             buttonHideWidth: 600,
@@ -275,35 +253,12 @@ define(['underscore'], function(_) {
 
         offlineSettings = {
             apiEndpoints: {
-                POST: {
-                    additionalItem: {
-                        delete: null,
-                    },
-                    headline: {
-                        submitVote: null,
-                    },
-                    package: {
-                        delete: null,
-                        save: null,
-                        updatePrintInfo: null,
-                        updateWebInfo: null,
-                    },
-                },
-                GET: {
-                    hub: {
-                        list: '/test-data/20160610/staff.api.hub.json',
-                    },
-                    staffer: {
-                        list: '/test-data/20160610/staff.api.staff.json',
-                    },
-                    package: {
-                        detail: '/test-data/20160610/budget.packages/',
-                        list: {
-                            print: '/test-data/20160610/budget.packages.for-print.json',
-                            web: '/test-data/20160610/budget.packages.json',
-                        },
-                    },
-                },
+                headlineCandidate: '',
+                hub: '/test-data/20160610/staff.api.hub.json',
+                item: '',
+                staffer: '/test-data/20160610/staff.api.staff.json',
+                package: '/test-data/20160610/budget.packages/',
+                printPublication: '',
             },
 
             apiPostfix: '.json',

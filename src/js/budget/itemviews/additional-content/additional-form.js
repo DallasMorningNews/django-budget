@@ -587,7 +587,7 @@ deleteTrigger: '.delete-additional',
 
                                 $.ajax({
                                     type: 'POST',
-                                    url: settings.apiEndpoints.POST.additionalItem.delete,
+                                    url: '',  // BBTODO
                                     contentType: 'application/json; charset=utf-8',
                                     data: JSON.stringify(toDeleteDict),
                                     processData: false,

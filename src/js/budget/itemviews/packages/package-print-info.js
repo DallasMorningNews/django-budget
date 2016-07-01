@@ -546,7 +546,7 @@ define(
                                 // Finally, execute the AJAX:
                                 $.ajax({
                                     type: 'POST',
-                                    url: settings.apiEndpoints.POST.package.updateWebInfo,
+                                    url: '',  // BBTODO
                                     contentType: 'application/json; charset=utf-8',
                                     data: JSON.stringify(packageWebData),
                                     processData: false,
@@ -786,7 +786,7 @@ define(
                                 // Finally, execute the AJAX:
                                 $.ajax({
                                     type: 'POST',
-                                    url: settings.apiEndpoints.POST.package.updatePrintInfo,
+                                    url: '',  // BBTODO
                                     contentType: 'application/json; charset=utf-8',
                                     data: JSON.stringify(printData),
                                     processData: false,
