@@ -98,7 +98,8 @@ packageErrors: '#package-form .error-message',  // eslint-disable-line indent
             notesField: '#package-form #notes-quill .text-holder',
             notesToolbar: '#package-form #notes-quill .toolbar-holder',
             urlField: '#package-form #url',
-            printRunDateField: '#package-form #print_run_date',
+            printRunDateStartField: '#package-form #print_run_date_start',
+            printRunDateEndField: '#package-form #print_run_date_end',
             printPlacementGroup: '#package-form .placement-inputs',
             printPlacementFields: '#package-form .placement-inputs .pitched_placements',
             printFinalized: '#package-form #is_placement_finalized',
@@ -1139,7 +1140,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 getVal: function($el, event, options) {},  // eslint-disable-line no-unused-vars
             };
 
-            bindingsObj[ui.printRunDateField.selector] = {
+            bindingsObj[ui.printRunDateStartField.selector] = {
                 observe: 'printRunDate',
                 events: ['setPrintRunDate'],
                 initialize: function($el, mdl, opts) {
@@ -1163,8 +1164,126 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         date,
                         instance  // eslint-disable-line no-unused-vars
                     ) {
+                        var newStart = date,
+                            savedEnd,
+                            newDatePair;
+
                         if (!datePckr.preventDefault) {
-                            $el.trigger('setPrintRunDate', date);
+                            savedEnd = moment(
+                                model.get('printRunDate')[1],
+                                'YYYY-MM-DD'
+                            ).subtract({days: 1}).toDate();
+
+                            newDatePair = {start: moment(newStart).format('YYYY-MM-DD')};
+
+                            if (date.getTime() > savedEnd.getTime()) {
+                                newDatePair.end = moment(date).add({days: 1}).format('YYYY-MM-DD');
+                            }
+
+                            $el.trigger('setPrintRunDate', newDatePair);
+
+                            this.ui.printRunDateEndField.focus();
+                        }
+                    }.bind(this);
+
+                    if (!_.isNull(inputValue[0])) {
+                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', inputValue[0]);
+
+                        datePckr.preventDefault = true;
+                        datePckr.date = newDate;
+                        datePckr.selectDate(newDate);
+                        datePckr.preventDefault = false;
+                    }
+                },
+                update: function($el, value, mdl) {
+                    var datePckr = $el.data('datepicker'),
+                        newDate;
+
+                    if (value !== '') {
+                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', value[0]);
+
+                        if (!_.isUndefined(datePckr)) {
+                            datePckr.preventDefault = true;
+                            datePckr.date = newDate;
+                            datePckr.selectDate(newDate);
+                            datePckr.preventDefault = false;
+                        }
+                    } else {
+                        if (!_.isUndefined(datePckr)) {
+                            datePckr.preventDefault = true;
+                            datePckr.clear();
+                            datePckr.preventDefault = false;
+                        }
+                    }
+                },
+                getVal: function($el, event, options, eventData) {
+                    var inputDates = eventData[0],
+                        newDates = _.clone(model.get('printRunDate'));
+
+                    if (_.has(inputDates, 'start')) {
+                        newDates[0] = (
+                            inputDates.start !== ''
+                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.start) : null;
+                    }
+
+                    if (_.has(inputDates, 'end')) {
+                        newDates[1] = (
+                            inputDates.end !== ''
+                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.end) : null;
+                    }
+
+                    return newDates;
+                },
+            };
+
+            bindingsObj[ui.printRunDateEndField.selector] = {
+                observe: 'printRunDate',
+                events: ['setPrintRunDate'],
+                initialize: function($el, mdl, opts) {
+                    var inputValue = mdl.get(opts.observe)[1],
+                        datePckr,
+                        newDate;
+
+                    inputValue = moment(
+                        inputValue,
+                        'YYYY-MM-DD'
+                    ).subtract({days: 1}).format('YYYY-MM-DD');
+
+                    $el.datepicker(
+                        _.defaults(
+                            settings.datePickerOptions.d,
+                            settings.datePickerOptions.default
+                        )
+                    );
+
+                    datePckr = $el.data('datepicker');
+
+                    datePckr.preventDefault = false;
+
+                    datePckr.opts.onSelect = function(
+                        formattedDate,
+                        date,
+                        instance  // eslint-disable-line no-unused-vars
+                    ) {
+                        var newEnd = date,
+                            savedStart,
+                            newDatePair;
+
+                        if (!datePckr.preventDefault) {
+                            savedStart = moment(
+                                model.get('printRunDate')[0],
+                                'YYYY-MM-DD'
+                            ).toDate();
+
+                            newDatePair = {
+                                end: moment(newEnd).add({days: 1}).format('YYYY-MM-DD'),
+                            };
+
+                            if (savedStart.getTime() > newEnd.getTime()) {
+                                newDatePair.start = moment(date).format('YYYY-MM-DD');
+                            }
+
+                            $el.trigger('setPrintRunDate', newDatePair);
                         }
                     };
 
@@ -1181,8 +1300,13 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     var datePckr = $el.data('datepicker'),
                         newDate;
 
-                    if (value !== '') {
-                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', value);
+                    if (value[1] !== '' && !_.isNull(value[1])) {
+                        newDate = moment(
+                            value[1],
+                            'YYYY-MM-DD'
+                        ).subtract({days: 1}).format('YYYY-MM-DD');
+
+                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', newDate);
 
                         if (!_.isUndefined(datePckr)) {
                             datePckr.preventDefault = true;
@@ -1198,10 +1322,23 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         }
                     }
                 },
-                getVal: function($el, event, options, newDate) {
-                    return (
-                        newDate[0] !== ''
-                    ) ? model.parseRunDate('YYYY-MM-DD', newDate[0]) : null;
+                getVal: function($el, event, options, eventData) {
+                    var inputDates = eventData[0],
+                        newDates = _.clone(model.get('printRunDate'));
+
+                    if (_.has(inputDates, 'start')) {
+                        newDates[0] = (
+                            inputDates.start !== ''
+                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.start) : null;
+                    }
+
+                    if (_.has(inputDates, 'end')) {
+                        newDates[1] = (
+                            inputDates.end !== ''
+                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.end) : null;
+                    }
+
+                    return newDates;
                 },
             };
 
@@ -1659,8 +1796,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     }
                 });
 
-                $.when.apply($, allSaveRequests).done(function(returnOne, returnTwo) {
-                    savePromise.resolve(returnTwo);
+                $.when.apply($, allSaveRequests).done(function() {
+                    savePromise.resolve();
                 }.bind(this));  // eslint-disable-line no-extra-bind
             }.bind(this));
 
@@ -1716,13 +1853,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             allComponentsSave = this.saveAllComponents();
 
-            allComponentsSave.done(function(requestParams) {
+            allComponentsSave.done(function() {
                 setTimeout(function() {
-                    if (requestParams[2].status === 200) {
-                        this.saveSuccessCallback('saveOnly', requestParams[0]);
-                    } else {
-                        this.saveErrorCallback('saveOnly', 'processingError', [requestParams[0]]);
-                    }
+                    this.saveSuccessCallback('saveOnly');
+
+                    // this.saveErrorCallback('saveOnly', 'processingError', [requestParams[0]]);
                 }.bind(this), 1500);
             }.bind(this));
 
@@ -1784,17 +1919,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             allComponentsSave = this.saveAllComponents();
 
-            allComponentsSave.done(function(requestParams) {
+            allComponentsSave.done(function() {
                 setTimeout(function() {
-                    if (requestParams[2].status === 200) {
-                        this.saveSuccessCallback('saveAndContinue', requestParams[0]);
-                    } else {
-                        this.saveErrorCallback(
-                            'saveAndContinue',
-                            'processingError',
-                            [requestParams[0]]
-                        );
-                    }
+                    this.saveSuccessCallback('saveAndContinue');
+                    // this.saveErrorCallback(
+                    //     'saveAndContinue',
+                    //     'processingError',
+                    //     [requestParams[0]]
+                    // );
                 }.bind(this), 1500);
             }.bind(this));
 
