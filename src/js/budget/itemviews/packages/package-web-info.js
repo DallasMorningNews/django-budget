@@ -57,6 +57,8 @@ define(
                 'click @ui.webInfoModalTrigger': 'showWebInfoModal',
             },
 
+            hasPrimary: false,
+
             initEnd: function() {
                 this.primaryIsExpanded = false;
 
@@ -79,18 +81,8 @@ define(
                         'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
                         'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.',
                     ],
-                    week: {
-                        dow: 1,
-                    },
+                    week: {dow: 1},
                 });
-
-                $.dateRangePickerLanguages.default['week-1'] = 'M';  // eslint-disable-line no-param-reassign,max-len
-                $.dateRangePickerLanguages.default['week-2'] = 'T';  // eslint-disable-line no-param-reassign,max-len
-                $.dateRangePickerLanguages.default['week-3'] = 'W';  // eslint-disable-line no-param-reassign,max-len
-                $.dateRangePickerLanguages.default['week-4'] = 'T';  // eslint-disable-line no-param-reassign,max-len
-                $.dateRangePickerLanguages.default['week-5'] = 'F';  // eslint-disable-line no-param-reassign,max-len
-                $.dateRangePickerLanguages.default['week-6'] = 'S';  // eslint-disable-line no-param-reassign,max-len
-                $.dateRangePickerLanguages.default['week-7'] = 'S';  // eslint-disable-line no-param-reassign,max-len
             },
 
             serializeData: function() {
@@ -98,24 +90,23 @@ define(
                     packageObj = this.model.toJSON(),
                     packageHub = this.options.hubConfigs.findWhere({
                         slug: packageObj.hub,
-                    });
+                    }),
+                    additionals = this.model.additionalContentCollection;
 
                 // Template context, in order of appearance:
+
+                // Has-primary item (used to show or hide packages).
+                templateContext.hasPrimary = this.hasPrimary;
 
                 // Expanded (or not) package state.
                 templateContext.primaryIsExpanded = this.primaryIsExpanded;
 
                 // Underlying model.
-                templateContext.packageObj = packageObj;
+                templateContext.packageObj = _.clone(packageObj);
 
-                // 'Is ready' flag.
-                templateContext.packageIsReady = false;
-                if (
-                    (this.model.has('URL')) &&
-                    (!_.isEmpty(this.model.get('URL')))
-                ) {
-                    templateContext.packageIsReady = true;
-                }
+                templateContext.packageObj.primaryContent = _.clone(
+                    this.model.primaryContentItem.toJSON()
+                );
 
                 // Hub color and vertical slug.
                 if (!_.isUndefined(packageHub)) {
@@ -123,56 +114,45 @@ define(
                     templateContext.verticalSlug = packageHub.get('vertical').slug;
                 }
 
+                // Formatted run date.
+                templateContext.publishDate = this.model.generateFormattedPublishDate().join(' ');
+
                 // Editor and author lists.
                 templateContext.allPeople = _.union(
-                    _.pluck(this.model.get('primaryContent').editors, 'email'),
-                    _.pluck(this.model.get('primaryContent').authors, 'email'),
-                    _.pluck(
-                        _.flatten(
-                            _.pluck(
-                                this.model.get('additionalContent'),
-                                'editors'
-                            )
-                        ),
-                        'email'
-                    ),
-                    _.pluck(
-                        _.flatten(
-                            _.pluck(
-                                this.model.get('additionalContent'),
-                                'authors'
-                            )
-                        ),
-                        'email'
-                    )
+                    _.pluck(this.model.primaryContentItem.get('editors'), 'email'),
+                    _.pluck(this.model.primaryContentItem.get('authors'), 'email'),
+                    _.pluck(_.flatten(additionals.pluck('editors')), 'email'),
+                    _.pluck(_.flatten(additionals.pluck('authors')), 'email')
                 ).join(' ');
 
                 // Leading headline (if voting is open),
                 // or winning headline if one was selected.
                 if (packageObj.headlineCandidates.length > 0) {
-                    templateContext.leadingHeadline = _.chain(packageObj.headlineCandidates)
-                                                        .sortBy('votes')
-                                                        .last()
-                                                        .value()
-                                                        .text;
+                    templateContext.leadingHeadline = _.chain(
+                        packageObj.headlineCandidates
+                    )
+                        .sortBy('votes')
+                        .last()
+                        .value()
+                        .text;
                 }
 
                 // Verbose name and other information for primary content type icon.
                 templateContext.primaryTypeMeta = settings.contentTypes[
-                    this.model.get('primaryContent').type
+                    this.model.primaryContentItem.get('type')
                 ];
 
                 // Fallback function for comma-formatted length (1 of 2).
-                // if (_.has(packageObj.primaryContent, 'length')) {
+                // if (_.has(packageObj.primaryContentItem, 'length')) {
                 //     templateContext.primaryLengthFormatted = _string_.numberFormat(
-                //         packageObj.primaryContent.length
+                //         packageObj.primaryContentItem.get('length')
                 //     );
                 // }
 
                 // List of additional content item types and icons
                 // (Needed for "Includes [other icons]" list).
                 templateContext.additionalItemTypes = _.map(
-                    _.pluck(this.model.get('additionalContent'), 'type'),
+                    additionals.pluck('type'),
                     function(typeSlug) {
                         var typeObj = _.clone(settings.contentTypes[typeSlug]);
                         typeObj.slug = typeSlug;
@@ -182,26 +162,14 @@ define(
 
                 // List of additional content items, in an object with
                 // on-model ('model') and 'typemeta' attributes.
-                templateContext.additionalWithTypeMetas = _.map(
-                    packageObj.additionalContent,
-                    function(additionalItem) {
-                        var additionalConfig = {
-                            model: _.clone(additionalItem),
-                            typeMeta: settings.contentTypes[
-                                additionalItem.type
-                            ],
-                        };
+                templateContext.additionalWithTypeMetas = additionals.map(function(item) {
+                    var additionalConfig = {
+                        model: item.toJSON(),
+                        typeMeta: settings.contentTypes[item.get('type')],
+                    };
 
-                        // Fallback function for comma-formatted length (2 of 2).
-                        // if (_.has(additionalItem, 'length')) {
-                        //     additionalConfig.model.length = _string_.numberFormat(
-                        //         additionalItem.length
-                        //     );
-                        // }
-
-                        return additionalConfig;
-                    }
-                );
+                    return additionalConfig;
+                });
 
                 return templateContext;
             },
