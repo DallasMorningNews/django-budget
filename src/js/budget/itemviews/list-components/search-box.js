@@ -70,6 +70,7 @@ define([
                     {name: 'People', value: 'person', $order: 2},
                     {name: 'Hubs', value: 'hub', $order: 3},
                     {name: 'Verticals', value: 'vertical', $order: 4},
+                    {name: 'Content types', value: 'contentType', $order: 5},
                 ],
                 lockOptgroupOrder: true,
                 addPrecedence: false,
@@ -145,6 +146,7 @@ define([
             var rawOptions = {
                     hubs: [],
                     verticals: [],
+                    contentTypes: [],
                 },
                 addedVerticals = [];
 
@@ -166,7 +168,7 @@ define([
                     rawOptions.hubs.push(
                         new SearchOption({
                             name: hub.get('name'),
-                            value: hub.get('slug'),
+                            value: hub.get('slug') + '.hub',
                             type: 'hub',
                         })
                     );
@@ -177,13 +179,23 @@ define([
                         rawOptions.verticals.push(
                             new SearchOption({
                                 name: vertical.name,
-                                value: vertical.slug,
+                                value: vertical.slug + '.v',
                                 type: 'vertical',
                             })
                         );
                     }
                 }
             );
+
+            _.each(settings.contentTypes, function(typeConfig, slug) {
+                rawOptions.contentTypes.push(
+                    new SearchOption({
+                        name: typeConfig.verboseName,
+                        value: slug + '.ct',
+                        type: 'contentType',
+                    })
+                );
+            });
 
             this.searchOptions.comparator = function(item1, item2) {
                 var optionType1 = item1.get('type'),
@@ -219,6 +231,7 @@ define([
             this.searchOptions.add(rawOptions.staffers);
             this.searchOptions.add(rawOptions.hubs);
             this.searchOptions.add(rawOptions.verticals);
+            this.searchOptions.add(rawOptions.contentTypes);
         },
     });
 });
