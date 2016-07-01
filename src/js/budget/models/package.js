@@ -76,9 +76,18 @@ function(
                 },
             });
 
-            this.primaryContentItem = new BudgetItem();
-            this.additionalContentCollection = new BudgetItemCollection();
-            this.headlineCandidateCollection = new HeadlineCandidateCollection();
+
+            if (!_.has(this, 'primaryContentItem')) {
+                this.primaryContentItem = new BudgetItem();
+            }
+
+            if (!_.has(this, 'additionalContentCollection')) {
+                this.additionalContentCollection = new BudgetItemCollection();
+            }
+
+            if (!_.has(this, 'headlineCandidateCollection')) {
+                this.headlineCandidateCollection = new HeadlineCandidateCollection();
+            }
         },
 
         loadInitial: function() {
@@ -104,132 +113,170 @@ function(
 
         parse: function(data, config) {
             var deepLoad = (_.isBoolean(config.deepLoad)) ? config.deepLoad : true,
-                itemsRequest,
-                itemRequestPromise = new $.Deferred(),
-                headlinesRequest,
-                allAdditionalRequests = [itemRequestPromise];
+                muteConsole = (_.isBoolean(config.muteConsole)) ? config.muteConsole : false,
+                relatedItemCallback;
 
             this.initialHeadlineStatus = data.headlineStatus;
 
-            // Log that the package fetch was successful.
-            console.log("Fetched package with ID '" + this.id + "'.");  // eslint-disable-line no-console,max-len
+            if (_.has(config, 'collection')) {
+                // If this model is being instantiated as part of a
+                // 'PackageCollection.fetch()' call, create the additional
+                // content and headline collections here.
+
+                if (_.isUndefined(this.primaryContentItem)) {
+                    this.primaryContentItem = new BudgetItem();
+                }
+
+                if (_.isUndefined(this.additionalContentCollection)) {
+                    this.additionalContentCollection = new BudgetItemCollection();
+                }
+
+                if (_.isUndefined(this.headlineCandidateCollection)) {
+                    this.headlineCandidateCollection = new HeadlineCandidateCollection();
+                }
+            }
+
+            if (!muteConsole) {
+                // Log that the package fetch was successful.
+                console.log("Fetched package with ID '" + data.id + "'.");  // eslint-disable-line no-console,max-len
+            }
 
             if (deepLoad) {
-                // Retrieve the additional item collection's starting values from
-                // the API.
-                itemsRequest = this.additionalContentCollection.fetch({
-                    xhrFields: {
-                        withCredentials: true,
-                    },
-                    data: {
-                        id__in: data.primaryContent + ',' + data.additionalContent.join(','),
-                    },
-                    silent: true,
-                });
+                relatedItemCallback = this.loadRelatedItems(data, {muteConsole: muteConsole});
 
-                // Once primary and additional items are loaded, incorporate
-                // their attributes into the package model.
-                itemsRequest.done(function(itColl, itRequest, itOptions) {  // eslint-disable-line no-unused-vars,max-len
-                    var primaryItem = this.additionalContentCollection.get(data.primaryContent),
-                        additionalText = (
-                            !_.isEmpty(data.additionalContent)
-                        ) ? ", '" + data.additionalContent.join("', '") + "'" : '',
-                        entireSlug,
-                        generatedSlug;
+                relatedItemCallback.done(function() {
+                    this.trigger('packageLoaded');
+                }.bind(this));
+            } else {
+                this.trigger('packageLoaded');
+            }
 
+            return data;
+        },
+
+        loadRelatedItems: function(data, options) {
+            var itemsRequest,
+                itemRequestPromise = new $.Deferred(),
+                headlinesRequest,
+                allAdditionalRequests = [itemRequestPromise],
+                relatedItemPromise = new $.Deferred(),
+                muteConsole = (_.isBoolean(options.muteConsole)) ? options.muteConsole : false;
+
+            // Retrieve the additional item collection's starting values from
+            // the API.
+            itemsRequest = this.additionalContentCollection.fetch({
+                xhrFields: {
+                    withCredentials: true,
+                },
+                data: {
+                    id__in: data.primaryContent + ',' + data.additionalContent.join(','),
+                },
+                silent: true,
+            });
+
+            // Once primary and additional items are loaded, incorporate
+            // their attributes into the package model.
+            itemsRequest.done(function(itColl, itRequest, itOptions) {  // eslint-disable-line no-unused-vars,max-len
+                var primaryItem = this.additionalContentCollection.get(data.primaryContent),
+                    additionalText = (
+                        !_.isEmpty(data.additionalContent)
+                    ) ? ", '" + data.additionalContent.join("', '") + "'" : '',
+                    entireSlug,
+                    generatedSlug;
+
+                if (!muteConsole) {
                     console.log(  // eslint-disable-line no-console
                         "Fetched items with IDs '" + primaryItem.id + "'" + additionalText + '.'
                     );
+                }
 
-                    this.primaryContentItem = primaryItem;
-                    this.additionalContentCollection.remove(primaryItem);
-                    this.additionalContentCollection.trigger('reset');
+                this.primaryContentItem = primaryItem;
+                this.additionalContentCollection.remove(primaryItem);
+                this.additionalContentCollection.trigger('reset');
 
-                    this.primaryContentItem.on('change', function(mdl, opts) {  // eslint-disable-line max-len,no-unused-vars
-                        _.each(
-                            _.keys(this.primaryContentItem.changedAttributes()),
-                            function(changedKey) {
-                                this.trigger('change:primaryContent.' + changedKey);
-                            }.bind(this)
-                        );
-                    }.bind(this));
+                this.primaryContentItem.on('change', function(mdl, opts) {  // eslint-disable-line max-len,no-unused-vars
+                    _.each(
+                        _.keys(this.primaryContentItem.changedAttributes()),
+                        function(changedKey) {
+                            this.trigger('change:primaryContent.' + changedKey);
+                        }.bind(this)
+                    );
+                }.bind(this));
 
-                    // Evaluate whether there's a suffix on the primary content
-                    // item's slug.
-                    entireSlug = primaryItem.get('slug');
-                    generatedSlug = this.generatePackageTitle();
-                    if (
-                        (entireSlug !== generatedSlug) &&
-                        (_string_.startsWith(entireSlug, generatedSlug))
-                    ) {
-                        this.primaryContentItem.set(
-                            'slugSuffix',
-                            _string_.strRight(entireSlug, generatedSlug)
-                        );
-                    }
+                // Evaluate whether there's a suffix on the primary content
+                // item's slug.
+                entireSlug = primaryItem.get('slug');
+                generatedSlug = this.generatePackageTitle();
+                if (
+                    (entireSlug !== generatedSlug) &&
+                    (_string_.startsWith(entireSlug, generatedSlug))
+                ) {
+                    this.primaryContentItem.set(
+                        'slugSuffix',
+                        _string_.strRight(entireSlug, generatedSlug)
+                    );
+                }
 
-                    return '';
-                }.bind(this)).done(function() {
-                    itemRequestPromise.resolve();
-                });
+                return '';
+            }.bind(this)).done(function() {
+                itemRequestPromise.resolve();
+            });
 
-                // If the item request fails, pass back the error.
-                itemsRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
-                    this.trigger('packageLoadFailed', 'items');
-                });
+            // If the item request fails, pass back the error.
+            itemsRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
+                this.trigger('packageLoadFailed', 'items');
+            });
 
-                // Load headlines' information.
-                this.headlineCandidateCollection.on(
-                    'change',
-                    function() { this.trigger('change:headlineCandidates'); }.bind(this)
-                );
+            // Load headlines' information.
+            this.headlineCandidateCollection.on(
+                'change',
+                function() { this.trigger('change:headlineCandidates'); }.bind(this)
+            );
 
-                // Instantiate and retrieve data for a collection
-                // containing each headline in this package.
-                headlinesRequest = this.headlineCandidateCollection.fetch({
-                    xhrFields: {withCredentials: true},
-                    data: {id__in: data.headlineCandidates.join(',')},
-                });
+            // Instantiate and retrieve data for a collection
+            // containing each headline in this package.
+            headlinesRequest = this.headlineCandidateCollection.fetch({
+                xhrFields: {withCredentials: true},
+                data: {id__in: data.headlineCandidates.join(',')},
+            });
 
-                // Add this request to the list of simultaneous
-                // additional-information queries.
-                allAdditionalRequests.push(headlinesRequest);
+            // Add this request to the list of simultaneous
+            // additional-information queries.
+            allAdditionalRequests.push(headlinesRequest);
 
-                // Once the headlines have been loaded, update the value of
-                // the package model's headline candidates.
-                headlinesRequest.done(function(hlColl, hlResponse, hlOpts) {  // eslint-disable-line no-unused-vars,max-len
-                    if (!_.isEmpty(data.headlineCandidates)) {
+            // Once the headlines have been loaded, update the value of
+            // the package model's headline candidates.
+            headlinesRequest.done(function(hlColl, hlResponse, hlOpts) {  // eslint-disable-line no-unused-vars,max-len
+                if (!_.isEmpty(data.headlineCandidates)) {
+                    if (!muteConsole) {
                         console.log(  // eslint-disable-line no-console
                             "Fetched headlines with IDs '" +
                             this.headlineCandidateCollection.pluck('id').join("', '") +
                             "'."
                         );
                     }
+                }
 
-                    _.each(
-                        _.range(4 - this.headlineCandidateCollection.length),
-                        function(index) {  // eslint-disable-line no-unused-vars
-                            this.headlineCandidateCollection.add([{}]);
-                        }.bind(this)
-                    );
-                }.bind(this));  // eslint-disable-line no-extra-bind
+                _.each(
+                    _.range(4 - this.headlineCandidateCollection.length),
+                    function(index) {  // eslint-disable-line no-unused-vars
+                        this.headlineCandidateCollection.add([{}]);
+                    }.bind(this)
+                );
+            }.bind(this));  // eslint-disable-line no-extra-bind
 
-                // If the headline request fails, pass back the error.
-                headlinesRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
-                    this.trigger('packageLoadFailed', 'headlines');
-                });
+            // If the headline request fails, pass back the error.
+            headlinesRequest.fail(function(response, errorText) {  // eslint-disable-line no-unused-vars,max-len
+                this.trigger('packageLoadFailed', 'headlines');
+            });
 
+            // When all additional queries have returned successfully, pass
+            // a successful resolution the underlying Deferred promise.
+            $.when.apply($, allAdditionalRequests).done(function() {
+                relatedItemPromise.resolve();
+            }.bind(this));  // eslint-disable-line no-extra-bind
 
-                // When all additional queries have returned successfully, pass
-                // a successful resolution the underlying Deferred promise.
-                $.when.apply($, allAdditionalRequests).done(function() {
-                    this.trigger('packageLoaded');
-                }.bind(this));  // eslint-disable-line no-extra-bind
-            } else {
-                this.trigger('packageLoaded');
-            }
-
-            return data;
+            return relatedItemPromise;
         },
 
         dateFormats: {
