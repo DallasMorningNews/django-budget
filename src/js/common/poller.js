@@ -18,7 +18,9 @@ define(
         // var radio = Backbone.Wreqr.radio.channel('global');
 
         return Mn.Object.extend({
-            initialize: function() {
+            initialize: function(options) {
+                this.requestConfig = (_.has(options, 'requestConfig')) ? options.requestConfig : {};
+
                 if (this.options.isPolling === false) {
                     this.isPolling = false;
                 } else {
@@ -45,8 +47,9 @@ define(
                             '[poller] Updating collection from ' + datum.url
                         );
                     }
-                    datum.fetch();
-                });
+
+                    datum.fetch(this.requestConfig);
+                }.bind(this));
             },
 
             commencePolling: function() {
@@ -62,7 +65,7 @@ define(
              * When passed an array of models/collections/etc., fetch the data
              * for all of them and poll for updates until they're killed.
              */
-            get: function(data) {
+            get: function(data, options) {
                 var loadingDeferreds;
 
                 if (this._active.length > 0) {
@@ -73,8 +76,8 @@ define(
                 }
 
                 loadingDeferreds = _.map(data, function(datum) {
-                    return datum.fetch();
-                });
+                    return datum.fetch(options);
+                }.bind(this));  // eslint-disable-line no-extra-bind
 
                 console.info(  // eslint-disable-line no-console
                     '[poller] Loading new active data.'
@@ -87,12 +90,15 @@ define(
                 return $.when.apply(this, loadingDeferreds);
             },
 
-            pause: function() {
+            pause: function(options) {
+                var opts = options || {muteConsole: null},
+                    muteConsole = (_.isBoolean(opts.muteConsole)) ? opts.muteConsole : false;
+
                 if (this.isPolling) {
                     window.clearInterval(this.interval);
-                    console.info(  // eslint-disable-line no-console
-                        '[poller] Polling paused.'
-                    );
+                    if (!muteConsole) {
+                        console.info('[poller] Polling paused.');  // eslint-disable-line no-console
+                    }
                     this.isPolling = false;
                 }
             },
