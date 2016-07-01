@@ -4,9 +4,9 @@ define(
         'moment',
         'underscore',
         'budget/compositeviews/packages/edit',
+        'budget/compositeviews/search-list/print',
+        'budget/compositeviews/search-list/web',
         'budget/itemviews/snackbars/snackbar.js',
-        'budget/layoutviews/packages/list-print-info',
-        'budget/layoutviews/packages/list-web-info',
         'budget/models/package',
     ],
     function(
@@ -14,9 +14,9 @@ define(
         moment,
         _,
         PackageEditView,
+        WebPrintList,
+        WebSearchList,
         SnackbarView,
-        PackagePrintListView,
-        PackageWebListView,
         Package
     ) {
         'use strict';
@@ -34,7 +34,7 @@ define(
 
                 radio.commands.execute(
                     'switchMainView',
-                    PackageWebListView,
+                    WebSearchList,
                     {querystring: querystring}
                 );
             },
@@ -43,7 +43,7 @@ define(
 
                 radio.commands.execute(
                     'switchMainView',
-                    PackagePrintListView,
+                    WebPrintList,
                     {querystring: querystring}
                 );
             },
