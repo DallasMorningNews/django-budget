@@ -39,6 +39,7 @@ define([
                     data: this.options.data,
                     state: this.options.state,
                     initFinishedCallback: function(childView) {
+                        childView.isAttached = true;  // eslint-disable-line no-param-reassign
                         this.showChildView('mainContent', childView);
                     }.bind(this),
                 };
