@@ -77,13 +77,11 @@ define([
                 urlSlug: 'contentType',
             },
             {
-                urlSlug: 'printPlacement',
-                // parseFunction: function(pkg, stringToMatch, extraContext) {  // eslint-disable-line no-unused-vars,max-len
-                //     return _.contains(
-                //         pkg.get('printPlacement').printPlacements,
-                //         stringToMatch
-                //     );
-                // },
+                apiQuery: 'publication',
+                formatQueryValue: function(initialValue) {
+                    return initialValue.split('.pub')[0];
+                },
+                urlSlug: 'printPublication',
             },
         ],
 

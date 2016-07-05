@@ -19,8 +19,7 @@ define([
         template: tpl('list-components-print-placement-toggle'),
 
         ui: {
-            toggleTrigger: '.toggle-holder .placement-toggle .toggle',
-            dropdownHolder: '.toggle-holder .placement-dropdown',
+            searchBox: '#publication-search-box',
         },
 
         events: {
@@ -29,159 +28,130 @@ define([
 
         initialize: function() {
             this._radio = Backbone.Wreqr.radio.channel('global');
+
+            this.printPlacementChoices = this.enumeratePrintPlacementChoices();
         },
 
-        serializeData: function() {
-            var allTypesTrigger = {
-                    slug: 'all',
-                    verboseName: 'All',
-                },
-                commonPrintPlacement = this._radio.reqres.request(
-                    'getState',
-                    this.options.stateKey,
-                    'currentPrintPlacement'
-                ),
-                placementTypes;
+        enumeratePrintPlacementChoices: function() {
+            var sectionPublicationValues = [],
+                publicationSections = [],
+                placementChoices = _.compact(
+                    this.options.data.printPublications.map(function(publication) {
+                        if (publication.get('isActive') === true) {
+                            // Generate a second map with this publications'
+                            // section IDs and the publication's slug.
+                            // This gets used on the selectize 'select' event.
+                            sectionPublicationValues.push(
+                                _.map(
+                                    publication.get('sections'),
+                                    function(section) {
+                                        return [section.id, publication.get('slug')];
+                                    }
+                                )
+                            );
 
-            if (commonPrintPlacement === 'all') {
-                allTypesTrigger.isActive = true;
-            }
+                            publicationSections.push(
+                                [
+                                    publication.get('slug'),
+                                    publication.get('sections'),
+                                ]
+                            );
 
-            placementTypes = _.map(
-                settings.printPlacementTypes,
-                function(placementType) {
-                    var typeConfig = _.chain(placementType)
-                                                .omit('order')
-                                                .clone()
-                                                .value();
+                            return {
+                                name: publication.get('name'),
+                                value: publication.get('slug') + '.pub',
+                            };
+                        }
 
-                    if (placementType.slug === commonPrintPlacement) {
-                        typeConfig.isActive = true;
-                    }
+                        return null;
+                    })
+                );
 
-                    return typeConfig;
-                }.bind(this)  // eslint-disable-line no-extra-bind
-            );
+            this.printPublicationSections = _.chain(publicationSections)
+                    .compact()
+                    .reject(function(mapping) { return _.isEmpty(mapping[1]); })
+                    .object()
+                    .value();
 
-            placementTypes.push(allTypesTrigger);
+            this.sectionPublicationMap = _.chain(sectionPublicationValues)
+                    .compact()
+                    .reject(_.isEmpty)
+                    .flatten(true)
+                    .object()
+                    .value();
 
-            return {
-                placementTypes: placementTypes,
-            };
+            return placementChoices;
         },
 
         onRender: function() {
-            var dropdownOpts = _.map(settings.printPlacementTypes, _.clone);
-
-            dropdownOpts.push({
-                verboseName: 'All',
-                slug: 'all',
-                order: settings.printPlacementTypes.length + 1,
-            });
-
-            this.ui.dropdownHolder.selectize({
-                selectOnTab: true,
-                closeAfterSelect: true,
-                options: dropdownOpts,
-                valueField: 'slug',
-                labelField: 'verboseName',
-                searchField: ['verboseName'],
-                maxItems: 1,
-                onItemAdd: function(value, $item) {  // eslint-disable-line no-unused-vars
-                    this.toggleActivePlacement(value);
-
-                    // Set toggle device active state accordingly.
-                    this.ui.toggleTrigger.removeClass('active');
-                    this.ui.toggleTrigger.filter(
-                        "[data-placement-type='" + value + "']"
-                    ).addClass('active');
-                }.bind(this),
-                onItemRemove: function(value) {  // eslint-disable-line no-unused-vars
-                    this.toggleActivePlacement('all');
-
-                    // Set toggle device active state accordingly.
-                    this.ui.toggleTrigger.removeClass('active');
-                    this.ui.toggleTrigger.filter(
-                        "[data-placement-type='all']"
-                    ).addClass('active');
-                }.bind(this),
-            });
-
-            this.updateDropdown(
-                this.ui.toggleTrigger.filter('.active').data('placementType')
-            );
-        },
-
-        updateDropdown: function(newValue) {
-            var selectizeObj = this.ui.dropdownHolder[0].selectize;
-
-            selectizeObj.off('item_add');
-
-            selectizeObj.addItem(newValue, true);
-
-            selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
-        },
-
-        runToggle: function(event) {
-            var targetEl = $(event.currentTarget),
-                newPlacementSlug = targetEl.data('placementType');
-
-            this.ui.toggleTrigger.removeClass('active');
-            targetEl.addClass('active');
-
-            this.toggleActivePlacement(newPlacementSlug);
-
-            // Set dropdown device active state accordingly.
-            this.updateDropdown(newPlacementSlug);
-        },
-
-        toggleActivePlacement: function(newPlacement) {
-            var commonPrintPlacement = this._radio.reqres.request(
+            var selectizeObj,
+                commonPublication = this._radio.reqres.request(
                     'getState',
-                    this.options.stateKey,
-                    'currentPrintPlacement'
-                );
+                    'printSearchList',
+                    'queryTerms'
+                ).findWhere({type: 'printPublication'});
 
-            if (newPlacement !== commonPrintPlacement) {
-                // Update internal state to reflect new placement choice.
-                this._radio.commands.execute(
-                    'setState',
-                    this.options.stateKey,
-                    'currentPrintPlacement',
-                    newPlacement
-                );
+            this.selectizeBox = this.ui.searchBox.selectize({
+                addPrecedence: false,
+                closeAfterSelect: true,
+                create: false,
+                labelField: 'name',
+                maxItems: 1,
+                options: this.printPlacementChoices,
+                persist: false,
+                plugins: ['restore_on_backspace'],
+                searchField: ['name'],
+                selectOnTab: true,
+                valueField: 'value',
+                render: {
+                    item: function(data, escape) {  // eslint-disable-line no-unused-vars
+                        var dataType = 'fullText';
+                        if (typeof(data.type) !== 'undefined') {
+                            dataType = data.type;
+                        }
 
-                // Remove current placement filter from query term
-                // collection, if one exists.
-                this._radio.commands.execute(
-                    'setState',
-                    this.options.stateKey,
-                    'queryTerms',
-                    function(terms) {
-                        terms.remove(
-                            terms.where({type: 'printPlacement'})
+                        return '<div data-value="' + data.value + '" data-type="' +
+                                    dataType + '" class="item">' +
+                                    data.name +
+                                '</div>';
+                    },
+                },
+                onItemAdd: function(value, $item) {},  // eslint-disable-line no-unused-vars
+                onChange: function(value) {
+                    var currentPublication = this._radio.reqres.request(
+                            'getState',
+                            'printSearchList',
+                            'queryTerms'
+                        ).findWhere({type: 'printPublication'});
+
+                    if (!_.isUndefined(currentPublication)) {
+                        this._radio.commands.execute(
+                            'popQueryTerm',
+                            this.options.stateKey,
+                            currentPublication.get('value')
                         );
-                    }.bind(this)  // eslint-disable-line no-extra-bind
-                );
+                    }
 
-                if (newPlacement !== 'all') {
-                    // Add new placement filter to query term collection.
-                    // Handler for adding a query term.
                     this._radio.commands.execute(
-                        'setState',
+                        'pushQueryTerm',
                         this.options.stateKey,
-                        'queryTerms',
-                        function(terms) {
-                            terms.push({
-                                type: 'printPlacement',
-                                value: newPlacement,
-                            });
-                        }.bind(this)  // eslint-disable-line no-extra-bind
+                        {
+                            type: 'printPublication',
+                            value: value,
+                        }
                     );
-                }
-            }
+                }.bind(this),
+                onItemRemove: function(value) {},  // eslint-disable-line no-unused-vars
+            });
 
-            this._radio.commands.execute('updateQueryElements');
+            // If an initial publication has been specified, show it as active
+            // in the (dropdown) UI.
+            if (!_.isUndefined(commonPublication)) {
+                selectizeObj = this.ui.searchBox[0].selectize;
+                selectizeObj.off('item_add');
+                selectizeObj.addItem(commonPublication.get('value'), true);
+                selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
+            }
         },
     });
 });
