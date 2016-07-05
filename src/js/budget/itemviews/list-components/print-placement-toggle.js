@@ -30,6 +30,16 @@ define([
             this._radio = Backbone.Wreqr.radio.channel('global');
 
             this.printPlacementChoices = this.enumeratePrintPlacementChoices();
+
+            this.initialRender = false;
+
+            this.noInitialPublication = _.isUndefined(
+                this._radio.reqres.request(
+                    'getState',
+                    'printSearchList',
+                    'queryTerms'
+                ).findWhere({type: 'printPublication'})
+            );
         },
 
         enumeratePrintPlacementChoices: function() {
@@ -90,6 +100,27 @@ define([
                     'printSearchList',
                     'queryTerms'
                 ).findWhere({type: 'printPublication'});
+
+            if (!this.initialRender) {
+                if (this.noInitialPublication) {
+                    this._radio.commands.execute(
+                        'pushQueryTerm',
+                        this.options.stateKey,
+                        {
+                            type: 'printPublication',
+                            value: this.printPlacementChoices[0].value,
+                        }
+                    );
+
+                    commonPublication = this._radio.reqres.request(
+                        'getState',
+                        'printSearchList',
+                        'queryTerms'
+                    ).findWhere({type: 'printPublication'});
+                }
+
+                this.initialRender = true;
+            }
 
             this.selectizeBox = this.ui.searchBox.selectize({
                 addPrecedence: false,
