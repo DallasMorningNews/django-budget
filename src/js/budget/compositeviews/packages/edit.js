@@ -1145,29 +1145,43 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         date,
                         instance  // eslint-disable-line no-unused-vars
                     ) {
-                        var newStart = date,
+                        var currentRange = model.get('printRunDate'),
+                            newStart,
                             savedEnd,
                             newDatePair;
 
-                        if (!datePckr.preventDefault) {
-                            savedEnd = moment(
-                                model.get('printRunDate')[1],
-                                'YYYY-MM-DD'
-                            ).subtract({days: 1}).toDate();
+                        if (date === '') {
+                            newDatePair = {start: null};
+                        } else if (!datePckr.preventDefault) {
+                            newStart = moment(date).format('YYYY-MM-DD');
 
-                            newDatePair = {start: moment(newStart).format('YYYY-MM-DD')};
-
-                            if (date.getTime() > savedEnd.getTime()) {
-                                newDatePair.end = moment(date).add({days: 1}).format('YYYY-MM-DD');
+                            if (!_.isNull(currentRange) && currentRange.length === 2) {
+                                savedEnd = moment(
+                                    currentRange[1],
+                                    'YYYY-MM-DD'
+                                ).subtract({days: 1}).toDate();
+                            } else if (_.isNull(currentRange)) {
+                                model.tempSavedStart = date;
+                                savedEnd = date;
                             }
 
-                            $el.trigger('setPrintRunDate', newDatePair);
+                            newDatePair = {start: newStart};
 
-                            this.ui.printRunDateEndField.focus();
+                            if (
+                                (date.getTime() > savedEnd.getTime())
+                            ) {
+                                newDatePair.end = moment(date)
+                                                    .add({days: 1})
+                                                    .format('YYYY-MM-DD');
+                            }
                         }
+
+                        $el.trigger('setPrintRunDate', newDatePair);
+
+                        this.ui.printRunDateEndField.focus();
                     }.bind(this);
 
-                    if (!_.isNull(inputValue[0])) {
+                    if (!_.isNull(inputValue) && !_.isNull(inputValue[0])) {
                         newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', inputValue[0]);
 
                         datePckr.preventDefault = true;
@@ -1202,15 +1216,27 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         newDates = _.clone(model.get('printRunDate'));
 
                     if (_.has(inputDates, 'start')) {
-                        newDates[0] = (
-                            inputDates.start !== ''
-                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.start) : null;
+                        if (_.isNull(inputDates.start)) {
+                            newDates = null;
+                        } else {
+                            if (_.isNull(newDates)) { newDates = [null, null]; }
+
+                            newDates[0] = (
+                                inputDates.start !== ''
+                            ) ? model.parseRunDate('YYYY-MM-DD', inputDates.start) : null;
+                        }
                     }
 
                     if (_.has(inputDates, 'end')) {
-                        newDates[1] = (
-                            inputDates.end !== ''
-                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.end) : null;
+                        if (_.isNull(inputDates.end)) {
+                            newDates = null;
+                        } else {
+                            if (_.isNull(newDates)) { newDates = [null, null]; }
+
+                            newDates[1] = (
+                                inputDates.end !== ''
+                            ) ? model.parseRunDate('YYYY-MM-DD', inputDates.end) : null;
+                        }
                     }
 
                     return newDates;
@@ -1221,14 +1247,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 observe: 'printRunDate',
                 events: ['setPrintRunDate'],
                 initialize: function($el, mdl, opts) {
-                    var inputValue = mdl.get(opts.observe)[1],
+                    var inputValue = mdl.get(opts.observe),
                         datePckr,
                         newDate;
-
-                    inputValue = moment(
-                        inputValue,
-                        'YYYY-MM-DD'
-                    ).subtract({days: 1}).format('YYYY-MM-DD');
 
                     $el.datepicker(
                         _.defaults(
@@ -1246,15 +1267,22 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         date,
                         instance  // eslint-disable-line no-unused-vars
                     ) {
-                        var newEnd = date,
+                        var currentRange = model.get('printRunDate'),
+                            newEnd = date,
                             savedStart,
                             newDatePair;
 
-                        if (!datePckr.preventDefault) {
-                            savedStart = moment(
-                                model.get('printRunDate')[0],
-                                'YYYY-MM-DD'
-                            ).toDate();
+                        if (date === '') {
+                            newDatePair = {end: null};
+                        } else if (!datePckr.preventDefault) {
+                            if (!_.isNull(currentRange) && currentRange.length === 2) {
+                                savedStart = moment(
+                                    model.get('printRunDate')[0],
+                                    'YYYY-MM-DD'
+                                ).toDate();
+                            } else {
+                                savedStart = model.tempSavedStart;
+                            }
 
                             newDatePair = {
                                 end: moment(newEnd).add({days: 1}).format('YYYY-MM-DD'),
@@ -1263,13 +1291,19 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             if (savedStart.getTime() > newEnd.getTime()) {
                                 newDatePair.start = moment(date).format('YYYY-MM-DD');
                             }
-
-                            $el.trigger('setPrintRunDate', newDatePair);
                         }
+
+                        $el.trigger('setPrintRunDate', newDatePair);
                     };
 
-                    if (!_.isNull(inputValue)) {
-                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', inputValue);
+                    if (!_.isNull(inputValue) && (inputValue.length > 1)) {
+                        newDate = mdl.generateFormattedRunDate(
+                            'YYYY-MM-DD',
+                            moment(
+                                inputValue[1],
+                                'YYYY-MM-DD'
+                            ).subtract({days: 1}).format('YYYY-MM-DD')
+                        );
 
                         datePckr.preventDefault = true;
                         datePckr.date = newDate;
@@ -1281,25 +1315,33 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     var datePckr = $el.data('datepicker'),
                         newDate;
 
-                    if (value[1] !== '' && !_.isNull(value[1])) {
-                        newDate = moment(
-                            value[1],
-                            'YYYY-MM-DD'
-                        ).subtract({days: 1}).format('YYYY-MM-DD');
-
-                        newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', newDate);
-
-                        if (!_.isUndefined(datePckr)) {
-                            datePckr.preventDefault = true;
-                            datePckr.date = newDate;
-                            datePckr.selectDate(newDate);
-                            datePckr.preventDefault = false;
-                        }
-                    } else {
+                    if (value === '') {
                         if (!_.isUndefined(datePckr)) {
                             datePckr.preventDefault = true;
                             datePckr.clear();
                             datePckr.preventDefault = false;
+                        }
+                    } else {
+                        if (value[1] !== '' && !_.isNull(value[1])) {
+                            newDate = moment(
+                                value[1],
+                                'YYYY-MM-DD'
+                            ).subtract({days: 1}).format('YYYY-MM-DD');
+
+                            newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', newDate);
+
+                            if (!_.isUndefined(datePckr)) {
+                                datePckr.preventDefault = true;
+                                datePckr.date = newDate;
+                                datePckr.selectDate(newDate);
+                                datePckr.preventDefault = false;
+                            }
+                        } else {
+                            if (!_.isUndefined(datePckr)) {
+                                datePckr.preventDefault = true;
+                                datePckr.clear();
+                                datePckr.preventDefault = false;
+                            }
                         }
                     }
                 },
@@ -1308,15 +1350,27 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         newDates = _.clone(model.get('printRunDate'));
 
                     if (_.has(inputDates, 'start')) {
-                        newDates[0] = (
-                            inputDates.start !== ''
-                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.start) : null;
+                        if (_.isNull(inputDates.start)) {
+                            newDates = null;
+                        } else {
+                            if (_.isNull(newDates)) { newDates = [null, null]; }
+
+                            newDates[0] = (
+                                inputDates.start !== ''
+                            ) ? model.parseRunDate('YYYY-MM-DD', inputDates.start) : null;
+                        }
                     }
 
                     if (_.has(inputDates, 'end')) {
-                        newDates[1] = (
-                            inputDates.end !== ''
-                        ) ? model.parseRunDate('YYYY-MM-DD', inputDates.end) : null;
+                        if (_.isNull(inputDates.end)) {
+                            newDates = null;
+                        } else {
+                            if (_.isNull(newDates)) { newDates = [null, null]; }
+
+                            newDates[1] = (
+                                inputDates.end !== ''
+                            ) ? model.parseRunDate('YYYY-MM-DD', inputDates.end) : null;
+                        }
                     }
 
                     return newDates;

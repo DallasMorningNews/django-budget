@@ -102,8 +102,109 @@ define(
             },
 
             bootstrapData: function() {
+                var dataLoadedPromise = new $.Deferred(),
+                    userPromise = this.retrieveUser();
+
+                userPromise.done(function() {
+                    var initialDataPromise = this.loadInitialData();
+
+                    initialDataPromise.done(function() {
+                        dataLoadedPromise.resolve();
+                    });
+                }.bind(this));
+
                 /**
-                 * Bootstrap app data
+                 * Return a deferred object for when all the data's loaded.
+                 */
+                return dataLoadedPromise;
+            },
+
+            retrieveUser: function() {
+                /*
+                 * Load data for the currently logged-in user.
+                 */
+                var userLoaded = new $.Deferred(),
+                    userInfoRequest = $.ajax({
+                        dataType: 'json',
+                        url: settings.apiEndpoints.userInfo,
+                        xhrFields: {
+                            withCredentials: true,
+                        },
+                    }),
+                    errorEmailBody;
+
+                userInfoRequest.done(function(data) {
+                    this.handleUserData(data);
+                    userLoaded.resolve();
+                }.bind(this));
+
+                userInfoRequest.fail(function(resp, textStatus, errorThrown) {
+                    var errorText,
+                        snackbarShim;
+
+                    if (
+                        (resp.status === 403) &&
+                        (_.has(resp, 'responseJSON')) &&
+                        (_.has(resp.responseJSON, 'loginRedirectUrl'))
+                    ) {
+                        window.location.replace(resp.responseJSON.loginRedirectUrl);
+                    } else {
+                        if (
+                            (_.has(resp, 'responseJSON')) &&
+                            (_.has(resp.responseJSON, 'detail'))
+                        ) {
+                            errorText = 'Error ' + resp.status +
+                                            ' (' + resp.responseJSON.detail + ')';
+                        } else {
+                            errorText = 'Error ' + resp.status;
+                        }
+
+                        $('<div id="snackbar-holder"></div>').appendTo('body');
+
+                        errorEmailBody =
+                            'Hello. I encountered an error ["' + errorText + '"] ' +
+                                'while using the budget app.\n\n' +
+                            'The specific error parameters were: ' +
+                                resp.responseText + '.\n\n' +
+                            'Please note the error, and provide feedback on how I ' +
+                            'can avoid it happening again.\n\n';
+
+                        snackbarShim = $('' +
+                            '<div class="snackbar failure 1-line">' +
+                                '<div class="contents">' +
+                                    errorText +
+                                    '<div class="action-trigger">' +
+                                        '<a href="mailto:' + settings.adminEmail + '?' +
+                                            'subject=DMN budget app error&' +
+                                            'body=' + encodeURIComponent(errorEmailBody) +
+                                            '"> Report</a>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>'
+                        );
+                        snackbarShim.appendTo('#snackbar-holder');
+                        setTimeout(function() { snackbarShim.addClass('active'); }, 0);
+                    }
+
+                    userLoaded.fail(resp, textStatus, errorThrown);
+                });
+
+                return userLoaded;
+            },
+
+            handleUserData: function(data) {
+                // Overwrite 'this.currentUser' with a user's
+                // actual profile information.
+                if (!_.isEmpty(data)) {
+                    this.currentUser = data;
+                }
+            },
+
+            loadInitialData: function() {
+                var initialDataLoaded = new $.Deferred();
+
+                /**
+                 * Load all initial data.
                  */
                 this.data = {};
 
@@ -115,26 +216,16 @@ define(
                 this.data.printPublications = new PrintPublicationCollection();
                 this.data.staffers = new StafferCollection();
 
-                /**
-                 * Return a deferred object for when all the data's loaded.
-                 */
-                return $.when(
+                // When all initial data has loaded, resolve the overall deferred object.
+                $.when(
                     this.data.hubs.fetch(),
                     this.data.printPublications.fetch({xhrFields: {withCredentials: true}}),
-                    this.data.staffers.fetch(),
-                    $.ajax({
-                        dataType: 'json',
-                        url: '/user-info/',
-                    }).done(this.handleUserData.bind(this))
-                );
-            },
+                    this.data.staffers.fetch()
+                ).done(function() {
+                    initialDataLoaded.resolve();
+                });
 
-            handleUserData: function(data) {
-                // Overwrite 'this.currentUser' with a user's
-                // actual profile information.
-                if (!_.isEmpty(data)) {
-                    this.currentUser = data;
-                }
+                return initialDataLoaded;
             },
 
             onBeforeStart: function() {

@@ -2,10 +2,13 @@ define(['underscore'], function(_) {
     'use strict';
 
     var apiBases = {
+            auth: 'http://datalab-budget-dev.herokuapp.com/auth/api/',
             budget: 'http://datalab-budget-dev.herokuapp.com/budget/api/',
             staff: 'http://datalab.dallasnews.com/staff/api/',
         },
         standardSettings = {
+            adminEmail: 'ajvestal@dallasnews.com',
+
             apiEndpoints: {
                 headlineCandidate: apiBases.budget + 'headlines/',
                 hub: apiBases.staff + 'hub/',
@@ -13,6 +16,7 @@ define(['underscore'], function(_) {
                 staffer: apiBases.staff + 'staff/',
                 package: apiBases.budget + 'packages/',
                 printPublication: apiBases.budget + 'print-publications/',
+                userInfo: apiBases.auth + 'users/me/',
             },
 
             buttonHideWidth: 600,
