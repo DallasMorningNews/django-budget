@@ -32,6 +32,7 @@ define([
         ],
 
         childView: PackageItemWebView,
+        outerClass: 'web-archive',
         stateKey: 'webSearchList',
         urlBase: '/',
 

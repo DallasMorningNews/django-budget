@@ -159,7 +159,8 @@ define([
                         this._radio.commands.execute(
                             'popQueryTerm',
                             this.options.stateKey,
-                            currentPublication.get('value')
+                            currentPublication.get('value'),
+                            {silent: true}
                         );
                     }
 

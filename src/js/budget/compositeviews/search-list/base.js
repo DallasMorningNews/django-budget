@@ -54,6 +54,7 @@ define([
 
         ui: {
             filterHolder: '#filter-holder',
+            facetedCollectionHolder: '#faceted-packages',
             collectionHolder: '#package-list div',
         },
 
@@ -113,23 +114,23 @@ define([
                     'queryTerms',
                     new QueryTermCollection()
                 );
+            }
 
-                // If there have been initial query terms specified in the URL,
-                // apply those.
-                if (!_.isEmpty(this.initialState.queryTerms)) {
-                    this._radio.commands.execute(
-                        'setState',
-                        this.stateKey,
-                        'queryTerms',
-                        function(terms) {
-                            terms.reset();
-                            _.each(
-                                this.initialState.queryTerms,
-                                function(queryValue) { terms.add(queryValue); }
-                            );
-                        }.bind(this)
-                    );
-                }
+            // If there have been initial query terms specified in the URL,
+            // apply those.
+            if (!_.isEmpty(this.initialState.queryTerms)) {
+                this._radio.commands.execute(
+                    'setState',
+                    this.stateKey,
+                    'queryTerms',
+                    function(terms) {
+                        terms.reset();
+                        _.each(
+                            this.initialState.queryTerms,
+                            function(queryValue) { terms.add(queryValue); }
+                        );
+                    }.bind(this)
+                );
             }
 
             // Initialize all filters on this page.
@@ -170,6 +171,7 @@ define([
 
                     this.updatePackages();
                     this.updateQuerystring();
+                    this.trigger('changeParams');
                 },
                 this
             );
@@ -189,6 +191,7 @@ define([
 
                     this.updatePackages();
                     this.updateQuerystring();
+                    this.trigger('changeParams');
                 },
                 this
             );
@@ -196,7 +199,9 @@ define([
             // Handler for removing a query term.
             this._radio.commands.setHandler(
                 'popQueryTerm',
-                function(stateKey, queryValue) {
+                function(stateKey, queryValue, options) {
+                    var opts = options || {silent: false};
+
                     this._radio.commands.execute(
                         'setState',
                         stateKey,
@@ -206,8 +211,11 @@ define([
                         }.bind(this)  // eslint-disable-line no-extra-bind
                     );
 
-                    this.updatePackages();
-                    this.updateQuerystring();
+                    if ((opts.silent === false)) {
+                        this.updatePackages();
+                        this.updateQuerystring();
+                        this.trigger('changeParams');
+                    }
                 },
                 this
             );
@@ -226,6 +234,10 @@ define([
             };
         },
 
+        generateFacetedCollections: function() {
+            return [];
+        },
+
         parseQueryString: function(querystring, returnValue) {  // eslint-disable-line no-unused-vars,max-len
             var parsedQueryTerms = [],
                 parsedDateRange = {},
@@ -237,10 +249,6 @@ define([
                 parsedQueryTerms = _.chain(querystring.split('&'))
                     .map(function(component) {
                         var termParts = _.map(component.split('='), decodeURIComponent);
-
-                        // console.log(termParts[0]);
-                        // console.log(obj);
-                        // _.pluck(this.queryTerms, 'urlSlug')
 
                         if (_.contains(dateQueryTerms, termParts[0])) {
                             parsedDateRange[termParts[0].slice(0, -4)] = moment(
@@ -380,6 +388,14 @@ define([
             // }
         },
 
+        renderFacetedLists: function() {
+            // Create each faceted list.
+            this.facetedCollections = this.generateFacetedCollections();
+
+            // Render each of the faceted collections.
+            _.invoke(this.facetedCollections, 'render');
+        },
+
         updatePackages: function() {
             // Configure poller with fetch options.
             // This includes all querystring arguments (the `data` option sent
@@ -395,6 +411,11 @@ define([
             // render child views and restart poller.
             var packageRelatedDeferred = [],
                 wasAttached = this.isAttached;
+
+            if (this.rerenderFacetedLists === true) {
+                this.renderFacetedLists();
+                this.rerenderFacetedLists = false;
+            }
 
             this._poller.pause({muteConsole: true});
 
@@ -439,6 +460,8 @@ define([
                     }
                 }
             }
+
+            childView.model.trigger('setPrimary', childView.model, {});
         },
 
         onDataUpdated: function() {
@@ -473,7 +496,13 @@ define([
             this.ui.collectionHolder.append(childView.el);
         },
 
+        onAttach: function() {
+            this.renderFacetedLists();
+        },
+
         onRender: function() {
+            this.$el.addClass(this.outerClass);
+
             this.renderFilters();
 
             // if (!_.isEmpty(this.extraChildViews)) {

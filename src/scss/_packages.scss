@@ -1,3 +1,56 @@
+.print-archive {
+    #faceted-packages {
+        display: block;
+
+        .facet-holder {
+            display: none;
+
+            &.enabled-facet {
+                display: block;
+
+                + .enabled-facet {
+                    .facet-label {
+                        margin-top: 30px;
+                    }
+                }
+
+                + *:not(.enabled-facet) + .enabled-facet {
+                    .facet-label {
+                        margin-top: 30px;
+                    }
+                }
+            }
+
+            .facet-label {
+                box-sizing: border-box;
+                color: #888888;
+                font-size: 20px;
+                font-weight: 700;
+                height: 60px;
+                letter-spacing: 1px;
+                line-height: 16px;
+                margin: -15px 0 -36px;
+                padding: 20px 12px;
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    #package-list {
+        display: none;
+    }
+
+    &.empty-collection {
+        #faceted-packages {
+            display: none;
+        }
+
+        #package-list {
+            display: block;
+        }
+    }
+}
+
 .package-sheet-holder {
     position: relative;
 
