@@ -12,7 +12,7 @@
         <div class="slug-bar row">
             <div class="date-slug-budget-line column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
-                <h2 class="date-header">{{ formattedPrintRunDate }}{% if not packageObj.printPlacement.isFinalized %} (planned){% endif %}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if formattedPrintPlacements|length > 0 %}{% for placement in formattedPrintPlacements %}{{ placement.verboseName }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}</h2>
+                <h2 class="date-header">{{ formattedPrintRunDate }}{% if not packageObj.printPlacement.isFinalized %} (planned){% endif %}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if formattedPrintPlacements|length > 0 %}{% for placement in formattedPrintPlacements %}{{ placement }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}</h2>
                 <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.slug }}</h1>
                 <h4 class="budget-line-truncated might-overflow">{{ packageObj.primaryContent.budgetLine }}</h4>
             </div>

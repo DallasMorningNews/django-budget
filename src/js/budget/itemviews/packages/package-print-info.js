@@ -122,21 +122,27 @@ define(
                     templateContext.verticalSlug = packageHub.get('vertical').slug;
                 }
 
-                // // Print placement lists.
-                // templateContext.formattedPrintPlacements = _.chain(
-                //     _.map(
-                //         this.model.get('printPlacement').printPlacements,
-                //         function(placementSlug) {
-                //             return _.findWhere(
-                //                 settings.printPlacementTypes,
-                //                 {slug: placementSlug}
-                //             );
-                //         }
-                //     )
-                // )
-                //     .sortBy('order')
-                //     .map(function(i) { return _.omit(i, 'order'); })
-                //     .value();
+                // Print placement lists.
+                templateContext.formattedPrintPlacements = _.chain(this.model.get('printSection'))
+                    .map(function(sectionID) {
+                        var matchingSection = _.findWhere(
+                            this.options.allSections,
+                            {id: sectionID}
+                        );
+
+                        if (!_.isUndefined(matchingSection)) {
+                            return {
+                                name: matchingSection.name,
+                                priority: matchingSection.priority,
+                            };
+                        }
+
+                        return null;
+                    }.bind(this))
+                    .compact()
+                    .sortBy('priority')
+                    .pluck('name')
+                    .value();
 
                 // Formatted print run date.
                 if (printDateStart.year() === printDateEnd.year()) {
