@@ -219,7 +219,14 @@ define(
                 // When all initial data has loaded, resolve the overall deferred object.
                 $.when(
                     this.data.hubs.fetch(),
-                    this.data.printPublications.fetch({xhrFields: {withCredentials: true}}),
+                    this.data.printPublications.fetch({
+                        data: {
+                            publication_active: 1,
+                        },
+                        xhrFields: {
+                            withCredentials: true,
+                        },
+                    }),
                     this.data.staffers.fetch()
                 ).done(function() {
                     initialDataLoaded.resolve();
