@@ -132,34 +132,29 @@ define([
 
             this.dateRange = this.retrieveDateRange();
 
-            this.startDatepicker.silent = false;
-            this.startDatepicker.selectDate(this.dateRange.start);
+            // Run the date-range selects line-by-line, since the datepicker's
+            // 'silent' flag apparently means nothing.
             this.startDatepicker.silent = true;
+            this.startDatepicker.date = this.dateRange.start;
+            // eslint-disable-next-line no-underscore-dangle
+            this.startDatepicker.nav._render();
+            this.startDatepicker.selectedDates = [this.dateRange.start];
+            // eslint-disable-next-line no-underscore-dangle
+            this.startDatepicker._setInputValue();
+            // eslint-disable-next-line no-underscore-dangle
+            this.startDatepicker.views[this.startDatepicker.currentView]._render();
+            this.startDatepicker.silent = false;
 
-            this.endDatepicker.silent = false;
-            this.endDatepicker.selectDate(this.dateRange.end);
             this.endDatepicker.silent = true;
-
-            // if (!_.isEmpty(commonDateRange)) {
-                // console.log(commonDateRange);
-                // this.ui.dateChooser.data('dateRangePicker').setDateRange(
-                //     moment(
-                //         commonDateRange.start, 'YYYY-MM-DD'
-                //     ).format('MMM D, YYYY'),
-                //     moment(
-                //         commonDateRange.end, 'YYYY-MM-DD'
-                //     ).format('MMM D, YYYY'),
-                //     true
-                // );
-            // } else {
-                // this.ui.dateChooser.data('dateRangePicker').setDateRange(
-                //     moment().tz('America/Chicago')
-                //                 .format('MMM D, YYYY'),
-                //     moment().tz('America/Chicago').add(2, 'days')
-                //                 .format('MMM D, YYYY'),
-                //     true
-                // );
-            // }
+            this.endDatepicker.date = this.dateRange.end;
+            // eslint-disable-next-line no-underscore-dangle
+            this.endDatepicker.nav._render();
+            this.endDatepicker.selectedDates = [this.dateRange.end];
+            // eslint-disable-next-line no-underscore-dangle
+            this.endDatepicker._setInputValue();
+            // eslint-disable-next-line no-underscore-dangle
+            this.endDatepicker.views[this.endDatepicker.currentView]._render();
+            this.endDatepicker.silent = false;
         },
 
         addButtonClickedClass: function(event) {
