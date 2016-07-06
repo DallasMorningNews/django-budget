@@ -233,12 +233,17 @@ function(
                 function() { this.trigger('change:headlineCandidates'); }.bind(this)
             );
 
-            // Instantiate and retrieve data for a collection
-            // containing each headline in this package.
-            headlinesRequest = this.headlineCandidateCollection.fetch({
-                xhrFields: {withCredentials: true},
-                data: {id__in: data.headlineCandidates.join(',')},
-            });
+            if (!_.isEmpty(data.headlineCandidates)) {
+                // Instantiate and retrieve data for a collection
+                // containing each headline in this package.
+                headlinesRequest = this.headlineCandidateCollection.fetch({
+                    xhrFields: {withCredentials: true},
+                    data: {id__in: data.headlineCandidates.join(',')},
+                });
+            } else {
+                headlinesRequest = new $.Deferred();
+                headlinesRequest.resolve([], {}, {});
+            }
 
             // Add this request to the list of simultaneous
             // additional-information queries.
