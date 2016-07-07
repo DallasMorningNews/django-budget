@@ -23,7 +23,6 @@ define([
 
         initialize: function() {
             this.collection.on('setPrimary', this.onCollectionChange.bind(this));
-            window.uuu = _;
         },
 
         filter: function(child, index, collection) {  // eslint-disable-line no-unused-vars
