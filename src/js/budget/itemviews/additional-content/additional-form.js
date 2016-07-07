@@ -512,7 +512,7 @@ deleteTrigger: '.delete-additional',
                 var deleteConfirmationModal = {
                     modalTitle: 'Are you sure?',
                     innerID: 'additional-delete-confirmation-modal',
-                    contentClassName: 'package-modal',
+                    contentClassName: 'package-modal deletion-modal',
                     extraHTML: '<p class="delete-confirmation-text">' +
                                      'You are about to delete the following budgeted content:' +
                                  '</p>' +
@@ -540,9 +540,7 @@ deleteTrigger: '.delete-additional',
                                             'expand-past-button delete-trigger',
                             innerLabel: 'Delete',
                             clickCallback: function(modalContext) {
-                                var toDeleteDict = {
-                                    itemToDeleteID: this.model.id,
-                                };
+                                var deleteRequest;
 
                                 modalContext.$el.parent()
                                                 .addClass('waiting-transition')
@@ -585,32 +583,26 @@ deleteTrigger: '.delete-additional',
                                     500
                                 );
 
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '',  // BBTODO
-                                    contentType: 'application/json; charset=utf-8',
-                                    data: JSON.stringify(toDeleteDict),
-                                    processData: false,
-                                    success: function(data) {
-                                        setTimeout(function() {
-                                            if (data.success) {
-                                                this.deleteSuccessCallback(data);
-                                            } else {
-                                                this.deleteErrorCallback(
-                                                    'processingError',
-                                                    [data]
-                                                );
-                                            }
-                                        }.bind(this), 1500);
-                                    }.bind(this),
-                                    error: function(jqXHR, textStatus, errorThrown) {
-                                        this.deleteErrorCallback(
-                                            'hardError',
-                                            [jqXHR, textStatus, errorThrown]
-                                        );
-                                    }.bind(this),
-                                    dataType: 'json',
+                                deleteRequest = this.model.destroy({
+                                    xhrFields: {
+                                        withCredentials: true,
+                                    },
                                 });
+
+                                // eslint-disable-next-line no-unused-vars
+                                deleteRequest.done(function(mdl, resp, opts) {
+                                    setTimeout(function() {
+                                        this.deleteSuccessCallback(resp);
+                                    }.bind(this), 1500);
+                                }.bind(this));
+
+                                // eslint-disable-next-line no-unused-vars
+                                deleteRequest.fail(function(response, errorText) {
+                                    this.deleteErrorCallback(
+                                        'hardError',
+                                        [response, errorText]
+                                    );
+                                }.bind(this));
                             }.bind(this),
                         },
                         {
@@ -639,7 +631,7 @@ deleteTrigger: '.delete-additional',
              *   Save & delete callbacks.
              */
 
-            deleteSuccessCallback: function(data) {  // eslint-disable-line no-unused-vars
+            deleteSuccessCallback: function(response) {  // eslint-disable-line no-unused-vars
                 // Close this popup and destroy it.
                 setTimeout(function() {
                     this._radio.commands.execute('destroyModal');
@@ -682,79 +674,6 @@ deleteTrigger: '.delete-additional',
                         text: 'Could not delete additional item. Try again later.',
                     })
                 );
-            },
-
-
-            /*
-             *   Form serializer.
-             */
-
-            serializeForm: function() {
-                var rawFormData = {},
-                    formIsUnbound = false,
-                    finalAdditionalContent = {},
-                    nonNullValues;
-
-                if (!this.model.has('id')) {
-                    formIsUnbound = true;
-                }
-
-                _.each(
-                    this.$el.find(
-                        "[data-form='" + this.generateFormID() + "']"
-                    ),
-                    function(field) {
-                        if (!field.disabled) {
-                            rawFormData[field.name.split('_')[1]] = field.value;
-                        }
-                    }
-                );
-
-                finalAdditionalContent.slugKey = rawFormData.slugkey;
-                finalAdditionalContent.type = rawFormData.type;
-                finalAdditionalContent.budgetLine = rawFormData.budgetline;
-
-                if (_.has(rawFormData, 'length')) {
-                    finalAdditionalContent.length = rawFormData.length;
-                }
-
-                if (rawFormData.authors !== '') {
-                    finalAdditionalContent.authors = _.map(
-                        rawFormData.authors.split(','),
-                        function(authorEmail) {
-                            return this.options.staffers.findWhere({
-                                email: authorEmail,
-                            }).toJSON();
-                        }.bind(this)
-                    );
-                }
-
-                if (rawFormData.editors !== '') {
-                    finalAdditionalContent.editors = _.map(
-                        rawFormData.editors.split(','),
-                        function(editorEmail) {
-                            return this.options.staffers.findWhere({
-                                email: editorEmail,
-                            }).toJSON();
-                        }.bind(this)
-                    );
-                }
-
-                if (formIsUnbound) {
-                    nonNullValues = _.chain(finalAdditionalContent)
-                                            .values()
-                                            .uniq()
-                                            .compact()
-                                            .flatten()
-                                            .value();
-                    if (_.isEmpty(nonNullValues)) {
-                        finalAdditionalContent = {};
-                    }
-                } else {
-                    finalAdditionalContent.id = rawFormData.id;
-                }
-
-                return finalAdditionalContent;
             },
         });
     }
