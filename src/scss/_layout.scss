@@ -96,6 +96,18 @@ h2 {
             height: 4.4rem;
             line-height: 1.9rem;
             padding: 2rem 1rem 0 0.5rem;
+
+            .white {
+                a {
+                    color: #E0E0E0;
+                    text-decoration: none;
+
+                    &:hover {
+                        color: #FFFFFF;
+                        text-decoration: underline;
+                    }
+                }
+            }
         }
     }
 

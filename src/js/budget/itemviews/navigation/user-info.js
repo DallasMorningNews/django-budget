@@ -1,10 +1,12 @@
 define([
     'backbone',
     'marionette',
+    'common/settings',
     'common/tpl',
 ], function(
     Backbone,
     Mn,
+    settings,
     tpl
 ) {
     return Mn.ItemView.extend({
@@ -17,6 +19,7 @@ define([
         serializeData: function() {
             return {
                 currentUser: this.options.currentUser,
+                links: settings.navigationLinks,
             };
         },
     });

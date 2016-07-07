@@ -213,6 +213,25 @@ define(['underscore'], function(_) {
                 },
             },
 
+            navigationLinks: [
+                {
+                    name: 'Home',
+                    destination: '/',
+                },
+                {
+                    name: 'The Daily',
+                    destination: '/print/',
+                },
+                {
+                    name: 'Add item',
+                    destination: '/edit/',
+                },
+                {
+                    name: 'Headlines',
+                    destination: '/headlines/',
+                },
+            ],
+
             pollInterval: 20 * 1000,
 
             printPlacementTypes: [
