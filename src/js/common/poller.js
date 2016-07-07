@@ -103,8 +103,14 @@ define(
                 }
             },
 
-            resume: function() {
+            resume: function(options) {
+                var opts = options || {muteConsole: null},
+                    muteConsole = (_.isBoolean(opts.muteConsole)) ? opts.muteConsole : false;
+
                 if (!this.isPolling) {
+                    if (!muteConsole) {
+                        console.log('[poller] Polling resumed.');  // eslint-disable-line no-console
+                    }
                     this.commencePolling();
                 }
             },
