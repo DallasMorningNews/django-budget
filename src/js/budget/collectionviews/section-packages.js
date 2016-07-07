@@ -18,10 +18,12 @@ define([
             return {
                 allSections: this.options.allSections,
                 hubConfigs: this.options.hubConfigs,
+                printPublications: this.options.printPublications,
             };
         },
 
         initialize: function() {
+            this._poller = this.options.poller;
             this.collection.on('setPrimary', this.onCollectionChange.bind(this));
         },
 

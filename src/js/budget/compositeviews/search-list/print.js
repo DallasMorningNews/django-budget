@@ -215,6 +215,8 @@ define([
                             hubConfigs: this.options.data.hubs,
                             ignoredIDs: _.first(sectionIDs, _.indexOf(sectionIDs, section.id)),
                             sectionConfig: section,
+                            printPublications: this.options.data.printPublications,
+                            poller: this._poller,
                         });
                     }.bind(this)
                 ).value();
