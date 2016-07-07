@@ -31,6 +31,12 @@ define([
             'click @ui.button': 'onButtonClick',
         },
 
+        initialize: function(options) {
+            if (_.has(options, 'model')) {
+                this.model = this.options.model;
+            }
+        },
+
         // className: 'center-content',
         // regions: {
         //     filters: "#filters",

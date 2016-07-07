@@ -1889,10 +1889,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 cachedPrintSections = _.clone(this.model.get('printSection'));
 
             // TODO(ajv): Remove this line when 'pubDate' has been deprecated.
-            this.model.set('pubDate', this.model.get('publishDate')[1]);
+            // this.model.set('pubDate', this.model.get('publishDate')[1]);
 
             // TODO(ajv): Remove this line when 'publishedUrl' is no longer required.
-            this.model.set('publishedUrl', 'http://www.dallasnews.com/');
+            // this.model.set('publishedUrl', 'http://www.dallasnews.com/');
 
             packageSave = this.model.save(
                 undefined,
@@ -1907,7 +1907,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             packageSave.done(function(mdl, resp, opts) {  // eslint-disable-line no-unused-vars
                 var packageID = mdl.id,
                     primaryContentSave,
-                    allSaveRequests = [primaryContentSave];
+                    allSaveRequests = [primaryContentSave],
+                    wasCreated = (opts.statusText.toLowerCase() === 'created');
 
                 // Restore the print sections that were cached on save -- for
                 // some reason, they revert to their old values in the
@@ -1975,7 +1976,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 });
 
                 $.when.apply($, allSaveRequests).done(function() {
-                    savePromise.resolve();
+                    savePromise.resolve(wasCreated);
                 }.bind(this));  // eslint-disable-line no-extra-bind
             }.bind(this));
 
@@ -2031,9 +2032,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             allComponentsSave = this.saveAllComponents();
 
-            allComponentsSave.done(function() {
+            allComponentsSave.done(function(wasCreated) {
                 setTimeout(function() {
-                    this.saveSuccessCallback('saveOnly');
+                    this.saveSuccessCallback('saveOnly', wasCreated);
 
                     // this.saveErrorCallback('saveOnly', 'processingError', [requestParams[0]]);
                 }.bind(this), 1500);
@@ -2097,9 +2098,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             allComponentsSave = this.saveAllComponents();
 
-            allComponentsSave.done(function() {
+            allComponentsSave.done(function(wasCreated) {
                 setTimeout(function() {
-                    this.saveSuccessCallback('saveAndContinue');
+                    this.saveSuccessCallback('saveAndContinue', wasCreated);
                     // this.saveErrorCallback(
                     //     'saveAndContinue',
                     //     'processingError',
@@ -2122,15 +2123,14 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
         },
 
         deleteEntirePackage: function() {
-            var serializedForm = this.serializeForm(),
-                dbPrimarySlug,
+            var dbPrimarySlug,
                 currentPrimarySlug,
                 itemSlugEndings,
                 itemsToDelete,
                 deleteConfirmationModal = {
                     modalTitle: 'Are you sure?',
                     innerID: 'additional-delete-confirmation-modal',
-                    contentClassName: 'package-modal',
+                    contentClassName: 'package-modal deletion-modal',
                     escapeButtonCloses: false,
                     overlayClosesOnClick: false,
                     buttons: [
@@ -2140,8 +2140,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                                             'delete-trigger',
                             innerLabel: 'Delete',
                             clickCallback: function(modalContext) {
-                                var toDeleteDict = {packageID: this.model.id},
-                                    $el = modalContext.$el;
+                                var $el = modalContext.$el,
+                                    deleteRequest;
 
                                 $el.parent()
                                     .addClass('waiting-transition')
@@ -2176,29 +2176,26 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                                                 .removeClass('delete-waiting-transition');
                                 }, 500);
 
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '',  // BBTODO
-                                    contentType: 'application/json; charset=utf-8',
-                                    data: JSON.stringify(toDeleteDict),
-                                    processData: false,
-                                    success: function(data) {
-                                        setTimeout(function() {
-                                            if (data.success) {
-                                                this.deleteSuccessCallback(data);
-                                            } else {
-                                                this.deleteErrorCallback('processingError', [data]);
-                                            }
-                                        }.bind(this), 1500);
-                                    }.bind(this),
-                                    error: function(jqXHR, textStatus, errorThrown) {
-                                        this.deleteErrorCallback(
-                                            'hardError',
-                                            [jqXHR, textStatus, errorThrown]
-                                        );
-                                    }.bind(this),
-                                    dataType: 'json',
+                                deleteRequest = this.model.destroy({
+                                    xhrFields: {
+                                        withCredentials: true,
+                                    },
                                 });
+
+                                // eslint-disable-next-line no-unused-vars
+                                deleteRequest.done(function(mdl, resp, opts) {
+                                    setTimeout(function() {
+                                        this.deleteSuccessCallback(resp);
+                                    }.bind(this), 1500);
+                                }.bind(this));
+
+                                // eslint-disable-next-line no-unused-vars
+                                deleteRequest.fail(function(response, errorText) {
+                                    this.deleteErrorCallback(
+                                        'hardError',
+                                        [response, errorText]
+                                    );
+                                }.bind(this));
                             }.bind(this),
                         },
                         {
@@ -2212,86 +2209,68 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     ],
                 };
 
-            if (_.isNull(serializedForm)) {
-                this.raiseFormErrors();
-            } else {
-                dbPrimarySlug = this.model.primaryContentItem.get('slug');
-                currentPrimarySlug = this.ui.packageTitle.text();
-                itemSlugEndings = _.map(
-                    // TODO: Change this to reflect 'additionalContent' is now a collection.
-                    this.model.get('additionalContent'),
-                    function(additionalItem) {
-                        return _.last(
-                            additionalItem.slug.split(
-                                dbPrimarySlug + '.'
-                            )
-                        );
+            dbPrimarySlug = this.model.primaryContentItem.get('slug');
+            currentPrimarySlug = this.ui.packageTitle.text();
+            itemSlugEndings = _.map(
+                // TODO: Change this to reflect 'additionalContent' is now a collection.
+                this.model.get('additionalContent'),
+                function(additionalItem) {
+                    return _.last(
+                        additionalItem.slug.split(
+                            dbPrimarySlug + '.'
+                        )
+                    );
+                }
+            );
+
+            itemSlugEndings.unshift('');
+
+            itemsToDelete = '<ul class="to-be-deleted-list">' + _.chain(
+                _.map(
+                    itemSlugEndings,
+                    function(slugEnding) {
+                        var slugSuffix = '';
+
+                        if (slugEnding !== '') {
+                            slugSuffix = '.' + slugEnding;
+                        }
+
+                        return currentPrimarySlug + slugSuffix;
                     }
-                );
-
-                itemSlugEndings.unshift('');
-
-                // var itemSlugs = _.map(
-                //         itemSlugEndings,
-                //         function(slugEnding) {
-                //             var slugSuffix = '';
-                //
-                //             if (slugEnding !== '') {
-                //                 slugSuffix = '.' + slugEnding;
-                //             }
-                //
-                //             return currentPrimarySlug + slugSuffix;
-                //         }
-                //     );
-
-
-                itemsToDelete = '<ul class="to-be-deleted-list">' + _.chain(
-                    _.map(
-                        itemSlugEndings,
-                        function(slugEnding) {
-                            var slugSuffix = '';
-
-                            if (slugEnding !== '') {
-                                slugSuffix = '.' + slugEnding;
-                            }
-
-                            return currentPrimarySlug + slugSuffix;
-                        }
-                    )
                 )
-                    .map(
-                        function(additionalSlug) {
-                            return '<li class="to-be-deleted-item">' + additionalSlug + '</li>';
-                        }
-                    )
-                    .reduce(
-                        function(memo, num) { return memo + num; },
-                        ''
-                    )
-                    .value() + '</ul>';
+            )
+                .map(
+                    function(additionalSlug) {
+                        return '<li class="to-be-deleted-item">' + additionalSlug + '</li>';
+                    }
+                )
+                .reduce(
+                    function(memo, num) { return memo + num; },
+                    ''
+                )
+                .value() + '</ul>';
 
-                deleteConfirmationModal.extraHTML = '' +
-                    '<p class="delete-confirmation-text">' +
-                        'You are about to delete the following budgeted content:' +
-                    '</p>' +
-                    itemsToDelete +
-                    '<p class="delete-confirmation-text">' +
-                        'Items can&rsquo;t be recovered once they&rsquo;ve been ' +
-                        'deleted.' +
-                    '</p>' +
-                    '<p class="delete-confirmation-text">' +
-                        'If you&rsquo;re sure you want to delete this item, ' +
-                        'click the ' +
-                        '<span class="button-text-inline">delete</span> button ' +
-                        'below.' +
-                    '</p>';
+            deleteConfirmationModal.extraHTML = '' +
+                '<p class="delete-confirmation-text">' +
+                    'You are about to delete the following budgeted content:' +
+                '</p>' +
+                itemsToDelete +
+                '<p class="delete-confirmation-text">' +
+                    'Items can&rsquo;t be recovered once they&rsquo;ve been ' +
+                    'deleted.' +
+                '</p>' +
+                '<p class="delete-confirmation-text">' +
+                    'If you&rsquo;re sure you want to delete this item, ' +
+                    'click the ' +
+                    '<span class="button-text-inline">delete</span> button ' +
+                    'below.' +
+                '</p>';
 
-                this.modalView = new ModalView({modalConfig: deleteConfirmationModal});
+            this.modalView = new ModalView({modalConfig: deleteConfirmationModal});
 
-                setTimeout(function() {
-                    this._radio.commands.execute('showModal', this.modalView);
-                }.bind(this), 200);
-            }
+            setTimeout(function() {
+                this._radio.commands.execute('showModal', this.modalView);
+            }.bind(this), 200);
         },
 
 
@@ -2334,7 +2313,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
          *   Save & delete callbacks.
          */
 
-        deleteSuccessCallback: function(data) {  // eslint-disable-line no-unused-vars
+        deleteSuccessCallback: function(response) {  // eslint-disable-line no-unused-vars
             // Close this popup and destroy it.
             setTimeout(function() {
                 this._radio.commands.execute('destroyModal');
@@ -2372,7 +2351,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             );
         },
 
-        saveSuccessCallback: function(mode, data) {
+        saveSuccessCallback: function(mode, wasCreated) {
             // Configure success-message snackbar.
             var successSnackbarOpts = {
                 snackbarClass: 'success',
@@ -2390,10 +2369,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             if (mode === 'saveOnly') {
                 this._radio.commands.execute('navigate', this.priorPath, {trigger: true});
             } else if (mode === 'saveAndContinue') {
-                if (_.isUndefined(this.model)) {
+                if (wasCreated) {
                     this._radio.commands.execute(
                         'navigate',
-                        'edit/' + data.packageID + '/',
+                        'edit/' + this.model.id + '/',
                         {trigger: true}
                     );
                 }

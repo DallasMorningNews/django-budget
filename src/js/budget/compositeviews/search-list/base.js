@@ -62,6 +62,7 @@ define([
             return {
                 currentUser: this.options.currentUser,
                 hubConfigs: this.options.data.hubs,
+                printPublications: this.options.data.printPublications,
             };
         },
 
