@@ -226,10 +226,10 @@ define(['underscore'], function(_) {
                     name: 'Add item',
                     destination: '/edit/',
                 },
-                {
-                    name: 'Headlines',
-                    destination: '/headlines/',
-                },
+                // {
+                //     name: 'Headlines',
+                //     destination: '/headlines/',
+                // },
             ],
 
             pollInterval: 20 * 1000,
