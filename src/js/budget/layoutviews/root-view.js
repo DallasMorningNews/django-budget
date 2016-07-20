@@ -4,7 +4,7 @@ define([
     'underscore',
     'vex',
     'common/tpl',
-    'budget/layoutviews/navbar'
+    'budget/layoutviews/navbar',
 ], function(
     Backbone,
     Mn,
@@ -27,31 +27,32 @@ define([
         },
 
         initialize: function() {
-            var _radio = Backbone.Wreqr.radio.channel('global');
+            this._radio = Backbone.Wreqr.radio.channel('global');
 
             this.navbarView = new NavbarView({
-                currentUser: this.options.currentUser
+                currentUser: this.options.currentUser,
             });
 
-            _radio.commands.setHandler('switchMainView', function(MainViewClass, boundData) {
+            this._radio.commands.setHandler('switchMainView', function(MainViewClass, boundData) {
                 var classConstructor = {
                     currentUser: this.options.currentUser,
                     data: this.options.data,
                     state: this.options.state,
                     initFinishedCallback: function(childView) {
+                        childView.isAttached = true;  // eslint-disable-line no-param-reassign
                         this.showChildView('mainContent', childView);
-                    }.bind(this)
+                    }.bind(this),
                 };
 
-                if (typeof(boundData) != "undefined") {
+                if (typeof(boundData) !== 'undefined') {
                     if (_.has(boundData, 'collection')) {
                         classConstructor.collection = boundData.collection;
-                        delete boundData.collection;
+                        delete boundData.collection;  // eslint-disable-line no-param-reassign
                     }
 
                     if (_.has(boundData, 'model')) {
                         classConstructor.model = boundData.model;
-                        delete boundData.model;
+                        delete boundData.model;  // eslint-disable-line no-param-reassign
                     }
 
                     if (!_.isEmpty(boundData)) {
@@ -62,7 +63,7 @@ define([
                 this.mainView = new MainViewClass(classConstructor);
             }, this);
 
-            _radio.commands.setHandler('showModal', function(modalView) {
+            this._radio.commands.setHandler('showModal', function(modalView) {
                 var vexConfig,
                     viewConfig = modalView.options.modalConfig;
 
@@ -109,23 +110,23 @@ define([
                 this.modal = vex.open(vexConfig);
             }, this);
 
-            _radio.commands.setHandler('showSnackbar', function(snackbarView) {
+            this._radio.commands.setHandler('showSnackbar', function(snackbarView) {
                 this.snackbarView = snackbarView;
 
                 this.showChildView('snackbarHolder', this.snackbarView);
             }, this);
 
-            _radio.commands.setHandler('destroyModal', function() {
+            this._radio.commands.setHandler('destroyModal', function() {
                 vex.close(this.modal.data().vex.id);
             }, this);
 
-            _radio.commands.setHandler('clearRegion', function(regionSlug) {
-                app.rootView[regionSlug].reset();
-            });
+            this._radio.commands.setHandler('clearRegion', function(regionSlug) {
+                this[regionSlug].reset();
+            }, this);
         },
 
         onRender: function() {
             this.showChildView('navbar', this.navbarView);
-        }
+        },
     });
 });

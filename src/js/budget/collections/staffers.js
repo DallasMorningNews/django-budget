@@ -3,7 +3,7 @@ define(
         'backbone',
         'underscore',
         'common/settings',
-        'budget/models/staffer'
+        'budget/models/staffer',
     ],
     function(
         Backbone,
@@ -34,12 +34,12 @@ define(
             // },
 
             url: function() {
-                return settings.apiEndpoints.GET.staffer.list;
+                return settings.apiEndpoints.staffer;
             },
 
             parse: function(response) {
                 return response;
-            }
+            },
         });
     }
 );

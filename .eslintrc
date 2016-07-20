@@ -1,0 +1,16 @@
+{
+    "extends": "airbnb-base/legacy",
+    "root": true,
+    "rules": {
+        "indent": ["error", 4],
+        "space-before-function-paren": ["error", "never"],
+        "func-names": "off",
+        "comma-dangle": ["error", "always-multiline"],
+        "object-curly-spacing": ["error", "never"],
+        "no-underscore-dangle": ["error", {"allowAfterThis": true}],
+        "one-var": ["error", "always"],
+    },
+    "env": {
+        "amd": true,
+    }
+}

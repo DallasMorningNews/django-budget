@@ -3,7 +3,7 @@ define(
         'backbone',
         'underscore',
         'common/settings',
-        'budget/models/hub'
+        'budget/models/hub',
     ],
     function(
         Backbone,
@@ -29,17 +29,12 @@ define(
             },
 
             url: function() {
-                return settings.apiEndpoints.GET.hub.list;
+                return settings.apiEndpoints.hub;
             },
 
             parse: function(response) {
-                // window.resp = response;
-                // response.posts = _.map(response.posts, function(post) {
-                //     post.updated = new Date(post.updated);
-                //     return post;
-                // });
                 return response;
-            }
+            },
         });
     }
 );

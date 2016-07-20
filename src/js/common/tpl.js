@@ -1,18 +1,17 @@
 define(
     [
         'nunjucks',
-        'templates'
+        'templates',
     ],
     function() {
         'use strict';
 
-        var env = new nunjucks.Environment();
-
-        var _string_ = require('underscore.string');
+        var env = new nunjucks.Environment(),  // eslint-disable-line no-undef
+            stringFn = require('underscore.string');  // eslint-disable-line global-require,import/no-unresolved,max-len
 
         // Add 'numberWithCommas' filter.
         env.addFilter('numberWithCommas', function(rawNumber) {
-            return _string_.numberFormat(rawNumber);
+            return stringFn.numberFormat(rawNumber);
         });
 
         /**
@@ -28,6 +27,5 @@ define(
                 return env.render(name, context);
             };
         };
-
     }
 );

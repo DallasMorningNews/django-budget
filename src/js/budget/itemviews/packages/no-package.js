@@ -1,7 +1,7 @@
 define(
     [
         'marionette',
-        'common/tpl'
+        'common/tpl',
     ],
     function(
         Mn,

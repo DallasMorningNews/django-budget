@@ -3,7 +3,7 @@ define(
         'backbone',
         'underscore',
         'common/settings',
-        'budget/models/query-term'
+        'budget/models/query-term',
     ],
     function(
         Backbone,
@@ -26,21 +26,16 @@ define(
              */
             comparator: function(model) {
                 var optionTypeWeights = {
-                    'person': 2,
-                    'hub': 1,
-                    'vertical': 0
+                    person: 2,
+                    hub: 1,
+                    vertical: 0,
                 };
                 return optionTypeWeights[model.get('type')] + '_' + model.get('value');
             },
 
             parse: function(response) {
-                // window.resp = response;
-                // response.posts = _.map(response.posts, function(post) {
-                //     post.updated = new Date(post.updated);
-                //     return post;
-                // });
                 return response;
-            }
+            },
         });
     }
 );

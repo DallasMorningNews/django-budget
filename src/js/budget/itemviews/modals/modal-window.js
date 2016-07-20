@@ -1,11 +1,13 @@
 define([
     'backbone',
+    'jquery',
     'marionette',
     'selectize',
     'underscore',
-    'common/tpl'
+    'common/tpl',
 ], function(
     Backbone,
+    $,
     Mn,
     selectize,
     _,
@@ -27,6 +29,12 @@ define([
         events: {
             'mousedown @ui.button': 'addButtonClickedClass',
             'click @ui.button': 'onButtonClick',
+        },
+
+        initialize: function(options) {
+            if (_.has(options, 'model')) {
+                this.model = this.options.model;
+            }
         },
 
         // className: 'center-content',
@@ -57,14 +65,13 @@ define([
         },
 
         onButtonClick: function(event) {
-            var thisEl = $(event.currentTarget);
-
-            var modalConfig = _.findWhere(
-                this.options.modalConfig.buttons,
-                {
-                    buttonID: thisEl.attr('id')
-                }
-            );
+            var thisEl = $(event.currentTarget),
+                modalConfig = _.findWhere(
+                    this.options.modalConfig.buttons,
+                    {
+                        buttonID: thisEl.attr('id'),
+                    }
+                );
 
             modalConfig.clickCallback(this);
         },

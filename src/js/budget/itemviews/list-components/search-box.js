@@ -2,14 +2,16 @@ define([
     'backbone',
     'marionette',
     'selectize',
+    'underscore',
     'common/settings',
     'common/tpl',
     'budget/collections/search-options',
-    'budget/models/search-option'
+    'budget/models/search-option',
 ], function(
     Backbone,
     Mn,
     selectize,
+    _,
     settings,
     tpl,
     SearchOptionCollection,
@@ -19,7 +21,7 @@ define([
         template: tpl('packages-list-searchbox'),
 
         ui: {
-            searchBox: '#package-search-box'
+            searchBox: '#package-search-box',
         },
 
         initialize: function() {
@@ -27,6 +29,9 @@ define([
         },
 
         onRender: function() {
+            var commonQueryTerms,
+                selectizeObj;
+
             this._radio = Backbone.Wreqr.radio.channel('global');
 
             this.generateSearchOptions();
@@ -40,20 +45,21 @@ define([
                     setTimeout(
                         function() {
                             this.ui.searchBox[0].selectize.close();
-                            this.ui.searchBox.parent().find('.selectize-dropdown').removeClass('super-hidden');
+                            this.ui.searchBox.parent().find('.selectize-dropdown')
+                                                        .removeClass('super-hidden');
                         }.bind(this),
                         75
                     );
 
                     return {
                         name: input,
-                        value: input
+                        value: input,
                     };
                 }.bind(this),
                 hideSelected: true,
                 valueField: 'value',
                 labelField: 'name',
-                searchField: ['name',],
+                searchField: ['name'],
                 selectOnTab: true,
                 closeAfterSelect: true,
                 options: this.searchOptions.toJSON(),
@@ -63,21 +69,28 @@ define([
                 optgroups: [
                     {name: 'People', value: 'person', $order: 2},
                     {name: 'Hubs', value: 'hub', $order: 3},
-                    {name: 'Verticals', value: 'vertical', $order: 4}
+                    {name: 'Verticals', value: 'vertical', $order: 4},
+                    {name: 'Content types', value: 'contentType', $order: 5},
                 ],
                 lockOptgroupOrder: true,
                 addPrecedence: false,
                 render: {
-                    item: function(data, escape) {
+                    item: function(data, escape) {  // eslint-disable-line no-unused-vars
                         var dataType = 'fullText';
-                        if (typeof(data.type) != "undefined") {
+                        if (typeof(data.type) !== 'undefined') {
                             dataType = data.type;
                         }
-                        return '<div data-value="' + data.value + '" data-type="' + dataType + '" class="item">' + data.name + '</div>';
+
+                        return '<div data-value="' + data.value + '" data-type="' +
+                                    dataType + '" class="item">' +
+                                    data.name +
+                                '</div>';
                     },
                     option_create: function(data, escape) {
-                        return '<div class="create">Search all content for <strong>"' + escape(data.input) + '"</strong>&hellip;</div>';
-                    }
+                        return '<div class="create">Search all content for <strong>"' +
+                                    escape(data.input) +
+                                '"</strong>&hellip;</div>';
+                    },
                 },
                 onItemAdd: function(value, $item) {
                     var additionalParam = {};
@@ -100,7 +113,7 @@ define([
                 // preload: true
             });
 
-            var commonQueryTerms = this._radio.reqres.request(
+            commonQueryTerms = this._radio.reqres.request(
                 'getState',
                 this.options.stateKey,
                 'queryTerms'
@@ -111,38 +124,39 @@ define([
                 // Nota bene: I'm doing this manually, rather than by
                 // specifying an 'items' array, because the latter way won't
                 // let you add created (in our case, full-text search) options.
-                var selectizeObj = this.ui.searchBox[0].selectize;
+                selectizeObj = this.ui.searchBox[0].selectize;
 
                 selectizeObj.off('item_add');
 
                 commonQueryTerms.each(function(term, i) {
-                    if (term.get('type') == 'fullText') {
+                    if (term.get('type') === 'fullText') {
                         selectizeObj.createItem(term.get('value'), false);
                     } else {
                         selectizeObj.addItem(term.get('value'), true);
                     }
 
-                    if (i + 1 == commonQueryTerms.length) {
+                    if (i + 1 === commonQueryTerms.length) {
                         selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
                     }
-                }.bind(this));
+                }.bind(this));  // eslint-disable-line no-extra-bind
             }
         },
 
         generateSearchOptions: function() {
             var rawOptions = {
                     hubs: [],
-                    verticals: []
+                    verticals: [],
+                    contentTypes: [],
                 },
                 addedVerticals = [];
 
             rawOptions.staffers = this.options.data.staffers.map(
-                function(staffer, idx) {
+                function(staffer, idx) {  // eslint-disable-line no-unused-vars
                     return new SearchOption({
                         name: staffer.get('fullName'),
                         value: staffer.get('email'),
                         type: 'person',
-                        sortKey: staffer.get('lastName')
+                        sortKey: staffer.get('lastName'),
                     });
                 }
             );
@@ -154,8 +168,8 @@ define([
                     rawOptions.hubs.push(
                         new SearchOption({
                             name: hub.get('name'),
-                            value: hub.get('slug'),
-                            type: 'hub'
+                            value: hub.get('slug') + '.hub',
+                            type: 'hub',
                         })
                     );
 
@@ -165,37 +179,51 @@ define([
                         rawOptions.verticals.push(
                             new SearchOption({
                                 name: vertical.name,
-                                value: vertical.slug,
-                                type: 'vertical'
+                                value: vertical.slug + '.v',
+                                type: 'vertical',
                             })
                         );
                     }
                 }
             );
 
+            _.each(settings.contentTypes, function(typeConfig, slug) {
+                rawOptions.contentTypes.push(
+                    new SearchOption({
+                        name: typeConfig.verboseName,
+                        value: slug + '.ct',
+                        type: 'contentType',
+                    })
+                );
+            });
+
             this.searchOptions.comparator = function(item1, item2) {
                 var optionType1 = item1.get('type'),
-                    optionType2 = item2.get('type');
+                    optionType2 = item2.get('type'),
+                    typeRanking1,
+                    typeRanking2,
+                    optionValue1,
+                    optionValue2;
 
-                if (optionType1 != optionType2) {
-                    var typeRanking1 = settings.typeRankingIndex[optionType1],
-                        typeRanking2 = settings.typeRankingIndex[optionType2];
+                if (optionType1 !== optionType2) {
+                    typeRanking1 = settings.typeRankingIndex[optionType1];
+                    typeRanking2 = settings.typeRankingIndex[optionType2];
 
                     return (typeRanking1 > typeRanking2) ? 1 : -1;
-                } else {
-                    var optionValue1 = item1.get('value').toLowerCase(),
-                        optionValue2 = item2.get('value').toLowerCase();
-
-                    if (item1.has('sortKey')) {
-                        optionValue1 = item1.get('sortKey').toLowerCase();
-                    }
-
-                    if (item2.has('sortKey')) {
-                        optionValue2 = item2.get('sortKey').toLowerCase();
-                    }
-
-                    return (optionValue1 > optionValue2) ? 1 : -1;
                 }
+
+                optionValue1 = item1.get('value').toLowerCase();
+                optionValue2 = item2.get('value').toLowerCase();
+
+                if (item1.has('sortKey')) {
+                    optionValue1 = item1.get('sortKey').toLowerCase();
+                }
+
+                if (item2.has('sortKey')) {
+                    optionValue2 = item2.get('sortKey').toLowerCase();
+                }
+
+                return (optionValue1 > optionValue2) ? 1 : -1;
             };
 
             this.searchOptions.reset();
@@ -203,6 +231,7 @@ define([
             this.searchOptions.add(rawOptions.staffers);
             this.searchOptions.add(rawOptions.hubs);
             this.searchOptions.add(rawOptions.verticals);
-        }
+            this.searchOptions.add(rawOptions.contentTypes);
+        },
     });
 });

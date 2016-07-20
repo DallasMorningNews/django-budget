@@ -1,3 +1,13 @@
+// Roboto font
+@if not $offline {
+    @import url(http://fonts.googleapis.com/css?family=Roboto);
+}
+
+// FontAwesome
+$fa-font-path: "../fonts/font-awesome";
+@import "../../bower_components/font-awesome/scss/font-awesome";
+
+
 body {
     font-family: 'Roboto', sans-serif;
 

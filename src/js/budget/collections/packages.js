@@ -2,13 +2,15 @@ define(
     [
         'backbone',
         'lunr',
+        'moment',
         'underscore',
         'common/settings',
-        'budget/models/package'
+        'budget/models/package',
     ],
     function(
         Backbone,
         lunr,
+        moment,
         _,
         settings,
         Package
@@ -38,18 +40,19 @@ define(
             },
 
             combineAdditionalItemValues: function(model, field, fieldFormat) {
-                return _.chain(model.get('additionalContent'))
-                            .pluck(field)
-                            .reduce(
-                                function(memo, value) {
-                                    var finalValue = value;
-                                    if (!_.isUndefined(fieldFormat)) {
-                                        finalValue = fieldFormat(finalValue);
-                                    }
+                return _.chain(
+                        model.additionalContentCollection.pluck(field)
+                    ).reduce(
+                        function(memo, value) {
+                            var finalValue = value;
+                            if (!_.isUndefined(fieldFormat)) {
+                                finalValue = fieldFormat(finalValue);
+                            }
 
-                                    return memo + ' ' + finalValue;
-                                }
-                            ).value();
+                            return memo + ' ' + finalValue;
+                        }
+                    )
+                    .value();
             },
 
             rebuildIndex: function() {
@@ -81,11 +84,11 @@ define(
                             pkg,
                             'budgetLine'
                         ),
-                        primarySlug: pkg.get('primaryContent').slug,
+                        primarySlug: pkg.primaryContentItem.get('slug'),
                         primarySlugCleaned: this.cleanSlug(
-                            pkg.get('primaryContent').slug
+                            pkg.primaryContentItem.get('slug')
                         ),
-                        primaryBudgetLine: pkg.get('primaryContent').budgetLine,
+                        primaryBudgetLine: pkg.primaryContentItem.get('budgetLine'),
                     });
                 }.bind(this));
             },
@@ -93,7 +96,7 @@ define(
             filterAnd: function(queryTerms, extraContext) {
                 this.queryFiltered = this.filter(function(pkg) {
                     return pkg.filterUsingAnd(queryTerms, extraContext);
-                }.bind(this));
+                }.bind(this));  // eslint-disable-line no-extra-bind
 
                 this.trigger('updateQuery', this.queryFiltered);
             },
@@ -101,7 +104,7 @@ define(
             filterOr: function(searchTerms, extraContext) {
                 this.queryFiltered = this.filter(function(pkg) {
                     return pkg.filterUsingOr(searchTerms, extraContext);
-                }.bind(this));
+                }.bind(this));  // eslint-disable-line no-extra-bind
 
                 this.trigger('updateQuery', this.queryFiltered);
             },
@@ -110,18 +113,14 @@ define(
              * Sort the collection by pinned status first (pinned on top) then by
              * created timestamp in reverse chronological order
              */
+            // BBTODO: Change this to reflect the loss of timestamps.
             comparator: function(model) {
-                return model.get('pubDate').timestamp;
+                return moment(model.get('publishDate')[1]).unix();
             },
 
             parse: function(response) {
-                // window.resp = response;
-                // response.posts = _.map(response.posts, function(post) {
-                //     post.updated = new Date(post.updated);
-                //     return post;
-                // });
-                return response;
-            }
+                return response.results;
+            },
         });
     }
 );

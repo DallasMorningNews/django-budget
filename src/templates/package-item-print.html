@@ -1,4 +1,4 @@
-<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageIsReady }}">
+<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row{% if hasPrimary %} has-primary{% endif %}" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageIsReady }}">
 
     <div class="minimal-card column small-11 medium-11 large-11">
         {% if packageObj %}{% if packageObj.URL %}<a href="{{ packageObj.URL }}" target="_blank">{% endif %}{% endif %}
@@ -12,7 +12,7 @@
         <div class="slug-bar row">
             <div class="date-slug-budget-line column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
-                <h2 class="date-header">{{ formattedPrintRunDate }}{% if not packageObj.printPlacement.isFinalized %} (planned){% endif %}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if formattedPrintPlacements|length > 0 %}{% for placement in formattedPrintPlacements %}{{ placement.verboseName }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}</h2>
+                <h2 class="date-header">{{ formattedPrintRunDate }}{% if not packageObj.printPlacement.isFinalized %} (planned){% endif %}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if formattedPrintPlacements|length > 0 %}{% for placement in formattedPrintPlacements %}{{ placement }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}</h2>
                 <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.slug }}</h1>
                 <h4 class="budget-line-truncated might-overflow">{{ packageObj.primaryContent.budgetLine }}</h4>
             </div>

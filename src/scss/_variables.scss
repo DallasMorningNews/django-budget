@@ -10,3 +10,7 @@ $max-content-width: 800px;
 
 $mf-delete-action-color: #D9534F;
 $mf-save-action-color: #0185D3;
+
+@if not variable-exists(offline) {
+    $offline: false;
+}

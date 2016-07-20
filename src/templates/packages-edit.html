@@ -1,7 +1,7 @@
 <div class="center-content">
     <div class="edit-bar">
         <div class="button-holder">
-            {% if packageData %}<div class="delete-trigger button flat-button"><span>Delete</span></div>{% endif %}
+            <div class="delete-trigger button flat-button"><span>Delete</span></div>
             <div class="primary-action save-trigger button flat-button"><span>Save</span></div>
             <div class="save-and-continue-editing-trigger button flat-button show-for-medium"><span>Save &amp; continue editing</span></div>
             <div class="clearer"></div>
@@ -9,37 +9,35 @@
     </div>
     <div class="single-page">
         <div class="package-header">
-            <div class="color-dot"{% if packageData %} style="background-color: {{ hub.color }};"{% endif %}></div>
-            <h1>{% if packageData %}{{ packageData.primaryContent.slug }}{% else %}Add content{% endif %}</h1>
+            <div class="color-dot"></div>
+            <h1>Add content</h1>
         </div>
         <form id="package-form">
-            <input type="hidden" name="csrfmiddlewaretoken" value="">
-            <input type="hidden" id="package_id" name="package_id" value="{% if packageData %}{{ packageData.id }}{% endif %}" data-form="package">
-            <input type="hidden" id="primary_id" name="primary_id" value="{% if packageData %}{{ packageData.primaryContent.id }}{% endif %}" data-form="primary">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrfToken }}">
 
             <div class="error-message"></div>
 
             <div class="row">
                 <div class="medium-6 columns form-group">
-                    <input id="hub" name="hub" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" isRequired="true" value="{% if packageData %}{{ packageData.hub }}{% endif %}" />
+                    <input id="hub" name="hub" class="to-selectize" type="text" placeholder="Choose an option" autocomplete="off" autocorrect="off" data-form="package" required="" isRequired="true" value="" />
                     <label for="hub" class="control-label">Hub<span class="required-marker">*</span></label>
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
                 <div class="medium-3 columns form-group">
-                    <input id="type" name="type" class="to-selectize" type="text" placeholder="Choose an option" data-form="primary" value="{% if packageData %}{{ packageData.primaryContent.type }}{% endif %}" required="" isRequired="true" />
+                    <input id="type" name="type" class="to-selectize" type="text" placeholder="Choose an option" autocomplete="off" autocorrect="off" data-form="primary" value="" required="" isRequired="true" />
                     <label for="type" class="control-label">Type<span class="required-marker">*</span></label>
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
                 <div class="medium-3 columns form-group variable-attribute-group">
-                    <div class="length-group"{% if packageData %}{% if primaryContentType.usesLengthAttribute %} style="display: block;"{% endif %}{% endif %}>
-                        <input id="length" name="length" data-form="primary" class="form-select-word-count" type="number" value="{% if packageData %}{% if packageData.primaryContent.length %}{{ formattedLength }}{% endif %}{% endif %}" required="" {% if packageData %}{% if not primaryContentType.usesLengthAttribute %}disabled="" {% endif %}{% else %}disabled="" {% endif %}/>
+                    <div class="length-group variable-attribute">
+                        <input id="length" name="length" data-form="primary" class="form-select-word-count" type="number" autocomplete="off" autocorrect="off" value="" required="" />
                         <label for="length" class="control-label">Word count</label>
                         <i class="bar"></i>
                     </div>
 
-                    <div class="request-link-group"{% if packageData %}{% if primaryContentType.usesPitchSystem %} style="display: block;"{% endif %}{% endif %}>
+                    <div class="request-link-group variable-attribute">
                         <div class="request-button-holder">
                             <div class="request-link button flat-button"><a href="{{ visualsRequestURL }}" target="_blank"><span>Request visuals</span></a></div>
                         </div>
@@ -49,19 +47,19 @@
 
             <div class="row">
                 <div class="medium-3 columns form-group">
-                    <input id="pub_date_resolution" name="pub_date_resolution" class="to-selectize" type="text" placeholder="Choose an option" data-form="package" required="" isRequired="true" value="{% if packageData %}{{ packageData.pubDate.resolution }}{% endif %}" />
+                    <input id="pub_date_resolution" name="pub_date_resolution" class="to-selectize" type="text" placeholder="Choose an option" autocomplete="off" autocorrect="off" data-form="package" required="" isRequired="true" />
                     <label for="pub_date_resolution" class="control-label">Time format<span class="required-marker">*</span></label>
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
-                <div class="medium-5 columns form-group pub-date-group"{% if packageData %}{% if packageData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="pub_date" name="pub_date" data-form="package" type="text" id="pubDate" required="" isRequired="true" {% if packageData %}{% if packageData.pubDate.resolution == '' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if packageData %}{% if packageData.pubDate.resolution != '' %}{{ formattedPubDate }}{% endif %}{% endif %}" />
+                <div class="medium-5 columns form-group pub-date-group">
+                    <input id="pub_date" name="pub_date" data-form="package" type="text" autocomplete="off" autocorrect="off" required="" isRequired="true" value="" />
                     <label for="pub_date" class="control-label">Published date<span class="required-marker">*</span></label>
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
-                <div class="medium-4 columns form-group pub-time-group"{% if packageData %}{% if packageData.pubDate.resolution == 't' %} style="display: block;"{% endif %}{% endif %}>
-                    <input id="pub_time" name="pub_time" data-form="package" type="time" id="pubTime" {% if packageData %}{% if packageData.pubDate.resolution != 't' %}disabled="" {% endif %}{% else %}disabled="" {% endif %}value="{% if packageData %}{% if packageData.pubDate.resolution == 't' %}{{ formattedPubTime }}{% endif %}{% endif %}" pattern="\d{2}:\d{2}" />
+                <div class="medium-4 columns form-group pub-time-group">
+                    <input id="pub_time" name="pub_time" data-form="package" type="text" autocomplete="off" autocorrect="off" value="" />
                     <label for="pub_time" class="control-label">Published time&thinsp;*</label>
                     <i class="bar"></i>
                 </div>
@@ -70,10 +68,10 @@
             <div class="row">
                 <div class="medium-12 columns form-group">
                     <div class="slug-group-holder">
-                        <div class="hub-slug-value">{% if packageData %}{{ packageData.hub }}{% else %}hub{% endif %}.</div>
+                        <div class="hub-slug-value">hub.</div>
                         <div class="keyword-group">
-                            <div class="keyword-value">{% if packageData %}{{ packageData.primaryContent.slugKey }}{% else %}keyword{% endif %}</div>
-                            <input id="slug_key" name="slug_key" data-form="primary" type="text" placeholder="keyword" autocomplete="off" {% if packageData %}data-original-value="{{ packageData.primaryContent.slugKey }}" {% endif %}value="{% if packageData %}{{ packageData.primaryContent.slugKey }}{% endif %}" required="" isRequired="true" />
+                            <div class="keyword-value">keyword</div>
+                            <input id="slug_key" name="slug_key" data-form="primary" type="text" placeholder="keyword" autocomplete="off" value="" required="" isRequired="true" />
                         </div>
                         <div class="formatted-date-value">.date</div>
                         <div class="clearer"></div>
@@ -88,8 +86,9 @@
             <div class="row">
                 <!--  -->
                 <div class="medium-12 columns form-group">
-                    <div class="expanding-holder{% if packageData %}{% if packageData.primaryContent.budgetLine %} has-value{% endif %}{% endif %}">
-                        <textarea id="budget_line" name="budget_line" data-form="primary" rows="1" required="" isRequired="true" >{% if packageData %}{{ packageData.primaryContent.budgetLine }}{% endif %}</textarea>
+                    <div id="budget_line_holder" class="expanding-holder">
+                        <textarea id="budget_line" name="budget_line" data-form="primary" rows="1" required="" isRequired="true" ></textarea>
+                        <pre class="budget-spacer"><span></span><br></pre>
                     </div>
                     <label for="budget_line" class="control-label">Budget line<span class="required-marker">*</span></label>
                     <i class="bar"></i>
@@ -99,13 +98,13 @@
 
             <div class="row">
                 <div class="medium-6 columns form-group set-authors">
-                    <input id="authors" name="authors" class="to-selectize staff-select reporter" data-form="primary" type="text" isRequired="true" value="{% if packageData %}{% for author in packageData.primaryContent.authors %}{{ author.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
+                    <input id="authors" name="authors" class="to-selectize staff-select reporter" data-form="primary" type="text" isRequired="true" value="" />
                     <label for="authors" class="control-label">Author(s)<span class="required-marker">*</span></label>
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
                 <div class="medium-6 columns form-group set-editors">
-                    <input id="editors" name="editors" class="to-selectize staff-select editor" data-form="primary" type="text" value="{% if packageData %}{% for editor in packageData.primaryContent.editors %}{{ editor.email }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" />
+                    <input id="editors" name="editors" class="to-selectize staff-select editor" data-form="primary" type="text" value="" />
                     <label for="editors" class="control-label">Editor(s)</label>
                     <i class="bar"></i>
                 </div>
@@ -116,161 +115,77 @@
             </div>
 
             <div class="row can-collapse" data-expand-receiver="headlines">
-                <div class="collapsable-inner">
-                    <div class="extra-headline-spacing"></div>
-                    {% if packageData %}
-                        {% if packageData.headlineStatus == 'voting' %}
-                    <div class="medium-12 columns form-radio">
-                        {% endif %}
-                    {% endif %}
+                <div id="headline-fields" class="collapsable-inner">
+                    <div class="extra-spacing"></div>
 
-                    {% if packageData %}
-                        {% if packageData.headlineCandidates and packageData.headlineStatus == 'finalized' %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[0].id }}" value="{% if packageData.headlineCandidates|length > 0 %}{{ packageData.headlineCandidates[0].text }}{% endif %}" required="" readonly="" />
-                        <label for="headline1" class="control-label">Headline #1</label>
-                        <i class="bar"></i>
+                    <div class="hl-variable-group" data-mode="other">
+                        <div class="medium-6 columns form-group">
+                            <input id="headline1" name="headline1" data-form="package" type="text" value="" required="" />
+                            <label for="headline1" class="control-label">Headline #1</label>
+                            <i class="bar"></i>
+                        </div>
+
+                        <div class="medium-6 columns form-group">
+                            <input id="headline2" name="headline2" data-form="package" type="text" value="" required="">
+                            <label for="headline2" class="control-label">Headline #2</label>
+                            <i class="bar"></i>
+                        </div>
+
+                        <div class="medium-6 columns form-group">
+                            <input id="headline3" name="headline3" data-form="package" type="text" value="" required="" />
+                            <label for="headline3" class="control-label">Headline #3</label>
+                            <i class="bar"></i>
+                        </div>
+
+                        <div class="medium-6 columns form-group">
+                            <input id="headline4" name="headline4" data-form="package" type="text" value="" required="" />
+                            <label for="headline4" class="control-label">Headline #4</label>
+                            <i class="bar"></i>
+                        </div>
+
+                        <div class="clearer"></div>
                     </div>
-                        {% elif packageData.headlineStatus == 'voting' %}
-                            {% if packageData.headlineCandidates|length > 0 %}
+
+                    <div class="hl-variable-group medium-12 columns form-radio" data-mode="voting">
                         <div class="radio">
                             <label>
-                                <input id="headline1" name="headlineChoices" data-form="package" type="radio" value="{{ packageData.headlineCandidates[0].id }}" /><i class="helper"></i><span class="radio-label">{{ packageData.headlineCandidates[0].text }} <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span></span>
+                                <input id="headlineRadio1" name="headlineChoices" data-form="package" type="radio" value="" /><i class="helper"></i><span class="radio-label"> <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span></span>
                             </label>
                         </div>
-                            {% endif %}
-                        {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[0].id }}" value="{% if packageData.headlineCandidates|length > 0 %}{{ packageData.headlineCandidates[0].text }}{% endif %}" required="" />
-                        <label for="headline1" class="control-label">Headline #1</label>
-                        <i class="bar"></i>
-                    </div>
-                        {% endif %}
-                    {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline1" name="headline1" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[0].id }}" value="{% if packageData.headlineCandidates|length > 0 %}{{ packageData.headlineCandidates[0].text }}{% endif %}" required="" />
-                        <label for="headline1" class="control-label">Headline #1</label>
-                        <i class="bar"></i>
-                    </div>
-                    {% endif %}
 
-                    {% if packageData %}
-                        {% if packageData.headlineCandidates and packageData.headlineStatus == 'finalized' %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[1].id }}" value="{% if packageData.headlineCandidates|length > 1 %}{{ packageData.headlineCandidates[1].text }}{% endif %}" required="" readonly="" />
-                        <label for="headline2" class="control-label">Headline #2</label>
-                        <i class="bar"></i>
-                    </div>
-                        {% elif packageData.headlineStatus == 'voting' %}
-                            {% if packageData.headlineCandidates|length > 1 %}
                         <div class="radio">
                             <label>
-                                <input id="headline2" name="headlineChoices" data-form="package" type="radio" value="{{ packageData.headlineCandidates[1].id }}" /><i class="helper"></i><span class="radio-label">{{ packageData.headlineCandidates[1].text }} <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span>
+                                <input id="headlineRadio2" name="headlineChoices" data-form="package" type="radio" value="" /><i class="helper"></i><span class="radio-label"> <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span>
                             </label>
                         </div>
-                            {% endif %}
-                        {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[1].id }}" value="{% if packageData.headlineCandidates|length > 1 %}{{ packageData.headlineCandidates[1].text }}{% endif %}" required="">
-                        <label for="headline2" class="control-label">Headline #2</label>
-                        <i class="bar"></i>
-                    </div>
-                        {% endif %}
-                    {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline2" name="headline2" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[1].id }}" value="{% if packageData.headlineCandidates|length > 1 %}{{ packageData.headlineCandidates[1].text }}{% endif %}" required="">
-                        <label for="headline2" class="control-label">Headline #2</label>
-                        <i class="bar"></i>
-                    </div>
-                    {% endif %}
 
-                    {% if packageData %}
-                        {% if packageData.headlineCandidates and packageData.headlineStatus == 'finalized' %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[2].id }}" value="{% if packageData.headlineCandidates|length > 2 %}{{ packageData.headlineCandidates[2].text }}{% endif %}" required="" readonly="" />
-                        <label for="headline3" class="control-label">Headline #3</label>
-                        <i class="bar"></i>
-                    </div>
-                        {% elif packageData.headlineStatus == 'voting' %}
-                            {% if packageData.headlineCandidates|length > 2 %}
                         <div class="radio">
                             <label>
-                                <input id="headline3" name="headlineChoices" data-form="package" type="radio" value="{{ packageData.headlineCandidates[2].id }}" /><i class="helper"></i><span class="radio-label">{{ packageData.headlineCandidates[2].text }} <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span>
+                                <input id="headlineRadio3" name="headlineChoices" data-form="package" type="radio" value="" /><i class="helper"></i><span class="radio-label"> <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span>
                             </label>
                         </div>
-                            {% endif %}
-                        {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[2].id }}" value="{% if packageData.headlineCandidates|length > 2 %}{{ packageData.headlineCandidates[2].text }}{% endif %}" required="" />
-                        <label for="headline3" class="control-label">Headline #3</label>
-                        <i class="bar"></i>
-                    </div>
-                        {% endif %}
-                    {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline3" name="headline3" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[2].id }}" value="{% if packageData.headlineCandidates|length > 2 %}{{ packageData.headlineCandidates[2].text }}{% endif %}" required="" />
-                        <label for="headline3" class="control-label">Headline #3</label>
-                        <i class="bar"></i>
-                    </div>
-                    {% endif %}
 
-                    {% if packageData %}
-                        {% if packageData.headlineCandidates and packageData.headlineStatus == 'finalized' %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[3].id }}" value="{% if packageData.headlineCandidates|length > 3 %}{{ packageData.headlineCandidates[3].text }}{% endif %}" required="" readonly="" />
-                        <label for="headline4" class="control-label">Headline #4</label>
-                        <i class="bar"></i>
-                    </div>
-                        {% elif packageData.headlineStatus == 'voting' %}
-                            {% if packageData.headlineCandidates|length > 3 %}
                         <div class="radio">
                             <label>
-                                <input id="headline4" name="headlineChoices" data-form="package" type="radio" value="{{ packageData.headlineCandidates[3].id }}" /><i class="helper"></i><span class="radio-label">{{ packageData.headlineCandidates[3].text }} <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span>
+                                <input id="headlineRadio4" name="headlineChoices" data-form="package" type="radio" value="" /><i class="helper"></i><span class="radio-label"> <span class="vote-count">(<span class="vote-total">0</span><span class="percent-sign">%</span>)</span>
                             </label>
                         </div>
-                            {% endif %}
-                        {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[3].id }}" value="{% if packageData.headlineCandidates|length > 3 %}{{ packageData.headlineCandidates[3].text }}{% endif %}" required="" />
-                        <label for="headline4" class="control-label">Headline #4</label>
-                        <i class="bar"></i>
-                    </div>
-                        {% endif %}
-                    {% else %}
-                    <div class="medium-6 columns form-group">
-                        <input id="headline4" name="headline4" data-form="package" type="text" data-headline-id="{{ packageData.headlineCandidates[3].id }}" value="{% if packageData.headlineCandidates|length > 3 %}{{ packageData.headlineCandidates[3].text }}{% endif %}" required="" />
-                        <label for="headline4" class="control-label">Headline #4</label>
-                        <i class="bar"></i>
-                    </div>
-                    {% endif %}
 
-                    {% if packageData %}
-                        {% if packageData.headlineStatus == 'voting' %}
-                        <!-- <div class="radio"> -->
-                            <!-- <label> -->
-                                <!-- <input id="headlineOther" name="headlineChoices" data-form="package" type="radio" value="other" /><i class="helper"></i><span class="radio-label">Other headline</span> -->
-                            <!-- </label> -->
-                        <!-- </div> -->
-                        {% endif %}
-                    {% endif %}
-
-                    {% if packageData %}
-                        {% if packageData.headlineStatus == 'voting' %}
+                        <div class="clearer"></div>
                     </div>
-                        {% endif %}
-                    {% endif %}
 
-                    {% if packageData %}{% if packageData.headlineCandidates %}{% if packageData.headlineStatus == 'drafting' %}
-                    <div class="medium-12 columns checkbox">
+                    <div id="vote-submission-toggle" class="medium-12 columns checkbox">
                         <label>
                             <input id="headlinesReady" name="headlinesReady" data-form="package" type="checkbox" value="ready" /><i class="helper"></i>Submit headlines to a vote
                             <!-- <input type="checkbox" checked="" /><i class="helper"></i>Submit headlines to a vote -->
                         </label>
                     </div>
-                    {% endif %}{% endif %}{% endif %}
+
                     <div class="clearer"></div>
                 </div>
             </div>
+
+            <div class="clearer"></div>
 
             <div class="row collapsible-row-header" data-expand-target="production-notes">
                 <h4>Production notes</h4>
@@ -279,137 +194,152 @@
             <div class="row can-collapse" data-expand-receiver="production-notes">
                 <div class="collapsable-inner">
                     <div class="medium-12 columns notes-reveal form-group">
-                        <div class="expanding-holder{% if packageData %}{% if packageData.notes != '' %} has-value{% endif %}{% endif %}">
-                            <div id="notes-quill" class="quill-holder">
-                                <div class="toolbar-holder">
-                                    <div class="ql-format-group">
-                                        <div class="ql-format-button ql-bold">
-                                            <i class="fa fa-bold"></i>
-                                            <span class="ql-button-explainer">Bold</span>
-                                        </div>
-
-                                        <div class="ql-format-button ql-italic">
-                                            <i class="fa fa-italic"></i>
-                                            <span class="ql-button-explainer">Italic</span>
-                                        </div>
-
-                                        <div class="ql-format-button ql-underline">
-                                            <i class="fa fa-underline"></i>
-                                            <span class="ql-button-explainer">Underline</span>
-                                        </div>
-
-                                        <div class="ql-format-button ql-strike">
-                                            <i class="fa fa-strikethrough"></i>
-                                            <span class="ql-button-explainer">Strikethrough</span>
-                                        </div>
-
-                                        <div class="ql-format-separator"></div>
-                                    </div>
-                                    <div class="ql-format-group dropdowns-group">
-                                        <select class="ql-size">
-                                            <option value="8px">8px</option>
-                                            <option value="9px">9px</option>
-                                            <option value="10px">10px</option>
-                                            <option value="11px">11px</option>
-                                            <option value="12px" selected="">12px</option>
-                                            <option value="13px">13px</option>
-                                            <option value="14px">14px</option>
-                                            <option value="16px">16px</option>
-                                            <option value="18px">18px</option>
-                                            <option value="24px">24px</option>
-                                            <option value="30px">30px</option>
-                                            <option value="36px">36px</option>
-                                        </select>
-
-                                        <div class="ql-button-explainer">Font size</div>
-
-                                        <select class="ql-align">
-                                            <option value="left" label="Left" selected="">
-                                                <i class="fa fa-align-left"></i>
-                                            </option>
-                                            <option value="center" label="Center">
-                                                <i class="fa fa-align-center"></i>
-                                            </option>
-                                            <option value="right" label="Right">
-                                                <i class="fa fa-align-right"></i>
-                                            </option>
-                                            <option value="justify" label="Justify">
-                                                <i class="fa fa-align-justify"></i>
-                                            </option>
-                                        </select>
-
-                                        <div class="ql-button-explainer">Text alignment</div>
-
-
-                                        <div class="ql-format-separator last-separator"></div>
-
-                                        <div class="clearer"></div>
+                        <div id="notes-quill" class="quill-holder">
+                            <div class="toolbar-holder">
+                                <div class="ql-format-group">
+                                    <div class="ql-format-button ql-bold">
+                                        <i class="fa fa-bold"></i>
+                                        <span class="ql-button-explainer">Bold</span>
                                     </div>
 
-                                    <div class="ql-format-group last-format-group">
-                                        <div class="ql-format-button ql-bullet">
-                                            <i class="fa fa-list-ul"></i>
-                                            <span class="ql-button-explainer">Bulleted list</span>
-                                        </div>
+                                    <div class="ql-format-button ql-italic">
+                                        <i class="fa fa-italic"></i>
+                                        <span class="ql-button-explainer">Italic</span>
+                                    </div>
 
-                                        <div class="ql-format-button ql-list">
-                                            <i class="fa fa-list-ol"></i>
-                                            <span class="ql-button-explainer">Numbered list</span>
-                                        </div>
+                                    <div class="ql-format-button ql-underline">
+                                        <i class="fa fa-underline"></i>
+                                        <span class="ql-button-explainer">Underline</span>
+                                    </div>
 
-                                        <div class="ql-format-button ql-link">
-                                            <i class="fa fa-link"></i>
-                                            <span class="ql-button-explainer">Link</span>
-                                        </div>
+                                    <div class="ql-format-button ql-strike">
+                                        <i class="fa fa-strikethrough"></i>
+                                        <span class="ql-button-explainer">Strikethrough</span>
+                                    </div>
 
-                                        <div class="clearer"></div>
+                                    <div class="ql-format-separator"></div>
+                                </div>
+                                <div class="ql-format-group dropdowns-group">
+                                    <select class="ql-size">
+                                        <option value="8px">8px</option>
+                                        <option value="9px">9px</option>
+                                        <option value="10px">10px</option>
+                                        <option value="11px">11px</option>
+                                        <option value="12px" selected="">12px</option>
+                                        <option value="13px">13px</option>
+                                        <option value="14px">14px</option>
+                                        <option value="16px">16px</option>
+                                        <option value="18px">18px</option>
+                                        <option value="24px">24px</option>
+                                        <option value="30px">30px</option>
+                                        <option value="36px">36px</option>
+                                    </select>
+
+                                    <div class="ql-button-explainer">Font size</div>
+
+                                    <select class="ql-align">
+                                        <option value="left" label="Left" selected="">
+                                            <i class="fa fa-align-left"></i>
+                                        </option>
+                                        <option value="center" label="Center">
+                                            <i class="fa fa-align-center"></i>
+                                        </option>
+                                        <option value="right" label="Right">
+                                            <i class="fa fa-align-right"></i>
+                                        </option>
+                                        <option value="justify" label="Justify">
+                                            <i class="fa fa-align-justify"></i>
+                                        </option>
+                                    </select>
+
+                                    <div class="ql-button-explainer">Text alignment</div>
+
+
+                                    <div class="ql-format-separator last-separator"></div>
+
+                                    <div class="clearer"></div>
+                                </div>
+
+                                <div class="ql-format-group last-format-group">
+                                    <div class="ql-format-button ql-bullet">
+                                        <i class="fa fa-list-ul"></i>
+                                        <span class="ql-button-explainer">Bulleted list</span>
+                                    </div>
+
+                                    <div class="ql-format-button ql-list">
+                                        <i class="fa fa-list-ol"></i>
+                                        <span class="ql-button-explainer">Numbered list</span>
+                                    </div>
+
+                                    <div class="ql-format-button ql-link">
+                                        <i class="fa fa-link"></i>
+                                        <span class="ql-button-explainer">Link</span>
                                     </div>
 
                                     <div class="clearer"></div>
                                 </div>
-                                <div class="text-holder">{% if packageData %}{{ packageData.notes|safe }}{% endif %}</div>
+
+                                <div class="clearer"></div>
                             </div>
+
+                            <div class="text-holder"></div>
                         </div>
                     </div>
                     <div class="clearer"></div>
                 </div>
             </div>
 
+            <div class="clearer"></div>
+
             <div class="row collapsible-row-header" data-expand-target="publishing-details">
                 <h4>Publishing details</h4>
             </div>
 
             <div class="row can-collapse" data-expand-receiver="publishing-details">
-                <div class="collapsable-inner">
-                    <div class="extra-headline-spacing"></div>
+                <div id="publishing-fields" class="collapsable-inner">
+                    <div class="extra-spacing"></div>
 
                     <div class="medium-12 columns form-group">
-                        <input id="URL" name="URL" data-form="package" type="text" value="{% if packageData.URL %}{{ packageData.URL }}{% endif %}" />
-                        <label for="URL" class="control-label">URL</label>
+                        <input id="url" name="url" data-form="package" type="text" value="" />
+                        <label for="url" class="control-label">URL</label>
                         <i class="bar"></i>
                     </div>
 
-                    <div class="medium-6 columns form-group pub-date-group"{% if packageData %}{% if packageData.pubDate.resolution != '' %} style="display: block;"{% endif %}{% endif %}>
-                        <input id="print_run_date" name="print_run_date" data-form="package" type="text" id="printRunDate" required="" value="{% if packageData %}{% if packageData.printPlacement.printRunDate %}{{ formattedPrintRunDate }}{% endif %}{% endif %}" />
-                        <label for="pub_date" class="control-label">Print run date</label>
+                    <div class="medium-4 columns form-group run-date-group">
+                        <input id="print_run_date_start" name="print_run_date_start" data-form="package" type="text" required="" value="" />
+                        <label for="print_run_date_start" class="control-label">Print run date (start)</label>
                         <i class="bar"></i>
                     </div>
-                    <div class="medium-12 columns checkbox pitched-print-placements">
-                        <h5>Print placements</h5>
-                        {% for placementChoice in placementChoices %}
-                            <label>
-                                <input id="{{ placementChoice.slug }}" name="pitched_placements[]" data-form="package" type="checkbox" value="{{ placementChoice.slug }}"{% if placementChoice.isChecked %} checked="checked"{% endif %} /><i class="helper"></i>{{ placementChoice.verboseName }}
-                            </label>
-                        {% endfor %}
+                    <div class="medium-1 columns form-group print-dates-divider">
+                          <div>To</div>
                     </div>
+                    <div class="medium-4 columns form-group run-date-group">
+                        <input id="print_run_date_end" name="print_run_date_end" data-form="package" type="text" required="" value="" />
+                        <label for="print_run_date_end" class="control-label">Print run date (end)</label>
+                        <i class="bar"></i>
+                    </div>
+                    <div class="medium-4 columns form-group publication-group">
+                        <input id="print-publication" name="print-publication" class="to-selectize" type="text" placeholder="Choose an option" autocomplete="off" autocorrect="off" data-form="primary" value="" required="" isRequired="true" />
+                        <label for="print-publication" class="control-label">Publication<span class="required-marker">*</span></label>
+                        <i class="bar"></i>
+                        <div class="form-help"></div>
+                    </div>
+
+                    <div id="print-sections" class="medium-12 columns checkbox">
+                        <div></div>
+                    </div>
+
                     <div class="medium-12 columns checkbox">
                         <label>
-                            <input id="is_placement_finalized" name="is_placement_finalized" data-form="package" type="checkbox" value="finalized"{% if packageData.printPlacement.isFinalized %} checked="checked"{% endif %} /><i class="helper"></i>Print placement finalized?
+                            <input id="is_placement_finalized" name="is_placement_finalized" data-form="package" type="checkbox" value="finalized" /><i class="helper"></i>Print placement finalized?
                         </label>
                     </div>
+
                     <div class="clearer"></div>
                 </div>
             </div>
+
+            <div class="clearer"></div>
         </form>
     </div>
 
