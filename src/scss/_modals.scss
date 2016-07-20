@@ -34,30 +34,6 @@ $mf-transition-speed: 0.28s !default;
         overflow: hidden;
     }
 
-    .blue-background,
-    .red-background {
-        margin: -1rem;
-        padding: 1rem;
-
-        .button-holder {
-            .flat-button {
-                &.delete-action {
-                    &::before {
-                        border: 0;
-                    }
-                }
-            }
-        }
-    }
-
-    .blue-background {
-        background: darken($mf-save-action-color, 21%);
-    }
-
-    .red-background {
-        background: darken($mf-delete-action-color, 21%);
-    }
-
     .loading-animation {
         display: none;
         margin-top: 18px;

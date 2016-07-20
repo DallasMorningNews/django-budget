@@ -150,7 +150,7 @@ define(['underscore'], function(_) {
                     },
                     dateFormat: 'Week of M d, yyyy',
                     onRenderCell: function(date, cellType) {
-                        var enabledDays = [1],
+                        var enabledDays = [0],
                             classList = '',
                             isDisabled = false;
 

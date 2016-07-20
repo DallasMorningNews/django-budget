@@ -1598,9 +1598,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
                     'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.',
                 ],
-                week: {
-                    dow: 1,
-                },
+                week: {dow: 0},
             });
 
 
@@ -2167,7 +2165,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                                 setTimeout(function() {
                                     $el.find('.modal-inner').css({visibility: 'hidden'});
-                                    $el.addClass('red-background');
                                 }, 450);
 
                                 setTimeout(function() {

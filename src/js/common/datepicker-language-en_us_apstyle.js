@@ -21,6 +21,6 @@ define([
         clear: 'Clear',
         dateFormat: 'M d, yyyy',
         timeFormat: 'hh:ii aa',
-        firstDay: 1,
+        firstDay: 0,
     };
 });

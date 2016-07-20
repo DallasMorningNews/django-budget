@@ -77,7 +77,7 @@ define(
                         'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
                         'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.',
                     ],
-                    week: {dow: 1},
+                    week: {dow: 0},
                 });
             },
 

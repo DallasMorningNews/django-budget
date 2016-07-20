@@ -568,8 +568,6 @@ deleteTrigger: '.delete-additional',
                                     modalContext.$el.find('.modal-inner').css({
                                         visibility: 'hidden',
                                     });
-
-                                    modalContext.$el.addClass('red-background');
                                 }, 450);
 
                                 setTimeout(

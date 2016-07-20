@@ -8,7 +8,6 @@ define(
         'underscore.string',
         'budget/itemviews/modals/modal-window.js',
         'budget/itemviews/packages/package-base',
-        'common/date-picker-options',
         'common/settings',
         'common/tpl',
     ],
@@ -21,7 +20,6 @@ define(
         _string_,
         ModalView,
         PackageItemView,
-        datePickerOptions,
         settings,
         tpl
     ) {
@@ -79,7 +77,7 @@ define(
                         'Jan.', 'Feb.', 'March', 'April', 'May', 'June',
                         'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.',
                     ],
-                    week: {dow: 1},
+                    week: {dow: 0},
                 });
             },
 

@@ -9,7 +9,6 @@ define(
         'underscore.string',
         'budget/itemviews/modals/modal-window.js',
         'budget/itemviews/snackbars/snackbar.js',
-        'common/date-picker-options',
         'common/settings',
         'misc/air-timepicker',
     ],
@@ -23,7 +22,6 @@ define(
         _string_,
         ModalView,
         SnackbarView,
-        datePickerOptions,
         settings,
         timePicker  // eslint-disable-line no-unused-vars
     ) {
@@ -177,8 +175,6 @@ define(
                                             modalContext.$el.find('.modal-inner').css({
                                                 visibility: 'hidden',
                                             });
-
-                                            modalContext.$el.addClass('blue-background');
                                         },
                                         450
                                     );
@@ -486,8 +482,6 @@ define(
                                             modalContext.$el.find('.modal-inner').css({
                                                 visibility: 'hidden',
                                             });
-
-                                            modalContext.$el.addClass('blue-background');
                                         },
                                         450
                                     );
