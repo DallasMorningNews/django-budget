@@ -2,8 +2,8 @@ define(['underscore'], function(_) {
     'use strict';
 
     var apiBases = {
-            auth: 'http://datalab-budget-dev.herokuapp.com/auth/api/',
-            budget: 'http://datalab-budget-dev.herokuapp.com/budget/api/',
+            auth: 'http://datalab.dallasnews.com/auth/api/',
+            budget: 'http://datalab.dallasnews.com/budget/api/',
             staff: 'http://datalab.dallasnews.com/staff/api/',
         },
         standardSettings = {
