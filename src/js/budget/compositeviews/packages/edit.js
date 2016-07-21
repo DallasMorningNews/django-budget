@@ -2208,12 +2208,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             dbPrimarySlug = this.model.primaryContentItem.get('slug');
             currentPrimarySlug = this.ui.packageTitle.text();
-            itemSlugEndings = _.map(
-                // TODO: Change this to reflect 'additionalContent' is now a collection.
-                this.model.get('additionalContent'),
+            itemSlugEndings = this.model.additionalContentCollection.map(
                 function(additionalItem) {
                     return _.last(
-                        additionalItem.slug.split(
+                        additionalItem.get('slug').split(
                             dbPrimarySlug + '.'
                         )
                     );
