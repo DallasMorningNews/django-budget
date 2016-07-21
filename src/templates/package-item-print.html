@@ -1,13 +1,13 @@
-<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row{% if hasPrimary %} has-primary{% endif %}" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" ready="{{ packageIsReady }}">
+<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row{% if hasPrimary %} has-primary{% endif %}" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" has-url="{{ packageHasURL }}">
 
     <div class="minimal-card column small-11 medium-11 large-11">
-        {% if packageObj %}{% if packageObj.URL %}<a href="{{ packageObj.URL }}" target="_blank">{% endif %}{% endif %}
+        {% if packageObj %}{% if packageObj.publishedUrl %}<a href="{{ packageObj.publishedUrl }}" target="_blank">{% endif %}{% endif %}
         <div class="readiness-indicator">
             <div class="indicator-inner">
                 <i class="fa fa-check"></i>
             </div>
         </div>
-        {% if packageObj %}{% if packageObj.URL %}</a>{% endif %}{% endif %}
+        {% if packageObj %}{% if packageObj.publishedUrl %}</a>{% endif %}{% endif %}
 
         <div class="slug-bar row">
             <div class="date-slug-budget-line column small-7 medium-9 large-9">
