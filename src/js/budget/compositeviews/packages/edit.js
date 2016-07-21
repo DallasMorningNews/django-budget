@@ -649,6 +649,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
                     model.primaryContentItem.set('slugKey', value);
+                    model.trigger('change:primaryContent.slugKey');
                 },
             };
 
@@ -682,6 +683,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
                     model.primaryContentItem.set('budgetLine', value);
+                    model.trigger('change:primaryContent.budgetLine');
                 },
             };
 
