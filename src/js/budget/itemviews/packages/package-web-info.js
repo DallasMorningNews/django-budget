@@ -104,6 +104,9 @@ define(
                     this.model.primaryContentItem.toJSON()
                 );
 
+                // Is-published indicator.
+                templateContext.packageHasURL = !_.isNull(packageObj.publishedUrl);
+
                 // Hub color and vertical slug.
                 if (!_.isUndefined(packageHub)) {
                     templateContext.hubDotColor = packageHub.get('color');

@@ -470,7 +470,7 @@
             }
         }
 
-        &[ready="true"] {
+        &[has-url="true"] {
             .readiness-indicator {
                 .indicator-inner {
                     display: block;
