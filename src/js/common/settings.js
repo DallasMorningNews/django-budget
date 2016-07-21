@@ -232,7 +232,7 @@ define(['underscore'], function(_) {
                 // },
             ],
 
-            pollInterval: 20 * 1000,
+            pollInterval: 15 * 60 * 1000,
 
             printPlacementTypes: [
                 {
