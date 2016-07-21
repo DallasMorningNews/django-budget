@@ -150,6 +150,7 @@ define([
 
             queryOptions = {
                 data: {
+                    has_primary: 1,
                     ordering: 'print_run_date',
                     print_run_date: [dateRange.start, newEnd].join(','),
                 },
