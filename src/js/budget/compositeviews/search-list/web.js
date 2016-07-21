@@ -83,6 +83,7 @@ define([
 
             queryOptions = {
                 data: {
+                    has_primary: 1,
                     ordering: 'publish_date',
                     publish_date: [dateRange.start, newEnd].join(','),
                 },
