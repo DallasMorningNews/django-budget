@@ -586,6 +586,22 @@ define(
                         fields: [
                             {
                                 type: 'input',
+                                widthClasses: 'small-12 medium-12 large-12',
+                                labelText: 'NewsGate slug',
+                                inputID: 'print_system_slug',
+                                inputName: 'print_system_slug',
+                                inputType: 'text',
+                            },
+                        ],
+                    }
+                );
+
+                formRows.push(
+                    {
+                        extraClasses: '',
+                        fields: [
+                            {
+                                type: 'input',
                                 extraClasses: 'publication-group',
                                 widthClasses: 'small-12 medium-12 large-12',
                                 labelText: 'Publication',
@@ -884,6 +900,10 @@ define(
 
                         return newDates;
                     },
+                };
+
+                this.printAttributeBindings['#print_system_slug'] = {
+                    observe: 'printSystemSlug',
                 };
 
                 this.printAttributeBindings['#print_publication'] = {
