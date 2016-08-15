@@ -102,6 +102,7 @@ packageErrors: '#package-form .error-message',  // eslint-disable-line indent
             printRunDateStartField: '#package-form #print_run_date_start',
             printRunDateEndField: '#package-form #print_run_date_end',
             printPublicationDropdown: '#package-form #print-publication',
+            printSystemSlugField: '#package-form #print-system-slug',
             printSectionCheckboxes: '#package-form #print-sections',
             printFinalized: '#package-form #is_placement_finalized',
 /* eslint-disable indent */
@@ -1377,6 +1378,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                     return newDates;
                 },
+            };
+
+            bindingsObj[ui.printSystemSlugField.selector] = {
+                observe: 'printSystemSlug',
             };
 
             bindingsObj[ui.printPublicationDropdown.selector] = {
