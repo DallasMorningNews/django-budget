@@ -1146,6 +1146,10 @@
                 page-break-inside: avoid;
                 width: 100%;
 
+                & > a {
+                    display: none;
+                }
+
                 .slug-bar {
                     .color-dot {
                         display: none;
