@@ -1642,7 +1642,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             this.options.initFinishedCallback(this);
         },
 
-        filter: function(child, index, collection) {  // eslint-disable-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
+        filter: function(child, index, collection) {
             // Only show child views for items in 'this.collection' that
             // represent additional content (and not primary items).
             return (
@@ -1687,7 +1688,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 $thisEl.addClass('collapse-enabled');
             });
 
-            if (_.has(this.options, 'boundData') && _.has(this.options.boundData, 'isEmpty')) {
+            if (
+                    _.has(this.options, 'boundData') &&
+                    _.has(this.options.boundData, 'isEmpty')
+            ) {
                 if (this.options.boundData.isEmpty === true) {
                     this.model.trigger('packageLoaded');
                 }
@@ -1716,7 +1720,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     value: hub.get('slug'),
                 });
 
-                if (!_.contains(_.pluck(hubGroupsRaw, 'value'), hubVertical.slug)) {
+                if (!_.contains(
+                        _.pluck(hubGroupsRaw, 'value'), hubVertical.slug)
+                ) {
                     hubGroupsRaw.push({
                         name: hubVertical.name,
                         value: hubVertical.slug,
@@ -1740,7 +1746,8 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
         enumerateTypeChoices: function() {
             var choices = [];
 
-            _.each(settings.contentTypes, function(v, k, i) {  // eslint-disable-line no-unused-vars
+            // eslint-disable-next-line no-unused-vars
+            _.each(settings.contentTypes, function(v, k, i) {
                 choices.push({
                     name: v.verboseName,
                     order: v.order,
@@ -1773,40 +1780,48 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             var sectionPublicationValues = [],
                 publicationSections = [],
                 placementChoices = _.compact(
-                    this.options.data.printPublications.map(function(publication) {
-                        if (publication.get('isActive') === true) {
-                            // Generate a second map with this publications'
-                            // section IDs and the publication's slug.
-                            // This gets used on the selectize 'select' event.
-                            sectionPublicationValues.push(
-                                _.map(
-                                    publication.get('sections'),
-                                    function(section) {
-                                        return [section.id, publication.get('slug')];
-                                    }
-                                )
-                            );
+                    this.options.data.printPublications.map(
+                        function(publication) {
+                            if (publication.get('isActive') === true) {
+                                // Generate a second map with this
+                                // publications' section IDs and the
+                                //  publication's slug. This gets used on the
+                                // selectize 'select' event.
+                                sectionPublicationValues.push(
+                                    _.map(
+                                        publication.get('sections'),
+                                        function(section) {
+                                            return [
+                                                section.id,
+                                                publication.get('slug'),
+                                            ];
+                                        }
+                                    )
+                                );
 
-                            publicationSections.push(
-                                [
-                                    publication.get('slug'),
-                                    publication.get('sections'),
-                                ]
-                            );
+                                publicationSections.push(
+                                    [
+                                        publication.get('slug'),
+                                        publication.get('sections'),
+                                    ]
+                                );
 
-                            return {
-                                name: publication.get('name'),
-                                value: publication.get('slug'),
-                            };
+                                return {
+                                    name: publication.get('name'),
+                                    value: publication.get('slug'),
+                                };
+                            }
+
+                            return null;
                         }
-
-                        return null;
-                    })
+                    )
                 );
 
             this.printPublicationSections = _.chain(publicationSections)
                     .compact()
-                    .reject(function(mapping) { return _.isEmpty(mapping[1]); })
+                    .reject(
+                        function(mapping) { return _.isEmpty(mapping[1]); }
+                    )
                     .object()
                     .value();
 
@@ -1893,20 +1908,16 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             this.additionalItemCount++;
 
             this.collection.add([
-                (!_.isUndefined(this.model.id)) ? {additionalForPackage: this.model.id} : {},
+                (
+                    !_.isUndefined(this.model.id)
+                ) ? {additionalForPackage: this.model.id} : {},
             ]);
         },
 
-        saveAllComponents: function() {
+        saveAllComponents: function(successCallback, errorCallback) {
             var packageSave,
                 savePromise = new $.Deferred(),
                 cachedPrintSections = _.clone(this.model.get('printSection'));
-
-            // TODO(ajv): Remove this line when 'pubDate' has been deprecated.
-            // this.model.set('pubDate', this.model.get('publishDate')[1]);
-
-            // TODO(ajv): Remove this line when 'publishedUrl' is no longer required.
-            // this.model.set('publishedUrl', 'http://www.dallasnews.com/');
 
             packageSave = this.model.save(
                 undefined,
@@ -1918,25 +1929,13 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 }
             );
 
-            packageSave.done(function(mdl, resp, opts) {  // eslint-disable-line no-unused-vars
+            // eslint-disable-next-line no-unused-vars
+            packageSave.done(function(mdl, resp, opts) {
                 var packageID = mdl.id,
                     primaryContentSave,
                     primaryContentDeferred = new $.Deferred(),
                     allSaveRequests = [primaryContentDeferred],
-                    wasCreated = (opts.statusText.toLowerCase() === 'created'),
-                    packageErrorHolder = this.ui.packageErrors,
-                    boundErrors = _.chain(
-                        this.bindings()
-                    ).mapObject(function(val, key) {
-                        var newVal = _.clone(val);
-                        newVal.selector = key;
-                        return newVal;
-                    })
-                    .values()
-                    .filter(function(binding) {
-                        return _.has(binding, 'observeErrors');
-                    })
-                    .value();
+                    wasCreated = (opts.statusText.toLowerCase() === 'created');
 
                 // Restore the print sections that were cached on save -- for
                 // some reason, they revert to their old values in the
@@ -1946,7 +1945,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 // local rendering.
                 this.model.set('printSection', cachedPrintSections);
 
-                this.model.primaryContentItem.set('primaryForPackage', packageID);
+                this.model.primaryContentItem.set(
+                    'primaryForPackage',
+                    packageID
+                );
 
                 primaryContentSave = this.model.primaryContentItem.save(
                     undefined,
@@ -1957,85 +1959,21 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     }
                 );
 
-                primaryContentSave.done(function(model, response, options) {  // eslint-disable-line max-len,no-unused-vars
-                    // console.log('PCS');
+                // eslint-disable-next-line no-unused-vars
+                primaryContentSave.done(function(model, response, options) {
                     primaryContentDeferred.resolve();
                 });
 
-                primaryContentSave.fail(function(response, errorText) {  // eslint-disable-line max-len,no-unused-vars
-                    var primaryBoundErrors;
-
-                    if (response.status === 400) {
-                        if (_.keys(response.responseJSON).length) {
-                            packageErrorHolder.html(
-                                '<span class="inner">Please fix the errors below.</span>'
-                            );
-                            packageErrorHolder.show();
-                        } else {
-                            packageErrorHolder.html('');
-                            packageErrorHolder.hide();
-                        }
-
-                        primaryBoundErrors = _.chain(boundErrors)
-                            .filter(function(binding) {
-                                return binding.observeErrors.startsWith('primaryContent.');
-                            })
-                            .value();
-
-                        _.each(primaryBoundErrors, function(errorBinding) {
-                            var fieldKey = errorBinding.observeErrors.substr(
-                                    'primaryContent.'.length
-                                ),
-                                assignedErrorClass = (
-                                    _.has(errorBinding, 'getErrorClass')
-                                ) ? (
-                                    errorBinding.getErrorClass(
-                                        $(errorBinding.selector)
-                                    )
-                                ) : (
-                                    $(errorBinding.selector).closest('.form-group')
-                                ),
-                                errorTextHolder = (
-                                    _.has(errorBinding, 'getErrorTextHolder')
-                                ) ? (
-                                    errorBinding.getErrorTextHolder(
-                                        $(errorBinding.selector)
-                                    )
-                                ) : (
-                                    $(errorBinding.selector)
-                                        .closest('.form-group')
-                                        .find('.form-help')
-                                );
-
-                            if (_.has(response.responseJSON, fieldKey)) {
-                                // This field has errors. Add 'has-error' class
-                                // (if not already attached) and show all
-                                // applicable error messages.
-                                if (!assignedErrorClass.hasClass('has-error')) {
-                                    assignedErrorClass.addClass('has-error');
-                                }
-
-                                errorTextHolder.html(
-                                    response.responseJSON[fieldKey].join(' | ')
-                                );
-                            } else {
-                                // This field has no errors. Remove 'has-error'
-                                // class (if attached), empty and hide any
-                                // error messages.
-                                if (assignedErrorClass.hasClass('has-error')) {
-                                    assignedErrorClass.removeClass('has-error');
-                                }
-
-                                if (errorTextHolder.html().length !== 0) {
-                                    errorTextHolder.html('');
-                                }
-                            }
-                        });
+                primaryContentSave.fail(
+                    function(response, textStatus, errorThrown) {
+                        primaryContentDeferred.reject(
+                            response,
+                            textStatus,
+                            errorThrown,
+                            'primary-item'
+                        );
                     }
-
-                    primaryContentDeferred.reject('primary-item');
-                    // savePromise.reject();
-                });
+                );
 
                 this.model.additionalContentCollection.each(function(item) {
                     var additionalItemSave,
@@ -2061,14 +1999,23 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                         allSaveRequests.push(additionalItemSave);
 
-                        additionalItemSave.done(function(model, response, options) {  // eslint-disable-line max-len,no-unused-vars
-                            additionalItemDeferred.resolve();
-                        });
+                        additionalItemSave.done(
+                            // eslint-disable-next-line no-unused-vars
+                            function(model, response, options) {
+                                additionalItemDeferred.resolve();
+                            }
+                        );
 
-                        additionalItemSave.fail(function() {
-                            additionalItemDeferred.reject('additional-item');
-                            // savePromise.reject();
-                        });
+                        additionalItemSave.fail(
+                            function(response, textStatus, errorThrown) {
+                                console.log(response);
+                                console.log(textStatus);
+                                console.log(errorThrown);
+                                additionalItemDeferred.reject(
+                                    'additional-item'
+                                );
+                            }
+                        );
                     } else {
                         // If all four empty-by-default fields are still empty
                         // on this model (and it has no ID), the model should
@@ -2082,16 +2029,180 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     savePromise.resolve(wasCreated);
                 }.bind(this));  // eslint-disable-line no-extra-bind
 
-                $.when.apply($, allSaveRequests).fail(function(itemType) {
-                    savePromise.reject(itemType);
-                }.bind(this));  // eslint-disable-line no-extra-bind
+                $.when.apply($, allSaveRequests).fail(
+                    function(response, textStatus, errorThrown, itemType) {
+                        savePromise.reject(
+                            response,
+                            textStatus,
+                            errorThrown,
+                            itemType
+                        );
+                    }.bind(this)  // eslint-disable-line no-extra-bind
+                );
             }.bind(this));
 
-            packageSave.fail(function(response, errorText) {  // eslint-disable-line max-len,no-unused-vars
-                savePromise.reject('package');
+            packageSave.fail(function(response, textStatus, errorThrown) {
+                savePromise.reject(
+                    response,
+                    textStatus,
+                    errorThrown,
+                    'package'
+                );
             });
 
+            savePromise.done(function(wasCreated) {
+                if (_.isFunction(successCallback)) {
+                    successCallback(wasCreated);
+                }
+            });
+
+            // eslint-disable-next-line no-unused-vars
+            savePromise.fail(function(response, textStatus, errorThrown, errorType) {
+                var packageErrorHolder = this.ui.packageErrors,
+                    boundErrors = {
+                        raw: _.chain(
+                                this.bindings()
+                            ).mapObject(function(val, key) {
+                                var newVal = _.clone(val);
+                                newVal.selector = key;
+                                return newVal;
+                            })
+                            .values()
+                            .filter(function(binding) {
+                                return _.has(binding, 'observeErrors');
+                            })
+                            .value(),
+                    };
+
+                console.log(errorType);
+
+                if (response.status === 400) {
+                    if (_.keys(response.responseJSON).length) {
+                        packageErrorHolder.html(
+                            '<span class="inner">Please fix the errors below.</span>'
+                        );
+                        packageErrorHolder.show();
+                    } else {
+                        packageErrorHolder.html('');
+                        packageErrorHolder.hide();
+                    }
+
+                    boundErrors.package = _.chain(boundErrors.raw)
+                        .reject(function(binding) {
+                            return _.contains(
+                                [
+                                    'primaryContent',
+                                    'additionalContent',
+                                ],
+                                _string_.strLeft(
+                                    binding.observeErrors,
+                                    '.'
+                                )
+                            );
+                        })
+                        .value();
+
+                    boundErrors.primary = _.chain(boundErrors.raw)
+                        .filter(function(binding) {
+                            return _string_.strLeft(
+                                binding.observeErrors,
+                                '.'
+                            ) === 'primaryContent';
+                        })
+                        .value();
+
+                    boundErrors.additionals = _.chain(boundErrors.raw)
+                        .filter(function(binding) {
+                            return _string_.strLeft(
+                                binding.observeErrors,
+                                '.'
+                            ) === 'additionalContent';
+                        })
+                        .value();
+
+                    window.bbb = boundErrors;
+
+                    // Bind package errors.
+                    _.each(boundErrors.package, function(errorBinding) {
+                        this.bindError(
+                            response,
+                            errorBinding,
+                            errorBinding.observeErrors
+                        );
+                    }.bind(this));
+
+                    // Bind primary-content-item errors.
+                    _.each(boundErrors.primary, function(errorBinding) {
+                        this.bindError(
+                            response,
+                            errorBinding,
+                            _string_.strRight(errorBinding.observeErrors, '.')
+                        );
+                    }.bind(this));
+
+                    // Bind additional-content-item errors.
+                    _.each(boundErrors.additionals, function(errorBinding) {
+                        this.bindError(
+                            response,
+                            errorBinding,
+                            _string_.strRight(errorBinding.observeErrors, '.')
+                        );
+                    }.bind(this));
+                }
+
+                if (_.isFunction(errorCallback)) {
+                    errorCallback(response, textStatus, errorThrown, errorType);
+                }
+            }.bind(this));
+
             return savePromise;
+        },
+
+        bindError: function(response, errorBinding, fieldKey) {
+            var assignedErrorClass = (
+                    _.has(errorBinding, 'getErrorClass')
+                ) ? (
+                    errorBinding.getErrorClass(
+                        $(errorBinding.selector)
+                    )
+                ) : (
+                    $(errorBinding.selector).closest('.form-group')
+                ),
+                errorTextHolder = (
+                    _.has(errorBinding, 'getErrorTextHolder')
+                ) ? (
+                    errorBinding.getErrorTextHolder(
+                        $(errorBinding.selector)
+                    )
+                ) : (
+                    $(errorBinding.selector)
+                        .closest('.form-group')
+                        .find('.form-help')
+                );
+
+            if (_.has(response.responseJSON, fieldKey)) {
+                // This field has errors. Add 'has-error' class
+                // (if not already attached) and show all
+                // applicable error messages.
+                if (!assignedErrorClass.hasClass('has-error')) {
+                    assignedErrorClass.addClass('has-error');
+                }
+
+                errorTextHolder.html(
+                    response.responseJSON[fieldKey].join(' | ')
+                );
+            } else {
+                // This field has no errors. Remove 'has-error'
+                // class (if attached), empty and hide any
+                // error messages.
+                if (assignedErrorClass.hasClass('has-error')) {
+                    assignedErrorClass.removeClass('has-error');
+                }
+
+                if (errorTextHolder.html().length !== 0) {
+                    errorTextHolder.html('');
+                }
+            }
         },
 
         savePackage: function() {
@@ -2147,12 +2258,12 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 }.bind(this), 1500);
             }.bind(this));
 
-            allComponentsSave.fail(function(jqXHR, textStatus, errorThrown) {
+            allComponentsSave.fail(function(response, textStatus, errorThrown) {
                 this.saveErrorCallback(
                     'saveOnly',
                     'hardError',
                     [
-                        jqXHR,
+                        response,
                         textStatus,
                         errorThrown,
                     ]
@@ -2211,12 +2322,16 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 }.bind(this), 1500);
             }.bind(this));
 
-            allComponentsSave.fail(function(jqXHR, textStatus, errorThrown) {
+            allComponentsSave.fail(function(response, textStatus, errorThrown, errorType) {
+                console.log(response);
+                console.log(textStatus);
+                console.log(errorThrown);
+                console.log(errorType);
                 this.saveErrorCallback(
                     'saveAndContinue',
                     'hardError',
                     [
-                        jqXHR,
+                        response,
                         textStatus,
                         errorThrown,
                     ]
@@ -2291,10 +2406,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                                 }.bind(this));
 
                                 // eslint-disable-next-line no-unused-vars
-                                deleteRequest.fail(function(response, errorText) {
+                                deleteRequest.fail(function(response, textStatus, errorThrown) {
                                     this.deleteErrorCallback(
                                         'hardError',
-                                        [response, errorText]
+                                        [response, textStatus, errorThrown]
                                     );
                                 }.bind(this));
                             }.bind(this),
