@@ -225,6 +225,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.typeDropdown.selector] = {
                 observe: 'primaryContent.type',
+                observeErrors: 'primaryContent.type',
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     var typeOpts = {
                         maxItems: 1,
@@ -571,6 +572,13 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     'publishDateResolution',
                     'publishDate',
                 ],
+                observeErrors: 'primaryContent.slugKey',
+                // getErrorClass: function($el) {
+                //     return $el.find('.formatted-date-value');
+                // },
+                getErrorTextHolder: function($el) {
+                    return $el.closest('.form-group').find('.form-help');
+                },
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     $el.on(
                         'recalculateSpacing',
@@ -671,6 +679,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.budgetLineField.selector] = {
                 observe: 'primaryContent.budgetLine',
+                observeErrors: 'primaryContent.budgetLine',
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     $el.closest('.expanding-holder').addClass('expanding-enabled');
                     $el.bind('focus', function() { $(this).parent().addClass('input-focused'); });
@@ -1912,8 +1921,22 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             packageSave.done(function(mdl, resp, opts) {  // eslint-disable-line no-unused-vars
                 var packageID = mdl.id,
                     primaryContentSave,
-                    allSaveRequests = [primaryContentSave],
-                    wasCreated = (opts.statusText.toLowerCase() === 'created');
+                    primaryContentDeferred = new $.Deferred(),
+                    allSaveRequests = [primaryContentDeferred],
+                    wasCreated = (opts.statusText.toLowerCase() === 'created'),
+                    packageErrorHolder = this.ui.packageErrors,
+                    boundErrors = _.chain(
+                        this.bindings()
+                    ).mapObject(function(val, key) {
+                        var newVal = _.clone(val);
+                        newVal.selector = key;
+                        return newVal;
+                    })
+                    .values()
+                    .filter(function(binding) {
+                        return _.has(binding, 'observeErrors');
+                    })
+                    .value();
 
                 // Restore the print sections that were cached on save -- for
                 // some reason, they revert to their old values in the
@@ -1936,14 +1959,87 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                 primaryContentSave.done(function(model, response, options) {  // eslint-disable-line max-len,no-unused-vars
                     // console.log('PCS');
+                    primaryContentDeferred.resolve();
                 });
 
                 primaryContentSave.fail(function(response, errorText) {  // eslint-disable-line max-len,no-unused-vars
-                    savePromise.reject('primary-item');
+                    var primaryBoundErrors;
+
+                    if (response.status === 400) {
+                        if (_.keys(response.responseJSON).length) {
+                            packageErrorHolder.html(
+                                '<span class="inner">Please fix the errors below.</span>'
+                            );
+                            packageErrorHolder.show();
+                        } else {
+                            packageErrorHolder.html('');
+                            packageErrorHolder.hide();
+                        }
+
+                        primaryBoundErrors = _.chain(boundErrors)
+                            .filter(function(binding) {
+                                return binding.observeErrors.startsWith('primaryContent.');
+                            })
+                            .value();
+
+                        _.each(primaryBoundErrors, function(errorBinding) {
+                            var fieldKey = errorBinding.observeErrors.substr(
+                                    'primaryContent.'.length
+                                ),
+                                assignedErrorClass = (
+                                    _.has(errorBinding, 'getErrorClass')
+                                ) ? (
+                                    errorBinding.getErrorClass(
+                                        $(errorBinding.selector)
+                                    )
+                                ) : (
+                                    $(errorBinding.selector).closest('.form-group')
+                                ),
+                                errorTextHolder = (
+                                    _.has(errorBinding, 'getErrorTextHolder')
+                                ) ? (
+                                    errorBinding.getErrorTextHolder(
+                                        $(errorBinding.selector)
+                                    )
+                                ) : (
+                                    $(errorBinding.selector)
+                                        .closest('.form-group')
+                                        .find('.form-help')
+                                );
+
+                            if (_.has(response.responseJSON, fieldKey)) {
+                                // This field has errors. Add 'has-error' class
+                                // (if not already attached) and show all
+                                // applicable error messages.
+                                if (!assignedErrorClass.hasClass('has-error')) {
+                                    assignedErrorClass.addClass('has-error');
+                                }
+
+                                errorTextHolder.html(
+                                    response.responseJSON[fieldKey].join(' | ')
+                                );
+                            } else {
+                                // This field has no errors. Remove 'has-error'
+                                // class (if attached), empty and hide any
+                                // error messages.
+                                if (assignedErrorClass.hasClass('has-error')) {
+                                    assignedErrorClass.removeClass('has-error');
+                                }
+
+                                if (errorTextHolder.html().length !== 0) {
+                                    errorTextHolder.html('');
+                                }
+                            }
+                        });
+                    }
+
+                    primaryContentDeferred.reject('primary-item');
+                    // savePromise.reject();
                 });
 
                 this.model.additionalContentCollection.each(function(item) {
-                    var additionalItemSave;
+                    var additionalItemSave,
+                        additionalItemDeferred = new $.Deferred();
 
                     item.set('additionalForPackage', packageID);
 
@@ -1966,10 +2062,12 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         allSaveRequests.push(additionalItemSave);
 
                         additionalItemSave.done(function(model, response, options) {  // eslint-disable-line max-len,no-unused-vars
+                            additionalItemDeferred.resolve();
                         });
 
                         additionalItemSave.fail(function() {
-                            savePromise.reject('additional-item');
+                            additionalItemDeferred.reject('additional-item');
+                            // savePromise.reject();
                         });
                     } else {
                         // If all four empty-by-default fields are still empty
@@ -1982,6 +2080,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                 $.when.apply($, allSaveRequests).done(function() {
                     savePromise.resolve(wasCreated);
+                }.bind(this));  // eslint-disable-line no-extra-bind
+
+                $.when.apply($, allSaveRequests).fail(function(itemType) {
+                    savePromise.reject(itemType);
                 }.bind(this));  // eslint-disable-line no-extra-bind
             }.bind(this));
 
@@ -2106,11 +2208,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             allComponentsSave.done(function(wasCreated) {
                 setTimeout(function() {
                     this.saveSuccessCallback('saveAndContinue', wasCreated);
-                    // this.saveErrorCallback(
-                    //     'saveAndContinue',
-                    //     'processingError',
-                    //     [requestParams[0]]
-                    // );
                 }.bind(this), 1500);
             }.bind(this));
 
