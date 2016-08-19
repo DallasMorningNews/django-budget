@@ -179,6 +179,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.hubDropdown.selector] = {
                 observe: 'hub',
+                observeErrors: 'hub',
+                errorTranslations: {
+                    'This field is required.': 'Select a hub.',
+                },
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     var hubOpts = {
                         maxItems: 1,
@@ -226,6 +230,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             bindingsObj[ui.typeDropdown.selector] = {
                 observe: 'primaryContent.type',
                 observeErrors: 'primaryContent.type',
+                errorTranslations: {
+                    'This field may not be null.': 'Select a content type.',
+                },
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     var typeOpts = {
                         maxItems: 1,
@@ -340,6 +347,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.pubDateResolution.selector] = {
                 observe: 'publishDateResolution',
+                observeErrors: 'publishDate',
+                errorTranslations: {
+                    'Incorrect format. Expected an Array with two items.': '' +
+                            'Select a time format.',
+                },
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     var resolutionOpts = {
                         maxItems: 1,
@@ -573,9 +585,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     'publishDate',
                 ],
                 observeErrors: 'primaryContent.slugKey',
-                // getErrorClass: function($el) {
-                //     return $el.find('.formatted-date-value');
-                // },
+                errorTranslations: {
+                    'This field may not be blank.': 'Enter a slug keyword.',
+                    'Ensure this field has no more than 20 characters.': '' +
+                        'Use up to 20 characters for slug keywords.',
+                },
                 getErrorTextHolder: function($el) {
                     return $el.closest('.form-group').find('.form-help');
                 },
@@ -680,6 +694,9 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             bindingsObj[ui.budgetLineField.selector] = {
                 observe: 'primaryContent.budgetLine',
                 observeErrors: 'primaryContent.budgetLine',
+                errorTranslations: {
+                    'This field may not be blank.': 'Enter a budget line.',
+                },
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     $el.closest('.expanding-holder').addClass('expanding-enabled');
                     $el.bind('focus', function() { $(this).parent().addClass('input-focused'); });
@@ -720,6 +737,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.authorsDropdown.selector] = {
                 observe: 'primaryContent.authors',
+                observeErrors: 'primaryContent.authors',
+                errorTranslations: {
+                    'This field may not be empty.': '' +
+                            'Choose one or more authors.',
+                },
                 setOptions: {silent: true},
                 initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                     var authorOpts = {
@@ -2007,10 +2029,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         );
 
                         additionalItemSave.fail(
+                            // eslint-disable-next-line no-unused-vars
                             function(response, textStatus, errorThrown) {
-                                console.log(response);
-                                console.log(textStatus);
-                                console.log(errorThrown);
+                                // console.log(response);
+                                // console.log(textStatus);
+                                // console.log(errorThrown);
                                 additionalItemDeferred.reject(
                                     'additional-item'
                                 );
@@ -2074,9 +2097,53 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             .value(),
                     };
 
-                console.log(errorType);
-
                 if (response.status === 400) {
+                    if (errorType === 'package') {
+                        // For package errors, check if we also need to raise
+                        // errors on required primary content item fields (when
+                        // they haven't been filled out either).
+
+                        // First check for type.
+                        if (_.isNull(
+                                this.model.primaryContentItem.get('type')
+                        )) {
+                            // eslint-disable-next-line no-param-reassign
+                            response.responseJSON.type = [
+                                'This field may not be null.',
+                            ];
+                        }
+
+                        // Next check for slug keyword.
+                        if (_.isEmpty(
+                                this.model.primaryContentItem.get('slugKey')
+                        )) {
+                            // eslint-disable-next-line no-param-reassign
+                            response.responseJSON.slugKey = [
+                                'This field may not be blank.',
+                            ];
+                        }
+
+                        // Then check for budget line.
+                        if (_.isEmpty(
+                                this.model.primaryContentItem.get('budgetLine')
+                        )) {
+                            // eslint-disable-next-line no-param-reassign
+                            response.responseJSON.budgetLine = [
+                                'This field may not be blank.',
+                            ];
+                        }
+
+                        // Finally, check for author.
+                        if (_.isEmpty(
+                                this.model.primaryContentItem.get('authors')
+                        )) {
+                            // eslint-disable-next-line no-param-reassign
+                            response.responseJSON.authors = [
+                                'This field may not be empty.',
+                            ];
+                        }
+                    }
+
                     if (_.keys(response.responseJSON).length) {
                         packageErrorHolder.html(
                             '<span class="inner">Please fix the errors below.</span>'
@@ -2119,8 +2186,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             ) === 'additionalContent';
                         })
                         .value();
-
-                    window.bbb = boundErrors;
 
                     // Bind package errors.
                     _.each(boundErrors.package, function(errorBinding) {
@@ -2189,7 +2254,18 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 }
 
                 errorTextHolder.html(
-                    response.responseJSON[fieldKey].join(' | ')
+                    _.map(
+                        response.responseJSON[fieldKey],
+                        function(message) {
+                            return (
+                                _.has(errorBinding.errorTranslations, message)
+                            ) ? (
+                                errorBinding.errorTranslations[message]
+                            ) : (
+                                message
+                            );
+                        }
+                    ).join(' | ')
                 );
             } else {
                 // This field has no errors. Remove 'has-error'
@@ -2323,10 +2399,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             }.bind(this));
 
             allComponentsSave.fail(function(response, textStatus, errorThrown, errorType) {
-                console.log(response);
-                console.log(textStatus);
-                console.log(errorThrown);
-                console.log(errorType);
                 this.saveErrorCallback(
                     'saveAndContinue',
                     'hardError',
@@ -2334,6 +2406,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         response,
                         textStatus,
                         errorThrown,
+                        errorType,
                     ]
                 );
             }.bind(this));
@@ -2565,6 +2638,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             );
         },
 
+        // eslint-disable-next-line no-unused-vars
         saveSuccessCallback: function(mode, wasCreated) {
             // Configure success-message snackbar.
             var successSnackbarOpts = {
@@ -2583,13 +2657,11 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             if (mode === 'saveOnly') {
                 this._radio.commands.execute('navigate', this.priorPath, {trigger: true});
             } else if (mode === 'saveAndContinue') {
-                if (wasCreated) {
-                    this._radio.commands.execute(
-                        'navigate',
-                        'edit/' + this.model.id + '/',
-                        {trigger: true}
-                    );
-                }
+                this._radio.commands.execute(
+                    'navigate',
+                    'edit/' + this.model.id + '/',
+                    {trigger: true}
+                );
 
                 successSnackbarOpts.containerClass = 'edit-page';
             }
