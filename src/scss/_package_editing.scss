@@ -132,10 +132,12 @@ $mf-transition-speed: 0.28s !default;
             padding: 0.625rem 0 0;
 
             .error-message {
-                color: #D9534F;
+                background-color: #D32F2F;
+                color: #FFFFFF;
                 display: none;
-                font-weight: 500;
-                padding: 0.625rem 1.25rem 1.25rem;
+                font-weight: 600;
+                margin: 0.1rem 0.625rem 1rem;
+                padding: 0.75rem 1rem;
             }
 
             .row.collapsible-row-header {
