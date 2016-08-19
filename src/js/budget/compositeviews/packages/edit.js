@@ -1955,8 +1955,6 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             packageSave.done(function(mdl, resp, opts) {
                 var packageID = mdl.id,
                     primaryContentSave,
-                    primaryContentDeferred = new $.Deferred(),
-                    allSaveRequests = [primaryContentDeferred],
                     wasCreated = (opts.statusText.toLowerCase() === 'created');
 
                 // Restore the print sections that were cached on save -- for
@@ -1983,84 +1981,112 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
                 // eslint-disable-next-line no-unused-vars
                 primaryContentSave.done(function(model, response, options) {
-                    primaryContentDeferred.resolve();
-                });
+                    var additionalSaveRequests = [];
+
+                    this.model.additionalContentCollection.each(
+                        function(item) {
+                            var additionalItemSave,
+                                additionalItemDeferred = new $.Deferred();
+
+                            item.set('additionalForPackage', packageID);
+
+                            if (
+                                (!item.isNew()) ||
+                                (!_.isNull(item.get('type'))) ||
+                                (!_.isEmpty(item.get('slugKey'))) ||
+                                (!_.isEmpty(item.get('authors'))) ||
+                                (!_.isEmpty(item.get('budgetLine')))
+                            ) {
+                                additionalSaveRequests.push(
+                                    additionalItemDeferred
+                                );
+
+                                additionalItemSave = item.save(
+                                    undefined,
+                                    {
+                                        xhrFields: {
+                                            withCredentials: true,
+                                        },
+                                    }
+                                );
+
+                                /* eslint-disable no-unused-vars */
+                                additionalItemSave.done(
+                                    function(
+                                            modelObj,
+                                            responseObj,
+                                            optionsObj
+                                    ) {
+                                        additionalItemDeferred.resolve();
+                                    }
+                                );
+                                /* eslint-enable no-unused-vars */
+
+                                additionalItemSave.fail(
+                                    function(
+                                            responseObj,
+                                            textStatus,
+                                            errorThrown
+                                    ) {
+                                        additionalItemDeferred.reject(
+                                            responseObj,
+                                            textStatus,
+                                            errorThrown,
+                                            'additional-item',
+                                            item
+                                        );
+                                    }
+                                );
+                            } else {
+                                // If all four empty-by-default fields are
+                                // still empty on this model (and it has no
+                                // ID), the model should get removed from the
+                                // collection rather than being saved across
+                                // the API.
+                                item.destroy();
+                            }
+                        }
+                    );
+
+                    $.when.apply($, additionalSaveRequests).done(function() {
+                        savePromise.resolve(wasCreated);
+                    }.bind(this));  // eslint-disable-line no-extra-bind
+
+                    $.when.apply($, additionalSaveRequests).fail(
+                        function(
+                                responseObj,
+                                textStatus,
+                                errorThrown,
+                                itemType,
+                                item
+                        ) {
+                            /* eslint-disable no-underscore-dangle */
+                            var itemView = this.children._views[
+                                    this.children._indexByModel[item.cid]
+                                ];
+                            /* eslint-enable no-underscore-dangle */
+
+                            savePromise.reject(
+                                responseObj,
+                                textStatus,
+                                errorThrown,
+                                itemType,
+                                itemView
+                            );
+                        }.bind(this)
+                    );
+                }.bind(this));
 
                 primaryContentSave.fail(
                     function(response, textStatus, errorThrown) {
-                        primaryContentDeferred.reject(
-                            response,
-                            textStatus,
-                            errorThrown,
-                            'primary-item'
-                        );
-                    }
-                );
-
-                this.model.additionalContentCollection.each(function(item) {
-                    var additionalItemSave,
-                        additionalItemDeferred = new $.Deferred();
-
-                    item.set('additionalForPackage', packageID);
-
-                    if (
-                        (!item.isNew()) ||
-                        (!_.isNull(item.get('type'))) ||
-                        (!_.isEmpty(item.get('slugKey'))) ||
-                        (!_.isEmpty(item.get('authors'))) ||
-                        (!_.isEmpty(item.get('budgetLine')))
-                    ) {
-                        additionalItemSave = item.save(
-                            undefined,
-                            {
-                                xhrFields: {
-                                    withCredentials: true,
-                                },
-                            }
-                        );
-
-                        allSaveRequests.push(additionalItemSave);
-
-                        additionalItemSave.done(
-                            // eslint-disable-next-line no-unused-vars
-                            function(model, response, options) {
-                                additionalItemDeferred.resolve();
-                            }
-                        );
-
-                        additionalItemSave.fail(
-                            // eslint-disable-next-line no-unused-vars
-                            function(response, textStatus, errorThrown) {
-                                // console.log(response);
-                                // console.log(textStatus);
-                                // console.log(errorThrown);
-                                additionalItemDeferred.reject(
-                                    'additional-item'
-                                );
-                            }
-                        );
-                    } else {
-                        // If all four empty-by-default fields are still empty
-                        // on this model (and it has no ID), the model should
-                        // get removed from the collection rather than being
-                        // saved across the API.
-                        item.destroy();
-                    }
-                });
-
-                $.when.apply($, allSaveRequests).done(function() {
-                    savePromise.resolve(wasCreated);
-                }.bind(this));  // eslint-disable-line no-extra-bind
-
-                $.when.apply($, allSaveRequests).fail(
-                    function(response, textStatus, errorThrown, itemType) {
                         savePromise.reject(
                             response,
                             textStatus,
                             errorThrown,
-                            itemType
+                            'primary-item',
+                            this
                         );
-                    }.bind(this)  // eslint-disable-line no-extra-bind
+                    }.bind(this)
                 );
             }.bind(this));
 
@@ -2069,9 +2095,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     response,
                     textStatus,
                     errorThrown,
-                    'package'
+                    'package',
+                    this
                 );
-            });
+            }.bind(this));
 
             savePromise.done(function(wasCreated) {
                 if (_.isFunction(successCallback)) {
@@ -2080,21 +2107,26 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             });
 
             // eslint-disable-next-line no-unused-vars
-            savePromise.fail(function(response, textStatus, errorThrown, errorType) {
+            savePromise.fail(function(
+                    response,
+                    textStatus,
+                    errorThrown,
+                    errorType,
+                    errorView
+            ) {
                 var packageErrorHolder = this.ui.packageErrors,
                     boundErrors = {
-                        raw: _.chain(
-                                this.bindings()
-                            ).mapObject(function(val, key) {
-                                var newVal = _.clone(val);
-                                newVal.selector = key;
-                                return newVal;
-                            })
-                            .values()
-                            .filter(function(binding) {
-                                return _.has(binding, 'observeErrors');
-                            })
-                            .value(),
+                        raw: _.chain(errorView.bindings())
+                                .mapObject(function(val, key) {
+                                    var newVal = _.clone(val);
+                                    newVal.selector = key;
+                                    return newVal;
+                                })
+                                .values()
+                                .filter(function(binding) {
+                                    return _.has(binding, 'observeErrors');
+                                })
+                                .value(),
                     };
 
                 if (response.status === 400) {
@@ -2154,65 +2186,85 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         packageErrorHolder.hide();
                     }
 
-                    boundErrors.package = _.chain(boundErrors.raw)
-                        .reject(function(binding) {
-                            return _.contains(
-                                [
-                                    'primaryContent',
-                                    'additionalContent',
-                                ],
-                                _string_.strLeft(
+                    if (errorType !== 'additional-item') {
+                        boundErrors.package = _.chain(boundErrors.raw)
+                            .reject(function(binding) {
+                                return _.contains(
+                                    [
+                                        'primaryContent',
+                                        'additionalContent',
+                                    ],
+                                    _string_.strLeft(
+                                        binding.observeErrors,
+                                        '.'
+                                    )
+                                );
+                            })
+                            .value();
+
+                        // Bind package errors.
+                        _.each(
+                            boundErrors.package,
+                            function(errorBinding) {
+                                this.bindError(
+                                    response,
+                                    errorBinding,
+                                    errorBinding.observeErrors,
+                                    errorView
+                                );
+                            }.bind(this)
+                        );
+
+                        boundErrors.primary = _.chain(boundErrors.raw)
+                            .filter(function(binding) {
+                                return _string_.strLeft(
                                     binding.observeErrors,
                                     '.'
-                                )
-                            );
-                        })
-                        .value();
+                                ) === 'primaryContent';
+                            })
+                            .value();
 
-                    boundErrors.primary = _.chain(boundErrors.raw)
-                        .filter(function(binding) {
-                            return _string_.strLeft(
-                                binding.observeErrors,
-                                '.'
-                            ) === 'primaryContent';
-                        })
-                        .value();
-
-                    boundErrors.additionals = _.chain(boundErrors.raw)
-                        .filter(function(binding) {
-                            return _string_.strLeft(
-                                binding.observeErrors,
-                                '.'
-                            ) === 'additionalContent';
-                        })
-                        .value();
-
-                    // Bind package errors.
-                    _.each(boundErrors.package, function(errorBinding) {
-                        this.bindError(
-                            response,
-                            errorBinding,
-                            errorBinding.observeErrors
+                        // Bind primary-content-item errors.
+                        _.each(
+                            boundErrors.primary,
+                            function(errorBinding) {
+                                this.bindError(
+                                    response,
+                                    errorBinding,
+                                    _string_.strRight(
+                                        errorBinding.observeErrors,
+                                        '.'
+                                    ),
+                                    errorView
+                                );
+                            }.bind(this)
                         );
-                    }.bind(this));
+                    } else {
+                        boundErrors.additionals = _.chain(boundErrors.raw)
+                            .filter(function(binding) {
+                                return _string_.strLeft(
+                                    binding.observeErrors,
+                                    '.'
+                                ) === 'additionalContent';
+                            })
+                            .value();
 
-                    // Bind primary-content-item errors.
-                    _.each(boundErrors.primary, function(errorBinding) {
-                        this.bindError(
-                            response,
-                            errorBinding,
-                            _string_.strRight(errorBinding.observeErrors, '.')
+                        // Bind additional-content-item errors.
+                        _.each(
+                            boundErrors.additionals,
+                            function(errorBinding) {
+                                this.bindError(
+                                    response,
+                                    errorBinding,
+                                    _string_.strRight(
+                                        errorBinding.observeErrors,
+                                        '.'
+                                    ),
+                                    errorView
+                                );
+                            }.bind(this)
                         );
-                    }.bind(this));
-
-                    // Bind additional-content-item errors.
-                    _.each(boundErrors.additionals, function(errorBinding) {
-                        this.bindError(
-                            response,
-                            errorBinding,
-                            _string_.strRight(errorBinding.observeErrors, '.')
-                        );
-                    }.bind(this));
+                    }
                 }
 
                 if (_.isFunction(errorCallback)) {
@@ -2223,24 +2275,25 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
             return savePromise;
         },
 
-        bindError: function(response, errorBinding, fieldKey) {
+        bindError: function(response, errorBinding, fieldKey, errorView) {
             var assignedErrorClass = (
                     _.has(errorBinding, 'getErrorClass')
                 ) ? (
                     errorBinding.getErrorClass(
-                        $(errorBinding.selector)
+                        errorView.$el.find(errorBinding.selector)
                     )
                 ) : (
-                    $(errorBinding.selector).closest('.form-group')
+                    errorView.$el.find(errorBinding.selector)
+                        .closest('.form-group')
                 ),
                 errorTextHolder = (
                     _.has(errorBinding, 'getErrorTextHolder')
                 ) ? (
                     errorBinding.getErrorTextHolder(
-                        $(errorBinding.selector)
+                        errorView.$el.find(errorBinding.selector)
                     )
                 ) : (
-                    $(errorBinding.selector)
+                    errorView.$el.find(errorBinding.selector)
                         .closest('.form-group')
                         .find('.form-help')
                 );

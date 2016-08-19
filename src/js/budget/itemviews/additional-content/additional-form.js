@@ -80,6 +80,10 @@ deleteTrigger: '.delete-additional',
 
                 bindingsObj[ui.typeDropdown.selector] = {
                     observe: 'type',
+                    observeErrors: 'additionalContent.type',
+                    errorTranslations: {
+                        'This field may not be null.': 'Select a content type.',
+                    },
                     initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                         var typeOpts = {
                             maxItems: 1,
@@ -180,6 +184,12 @@ deleteTrigger: '.delete-additional',
                         'parentSlug',
                         'slugKey',
                     ],
+                    observeErrors: 'additionalContent.slugKey',
+                    errorTranslations: {
+                        'This field may not be blank.': 'Enter a slug keyword.',
+                        'Ensure this field has no more than 20 characters.': '' +
+                            'Use up to 20 characters for slug keywords.',
+                    },
                     initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                         $el.on(
                             'recalculateSpacing',
@@ -259,6 +269,10 @@ deleteTrigger: '.delete-additional',
 
                 bindingsObj[ui.budgetLineField.selector] = {
                     observe: 'budgetLine',
+                    observeErrors: 'additionalContent.budgetLine',
+                    errorTranslations: {
+                        'This field may not be blank.': 'Enter a budget line.',
+                    },
                     initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                         $el.closest('.expanding-holder').addClass('expanding-enabled');
                         $el.bind('focus', function() {
@@ -293,6 +307,11 @@ deleteTrigger: '.delete-additional',
 
                 bindingsObj[ui.authorsDropdown.selector] = {
                     observe: 'authors',
+                    observeErrors: 'additionalContent.authors',
+                    errorTranslations: {
+                        'This field may not be empty.': '' +
+                                'Choose one or more authors.',
+                    },
                     setOptions: {silent: true},
                     initialize: function($el, mdl, options) {  // eslint-disable-line no-unused-vars
                         var authorOpts = {
