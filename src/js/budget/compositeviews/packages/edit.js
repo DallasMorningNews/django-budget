@@ -419,7 +419,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         _.defaults(
                             {
                                 onSelect: function(dateString, date, config) {
-                                    config.$el.trigger('updatePublishDate');
+                                    config.$el.trigger('changePublishDate');
                                 },
                             },
                             settings.datePickerOptions[value],
@@ -459,7 +459,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
 
             bindingsObj[ui.pubDateField.selector] = {
                 observe: ['publishDateResolution', 'publishDate'],
-                events: ['updatePublishDate'],
+                events: ['changePublishDate'],
                 update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
                     var datePckr = ui.pubDateField.data('datepicker'),
                         newDate;
