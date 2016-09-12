@@ -430,8 +430,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     control = this.ui.pubDateField.data('datepicker');
 
                     if (!_.isNull(rawDate) && !_.isNull(resolution)) {
-                        control.date = finalDate.toDate();
-                        control.selectDate(finalDate.toDate());
+                        this.changePublishedDate(control, finalDate.toDate());
                     }
 
                     if (_(control.opts).has('customKeyDownFunction')) {
@@ -476,8 +475,10 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             // Weeks need to be passed as the beginning date.
                             if (values[0] === 'w') { newDate = newDate.startOf('week'); }
 
-                            datePckr.date = newDate.toDate();
-                            datePckr.selectDate(newDate.toDate());
+                            this.changePublishedDate(
+                                datePckr,
+                                newDate.toDate()
+                            );
                         }
                     }
                 },
@@ -1218,10 +1219,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     if (!_.isNull(inputValue) && !_.isNull(inputValue[0])) {
                         newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', inputValue[0]);
 
-                        datePckr.preventDefault = true;
-                        datePckr.date = newDate;
-                        datePckr.selectDate(newDate);
-                        datePckr.preventDefault = false;
+                        this.changePublishedDate(datePckr, newDate);
                     }
                 },
                 update: function($el, value, mdl) {
@@ -1232,10 +1230,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                         newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', value[0]);
 
                         if (!_.isUndefined(datePckr)) {
-                            datePckr.preventDefault = true;
-                            datePckr.date = newDate;
-                            datePckr.selectDate(newDate);
-                            datePckr.preventDefault = false;
+                            this.changePublishedDate(datePckr, newDate);
                         }
                     } else {
                         if (!_.isUndefined(datePckr)) {
@@ -1339,10 +1334,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             ).subtract({days: 1}).format('YYYY-MM-DD')
                         );
 
-                        datePckr.preventDefault = true;
-                        datePckr.date = newDate;
-                        datePckr.selectDate(newDate);
-                        datePckr.preventDefault = false;
+                        this.changePublishedDate(datePckr, newDate);
                     }
                 },
                 update: function($el, value, mdl) {
@@ -1365,10 +1357,7 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                             newDate = mdl.generateFormattedRunDate('YYYY-MM-DD', newDate);
 
                             if (!_.isUndefined(datePckr)) {
-                                datePckr.preventDefault = true;
-                                datePckr.date = newDate;
-                                datePckr.selectDate(newDate);
-                                datePckr.preventDefault = false;
+                                this.changePublishedDate(datePckr, newDate);
                             }
                         } else {
                             if (!_.isUndefined(datePckr)) {
@@ -1861,6 +1850,27 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
         /*
          *   Event handlers.
          */
+        changePublishedDate: function(datePkr, nextDate) {
+            /* eslint-disable no-param-reassign*/
+
+            datePkr.lastSelectedDate = nextDate;
+            datePkr.silent = true;
+            datePkr.date = nextDate;
+            datePkr.silent = false;
+
+            // eslint-disable-next-line no-underscore-dangle
+            datePkr.nav._render();
+            datePkr.selectedDates = [nextDate];
+
+            // eslint-disable-next-line no-underscore-dangle
+            datePkr._setInputValue();
+
+            // eslint-disable-next-line no-underscore-dangle
+            datePkr.views[datePkr.currentView]._render();
+            datePkr.preventDefault = false;
+
+            /* eslint-enable no-param-reassign*/
+        },
 
         updateBottomButtonVisibility: function() {
             if (this.collection.length > 1) {
