@@ -175,6 +175,8 @@ define(['underscore'], function(_) {
                 },
             },
 
+            defaultTimezone: 'America/Chicago',
+
             editDropdownOptions: {
                 closeAfterSelect: true,
                 openOnFocus: true,
