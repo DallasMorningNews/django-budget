@@ -177,22 +177,30 @@ define(['underscore'], function(_) {
 
             dateGranularities: {
                 m: {
+                    name: 'Month only',
                     format: ['MMMM YYYY'],
+                    priority: 1,
                     rounding: 'month',
                     roundTo: 'end',
                 },
                 w: {
+                    name: 'Week only',
                     format: ['[Week of] MMM D, YYYY'],
+                    priority: 2,
                     rounding: 'week',
                     roundTo: 'start',
                 },
                 d: {
+                    name: 'Day only',
                     format: ['MMM D, YYYY'],
+                    priority: 3,
                     rounding: 'day',
                     roundTo: 'end',
                 },
                 t: {
+                    name: 'Day & time',
                     format: ['MMM D, YYYY', 'h:mm a'],
+                    priority: 4,
                     rounding: 'minute',
                     roundTo: 'end',
                 },
