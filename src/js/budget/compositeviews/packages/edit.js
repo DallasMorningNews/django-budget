@@ -394,7 +394,16 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     return null;
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
+                    var isInitialChoice = (
+                        (_.isNull(model.get(attr))) &&
+                        (!_.isNull(value))
+                    );
+
                     model.updatePublishDateResolution(value);
+
+                    if (isInitialChoice) {
+                        this.ui.pubDateField.trigger('changePublishDate');
+                    }
                 },
             };
 
