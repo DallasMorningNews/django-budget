@@ -501,12 +501,20 @@ function(
 
             if (newResolution === resolution) {
                 if (!_.isNull(newPublishDate)) {
-                    roughDate = moment(
-                        newPublishDate,
-                        this.dateFormats[resolution].join(' ')
-                    ).tz('America/Chicago');
+                    if (resolution === 't') {
+                        roughDate = moment(
+                            newPublishDate,
+                            this.dateFormats[resolution].join(' ')
+                        );
+                    } else {
+                        roughDate = moment.tz(
+                            newPublishDate,
+                            this.dateFormats[resolution].join(' '),
+                            settings.defaultTimezone
+                        );
+                    }
 
-                    end = roughDate.endOf(roundingResolution);
+                    end = roughDate.clone().endOf(roundingResolution);
                     start = end.clone().startOf(roundingResolution);
 
                     end.add({milliseconds: 1});
@@ -524,15 +532,22 @@ function(
         generateFormattedPublishDate: function(resolutionRaw, endTimestampRaw) {
             var resolution = resolutionRaw || this.get('publishDateResolution'),
                 endTimestamp = endTimestampRaw || this.get('publishDate')[1],
-                endDate = moment(endTimestamp).tz('America/Chicago').subtract({seconds: 1}),
-                processedDate = endDate;
+                endDate;
+
+            if (resolution === 't') {
+                endDate = moment(endTimestamp);
+            } else {
+                endDate = moment.tz(endTimestamp, settings.defaultTimezone);
+            }
+
+            endDate.subtract({seconds: 1});
 
             if (_.contains(['m', 'w', 'd', 't'], resolution)) {
-                if (resolution === 'w') { processedDate = endDate.startOf('week'); }
+                if (resolution === 'w') { endDate = endDate.startOf('week'); }
 
                 return _.map(
                     this.dateFormats[resolution],
-                    function(formatString) { return processedDate.format(formatString); }
+                    function(formatString) { return endDate.format(formatString); }
                 );
             }
 
