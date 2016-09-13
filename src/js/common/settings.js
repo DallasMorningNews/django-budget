@@ -175,6 +175,29 @@ define(['underscore'], function(_) {
                 },
             },
 
+            dateGranularities: {
+                m: {
+                    format: ['MMMM YYYY'],
+                    rounding: 'month',
+                    roundTo: 'end',
+                },
+                w: {
+                    format: ['[Week of] MMM D, YYYY'],
+                    rounding: 'week',
+                    roundTo: 'start',
+                },
+                d: {
+                    format: ['MMM D, YYYY'],
+                    rounding: 'day',
+                    roundTo: 'end',
+                },
+                t: {
+                    format: ['MMM D, YYYY', 'h:mm a'],
+                    rounding: 'minute',
+                    roundTo: 'end',
+                },
+            },
+
             defaultTimezone: 'America/Chicago',
 
             editDropdownOptions: {
