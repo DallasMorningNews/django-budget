@@ -471,18 +471,40 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                 events: ['changePublishDate'],
                 update: function($el, values, mdl) {  // eslint-disable-line no-unused-vars
                     var datePckr = ui.pubDateField.data('datepicker'),
+                        dateType,
                         newDate;
 
                     if (_.isNull(values[1]) || values[1] === '') {
                         datePckr.clear();
                     } else {
                         if ((!_.isUndefined(values[0])) && (values[0] !== '')) {
-                            newDate = moment(
-                                values[1][1]
-                            ).tz('America/Chicago').subtract({seconds: 1});
+                            dateType = settings.dateGranularities[values[0]];
+
+                            // Absolute times should be recreated absolutely.
+                            // Relative times should be recreated in the default
+                            // timezone (Central Time for The News) and then
+                            // translated into the user's timezone.
+                            if (values[0] === 't') {
+                                newDate = moment(values[1][1]).tz(
+                                    settings.defaultTimezone
+                                ).subtract({seconds: 1});
+                            } else {
+                                newDate = moment(
+                                    moment.tz(values[1][1], settings.defaultTimezone)
+                                            .subtract({seconds: 1})
+                                            .format(dateType.format.join(' ')),
+                                    dateType.format.join(' ')
+                                );
+                            }
 
                             // Weeks need to be passed as the beginning date.
-                            if (values[0] === 'w') { newDate = newDate.startOf('week'); }
+                            newDate = (
+                                dateType.roundTo === 'end'
+                            ) ? (
+                                newDate.endOf(dateType.rounding)
+                            ) : (
+                                newDate.startOf(dateType.rounding)
+                            );
 
                             this.changePublishedDate(
                                 datePckr,
