@@ -282,20 +282,6 @@ function(
             return relatedItemPromise;
         },
 
-        dateFormats: {
-            m: ['MMMM YYYY'],
-            w: ['[Week of] MMM D, YYYY'],
-            d: ['MMM D, YYYY'],
-            t: ['MMM D, YYYY', 'h:mm a'],
-        },
-
-        intervalRoundings: {
-            t: 'minute',
-            d: 'day',
-            w: 'week',
-            m: 'month',
-        },
-
         facetFilters: {
             person: function(pkg, stringToMatch, context) {  // eslint-disable-line no-unused-vars
                 // TODO: Update this to reflect 'additionalContent' being a collection.
@@ -461,6 +447,7 @@ function(
 
         updatePublishDateResolution: function(newResolution) {
             var currentResolution = this.get('publishDateResolution'),
+                resolutionConfig = settings.dateGranularities[newResolution],
                 oldEnd,
                 newEnd = null,
                 newStart = null;
@@ -473,7 +460,7 @@ function(
                         oldEnd = moment(
                             this.get('publishDate')[1]
                         ).tz('America/Chicago').subtract({seconds: 1});
-                        newEnd = oldEnd.endOf(this.intervalRoundings[newResolution]);
+                        newEnd = oldEnd.endOf(resolutionConfig.rounding);
 
                         if (_.contains(['m', 'w', 'd'], currentResolution)) {
                             if (newResolution === 't') {
@@ -481,7 +468,7 @@ function(
                             }
                         }
 
-                        newStart = newEnd.clone().startOf(this.intervalRoundings[newResolution]);
+                        newStart = newEnd.clone().startOf(resolutionConfig.rounding);
                     }
                 }
 
@@ -494,7 +481,7 @@ function(
 
         updatePublishDate: function(newResolution, newPublishDate) {
             var resolution = this.get('publishDateResolution'),
-                roundingResolution = this.intervalRoundings[resolution],
+                resolutionConfig = settings.dateGranularities[resolution],
                 roughDate,
                 start = null,
                 end = null;
@@ -504,18 +491,18 @@ function(
                     if (resolution === 't') {
                         roughDate = moment(
                             newPublishDate,
-                            this.dateFormats[resolution].join(' ')
+                            resolutionConfig.format.join(' ')
                         );
                     } else {
                         roughDate = moment.tz(
                             newPublishDate,
-                            this.dateFormats[resolution].join(' '),
+                            resolutionConfig.format.join(' '),
                             settings.defaultTimezone
                         );
                     }
 
-                    end = roughDate.clone().endOf(roundingResolution);
-                    start = end.clone().startOf(roundingResolution);
+                    end = roughDate.clone().endOf(resolutionConfig.rounding);
+                    start = end.clone().startOf(resolutionConfig.rounding);
 
                     end.add({milliseconds: 1});
                 }
@@ -532,6 +519,7 @@ function(
         generateFormattedPublishDate: function(resolutionRaw, endTimestampRaw) {
             var resolution = resolutionRaw || this.get('publishDateResolution'),
                 endTimestamp = endTimestampRaw || this.get('publishDate')[1],
+                resolutionConfig = settings.dateGranularities[resolution],
                 endDate;
 
             if (resolution === 't') {
@@ -546,7 +534,7 @@ function(
                 if (resolution === 'w') { endDate = endDate.startOf('week'); }
 
                 return _.map(
-                    this.dateFormats[resolution],
+                    resolutionConfig.format,
                     function(formatString) { return endDate.format(formatString); }
                 );
             }
