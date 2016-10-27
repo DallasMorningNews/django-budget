@@ -738,10 +738,18 @@ packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-contin
                     return model.primaryContentItem.get('budgetLine');
                 },
                 update: function($el, value, mdl) {  // eslint-disable-line no-unused-vars
-                    $el.text(value);
+                    // Only update the textarea's value if it's not currently
+                    // focused, to prevent an instance where users can only
+                    // type one character at a time.
+                    if (!$el.is(':focus')) {
+                        $el.text(value);
+                    }
                 },
                 set: function(attr, value, options, config) {  // eslint-disable-line no-unused-vars
-                    model.primaryContentItem.set('budgetLine', value);
+                    // Call set with {silent: true} and then explicitly call
+                    // the change trigger, so we're sure to re-set budget line
+                    // values on loss of focus as well as on keyboard inputs.
+                    model.primaryContentItem.set('budgetLine', value, {silent: true});
                     model.trigger('change:primaryContent.budgetLine');
                 },
             };
