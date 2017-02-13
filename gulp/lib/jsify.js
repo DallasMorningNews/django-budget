@@ -4,56 +4,65 @@ const babelify = require('babelify');
 const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
 const es = require('event-stream');
-const glob = require('glob');
 const gulp = require('gulp');
 const gulpif = require('gulp-if');
 const gutil = require('gulp-util');
-const path = require('path');
+// const rename = require('gulp-rename');
 const source = require('vinyl-source-stream');
-// const sourcemaps = require('gulp-sourcemaps');
+const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const watchify = require('watchify');
 
+
 module.exports = (watch) => {
-    const bundlerWrapper = watch ? watchify : s => s;
+    const wrapper = watch ? watchify : b => b;
 
     return (cb) => {
-        glob('./src/js/main-*.js', (err, files) => {
-            if (err) return cb(err);
-            const tasks = files.map((file) => {
-                const props = {
-                    cache: {},
-                    packageCache: {},
-                    entries: file,
-                    debug: argv.production !== true,
-                    global: true,
-                    presets: ['es2015'],
-                };
+        const files = ['main-budget.js', 'main-headlines.js'];
 
-                const bundler = bundlerWrapper(browserify(props));
+        const tasks = files.map((entry) => {
+            const props = {
+                entries: `./src/js/${entry}`,
+                extensions: ['.js'],
+                cache: {},
+                packageCache: {},
+                debug: argv.production !== true,
+            };
 
-                bundler
-                    .transform(babelify);
+            const bundler = wrapper(browserify(props).transform(babelify, {
+                presets: ['es2015'],
+            }));
 
-                function bundle() {
-                    return bundler.bundle()
-                        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-                        .pipe(source(path.basename(file)))
-                        .pipe(buffer())
-                        // .pipe(sourcemaps.init({ loadMaps: true }))
-                        .pipe(gulpif(argv.production, uglify().on('error', () => {
-                        })))
-                        // .pipe(sourcemaps.write('./'))
-                        .pipe(gulp.dest('dist/js/'));
-                }
+            function bundle() {
+                return bundler.bundle()
+                    .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+                    .pipe(source(entry))
+                    .pipe(buffer())
+                    // .pipe(
+                    //     gulpif(
+                    //         argv.production,
+                    //         // eslint-disable-next-line no-param-reassign
+                    //         rename((defaultPath) => { defaultPath.basename += '.min'; })
+                    //     )
+                    // )
+                    .pipe(sourcemaps.init({ loadMaps: true }))
+                    .pipe(
+                        gulpif(
+                            argv.production,
+                            uglify({ mangle: true, compress: true })
+                                .on('error', gutil.log)
+                        )
+                    )
+                    .pipe(sourcemaps.write('./'))
+                    .pipe(gulp.dest('./dist/js/'));
+            }
 
-                bundler.on('log', gutil.log);
-                bundler.on('update', bundle);
+            bundler.on('log', gutil.log);
+            bundler.on('update', bundle);
 
-                return bundle();
-            });
-
-            return es.merge(tasks).on('end', cb);
+            return bundle();
         });
+
+        return es.merge.apply(null, tasks).on('end', cb);
     };
 };
