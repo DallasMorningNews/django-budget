@@ -1,104 +1,99 @@
-define([
-    'backbone',
-    'jquery',
-    'marionette',
-    'underscore',
-    'common/tpl',
-], function(
-    Backbone,
-    $,
-    Mn,
-    _,
-    tpl
-) {
-    return Mn.ItemView.extend({
-        template: tpl('snackbar-base'),
+import _ from 'underscore';
+import Backbone from 'backbone';
+import jQuery from 'jquery';
+import Mn from 'backbone.marionette';
 
-        // id: '',
-        // className: 'center-content',
+export default Mn.ItemView.extend({
+    template: 'budget/snackbar-base',
 
-        serializeData: function() {
-            return this.config;
-        },
+    // id: '',
+    // className: 'center-content',
 
-        ui: {
-            actionTrigger: '.action-trigger',
-        },
+    serializeData() {
+        return this.config;
+    },
 
-        events: {
-            'click @ui.actionTrigger': 'hideVisibleSnackbar',
-        },
+    ui: {
+        actionTrigger: '.action-trigger',
+    },
 
-        attributes: function() {
-            if (typeof(this.config) === 'undefined') {
-                return {};
-            }
+    events: {
+        'click @ui.actionTrigger': 'hideVisibleSnackbar',
+    },
 
-            return {
-                class: 'snackbar ' + this.config.snackbarClass + ' ' +
-                            this.config.lineCount + '-line',
-            };
-        },
+    attributes() {
+        if (typeof this.config === 'undefined') {
+            return {};
+        }
 
-        initialize: function() {
-            var defaultConfig = {
-                containerClass: null,
-                text: '',
-                lineCount: 1,
-                snackbarClass: 'generic-snackbar',
-                action: null,
-            };
+        return {
+            class: `snackbar ${
+                this.config.snackbarClass
+            } ${
+                this.config.lineCount
+            }-line`,
+        };
+    },
 
-            this.config = _.chain(this.options)
-                                .defaults(defaultConfig)
-                                .omit(function(value, key, object) {  // eslint-disable-line no-unused-vars,max-len
-                                    return !_.chain(defaultConfig)
-                                                .keys()
-                                                .contains(key)
-                                                .value();
-                                })
-                                .value();
-        },
+    initialize() {
+        const defaultConfig = {
+            containerClass: null,
+            text: '',
+            lineCount: 1,
+            snackbarClass: 'generic-snackbar',
+            action: null,
+        };
 
-        onRender: function() {
-            this.$el.attr(_.result(this, 'attributes'));
-        },
+        this.config = _.chain(this.options)
+                            .defaults(defaultConfig)
+                            .omit(
+                                (value, key) =>
+                                    !_.chain(defaultConfig)
+                                          .keys()
+                                          .contains(key)
+                                          .value()
+                            )
+                            .value();
+    },
 
-        onDomRefresh: function() {
-            var radio = Backbone.Wreqr.radio.channel('global');
+    onRender() {
+        this.$el.attr(_.result(this, 'attributes'));
+    },
 
-            if (!_.isNull(this.config.containerClass)) {
-                this.$el.parent().removeClass().addClass(this.config.containerClass);
-            } else {
-                this.$el.parent().removeClass();
-            }
+    onDomRefresh() {
+        const radio = Backbone.Wreqr.radio.channel('global');
+
+        if (!_.isNull(this.config.containerClass)) {
+            this.$el.parent().removeClass().addClass(this.config.containerClass);
+        } else {
+            this.$el.parent().removeClass();
+        }
 
 
-            this.$el
-                .delay(825).queue(
-                    function() {
-                        $(this).addClass('active').dequeue();
-                    }
-                );
-            this.$el
-                .delay(5000).queue(
-                    function() {
-                        $(this).removeClass('active').dequeue();
-                    }
-                );
-            this.$el
-                .delay(1000).queue(
-                    function() {
-                        radio.commands.execute('clearRegion', 'snackbarHolder');
-                        $(this).dequeue();
-                    }
-                );
-        },
+        this.$el
+            .delay(825).queue(
+                () => {
+                    jQuery(this.$el).addClass('active').dequeue();
+                }
+            );
+        this.$el
+            .delay(5000).queue(
+                () => {
+                    jQuery(this.$el).removeClass('active').dequeue();
+                }
+            );
+        this.$el
+            .delay(1000).queue(
+                () => {
+                    radio.commands.execute('clearRegion', 'snackbarHolder');
+                    jQuery(this.$el).dequeue();
+                }
+            );
+    },
 
-        hideVisibleSnackbar: function() {
-            if (this.$el.hasClass('active')) {
-                this.$el.removeClass('active');
-            }
-        },
-    });
+    hideVisibleSnackbar() {
+        if (this.$el.hasClass('active')) {
+            this.$el.removeClass('active');
+        }
+    },
 });
