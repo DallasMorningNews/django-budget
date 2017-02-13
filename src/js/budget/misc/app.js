@@ -256,6 +256,6 @@ export default Mn.Application.extend({
             this.router.navigate(path, options);
         }, this);
 
-        Backbone.history.start({ pushState: false });
+        Backbone.history.start({ pushState: true });
     },
 });
