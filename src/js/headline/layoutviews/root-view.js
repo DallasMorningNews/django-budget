@@ -1,31 +1,20 @@
-define([
-    'backbone',
-    'marionette',
-    'underscore',
-    'underscore.string',
-    'common/tpl',
-], function(
-    Backbone,
-    Mn,
-    _,
-    _string_,
-    tpl
-) {
-    return Mn.LayoutView.extend({
-        el: 'body',
-        template: tpl('headline-root-view'),
-        regions: {
-            header: '#header',
-            mainContent: '#main-content',
-            snackbarHolder: '#snackbar-holder',
-        },
+import Backbone from 'backbone';
+import Mn from 'backbone.marionette';
 
-        ui: {
-            modalHolder: '#modal-holder',
-        },
+export default Mn.LayoutView.extend({
+    el: 'body',
+    template: 'headlines/root-view',
+    regions: {
+        header: '#header',
+        mainContent: '#main-content',
+        snackbarHolder: '#snackbar-holder',
+    },
 
-        initialize: function() {
-            this._radio = Backbone.Wreqr.radio.channel('global');
-        },
-    });
+    ui: {
+        modalHolder: '#modal-holder',
+    },
+
+    initialize() {
+        this.radio = Backbone.Wreqr.radio.channel('global');
+    },
 });
