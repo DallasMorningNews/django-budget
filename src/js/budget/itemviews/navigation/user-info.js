@@ -1,26 +1,19 @@
-define([
-    'backbone',
-    'marionette',
-    'common/settings',
-    'common/tpl',
-], function(
-    Backbone,
-    Mn,
-    settings,
-    tpl
-) {
-    return Mn.ItemView.extend({
-        template: tpl('navigation-user-info'),
+import 'selectize';
+import Mn from 'backbone.marionette';
 
-        onRender: function() {
-            this.setElement(this.el.innerHTML);
-        },
+import settings from '../../../common/settings';
 
-        serializeData: function() {
-            return {
-                currentUser: this.options.currentUser,
-                links: settings.navigationLinks,
-            };
-        },
-    });
+export default Mn.ItemView.extend({
+    template: 'budget/navigation-user-info',
+
+    onRender() {
+        this.setElement(this.el.innerHTML);
+    },
+
+    serializeData() {
+        return {
+            currentUser: this.options.currentUser,
+            links: settings.navigationLinks,
+        };
+    },
 });
