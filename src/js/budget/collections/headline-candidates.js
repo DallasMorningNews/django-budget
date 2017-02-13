@@ -1,45 +1,33 @@
-define(
-    [
-        'backbone',
-        'underscore',
-        'common/settings',
-        'budget/models/headline-candidate',
-    ],
-    function(
-        Backbone,
-        _,
-        settings,
-        HeadlineCandidate
-    ) {
-        'use strict';
+import Backbone from 'backbone';
 
-        return Backbone.Collection.extend({
-            // A boolean to track whether we've populated our collection with
-            // search options for the first time
-            model: HeadlineCandidate,
+import settings from '../../common/settings';
+import HeadlineCandidate from '../models/headline-candidate';
 
-            url: settings.apiEndpoints.headlineCandidate,
+export default Backbone.Collection.extend({
+    // A boolean to track whether we've populated our collection with
+    // search options for the first time
+    model: HeadlineCandidate,
 
-            events: {},
+    url: settings.apiEndpoints.headlineCandidate,
 
-            comparator: 'id',
+    events: {},
 
-            /**
-             * Sort the collection by pinned status first (pinned on top) then by
-             * created timestamp in reverse chronological order
-             */
-            // comparator: function(model) {
-            //     var optionTypeWeights = {
-            //         'person': 2,
-            //         'hub': 3,
-            //         'vertical': 4
-            //     };
-            //     return optionTypeWeights[model.get('type')] + '_' + model.get('value');
-            // },
+    comparator: 'id',
 
-            parse: function(response) {
-                return response.results;
-            },
-        });
-    }
-);
+    /**
+     * Sort the collection by pinned status first (pinned on top) then by
+     * created timestamp in reverse chronological order
+     */
+    // comparator: function(model) {
+    //     var optionTypeWeights = {
+    //         'person': 2,
+    //         'hub': 3,
+    //         'vertical': 4
+    //     };
+    //     return optionTypeWeights[model.get('type')] + '_' + model.get('value');
+    // },
+
+    parse(response) {
+        return response.results;
+    },
+});

@@ -1,126 +1,111 @@
-define(
-    [
-        'backbone',
-        'lunr',
-        'moment',
-        'underscore',
-        'common/settings',
-        'budget/models/package',
-    ],
-    function(
-        Backbone,
-        lunr,
-        moment,
-        _,
-        settings,
-        Package
-    ) {
-        'use strict';
+import Backbone from 'backbone';
+import lunr from 'lunr';
+import _ from 'underscore';
 
-        return Backbone.Collection.extend({
-            // A boolean to track whether we've populated our collection with
-            // packages for the first time
-            model: Package,
+import settings from '../../common/settings';
 
-            events: {
-                // 'change:pinned': 'sort'
-            },
+import Package from '../models/package';
 
-            initialize: function() {
-                this.once('sync', function() {
-                    this.queryFiltered = this.filter();
-                });
-            },
 
-            cleanSlug: function(rawSlug) {
-                return rawSlug
-                            .replace(/\./g, ' ')
-                            .replace(/-/g, ' ')
-                            .replace(/_/g, ' ');
-            },
+export default Backbone.Collection.extend({
+    // A boolean to track whether we've populated our collection with
+    // packages for the first time
+    model: Package,
 
-            combineAdditionalItemValues: function(model, field, fieldFormat) {
-                return _.chain(
-                        model.additionalContentCollection.pluck(field)
-                    ).reduce(
-                        function(memo, value) {
-                            var finalValue = value;
-                            if (!_.isUndefined(fieldFormat)) {
-                                finalValue = fieldFormat(finalValue);
-                            }
+    events: {
+        // 'change:pinned': 'sort'
+    },
 
-                            return memo + ' ' + finalValue;
-                        }
-                    )
-                    .value();
-            },
+    initialize() {
+        this.once('sync', () => { this.queryFiltered = this.filter(); });
+    },
 
-            rebuildIndex: function() {
-                this.fullTextIndex = lunr(
-                    function() {
-                        this.field('relatedSlugs', {boost: 5});
-                        this.field('relatedSlugsCleaned', {boost: 10});
-                        this.field('relatedBudgetLines', {boost: 15});
-                        this.field('primarySlug', {boost: 20});
-                        this.field('primarySlugCleaned', {boost: 25});
-                        this.field('primaryBudgetLine', {boost: 30});
-                        this.ref('id');
-                    }
-                );
+    cleanSlug(rawSlug) {
+        return rawSlug
+                    .replace(/\./g, ' ')
+                    .replace(/-/g, ' ')
+                    .replace(/_/g, ' ');
+    },
 
-                this.each(function(pkg) {
-                    this.fullTextIndex.add({
-                        id: pkg.get('id'),
-                        relatedSlugs: this.combineAdditionalItemValues(
-                            pkg,
-                            'slug'
-                        ),
-                        relatedSlugsCleaned: this.combineAdditionalItemValues(
-                            pkg,
-                            'slug',
-                            this.cleanSlug
-                        ),
-                        relatedBudgetLines: this.combineAdditionalItemValues(
-                            pkg,
-                            'budgetLine'
-                        ),
-                        primarySlug: pkg.primaryContentItem.get('slug'),
-                        primarySlugCleaned: this.cleanSlug(
-                            pkg.primaryContentItem.get('slug')
-                        ),
-                        primaryBudgetLine: pkg.primaryContentItem.get('budgetLine'),
-                    });
-                }.bind(this));
-            },
+    combineAdditionalItemValues(model, field, fieldFormat) {
+        return _.chain(
+                model.additionalContentCollection.pluck(field)
+            ).reduce(
+                (memo, value) => {
+                    const finalValue = (
+                      !_.isUndefined(fieldFormat)
+                    ) ? fieldFormat(value) : value;
 
-            filterAnd: function(queryTerms, extraContext) {
-                this.queryFiltered = this.filter(function(pkg) {
-                    return pkg.filterUsingAnd(queryTerms, extraContext);
-                }.bind(this));  // eslint-disable-line no-extra-bind
+                    return `${memo} ${finalValue}`;
+                }
+            )
+            .value();
+    },
 
-                this.trigger('updateQuery', this.queryFiltered);
-            },
+    rebuildIndex() {
+        this.fullTextIndex = lunr(
+            () => {
+                this.field('relatedSlugs', { boost: 5 });
+                this.field('relatedSlugsCleaned', { boost: 10 });
+                this.field('relatedBudgetLines', { boost: 15 });
+                this.field('primarySlug', { boost: 20 });
+                this.field('primarySlugCleaned', { boost: 25 });
+                this.field('primaryBudgetLine', { boost: 30 });
+                this.ref('id');
+            }
+        );
 
-            filterOr: function(searchTerms, extraContext) {
-                this.queryFiltered = this.filter(function(pkg) {
-                    return pkg.filterUsingOr(searchTerms, extraContext);
-                }.bind(this));  // eslint-disable-line no-extra-bind
-
-                this.trigger('updateQuery', this.queryFiltered);
-            },
-
-            /**
-             * Sort the collection by pinned status first (pinned on top) then by
-             * created timestamp in reverse chronological order
-             */
-            // BBTODO: Change this to reflect the loss of timestamps.
-            comparator: function(model) {
-                return moment(model.get('publishDate')[1]).unix();
-            },
-
-            parse: function(response) {
-                return response.results;
-            },
+        this.each((pkg) => {
+            this.fullTextIndex.add({
+                id: pkg.get('id'),
+                relatedSlugs: this.combineAdditionalItemValues(
+                    pkg,
+                    'slug'
+                ),
+                relatedSlugsCleaned: this.combineAdditionalItemValues(
+                    pkg,
+                    'slug',
+                    this.cleanSlug
+                ),
+                relatedBudgetLines: this.combineAdditionalItemValues(
+                    pkg,
+                    'budgetLine'
+                ),
+                primarySlug: pkg.primaryContentItem.get('slug'),
+                primarySlugCleaned: this.cleanSlug(
+                    pkg.primaryContentItem.get('slug')
+                ),
+                primaryBudgetLine: pkg.primaryContentItem.get('budgetLine'),
+            });
         });
-    }
-);
+    },
+
+    filterAnd(queryTerms, extraContext) {
+        this.queryFiltered = this.filter(
+            pkg => pkg.filterUsingAnd(queryTerms, extraContext)
+        );
+
+        this.trigger('updateQuery', this.queryFiltered);
+    },
+
+    filterOr(searchTerms, extraContext) {
+        this.queryFiltered = this.filter(
+            pkg => pkg.filterUsingOr(searchTerms, extraContext)
+        );
+
+        this.trigger('updateQuery', this.queryFiltered);
+    },
+
+    /**
+     * Sort the collection by pinned status first (pinned on top) then by
+     * created timestamp in reverse chronological order
+     */
+    // BBTODO: Change this to reflect the loss of timestamps.
+    comparator(model) {
+        return settings.moment(model.get('publishDate')[1]).unix();
+    },
+
+    parse(response) {
+        return response.results;
+    },
+});

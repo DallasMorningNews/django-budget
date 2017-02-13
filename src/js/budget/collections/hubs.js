@@ -1,40 +1,28 @@
-define(
-    [
-        'backbone',
-        'underscore',
-        'common/settings',
-        'budget/models/hub',
-    ],
-    function(
-        Backbone,
-        _,
-        settings,
-        Hub
-    ) {
-        'use strict';
+import Backbone from 'backbone';
 
-        return Backbone.Collection.extend({
-            // A boolean to track whether we've populated our collection with
-            // hubs for the first time
-            model: Hub,
+import settings from '../../common/settings';
+import Hub from '../models/hub';
 
-            events: {},
+export default Backbone.Collection.extend({
+    // A boolean to track whether we've populated our collection with
+    // hubs for the first time
+    model: Hub,
 
-            /**
-             * Sort the collection by pinned status first (pinned on top) then by
-             * created timestamp in reverse chronological order
-             */
-            comparator: function(model) {
-                return model.get('slug');
-            },
+    events: {},
 
-            url: function() {
-                return settings.apiEndpoints.hub;
-            },
+    /**
+     * Sort the collection by pinned status first (pinned on top) then by
+     * created timestamp in reverse chronological order
+     */
+    comparator(model) {
+        return model.get('slug');
+    },
 
-            parse: function(response) {
-                return response;
-            },
-        });
-    }
-);
+    url() {
+        return settings.apiEndpoints.hub;
+    },
+
+    parse(response) {
+        return response;
+    },
+});
