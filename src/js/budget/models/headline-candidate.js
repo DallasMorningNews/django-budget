@@ -1,25 +1,16 @@
-define(
-    [
-        'backbone',
-        'common/settings',
-    ],
-    function(
-        Backbone,
-        settings
-    ) {
-        'use strict';
+import Backbone from 'backbone';
 
-        return Backbone.Model.extend({
-            urlRoot: settings.apiEndpoints.headlineCandidate,
+import settings from '../../common/settings';
 
-            url: function() {
-                return this.urlRoot + this.id + (settings.apiPostfix || '/');
-            },
+export default Backbone.Model.extend({
+    urlRoot: settings.apiEndpoints.headlineCandidate,
 
-            defaults: {
-                text: '',
-                winner: false,
-            },
-        });
-    }
-);
+    url() {
+        return this.urlRoot + this.id + (settings.apiPostfix || '/');
+    },
+
+    defaults: {
+        text: '',
+        winner: false,
+    },
+});
