@@ -1,17 +1,6 @@
-define(
-    [
-        'marionette',
-        'common/tpl',
-    ],
-    function(
-        Mn,
-        tpl
-    ) {
-        'use strict';
+import Mn from 'backbone.marionette';
 
-        return Mn.ItemView.extend({
-            template: tpl('package-empty'),
-            className: 'package-empty-view',
-        });
-    }
-);
+export default Mn.ItemView.extend({
+    template: 'budget/package-empty',
+    className: 'package-empty-view',
+});
