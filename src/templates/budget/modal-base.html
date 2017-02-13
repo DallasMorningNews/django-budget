@@ -9,7 +9,7 @@
         </div>
         {% endif %}
 
-        <div class="row{% if row.extraClasses %} {{ row.extraClasses }}{% endif %}">
+        <div {% if row.id %}id="{{ row.id }}" {% endif %}class="row{% if row.extraClasses %} {{ row.extraClasses }}{% endif %}">
             {% if row.rowType == 'radio-buttons' %}
                 <div class="medium-12 columns form-radio">
             {% endif %}
@@ -51,7 +51,7 @@
 
         <div class="button-holder">
             {% for button in buttons %}
-            <div id="{{ button.buttonID }}" class="button {{ button.buttonClass }} click-init"><span>{{ button.innerLabel }}</span></div>
+            <div id="{{ button.buttonID }}" class="material-button {{ button.buttonClass }} click-init"><span>{{ button.innerLabel }}</span></div>
             {% endfor %}
             <div class="clearer"></div>
         </div>

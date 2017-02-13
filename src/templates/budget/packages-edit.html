@@ -1,9 +1,9 @@
 <div class="center-content">
     <div class="edit-bar">
         <div class="button-holder">
-            <div class="delete-trigger button flat-button"><span>Delete</span></div>
-            <div class="primary-action save-trigger button flat-button"><span>Save</span></div>
-            <div class="save-and-continue-editing-trigger button flat-button show-for-medium"><span>Save &amp; continue editing</span></div>
+            <div class="delete-trigger material-button flat-button"><span>Delete</span></div>
+            <div class="primary-action save-trigger material-button flat-button"><span>Save</span></div>
+            <div class="save-and-continue-editing-trigger material-button flat-button show-for-medium"><span>Save &amp; continue editing</span></div>
             <div class="clearer"></div>
         </div>
     </div>
@@ -39,7 +39,7 @@
 
                     <div class="request-link-group variable-attribute">
                         <div class="request-button-holder">
-                            <div class="request-link button flat-button"><a href="{{ visualsRequestURL }}" target="_blank"><span>Request visuals</span></a></div>
+                            <div class="request-link material-button flat-button"><a href="{{ visualsRequestURL }}" target="_blank"><span>Request visuals</span></a></div>
                         </div>
                     </div>
                 </div>
@@ -305,19 +305,22 @@
                         <i class="bar"></i>
                     </div>
 
-                    <div class="medium-4 columns form-group run-date-group">
-                        <input id="print_run_date_start" name="print_run_date_start" data-form="package" type="text" required="" value="" />
-                        <label for="print_run_date_start" class="control-label">Print run date (start)</label>
-                        <i class="bar"></i>
+                    <div id="print-run-dates">
+                        <div class="medium-4 columns form-group run-date-group">
+                            <input id="print_run_date_start" name="print_run_date_start" data-form="package" type="text" required="" value="" />
+                            <label for="print_run_date_start" class="control-label">Print run date (start)</label>
+                            <i class="bar"></i>
+                        </div>
+                        <div class="medium-1 columns form-group print-dates-divider">
+                              <div>To</div>
+                        </div>
+                        <div class="medium-4 columns form-group run-date-group">
+                            <input id="print_run_date_end" name="print_run_date_end" data-form="package" type="text" required="" value="" />
+                            <label for="print_run_date_end" class="control-label">Print run date (end)</label>
+                            <i class="bar"></i>
+                        </div>
                     </div>
-                    <div class="medium-1 columns form-group print-dates-divider">
-                          <div>To</div>
-                    </div>
-                    <div class="medium-4 columns form-group run-date-group">
-                        <input id="print_run_date_end" name="print_run_date_end" data-form="package" type="text" required="" value="" />
-                        <label for="print_run_date_end" class="control-label">Print run date (end)</label>
-                        <i class="bar"></i>
-                    </div>
+
                     <div class="medium-12 columns form-group print-slug-group">
                           <!-- <input id="print-system-slug" name="" type="text" required="" value="" /> -->
                           <input id="print-system-slug" name="print-system-slug" data-form="package" type="text" required="" value="" />
@@ -352,7 +355,7 @@
     <div class="single-page">
         <div id="additional-forms">
             <div class="section-header">
-                <h4 class="final-header">Additional content <span class="add-additional-content-trigger button"><i class="fa fa-plus"></i><span>&thinsp;Add<span class="show-for-medium">&nbsp;content</span></span></span></h4>
+                <h4 class="final-header">Additional content <span class="add-additional-content-trigger material-button"><i class="fa fa-plus"></i><span>&thinsp;Add<span class="show-for-medium">&nbsp;content</span></span></span></h4>
             </div>
         </div>
 
@@ -360,7 +363,7 @@
         </div>
 
         <div class="bottom-button-holder">
-            <div class="add-additional-content-trigger button"><i class="fa fa-plus"></i><span>&thinsp;Add content</span></div>
+            <div class="add-additional-content-trigger material-button"><i class="fa fa-plus"></i><span>&thinsp;Add content</span></div>
         </div>
     </div>
 </div>

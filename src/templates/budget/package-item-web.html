@@ -12,17 +12,24 @@
         <div class="slug-bar row">
             <div class="date-slug-budget-line column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
-                <h2 class="date-header">{{ formattedPrintRunDate }}{% if not packageObj.printPlacement.isFinalized %} (planned){% endif %}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if formattedPrintPlacements|length > 0 %}{% for placement in formattedPrintPlacements %}{{ placement }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}</h2>
-                <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.slug }}</h1>
-                <h4 class="budget-line-truncated might-overflow">{{ packageObj.primaryContent.budgetLine }}</h4>
+                <h2 class="date-header">{{ verticalName }}&nbsp;/&nbsp;{{ hubName }}</h2>
+                <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.budgetLine }}</h1>
+                <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-desktop"></i>{% if packageObj %}{% if packageObj.publishedUrl %}Published{% else %}Expected{% endif %}{% else %}Expected{% endif %} {{ publishDate }}</h4>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
+                <h3 class="additional-info-line package-slug"><span>{{ packageObj.primaryContent.slugKey }}.{{ packageObj.primaryContent.slugDate }}</span></h3>
+
+                <h3 class="might-overflow">
                 {% if packageObj.primaryContent.authors|length > 0 %}
-                <h3 class="might-overflow">{% if packageObj.primaryContent.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in packageObj.primaryContent.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
+                {% if packageObj.primaryContent.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in packageObj.primaryContent.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}
                 {% endif %}
+                </h3>
+
+                <h3 class="additional-info-line might-overflow">
                 {% if packageObj.primaryContent.editors|length > 0 %}
-                <h3 class="additional-info-line might-overflow">{% if packageObj.primaryContent.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in packageObj.primaryContent.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}</h3>
+                {% if packageObj.primaryContent.editors|length == 1 %}Editor{% else %}Editors{% endif %}: {% for editor in packageObj.primaryContent.editors %}{{ editor.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}
                 {% endif %}
+                </h3>
             </div>
         </div>
         <div class="contents-bar row">
@@ -55,7 +62,7 @@
                 <p>{{ packageObj.primaryContent.budgetLine }}</p>
 
                 <div class="mobile-action-buttons">
-                    <div class="action-button button edit-package">
+                    <div class="action-button material-button edit-package">
                         <a href="/edit/{{ packageObj.id }}/">
                             <div class="button-contents">
                                 <div class="button-innermost">
@@ -66,7 +73,7 @@
                             </div>
                         </a>
                     </div>
-                    <div class="action-button button view-notes">
+                    <div class="action-button material-button view-notes">
                         <div class="button-contents">
                             <div class="button-innermost">
                                 <i class="fa fa-fw fa-paragraph"></i>
@@ -75,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="action-button button subscribe">
+                    <div class="action-button material-button subscribe">
                         <div class="button-contents">
                             <div class="button-innermost">
                                 <i class="fa fa-fw fa-slack"></i>
@@ -118,7 +125,7 @@
 <div class="extra-sheet">
     <ul class="related-content">
         {% for item in additionalWithTypeMetas %}
-            {% include "package-item-print-additionalcontent" %}
+            {% include "budget/package-item-web-additionalcontent" %}
         {% endfor %}
     </ul>
 </div>
