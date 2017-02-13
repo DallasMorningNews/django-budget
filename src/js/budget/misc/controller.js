@@ -1,113 +1,97 @@
-define(
-    [
-        'backbone',
-        'moment',
-        'underscore',
-        'budget/compositeviews/packages/edit',
-        'budget/compositeviews/search-list/print',
-        'budget/compositeviews/search-list/web',
-        'budget/itemviews/snackbars/snackbar.js',
-        'budget/models/package',
-    ],
-    function(
-        Backbone,
-        moment,
-        _,
-        PackageEditView,
-        WebPrintList,
-        WebSearchList,
-        SnackbarView,
-        Package
-    ) {
-        'use strict';
+import _ from 'underscore';
+import Backbone from 'backbone';
 
-        var radio = Backbone.Wreqr.radio.channel('global');
+import Package from '../models/package';
+import PackageEditView from '../compositeviews/packages/edit';
+import PrintSearchList from '../compositeviews/search-list/print';
+import SnackbarView from '../itemviews/snackbars/snackbar';
+import WebSearchList from '../compositeviews/search-list/web';
 
-        return {
-            home: function(querystring) {
-                radio.commands.execute(
-                    'setState',
-                    'meta',
-                    'listViewType',
-                    'listPage'
-                );
+const radio = Backbone.Wreqr.radio.channel('global');
 
-                radio.commands.execute(
-                    'switchMainView',
-                    WebSearchList,
-                    {querystring: querystring}
-                );
-            },
-            printList: function(querystring) {
-                radio.commands.execute('setState', 'meta', 'listViewType', 'printListPage');
+export default {
+    home(querystring) {
+        radio.commands.execute(
+            'setState',
+            'meta',
+            'listViewType',
+            'listPage'
+        );
 
-                radio.commands.execute(
-                    'switchMainView',
-                    WebPrintList,
-                    {querystring: querystring}
-                );
-            },
-            edit: function(packageID) {
-                var packageOpts = (_.isUndefined(packageID)) ? {} : {
-                        id: parseInt(packageID, 10),
-                    },
-                    packageToEdit = new Package(packageOpts);
+        radio.commands.execute(
+            'switchMainView',
+            WebSearchList,
+            { querystring }
+        );
+    },
+    printList(querystring) {
+        radio.commands.execute('setState', 'meta', 'listViewType', 'printListPage');
 
-                if (_.isUndefined(packageID)) {
-                    // Instantiate an item collection associated with this package, and
-                    // retrieve its starting values from the API.
-                    packageToEdit.loadInitial().done(function() {
-                        radio.commands.execute(
-                            'switchMainView',
-                            PackageEditView,
-                            {model: packageToEdit, isEmpty: true}
-                        );
-                    });
-                } else {
-                    packageToEdit.fetch({
-                        xhrFields: {
-                            withCredentials: true,
-                        },
-                    }).done(function() {
-                        radio.commands.execute(
-                            'switchMainView',
-                            PackageEditView,
-                            {model: packageToEdit}
-                        );
-                    }).fail(function(stage, response) {
-                        if (stage === 'package') {
-                            if (response.status === 404) {
-                                // Redirect to the home page.
-                                radio.commands.execute('navigate', '', {trigger: true});
-
-                                // Display snackbar:
-                                radio.commands.execute(
-                                    'showSnackbar',
-                                    new SnackbarView({
-                                        snackbarClass: 'failure',
-                                        text: 'Could not find that item.',
-                                    })
-                                );
-                            } else {
-                                // Redirect to the home page.
-                                radio.commands.execute('navigate', '', {trigger: true});
-
-                                // Display snackbar:
-                                radio.commands.execute(
-                                    'showSnackbar',
-                                    new SnackbarView({
-                                        snackbarClass: 'failure',
-                                        text: 'Could not load that item.',
-                                    })
-                                );
-                            }
-                        }
-                    });
-                }
-            },
-            fourohfour: function() {
-                console.log('404.');  // eslint-disable-line no-console
-            },
+        radio.commands.execute(
+            'switchMainView',
+            PrintSearchList,
+            { querystring }
+        );
+    },
+    edit(packageID) {
+        const packageOpts = (_.isUndefined(packageID)) ? {} : {
+            id: parseInt(packageID, 10),
         };
-    }
-);
+        const packageToEdit = new Package(packageOpts);
+
+        if (_.isUndefined(packageID)) {
+            // Instantiate an item collection associated with this package, and
+            // retrieve its starting values from the API.
+            packageToEdit.loadInitial().done(() => {
+                radio.commands.execute(
+                    'switchMainView',
+                    PackageEditView,
+                    { model: packageToEdit, isEmpty: true }
+                );
+            });
+        } else {
+            packageToEdit.fetch({
+                xhrFields: {
+                    withCredentials: true,
+                },
+            }).done(() => {
+                radio.commands.execute(
+                    'switchMainView',
+                    PackageEditView,
+                    { model: packageToEdit }
+                );
+            }).fail((stage, response) => {
+                if (stage === 'package') {
+                    if (response.status === 404) {
+                        // Redirect to the home page.
+                        radio.commands.execute('navigate', '', { trigger: true });
+
+                        // Display snackbar:
+                        radio.commands.execute(
+                            'showSnackbar',
+                            new SnackbarView({
+                                snackbarClass: 'failure',
+                                text: 'Could not find that item.',
+                            })
+                        );
+                    } else {
+                        // Redirect to the home page.
+                        radio.commands.execute('navigate', '', { trigger: true });
+
+                        // Display snackbar:
+                        radio.commands.execute(
+                            'showSnackbar',
+                            new SnackbarView({
+                                snackbarClass: 'failure',
+                                text: 'Could not load that item.',
+                            })
+                        );
+                    }
+                }
+            });
+        }
+    },
+    fourohfour() {
+        console.log('404.');  // eslint-disable-line no-console
+    },
+};
