@@ -4,6 +4,12 @@
 
     #date-filter,
     #search-box {
+        &::after {
+            clear: both;
+            content: ' ';
+            display: block;
+        }
+
         .icon-holder {
             color: #9E9E9E;
             font-size: 24px;
@@ -46,7 +52,7 @@
         .create-button {
             text-align: right;
 
-            .button {
+            .material-button {
                 background-color: #0185D3;
                 border: 1px solid #0171B2;
                 border-radius: 2px;

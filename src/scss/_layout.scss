@@ -18,9 +18,35 @@
 
 // Global styles
 
+html {
+    font-size: 16px;
+}
+
 body {
     background-color: $page-background-color;
     color: $base-text-color;
+    font-weight: normal;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+
+    -moz-osx-font-smoothing: grayscale;
+     -webkit-font-smoothing: antialiased;
+}
+
+div {
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: inherit;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+    text-rendering: optimizeLegibility;
 }
 
 h1, h2 {
@@ -30,16 +56,115 @@ h1, h2 {
 
 h1 {
     font-size: 36px;
-    font-weight: bold;
+    font-weight: 700;
     line-height: 48px;
 }
 
 h2 {
     font-size: 28px;
-    font-weight: bold;
+    font-weight: 700;
     line-height: 42px;
 }
 
+p {
+    font-size: inherit;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    text-rendering: optimizeLegibility;
+}
+
+em, i {
+    font-style: italic;
+    line-height: inherit;
+}
+
+a {
+    background-color: transparent;
+    color: #2199e8;
+    cursor: pointer;
+    line-height: inherit;
+    text-decoration: none;
+
+    img {
+        border: 0 none;
+    }
+}
+
+img {
+    border: 0 none;
+    display: inline-block;
+    height: auto;
+    max-width: 100%;
+    vertical-align: middle;
+
+    -ms-interpolation-mode: bicubic;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    color: inherit;
+    font: inherit;
+    margin: 0;
+}
+
+input,
+select,
+textarea {
+    box-sizing: border-box;
+}
+
+input {
+    line-height: normal;
+}
+
+[type='text'],
+[type='password'],
+[type='date'],
+[type='datetime'],
+[type='datetime-local'],
+[type='month'],
+[type='week'],
+[type='email'],
+[type='number'],
+[type='search'],
+[type='tel'],
+[type='time'],
+[type='url'],
+[type='color'],
+textarea {
+    background-color: #FEFEFE;
+    border: 1px solid #CACACA;
+    border-radius: 0;
+    box-shadow: inset 0 1px 2px rgba(10,10,10,0.1);
+    box-sizing: border-box;
+    color: #0A0A0A;
+    display: block;
+    font-family: inherit;
+    font-size: 1rem;
+    height: 2.4375rem;
+    margin: 0 0 1rem;
+    padding: 0.5rem;
+    transition: box-shadow 0.5s,border-color 0.25s ease-in-out;
+    width: 100%;
+
+    -webkit-appearance: none;
+       -moz-appearance: none;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
 
 .clearer {
     @include clearfix;
@@ -48,7 +173,16 @@ h2 {
 #navigation {
     background-color: $hat-background-color;
     color: $hat-text-color;
+    margin: 0;
     padding: 0;
+
+    &::after {
+        clear: both;
+        content: ' ';
+        display: table;
+        flex-basis: 0;
+        order: 1;
+    }
 
     .navigation-inner {
         @include clearfix;
@@ -73,6 +207,11 @@ h2 {
         filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF0185D3', endColorstr='#FF036DAB', GradientType=1);
 
         #logo-holder {
+            float: left;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+
             .masthead {
                 box-sizing: border-box;
                 display: block;
@@ -92,10 +231,13 @@ h2 {
         }
 
         #user-info-holder {
+            float: right;
             font-weight: 500;
             height: 4.4rem;
             line-height: 1.9rem;
+            margin: 0;
             padding: 2rem 1rem 0 0.5rem;
+            width: 100%;
 
             .white {
                 a {
@@ -142,6 +284,17 @@ h2 {
             color: #616161;
             font-size: 14px;
             line-height: 24px;
+        }
+    }
+}
+
+@media screen and (min-width: 30em) {
+    #navigation {
+        .navigation-inner {
+            #logo-holder,
+            #user-info-holder {
+                width: auto;
+            }
         }
     }
 }

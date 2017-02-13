@@ -5,22 +5,6 @@
 @include keyframes-vex-fadebackward
 // @import keyframes
 
-$mf-font-size: 1rem !default;
-$mf-active-font-size: $mf-font-size * 0.8 !default;
-$mf-active-top: -$mf-font-size !default;
-
-$mf-gap: $mf-font-size * 1.25 !default;
-$mf-spacer: $mf-font-size / 8 !default;
-
-$mf-input-color: #333 !default;
-$mf-border-color: #999 !default;
-$mf-label-color: #9E9E9E !default;
-$mf-active-color: darken($mf-border-color, 10%) !default;
-$mf-focus-color: #0185D3 !default;
-$mf-error-color: #d9534f !default;
-
-$mf-transition-speed: 0.28s !default;
-
 
 #modal-holder .package-modal {
     border: 3px solid #FFFFFF;
@@ -115,11 +99,11 @@ $mf-transition-speed: 0.28s !default;
         border-width: 3px;
 
         &.delete-waiting-transition {
-            border-color: darken($mf-delete-action-color, 21%);
+            border-color: darken($delete-action-color, 21%);
         }
 
         &.save-waiting-transition {
-            border-color: darken($mf-save-action-color, 21%);
+            border-color: darken($save-action-color, 21%);
         }
 
         .modal-inner {
@@ -151,22 +135,22 @@ $mf-transition-speed: 0.28s !default;
     }
 
     &.delete-waiting {
-        background-color: darken($mf-delete-action-color, 21%);
+        background-color: darken($delete-action-color, 21%);
 
         &.waiting-transition,
         &.waiting {
-            border-color: darken($mf-delete-action-color, 24%);
+            border-color: darken($delete-action-color, 24%);
             border-style: solid;
             border-width: 3px;
         }
     }
 
     &.save-waiting {
-        background-color: darken($mf-save-action-color, 21%);
+        background-color: darken($save-action-color, 21%);
 
         &.waiting-transition,
         &.waiting {
-            border-color: darken($mf-save-action-color, 24%);
+            border-color: darken($save-action-color, 24%);
         }
     }
 
@@ -176,6 +160,54 @@ $mf-transition-speed: 0.28s !default;
         &.waiting {
             border-style: solid;
             border-width: 3px;
+        }
+    }
+
+    .modal-inner {
+        form {
+            position: relative;
+        }
+
+        .time-picker {
+            position: absolute;
+            top: 40px;
+            z-index: 1234;
+        }
+
+        .date-range-picker {
+            left: 10px;
+            position: absolute;
+            top: 55px;
+
+            .dr-picker {
+                z-index: 1234;
+
+                .top-bar {
+                    & > div {
+                        width: auto !important;
+                    }
+
+                    input[type='button'] {
+                        background: #00AAEE;
+                        border: 1px solid #0076A3;
+                        border-radius: 4px;
+                        box-shadow: inset -1px -2px 6px #006699;
+                        color: #FFFFFF;
+                        font-size: 12px;
+                        height: auto;
+                        line-height: 1rem;
+                        margin: 0;
+                        padding: 3px 5px;
+                        width: auto;
+                    }
+                }
+            }
+        }
+
+        #package-web-info {
+            .date-range-picker {
+                top: 35px;
+            }
         }
     }
 
@@ -193,9 +225,9 @@ $mf-transition-speed: 0.28s !default;
 
     .form-radio,
     .form-group {
-        margin-bottom: $mf-gap;
-        margin-top: $mf-gap;
-        padding: 0 ($mf-gap / 2);
+        margin-bottom: $default-gap;
+        margin-top: $default-gap;
+        padding: 0 ($default-gap / 2);
         position: relative;
 
         &.publication-group {
@@ -231,7 +263,7 @@ $mf-transition-speed: 0.28s !default;
     //     color: #727272;
     //     display: block;
     //     font-size: 12px;
-    //     font-weight: bold;
+    //     font-weight: 700;
     //     line-height: 12px;
     //     margin: 0;
     //     padding-bottom: 12px;
@@ -240,20 +272,20 @@ $mf-transition-speed: 0.28s !default;
     // }
 
     .control-label {
-        color: $mf-label-color;
-        font-size: $mf-font-size;
+        color: $default-label-color;
+        font-size: $default-font-size;
         font-weight: normal;
-        line-height: $mf-font-size;
-        padding-left: $mf-spacer;
+        line-height: $default-font-size;
+        padding-left: $default-spacer;
         pointer-events: none;
         position: absolute;
-        top: ($mf-font-size / 4);
+        top: ($default-font-size / 4);
         z-index: 1;
 
-        transition: all $mf-transition-speed ease;
+        transition: all $default-transition-speed ease;
 
         .required-marker {
-            margin-left: ($mf-font-size / 10);
+            margin-left: ($default-font-size / 10);
         }
     }
 
@@ -265,14 +297,14 @@ $mf-transition-speed: 0.28s !default;
         box-shadow: none;
         color: transparent;
         display: block;
-        font-size: $mf-font-size;
+        font-size: $default-font-size;
         line-height: 1.9375rem;
         height: 1.9375rem;
         margin: 0;
-        padding: 0 $mf-spacer;
+        padding: 0 $default-spacer;
         width: 100%;
 
-        // transition: all $mf-transition-speed ease;
+        // transition: all $default-transition-speed ease;
         transition: height 0s;
     }
 
@@ -288,33 +320,33 @@ $mf-transition-speed: 0.28s !default;
     textarea.has-value,
     .expanding-holder.input-focused,
     .expanding-holder.has-value {
-        color: $mf-input-color;
+        color: $input-color;
 
         ~ .control-label {
-            color: $mf-active-color;
-            font-size: $mf-active-font-size;
-            left: ($mf-gap / 2);
-            line-height: $mf-active-font-size;
-            top: $mf-active-top;
+            color: $active-label-color;
+            font-size: $default-active-font-size;
+            left: ($default-gap / 2);
+            line-height: $default-active-font-size;
+            top: $default-active-top;
 
             .required-marker {
-                margin-left: ($mf-active-font-size / 10);
+                margin-left: ($default-active-font-size / 10);
             }
         }
     }
 
     input:read-only {
-        color: $mf-input-color;
+        color: $input-color;
 
         ~ .control-label {
-            color: $mf-label-color;
-            font-size: $mf-active-font-size;
-            left: ($mf-gap / 2);
-            line-height: $mf-active-font-size;
-            top: $mf-active-top;
+            color: $default-label-color;
+            font-size: $default-active-font-size;
+            left: ($default-gap / 2);
+            line-height: $default-active-font-size;
+            top: $default-active-top;
 
             // .required-marker {
-            //     margin-left: ($mf-active-font-size / 10);
+            //     margin-left: ($default-active-font-size / 10);
             // }
         }
     }
@@ -326,10 +358,10 @@ $mf-transition-speed: 0.28s !default;
             outline: none;
 
             ~ .control-label {
-                color: $mf-focus-color;
+                color: $focus-color;
 
                 .required-marker {
-                    color: $mf-error-color;
+                    color: $error-color;
                 }
             }
 
@@ -355,7 +387,6 @@ $mf-transition-speed: 0.28s !default;
             margin: 0.4375rem 0 0 0.5rem;
 
             &::before {
-                opacity: 0;
                 transition: all 360ms cubic-bezier(0.250, 0.460, 0.450, 0.940);
             }
 
@@ -367,8 +398,8 @@ $mf-transition-speed: 0.28s !default;
                 }
 
                 &::before {
-                    background: darken($mf-delete-action-color, 21%);
-                    border: 4px solid darken($mf-delete-action-color, 24%);
+                    background: darken($delete-action-color, 21%);
+                    border: 4px solid darken($delete-action-color, 24%);
                 }
             }
 
@@ -380,8 +411,8 @@ $mf-transition-speed: 0.28s !default;
                 }
 
                 &::before {
-                    background: darken($mf-save-action-color, 21%);
-                    border: 4px solid darken($mf-save-action-color, 24%);
+                    background: darken($save-action-color, 21%);
+                    border: 4px solid darken($save-action-color, 24%);
                 }
             }
 
@@ -540,7 +571,7 @@ $mf-transition-speed: 0.28s !default;
                     border-top: 1px solid rgba(0,0,0,0.12);
                     color: #9E9E9E;
                     font-size: 0.75rem;
-                    font-weight: bold;
+                    font-weight: 700;
                     line-height: 1.5rem;
                     text-transform: uppercase;
                 }
@@ -587,7 +618,7 @@ $mf-transition-speed: 0.28s !default;
                 color: #727272;
                 display: block;
                 font-size: 14px;
-                font-weight: bold;
+                font-weight: 700;
                 line-height: 14px;
                 margin: 0;
                 padding: 2px 0.9375rem 22px;
@@ -605,7 +636,7 @@ $mf-transition-speed: 0.28s !default;
 
                 input:checked ~ .radio-label {
                     color: #212121;
-                    font-weight: bold;
+                    font-weight: 700;
                 }
             }
         }
