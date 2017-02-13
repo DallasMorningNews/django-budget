@@ -1,8 +1,9 @@
 import Backbone from 'backbone';
-import deline from 'deline';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import _ from 'underscore';
+
+import deline from '../../../vendored/deline';
 
 import Poller from '../../../common/poller';
 import settings from '../../../common/settings';

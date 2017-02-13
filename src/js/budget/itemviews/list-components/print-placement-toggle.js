@@ -1,8 +1,9 @@
 import 'selectize';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import deline from 'deline';
 import Mn from 'backbone.marionette';
+
+import deline from '../../../vendored/deline';
 
 export default Mn.ItemView.extend({
     template: 'budget/list-components-print-placement-toggle',

@@ -1,6 +1,7 @@
 import 'underscore.string';
 import _ from 'underscore';
-import deline from 'deline';
+
+import deline from '../../../vendored/deline';
 
 import settings from '../../../common/settings';
 

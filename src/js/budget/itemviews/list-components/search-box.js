@@ -1,10 +1,12 @@
 import 'selectize';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import deline from 'deline';
 import Mn from 'backbone.marionette';
 
+import deline from '../../../vendored/deline';
+
 import settings from '../../../common/settings';
+
 import SearchOption from '../../models/search-option';
 import SearchOptionCollection from '../../collections/search-options';
 

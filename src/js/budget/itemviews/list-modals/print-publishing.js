@@ -1,8 +1,9 @@
 import _ from 'underscore';
-import deline from 'deline';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import 'daterange-picker-ex';
+
+import deline from '../../../vendored/deline';
 
 import settings from '../../../common/settings';
 

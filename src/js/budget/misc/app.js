@@ -1,9 +1,10 @@
 import Backbone from 'backbone';
-import deline from 'deline';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import _ from 'underscore';
 import Stickit from 'backbone.stickit';
+
+import deline from '../../vendored/deline';
 
 import NamedRouter from '../../common/router';
 import settings from '../../common/settings';

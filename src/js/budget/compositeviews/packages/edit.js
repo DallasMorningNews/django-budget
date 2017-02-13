@@ -1,5 +1,4 @@
 import Backbone from 'backbone';
-import deline from 'deline';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import _ from 'underscore';
@@ -7,6 +6,8 @@ import _string_ from 'underscore.string';
 import 'daterange-picker-ex';
 import 'selectize';
 import 'timedropper-ex';
+
+import deline from '../../../vendored/deline';
 
 import settings from '../../../common/settings';
 

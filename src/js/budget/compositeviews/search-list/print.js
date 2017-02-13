@@ -1,6 +1,7 @@
 import jQuery from 'jquery';
-import deline from 'deline';
 import _ from 'underscore';
+
+import deline from '../../../vendored/deline';
 
 import settings from '../../../common/settings';
 
