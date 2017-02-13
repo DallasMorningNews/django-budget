@@ -1,228 +1,237 @@
-define([
-    'jquery',
-    'moment',
-    'underscore',
-    'budget/collectionviews/section-packages',
-    'budget/compositeviews/search-list/base',
-    'budget/itemviews/list-components/daily-title',
-    'budget/itemviews/list-components/date-filter',
-    'budget/itemviews/list-components/search-box',
-    'budget/itemviews/list-components/print-placement-toggle',
-    'budget/itemviews/packages/package-print-info',
-    'common/tpl',
-], function(
-    $,
-    moment,
-    _,
-    SectionPackagesCollection,
-    BaseSearchList,
-    DailyTitleView,
-    DateFilterView,
-    SearchBoxView,
-    PrintPlacementToggleView,
-    PackageItemPrintView,
-    tpl
-) {
-    return BaseSearchList.extend({
-        template: tpl('package-search-list-print'),
+import jQuery from 'jquery';
+import deline from 'deline';
+import _ from 'underscore';
 
-        filterViews: [
-            {
-                elementID: 'daily-title',
-                slug: 'dailyTitle',
-                ViewClass: DailyTitleView,
-            },
-            {
-                elementID: 'date-filter',
-                slug: 'dateFilter',
-                ViewClass: DateFilterView,
-            },
-            {
-                elementID: 'search-box',
-                slug: 'searchBox',
-                ViewClass: SearchBoxView,
-            },
-            {
-                elementID: 'print-placement-toggle',
-                slug: 'printPlacementToggle',
-                ViewClass: PrintPlacementToggleView,
-            },
-        ],
+import settings from '../../../common/settings';
 
-        childView: PackageItemPrintView,
-        outerClass: 'print-archive',
-        stateKey: 'printSearchList',
-        urlBase: '/print/',
+import BaseSearchList from './base';
+import DailyTitleView from '../../itemviews/list-components/daily-title';
+import DateFilterView from '../../itemviews/list-components/date-filter';
+import PackageItemPrintView from '../../itemviews/packages/package-print-info';
+import PrintPlacementToggleView from '../../itemviews/list-components/print-placement-toggle';
+import SearchBoxView from '../../itemviews/list-components/search-box';
+import SectionPackagesCollection from '../../collectionviews/section-packages';
 
-        queryTerms: [
-            {
-                apiQuery: 'search',
-                urlSlug: 'fullText',
-            },
-            {
-                formatQueryValue: function(initialValue) {
-                    return initialValue.split('.hub')[0];
-                },
-                urlSlug: 'hub',
-            },
-            {
-                urlSlug: 'person',
-            },
-            {
-                formatQueryValue: function(initialValue) {
-                    return initialValue.split('.v')[0];
-                },
-                urlSlug: 'vertical',
-            },
-            {
-                apiQuery: 'content_type',
-                formatQueryValue: function(initialValue) {
-                    return initialValue.split('.ct')[0];
-                },
-                urlSlug: 'contentType',
-            },
-            {
-                apiQuery: 'publication',
-                formatQueryValue: function(initialValue) {
-                    return initialValue.split('.pub')[0];
-                },
-                urlSlug: 'printPublication',
-            },
-        ],
+export default BaseSearchList.extend({
+    template: 'budget/package-search-list-print',
 
-        extendInitialize: function() {
-            this.on('changeParams', function() {
-                if (_.isObject(this.ui.facetedCollectionHolder)) {
-                    this.ui.facetedCollectionHolder.empty();
-                    this.rerenderFacetedLists = true;
-                }
-            }.bind(this));
+    filterViews: [
+        {
+            elementID: 'daily-title',
+            slug: 'dailyTitle',
+            ViewClass: DailyTitleView,
         },
+        {
+            elementID: 'date-filter',
+            slug: 'dateFilter',
+            ViewClass: DateFilterView,
+        },
+        {
+            elementID: 'search-box',
+            slug: 'searchBox',
+            ViewClass: SearchBoxView,
+        },
+        {
+            elementID: 'print-placement-toggle',
+            slug: 'printPlacementToggle',
+            ViewClass: PrintPlacementToggleView,
+        },
+    ],
 
-        isEmpty: function(collection) {
-            var thisPub = this._radio.reqres.request(
-                    'getState',
-                    'printSearchList',
-                    'queryTerms'
-                ).findWhere({type: 'printPublication'}),
-                pubs = this.options.data.printPublications,
-                // If no publication has been set yet, choose the first one in the list.
-                // This will already be the one chosen once the view rendering ends.
-                currentSlugConfig = (_.isUndefined(thisPub)) ? pubs.at(0) : pubs.findWhere({
-                    slug: thisPub.get('value').split('.pub')[0],
-                }),
-                publicationSectionIDs = _.pluck(currentSlugConfig.get('sections'), 'id'),
-                collectionIsEmpty = _.chain(collection.pluck('printSection'))
-                                        .flatten()
-                                        .uniq()
-                                        .intersection(publicationSectionIDs)
-                                        .isEmpty()
-                                        .value();
+    childView: PackageItemPrintView,
+    outerClass: 'print-archive',
+    stateKey: 'printSearchList',
+    urlBase: '/print/',
 
-            if (collectionIsEmpty) {
-                if (!this.$el.hasClass('empty-collection')) {
-                    this.$el.addClass('empty-collection');
-                }
-            } else {
-                if (this.$el.hasClass('empty-collection')) {
-                    this.$el.removeClass('empty-collection');
-                }
+    queryTerms: [
+        {
+            apiQuery: 'search',
+            urlSlug: 'fullText',
+        },
+        {
+            formatQueryValue: initialValue => initialValue.split('.hub')[0],
+            urlSlug: 'hub',
+        },
+        {
+            urlSlug: 'person',
+        },
+        {
+            formatQueryValue: initialValue => initialValue.split('.v')[0],
+            urlSlug: 'vertical',
+        },
+        {
+            apiQuery: 'content_type',
+            formatQueryValue: initialValue => initialValue.split('.ct')[0],
+            urlSlug: 'contentType',
+        },
+        {
+            apiQuery: 'publication',
+            formatQueryValue: initialValue => initialValue.split('.pub')[0],
+            urlSlug: 'printPublication',
+        },
+    ],
+
+    extendInitialize() {
+        this.on('changeParams', () => {
+            if (_.isObject(this.ui.facetedCollectionHolder)) {
+                this.ui.facetedCollectionHolder.empty();
+                this.rerenderFacetedLists = true;
             }
+        });
+    },
 
-            return collectionIsEmpty;
-        },
+    isEmpty(collection) {
+        const thisPub = this.radio.reqres.request(
+            'getState',
+            'printSearchList',
+            'queryTerms'
+        ).findWhere({ type: 'printPublication' });
 
-        generateCollectionFetchOptions: function() {
-            var dateRange = this._radio.reqres.request(
-                    'getState',
-                    this.stateKey,
-                    'dateRange'
-                ),
-                queryOptions,
-                currentTerms = this._radio.reqres.request('getState', this.stateKey, 'queryTerms'),
-                newEnd;
+        const pubs = this.options.data.printPublications;
 
-            // The API's results are exclusive of the end date.
-            // In order to continue using an inclusive range in this interface
-            // (for a more user-friendly experience), we add a day to the end
-            // of the stored date range before querying.
-            newEnd = moment(dateRange.end, 'YYYY-MM-DD').add({days: 1}).format('YYYY-MM-DD');
+        // If no publication has been set yet, choose the first one in the list.
+        // This will already be the one chosen once the view rendering ends.
+        const currentSlugConfig = (
+            _.isUndefined(thisPub)
+        ) ? pubs.at(0) : pubs.findWhere({
+            slug: thisPub.get('value').split('.pub')[0],
+        });
+        const publicationSectionIDs = _.pluck(
+            currentSlugConfig.get('sections'),
+            'id'
+        );
+        const collectionIsEmpty = _.chain(collection.pluck('printSection'))
+                                .flatten()
+                                .uniq()
+                                .intersection(publicationSectionIDs)
+                                .isEmpty()
+                                .value();
 
-            queryOptions = {
-                data: {
-                    has_primary: 1,
-                    ordering: 'print_run_date',
-                    print_run_date: [dateRange.start, newEnd].join(','),
-                },
-                deepLoad: false,
-                muteConsole: true,
-                xhrFields: {
-                    withCredentials: true,
-                },
-            };
+        if (collectionIsEmpty) {
+            if (!this.$el.hasClass('empty-collection')) {
+                this.$el.addClass('empty-collection');
+            }
+        } else if (this.$el.hasClass('empty-collection')) {
+            this.$el.removeClass('empty-collection');
+        }
 
-            currentTerms.each(function(filter) {
-                var filterConfig,
-                    returnKey = filter.get('type'),
-                    returnValue = filter.get('value');
+        return collectionIsEmpty;
+    },
 
-                if (_.contains(_.pluck(this.queryTerms, 'urlSlug'), filter.get('type'))) {
-                    filterConfig = _.findWhere(this.queryTerms, {urlSlug: filter.get('type')});
+    generateCollectionFetchOptions() {
+        const dateRange = this.radio.reqres.request(
+            'getState',
+            this.stateKey,
+            'dateRange'
+        );
+        const currentTerms = this.radio.reqres.request(
+            'getState',
+            this.stateKey,
+            'queryTerms'
+        );
 
-                    if (_.has(filterConfig, 'apiQuery')) {
-                        returnKey = filterConfig.apiQuery;
-                    }
+        // The API's results are exclusive of the end date.
+        // In order to continue using an inclusive range in this interface
+        // (for a more user-friendly experience), we add a day to the end
+        // of the stored date range before querying.
+        const newEnd = settings.moment(
+            dateRange.end,
+            'YYYY-MM-DD'
+        ).add({ days: 1 }).format('YYYY-MM-DD');
 
-                    if (_.has(filterConfig, 'formatQueryValue')) {
-                        returnValue = filterConfig.formatQueryValue(filter.get('value'));
-                    }
+        const queryOptions = {
+            data: {
+                has_primary: 1,
+                ordering: 'print_run_date',
+                print_run_date: [dateRange.start, newEnd].join(','),
+            },
+            deepLoad: false,
+            muteConsole: true,
+            xhrFields: {
+                withCredentials: true,
+            },
+        };
 
-                    queryOptions.data[returnKey] = returnValue;
+        currentTerms.each((filter) => {
+            let filterConfig;
+            let returnKey = filter.get('type');
+            let returnValue = filter.get('value');
+
+            if (_.contains(_.pluck(this.queryTerms, 'urlSlug'), filter.get('type'))) {
+                filterConfig = _.findWhere(
+                  this.queryTerms,
+                  { urlSlug: filter.get('type') }
+                );
+
+                if (_.has(filterConfig, 'apiQuery')) {
+                    returnKey = filterConfig.apiQuery;
                 }
-            }.bind(this));
 
-            return queryOptions;
-        },
+                if (_.has(filterConfig, 'formatQueryValue')) {
+                    returnValue = filterConfig.formatQueryValue(filter.get('value'));
+                }
 
-        generateFacetedCollections: function() {
-            var thisPub = this._radio.reqres.request(
-                    'getState',
-                    'printSearchList',
-                    'queryTerms'
-                ).findWhere({type: 'printPublication'}),
-                pubs = this.options.data.printPublications,
-                currentSlugConfig = (_.isUndefined(thisPub)) ? pubs.at(0) : pubs.findWhere({
-                    slug: thisPub.get('value').split('.pub')[0],
-                }),
-                allSections = _.flatten(pubs.pluck('sections')),
-                sectionViews = _.chain(currentSlugConfig.get('sections')).map(
-                    function(section) {
-                        var sectionIDs = _.chain(
-                                currentSlugConfig.get('sections')
-                            ).pluck('id').value(),
-                            facetOuterEl = $(
-                                '<div class="facet-holder">' +
-                                    '<h4 class="facet-label">' + section.name + '</h1>' +
-                                '</div>'
-                            ).appendTo(this.ui.facetedCollectionHolder),
-                            facetEl = $(
-                                '<div class="packages ' + section.slug + '"></div>'
-                            ).appendTo(facetOuterEl);
+                queryOptions.data[returnKey] = returnValue;
+            }
+        });
 
-                        return new SectionPackagesCollection({
-                            allSections: allSections,
-                            collection: this.collection,
-                            el: facetEl,
-                            hubConfigs: this.options.data.hubs,
-                            ignoredIDs: _.first(sectionIDs, _.indexOf(sectionIDs, section.id)),
-                            sectionConfig: section,
-                            printPublications: this.options.data.printPublications,
-                            poller: this._poller,
-                        });
-                    }.bind(this)
-                ).value();
+        return queryOptions;
+    },
 
-            return sectionViews;
-        },
-    });
+    generateDefaultDateRange() {
+        const currentDate = settings.moment().tz('America/Chicago').startOf('day');
+
+        return {
+            start: currentDate.clone().add(1, 'days').format('YYYY-MM-DD'),
+            end: currentDate.clone().add(1, 'days').format('YYYY-MM-DD'),
+            // end: currentDate.clone().add({ days: 3 }).format('YYYY-MM-DD'),
+        };
+    },
+
+    generateFacetedCollections() {
+        const thisPub = this.radio.reqres.request(
+            'getState',
+            'printSearchList',
+            'queryTerms'
+        ).findWhere({ type: 'printPublication' });
+        const pubs = this.options.data.printPublications;
+        const currentSlugConfig = (
+            _.isUndefined(thisPub)
+        ) ? pubs.at(0) : pubs.findWhere({
+            slug: thisPub.get('value').split('.pub')[0],
+        });
+        const allSections = _.flatten(pubs.pluck('sections'));
+        const sectionViews = _.chain(currentSlugConfig.get('sections')).map(
+            (section) => {
+                const sectionIDs = _.chain(
+                    currentSlugConfig.get('sections')
+                ).pluck('id').value();
+
+                const facetOuterEl = jQuery(deline`
+                    <div class="facet-holder">
+
+                        <h4 class="facet-label">${section.name}</h4>
+
+                    </div>`
+                ).appendTo(this.ui.facetedCollectionHolder);
+
+                const facetEl = jQuery(
+                    `<div class="packages ${section.slug}"></div>`
+                ).appendTo(facetOuterEl);
+
+                return new SectionPackagesCollection({
+                    allSections,
+                    collection: this.collection,
+                    el: facetEl,
+                    hubConfigs: this.options.data.hubs,
+                    ignoredIDs: _.first(sectionIDs, _.indexOf(sectionIDs, section.id)),
+                    sectionConfig: section,
+                    printPublications: this.options.data.printPublications,
+                    poller: this.poller,
+                });
+            }
+        ).value();
+
+        return sectionViews;
+    },
 });
