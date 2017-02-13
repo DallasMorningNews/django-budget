@@ -1,43 +1,31 @@
-define(
-    [
-        'backbone',
-        'underscore',
-        'common/settings',
-        'budget/models/item',
-    ],
-    function(
-        Backbone,
-        _,
-        settings,
-        BudgetItem
-    ) {
-        'use strict';
+import Backbone from 'backbone';
 
-        return Backbone.Collection.extend({
-            // A boolean to track whether we've populated our collection with
-            // search options for the first time
-            model: BudgetItem,
+import settings from '../../common/settings';
+import BudgetItem from '../models/item';
 
-            url: settings.apiEndpoints.item,
+export default Backbone.Collection.extend({
+    // A boolean to track whether we've populated our collection with
+    // search options for the first time
+    model: BudgetItem,
 
-            events: {},
+    url: settings.apiEndpoints.item,
 
-            /**
-             * Sort the collection by pinned status first (pinned on top) then by
-             * created timestamp in reverse chronological order
-             */
-            // comparator: function(model) {
-            //     var optionTypeWeights = {
-            //         'person': 2,
-            //         'hub': 3,
-            //         'vertical': 4
-            //     };
-            //     return optionTypeWeights[model.get('type')] + '_' + model.get('value');
-            // },
+    events: {},
 
-            parse: function(response) {
-                return response.results;
-            },
-        });
-    }
-);
+    /**
+     * Sort the collection by pinned status first (pinned on top) then by
+     * created timestamp in reverse chronological order
+     */
+    // comparator(model) {
+    //     var optionTypeWeights = {
+    //         'person': 2,
+    //         'hub': 3,
+    //         'vertical': 4
+    //     };
+    //     return optionTypeWeights[model.get('type')] + '_' + model.get('value');
+    // },
+
+    parse(response) {
+        return response.results;
+    },
+});

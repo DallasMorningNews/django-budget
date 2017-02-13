@@ -359,7 +359,7 @@ $quill-popup-border-color: #CCCCCC;
             }
 
             b {
-                font-weight: bold;
+                font-weight: 700;
             }
 
             i {
@@ -414,7 +414,7 @@ $quill-popup-border-color: #CCCCCC;
     padding: 10px;
     width: 300px;
 
-    &&:after {
+    &::after {
         clear: both;
         content: "";
         display: table;

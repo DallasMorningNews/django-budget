@@ -1,0 +1,72 @@
+<div class="content-header"><span class="package-title">New additional content</span><i class="fa fa-times delete-additional" data-confirm=""></i></div>
+
+<div class="row">
+    <div class="medium-4 columns form-group">
+        <input id="{{ formID }}_type" class="field-type to-selectize" name="{{ formID }}_type" type="text" placeholder="Choose an option" value="" required="" />
+        <label for="{{ formID }}_type" class="control-label">Type<span class="required-marker">*</span></label>
+        <i class="bar"></i>
+        <div class="form-help"></div>
+    </div>
+    <div class="medium-3 columns form-group variable-attribute-group">
+        <div class="length-group variable-attribute">
+            <input id="{{ formID }}_length" class="field-length form-select-word-count" name="{{ formID }}_length" data-form="{{ formID }}" type="number" value="" required="" />
+            <label for="{{ formID }}_length" class="control-label">Word count</label>
+            <i class="bar"></i>
+            <div class="form-help"></div>
+        </div>
+
+        <div class="request-link-group variable-attribute">
+            <div class="request-button-holder">
+                <div class="request-link material-button flat-button"><a href="{{ visualsRequestURL }}" target="_blank"><span>Request visuals</span></a></div>
+            </div>
+        </div>
+    </div>
+    <div class="medium-6 columns"></div>
+</div>
+
+<div class="row">
+    <div class="medium-12 columns form-group">
+        <div class="slug-group-holder">
+            <div class="primary-content-slug"></div>
+            <div class="keyword-group">
+                <div class="keyword-value">keyword</div>
+                <input id="{{ formID }}_slugkey" class="field-slugkey" name="{{ formID }}_slugkey" data-form="{{ formID }}" type="text" placeholder="keyword" autocomplete="off" required="">
+            </div>
+            <div class="slug-suffix"></div>
+            <div class="clearer"></div>
+        </div>
+        <label for="{{ formID }}_slugkey" class="control-label">Slug<span class="required-marker">*</span></label>
+        <i class="bar"></i>
+        <div class="form-help"></div>
+
+    </div>
+    <div class="medium-6 columns"></div>
+</div>
+
+<div class="row">
+    <!--  -->
+    <div class="medium-12 columns form-group">
+        <div class="expanding-holder">
+            <textarea id="{{ formID }}_budgetline" class="field-budgetline" name="{{ formID }}_budgetline" data-form="{{ formID }}" rows="1" required=""></textarea>
+            <pre class="budget-spacer"><span></span><br></pre>
+        </div>
+        <label for="{{ formID }}_budgetline" class="control-label">Budget line<span class="required-marker">*</span></label>
+        <i class="bar"></i>
+        <div class="form-help"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="medium-6 columns form-group set-authors">
+        <input id="{{ formID }}_authors" class="field-authors to-selectize staff-select reporter" name="{{ formID }}_authors" data-form="{{ formID }}" type="text" value="" />
+        <label for="{{ formID }}_authors" class="control-label">Author(s)<span class="required-marker">*</span></label>
+        <i class="bar"></i>
+        <div class="form-help"></div>
+    </div>
+    <div class="medium-6 columns form-group set-editors">
+        <input id="{{ formID }}_editors" class="field-editors to-selectize staff-select editor" name="{{ formID }}_editors" data-form="{{ formID }}" type="text" value="" />
+        <label for="{{ formID }}_editors" class="control-label">Editor(s)</label>
+        <i class="bar"></i>
+        <div class="form-help"></div>
+    </div>
+</div>

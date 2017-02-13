@@ -1,17 +1,9 @@
-define([
-    'backbone',
-    'marionette',
-    'common/tpl',
-], function(
-    Backbone,
-    Mn,
-    tpl
-) {
-    return Mn.ItemView.extend({
-        template: tpl('navigation-logo'),
+import Mn from 'backbone.marionette';
 
-        onRender: function() {
-            this.setElement(this.el.innerHTML);
-        },
-    });
+export default Mn.ItemView.extend({
+    template: 'budget/navigation-logo',
+
+    onRender() {
+        this.setElement(this.el.innerHTML);
+    },
 });

@@ -1,39 +1,24 @@
-define(
-    [
-        'backbone',
-        'underscore',
-        'budget/models/search-option',
-    ],
-    function(
-        Backbone,
-        _,
-        SearchOption
-    ) {
-        'use strict';
+import Backbone from 'backbone';
 
-        return Backbone.Collection.extend({
-            // A boolean to track whether we've populated our collection with
-            // search options for the first time
-            model: SearchOption,
+import SearchOption from '../models/search-option';
 
-            events: {},
+export default Backbone.Collection.extend({
+    // A boolean to track whether we've populated our collection with
+    // search options for the first time
+    model: SearchOption,
 
-            /**
-             * Sort the collection by pinned status first (pinned on top) then by
-             * created timestamp in reverse chronological order
-             */
-            comparator: function(model) {
-                var optionTypeWeights = {
-                    person: 2,
-                    hub: 3,
-                    vertical: 4,
-                };
-                return optionTypeWeights[model.get('type')] + '_' + model.get('value');
-            },
+    events: {},
 
-            parse: function(response) {
-                return response;
-            },
-        });
-    }
-);
+    /**
+     * Sort the collection by pinned status first (pinned on top) then by
+     * created timestamp in reverse chronological order
+     */
+    comparator(model) {
+        const optionTypeWeights = { person: 2, hub: 3, vertical: 4 };
+        return `${optionTypeWeights[model.get('type')]}_${model.get('value')}`;
+    },
+
+    parse(response) {
+        return response;
+    },
+});

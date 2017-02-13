@@ -1,34 +1,25 @@
-define([
-    'backbone',
-    'marionette',
-    'common/tpl',
-    'budget/itemviews/navigation/logo',
-    'budget/itemviews/navigation/user-info',
-], function(
-    Backbone,
-    Mn,
-    tpl,
-    LogoView,
-    UserInfoView
-) {
-    return Mn.LayoutView.extend({
-        className: 'navigation-inner',
-        template: tpl('navigation'),
-        regions: {
-            logo: '#logo-holder',
-            userInfo: '#user-info-holder',
-        },
+import Mn from 'backbone.marionette';
 
-        initialize: function() {
-            this.logoView = new LogoView();
-            this.userInfoView = new UserInfoView({
-                currentUser: this.options.currentUser,
-            });
-        },
+import LogoView from '../itemviews/navigation/logo';
+import UserInfoView from '../itemviews/navigation/user-info';
 
-        onBeforeShow: function() {
-            this.showChildView('logo', this.logoView);
-            this.showChildView('userInfo', this.userInfoView);
-        },
-    });
+export default Mn.LayoutView.extend({
+    className: 'navigation-inner',
+    template: 'budget/navigation',
+    regions: {
+        logo: '#logo-holder',
+        userInfo: '#user-info-holder',
+    },
+
+    initialize() {
+        this.logoView = new LogoView();
+        this.userInfoView = new UserInfoView({
+            currentUser: this.options.currentUser,
+        });
+    },
+
+    onBeforeShow() {
+        this.showChildView('logo', this.logoView);
+        this.showChildView('userInfo', this.userInfoView);
+    },
 });

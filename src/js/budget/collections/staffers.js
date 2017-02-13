@@ -1,45 +1,33 @@
-define(
-    [
-        'backbone',
-        'underscore',
-        'common/settings',
-        'budget/models/staffer',
-    ],
-    function(
-        Backbone,
-        _,
-        settings,
-        Staffer
-    ) {
-        'use strict';
+import Backbone from 'backbone';
 
-        return Backbone.Collection.extend({
-            // A boolean to track whether we've populated our collection with
-            // search options for the first time
-            model: Staffer,
+import settings from '../../common/settings';
+import Staffer from '../models/staffer';
 
-            events: {},
+export default Backbone.Collection.extend({
+    // A boolean to track whether we've populated our collection with
+    // search options for the first time
+    model: Staffer,
 
-            /**
-             * Sort the collection by pinned status first (pinned on top) then by
-             * created timestamp in reverse chronological order
-             */
-            // comparator: function(model) {
-            //     var optionTypeWeights = {
-            //         'person': 2,
-            //         'hub': 3,
-            //         'vertical': 4
-            //     };
-            //     return optionTypeWeights[model.get('type')] + '_' + model.get('value');
-            // },
+    events: {},
 
-            url: function() {
-                return settings.apiEndpoints.staffer;
-            },
+    /**
+     * Sort the collection by pinned status first (pinned on top) then by
+     * created timestamp in reverse chronological order
+     */
+    // comparator(model) {
+    //     var optionTypeWeights = {
+    //         'person': 2,
+    //         'hub': 3,
+    //         'vertical': 4
+    //     };
+    //     return optionTypeWeights[model.get('type')] + '_' + model.get('value');
+    // },
 
-            parse: function(response) {
-                return response;
-            },
-        });
-    }
-);
+    url() {
+        return settings.apiEndpoints.staffer;
+    },
+
+    parse(response) {
+        return response;
+    },
+});

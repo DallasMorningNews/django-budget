@@ -1,0 +1,59 @@
+<div class="modal-inner">
+    <h1>{{ modalTitle }}</h1>
+    {% if formConfig %}<form id="{{ innerID }}" action="." method="POST" data-abide="ajax">{% else %}<div id="{{ innerID }}" class="form-replacement">{% endif %}
+        {% for row in formConfig.rows %}
+
+        {% if row.rowHeader %}
+        <div class="section-header{% if row.rowHeaderExtraClasses %} {{ row.rowHeaderExtraClasses }}{% endif %}">
+            <h4>{{ row.rowHeader }}</h4>
+        </div>
+        {% endif %}
+
+        <div {% if row.id %}id="{{ row.id }}" {% endif %}class="row{% if row.extraClasses %} {{ row.extraClasses }}{% endif %}">
+            {% if row.rowType == 'radio-buttons' %}
+                <div class="medium-12 columns form-radio">
+            {% endif %}
+
+            {% for field in row.fields %}
+                {% if field.type == 'input' %}
+                <div class="form-group column {{ field.widthClasses }} {{ field.extraClasses }}">
+                    <input name="{{ field.inputName }}" type="{{ field.inputType }}" id="{{ field.inputID }}">
+                    <label for="{{ field.inputID }}" class="control-label">{{ field.labelText }}</label>
+                    <i class="bar"></i>
+                    <div class="form-help"></div>
+                </div>
+                {% elif field.type == 'radio' %}
+                    <div class="form-radio">
+                        <label>
+                            <input id="{{ field.inputID }}" name="{{ field.groupName }}" type="radio" value="{% if field.inputValue %}{{ field.inputValue }}{% endif %}"{% if field.isChecked %} checked{% endif %}{% if field.isDisabled %} disabled{% endif %} /><i class="helper"></i><span class="radio-label">{{ field.labelText|safe }}</span>
+                        </label>
+                    </div>
+                {% elif field.type == 'checkbox' %}
+                    <div class="column {{ field.widthClasses }} checkbox {{ field.extraClasses }}">
+                        <label>
+                            <input id="{{ field.inputID }}" name="{{ field.groupName }}" type="checkbox" value="{{ field.inputValue }}"{% if field.isChecked %} checked{% endif %} /><i class="helper"></i>{{ field.labelText|safe }}
+                        </label>
+                    </div>
+                {% elif field.type == 'div' %}
+                    <div id="{{ field.inputID }}" class="column {{ field.extraClasses }} {{ field.widthClasses }}"></div>
+                {% endif %}
+            {% endfor %}
+
+            {% if row.rowType == 'radio-buttons' %}
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        {% if extraHTML %}
+            {{ extraHTML|safe }}
+        {% endif %}
+
+        <div class="button-holder">
+            {% for button in buttons %}
+            <div id="{{ button.buttonID }}" class="material-button {{ button.buttonClass }} click-init"><span>{{ button.innerLabel }}</span></div>
+            {% endfor %}
+            <div class="clearer"></div>
+        </div>
+    {% if formConfig %}</form>{% else %}</div>{% endif %}
+</div>

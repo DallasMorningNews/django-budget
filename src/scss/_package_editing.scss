@@ -2,38 +2,18 @@ $body-bg: #FFFFFF;
 
 
 // Shadows
-$shadow-inset: inset 0 2px 2px 0 rgba(0,0,0,.14);
-$shadow-0: 0 0 1px rgba(0, 0, 0, 0);
-$shadow-2: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
-$shadow-3: 0 3px 4px 0 rgba(0,0,0,.14),0 3px 3px -2px rgba(0,0,0,.2),0 1px 8px 0 rgba(0,0,0,.12);
-$shadow-4: 0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12),0 2px 4px -1px rgba(0,0,0,.2);
-$shadow-6: 0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12),0 3px 5px -1px rgba(0,0,0,.2);
-
-// Font Sizes
-$mf-font-size: 1rem !default;
-$mf-active-font-size: $mf-font-size * 0.8 !default;
-$mf-active-top: -$mf-font-size !default;
+// $shadow-inset: inset 0 2px 2px 0 rgba(0,0,0,.14);
+// $shadow-0: 0 0 1px rgba(0, 0, 0, 0);
+// $shadow-2: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+// $shadow-3: 0 3px 4px 0 rgba(0,0,0,.14),0 3px 3px -2px rgba(0,0,0,.2),0 1px 8px 0 rgba(0,0,0,.12);
+// $shadow-4: 0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12),0 2px 4px -1px rgba(0,0,0,.2);
+// $shadow-6: 0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12),0 3px 5px -1px rgba(0,0,0,.2);
 
 // Margin & Paddings
-$mf-gap: $mf-font-size * 1.25 !default;
-$mf-spacer: $mf-font-size / 8 !default;
-$mf-fieldset-margin: 0 0 $mf-gap * 2 !default;
-$mf-checkbox-gap: $mf-font-size * 1.875 !default;
-$mf-checkbox-top: 0 !default;
-$mf-radio-margin: $mf-font-size / -4 !default;
-
-// Colors
-// $mf-delete-action-color: #D9534F;
-$mf-primary-action-color: #212121;
-$mf-input-color: #333 !default;
-$mf-border-color: #999 !default;
-$mf-label-color: #9E9E9E !default;
-$mf-active-color: darken($mf-border-color, 10%) !default;
-$mf-focus-color: #0185D3 !default;
-$mf-error-color: #d9534f !default;
-
-// Animation
-$mf-transition-speed: 0.28s !default;
+$fieldset-margin: 0 0 $default-gap * 2 !default;
+$checkbox-gap: $default-font-size * 1.875 !default;
+$checkbox-top: 0 !default;
+$radio-margin: $default-font-size / -4 !default;
 
 
 @mixin respond-below($largest-size) {
@@ -69,7 +49,7 @@ $mf-transition-speed: 0.28s !default;
             max-width: 800px;
             padding: 0 10px;
 
-            .button {
+            .material-button {
                 &.save-and-continue-editing-trigger {
                     &.active-state {
                         &::before {
@@ -204,6 +184,17 @@ $mf-transition-speed: 0.28s !default;
                 margin-bottom: 1rem;
                 padding: 0 0.625rem;
 
+                &::before,
+                &::after {
+                    content: ' ';
+                    display: block;
+                    order: 1;
+                }
+
+                &::after {
+                    clear: both;
+                }
+
                 .first-headline-row {
                     margin-bottom: calc(1.25rem + 12px);
                 }
@@ -312,7 +303,7 @@ $mf-transition-speed: 0.28s !default;
                                     border-top: 1px solid rgba(0,0,0,0.12);
                                     color: #9E9E9E;
                                     font-size: 0.75rem;
-                                    font-weight: bold;
+                                    font-weight: 700;
                                     line-height: 1.5rem;
                                     text-transform: uppercase;
                                 }
@@ -337,12 +328,19 @@ $mf-transition-speed: 0.28s !default;
                             height: auto;
                             margin-bottom: -3px;
 
+                            .selected-item-multichoice {
+                                float: left;
+                            }
+
                             .selectize-input {
                                 height: auto;
                                 min-height: 38px;
+                                top: 2px;
                                 white-space: normal;
 
                                 input {
+                                    float: left;
+                                    margin-top: 3px !important;
                                     padding: 0 0.125rem !important;
                                 }
                             }
@@ -356,7 +354,7 @@ $mf-transition-speed: 0.28s !default;
 
                 &.can-collapse {
                     display: none;
-                    height: 0;
+                    // height: 0;
                     transform: translateY(-30px) scaleY(0);
                     transform-origin: 0 0 0;
 
@@ -366,11 +364,23 @@ $mf-transition-speed: 0.28s !default;
                         border-bottom-right-radius: 5px;
                         border-top: none;
                         margin-bottom: 5px;
+                        position: relative;
+
+                        .date-range-picker {
+                            left: 10px;
+                            position: absolute;
+                            top: 139px;
+                        }
+
+                        .run-date-group {
+                            float: left;
+                        }
                     }
 
                     &.collapse-enabled {
                         display: inline-block;
                         float: left;
+                        height: 0;
                         margin-bottom: 0;
                         padding-bottom: 0;
                         position: relative;
@@ -400,7 +410,7 @@ $mf-transition-speed: 0.28s !default;
                     border-bottom: 0;
                     box-sizing: border-box;
                     font-size: 1.375rem;
-                    font-weight: bold;
+                    font-weight: 700;
                     height: 2.125rem;
                     line-height: 2.125rem;
                     margin: 0 0.75rem 0;
@@ -423,7 +433,7 @@ $mf-transition-speed: 0.28s !default;
                     border-bottom: 1px solid #DEDEDE;
                     color: #212121;
                     font-size: 0.875rem;
-                    font-weight: bold;
+                    font-weight: 700;
                     line-height: 1.5rem;
                     margin-bottom: 0.625rem;
                     padding: 0.25rem 0.625rem;
@@ -543,38 +553,40 @@ body * {
 // The Styles for the form
 fieldset {
     border: none;
-    margin: $mf-fieldset-margin;
+    margin: $fieldset-margin;
     padding: 0;
 }
 
 .form-radio,
 .form-group {
-    margin-bottom: $mf-gap;
-    margin-top: $mf-gap;
-    padding: 0 ($mf-gap / 2);
+    margin-bottom: $default-gap;
+    margin-top: $default-gap;
+    padding: 0 ($default-gap / 2);
     position: relative;
 
     &.pub-date-group,
     &.pub-time-group {
         opacity: 0;
-        transition: visibility 0s ease $mf-transition-speed, opacity $mf-transition-speed ease;
+        transition: visibility 0s ease $default-transition-speed,
+                    opacity $default-transition-speed ease;
         visibility: hidden;
 
         &[field-active='true'] {
             opacity: 1;
-            transition: opacity ($mf-transition-speed * 1.5) ease;
+            transition: opacity ($default-transition-speed * 1.5) ease;
             visibility: visible;
         }
     }
 
     .variable-attribute {
         opacity: 0;
-        transition: visibility 0s ease $mf-transition-speed, opacity $mf-transition-speed ease;
+        transition: visibility 0s ease $default-transition-speed,
+                    opacity $default-transition-speed ease;
         visibility: hidden;
 
         &[field-active='true'] {
             opacity: 1;
-            transition: opacity ($mf-transition-speed * 1.5) ease;
+            transition: opacity ($default-transition-speed * 1.5) ease;
             visibility: visible;
         }
     }
@@ -589,10 +601,10 @@ fieldset {
 }
 
 .form-help {
-    color: $mf-label-color;
-    font-size: $mf-active-font-size;
-    margin-left: $mf-spacer;
-    margin-top: $mf-spacer;
+    color: $default-label-color;
+    font-size: $default-active-font-size;
+    margin-left: $default-spacer;
+    margin-top: $default-spacer;
 
     .checkbox &,
     .form-radio &,
@@ -602,20 +614,20 @@ fieldset {
     }
 
     .checkbox & {
-        margin-bottom: $mf-font-size;
+        margin-bottom: $default-font-size;
         position: relative;
     }
 
     .form-radio & {
-        margin-top: -$mf-font-size;
-        padding-top: ($mf-spacer * 2);
+        margin-top: -$default-font-size;
+        padding-top: ($default-spacer * 2);
     }
 }
 
 .form-group {
     // scss-lint:disable QualifyingElement, NestingDepth
     input {
-        height: ($mf-font-size * 1.9);
+        height: ($default-font-size * 1.9);
     }
 
     textarea {
@@ -628,55 +640,56 @@ fieldset {
         background: none;
         border: none;
         box-shadow: none;
-        font-size: $mf-font-size;
-        height: ($mf-font-size * 1.6);
+        font-size: $default-font-size;
+        height: ($default-font-size * 1.6);
         line-height: 1.9375rem;
         height: 1.9375rem;
         margin: 0;
-        padding: 0 $mf-spacer;
+        padding: 0 $default-spacer;
         width: 100%;
 
         &:disabled,
         &[disabled] > option,
         option:disabled {
-            color: $mf-label-color;
+            color: $default-label-color;
         }
     }
 
     .control-label {
-        color: $mf-label-color;
-        font-size: $mf-font-size;
+        color: $default-label-color;
+        font-size: $default-font-size;
         font-weight: normal;
-        line-height: $mf-font-size;
-        padding-left: $mf-spacer;
+        line-height: $default-font-size;
+        padding-left: $default-spacer;
         pointer-events: none;
         position: absolute;
-        top: ($mf-font-size / 4);
+        top: ($default-font-size / 4);
         z-index: 1;
 
-        transition: all $mf-transition-speed ease;
+        transition: all $default-transition-speed ease;
 
         .required-marker {
-            margin-left: ($mf-font-size / 10);
+            margin-left: ($default-font-size / 10);
         }
     }
 
     .bar {
-        border-bottom: ($mf-font-size / 16) solid $mf-border-color;
+        border-bottom: ($default-font-size / 16) solid $default-border-color;
         display: block;
         position: relative;
 
         &::before {
-            background: $mf-focus-color;
-            bottom: ($mf-font-size / -16);
+            background: $focus-color;
+            bottom: ($default-font-size / -16);
             content: '';
-            height: ($mf-font-size / 8);
+            height: ($default-font-size / 8);
             left: 50%;
             position: absolute;
             width: 0;
             z-index: 2;
 
-            transition: left $mf-transition-speed ease, width $mf-transition-speed ease;
+            transition: left $default-transition-speed ease,
+                        width $default-transition-speed ease;
         }
     }
 
@@ -688,14 +701,14 @@ fieldset {
         box-shadow: none;
         color: transparent;
         display: block;
-        font-size: $mf-font-size;
+        font-size: $default-font-size;
         line-height: 1.9375rem;
         height: 1.9375rem;
         margin: 0;
-        padding: 0 $mf-spacer;
+        padding: 0 $default-spacer;
         width: 100%;
 
-        // transition: all $mf-transition-speed ease;
+        // transition: all $default-transition-speed ease;
         transition: height 0s;
     }
 
@@ -719,33 +732,33 @@ fieldset {
     textarea.has-value,
     .expanding-holder.input-focused,
     .expanding-holder.has-value {
-        color: $mf-input-color;
+        color: $input-color;
 
         ~ .control-label {
-            color: $mf-active-color;
-            font-size: $mf-active-font-size;
-            left: ($mf-gap / 2);
-            line-height: $mf-active-font-size;
-            top: $mf-active-top;
+            color: $active-label-color;
+            font-size: $default-active-font-size;
+            left: ($default-gap / 2);
+            line-height: $default-active-font-size;
+            top: $default-active-top;
 
             .required-marker {
-                margin-left: ($mf-active-font-size / 10);
+                margin-left: ($default-active-font-size / 10);
             }
         }
     }
 
     input:read-only {
-        color: $mf-input-color;
+        color: $input-color;
 
         ~ .control-label {
-            color: $mf-label-color;
-            font-size: $mf-active-font-size;
-            left: ($mf-gap / 2);
-            line-height: $mf-active-font-size;
-            top: $mf-active-top;
+            color: $default-label-color;
+            font-size: $default-active-font-size;
+            left: ($default-gap / 2);
+            line-height: $default-active-font-size;
+            top: $default-active-top;
 
             // .required-marker {
-            //     margin-left: ($mf-active-font-size / 10);
+            //     margin-left: ($default-active-font-size / 10);
             // }
         }
     }
@@ -757,10 +770,10 @@ fieldset {
             outline: none;
 
             ~ .control-label {
-                color: $mf-focus-color;
+                color: $focus-color;
 
                 .required-marker {
-                    color: $mf-error-color;
+                    color: $error-color;
                 }
             }
 
@@ -777,10 +790,10 @@ fieldset {
         outline: none;
 
         ~ .control-label {
-            color: $mf-focus-color;
+            color: $focus-color;
 
             .required-marker {
-                color: $mf-error-color;
+                color: $error-color;
             }
         }
 
@@ -797,6 +810,11 @@ fieldset {
 
         &> textarea {
             height: 100px;
+            left: 0;
+            overflow: hidden;
+            position: absolute;
+            resize: none;
+            top: 0;
             width: 100%;
 
             -webkit-box-sizing: border-box;
@@ -806,7 +824,9 @@ fieldset {
         }
 
         &> pre {
-            display: none;
+            display: block;
+            min-height: 31px;
+            visibility: hidden;
         }
     }
 
@@ -818,15 +838,15 @@ fieldset {
             border-width: 0;
             box-shadow: none;
             display: block;
-            font-size: $mf-font-size;
+            font-size: $default-font-size;
             line-height: 1.9375rem;
             margin: 0;
             outline: 0;
-            padding: 0 $mf-spacer;
+            padding: 0 $default-spacer;
             white-space: pre-wrap;
             word-wrap: break-word;
 
-            // transition: all $mf-transition-speed ease;
+            // transition: all $default-transition-speed ease;
             transition: height 0s;
         }
 
@@ -853,12 +873,12 @@ fieldset {
 .checkbox,
 .form-radio {
     label {
-        color: $mf-input-color;
+        color: $input-color;
         cursor: pointer;
         display: block;
-        height: $mf-font-size;
-        line-height: $mf-font-size;
-        padding-left: $mf-checkbox-gap;
+        height: $default-font-size;
+        line-height: $default-font-size;
+        padding-left: $checkbox-gap;
         position: relative;
         text-align: left;
 
@@ -882,42 +902,42 @@ fieldset {
 }
 
 .radio {
-    margin-bottom: $mf-font-size;
+    margin-bottom: $default-font-size;
 
     .helper {
-        color: $mf-border-color;
+        color: $default-border-color;
         cursor: pointer;
         display: block;
-        font-size: $mf-font-size;
-        left: $mf-radio-margin;
+        font-size: $default-font-size;
+        left: $radio-margin;
         position: absolute;
-        top: $mf-radio-margin;
+        top: $radio-margin;
         user-select: none;
 
         &::before,
         &::after {
-            border: ($mf-font-size / 8) solid currentColor;
+            border: ($default-font-size / 8) solid currentColor;
             border-radius: 50%;
             content: '';
-            height: $mf-font-size;
+            height: $default-font-size;
             left: 0;
-            margin: ($mf-spacer * 2);
+            margin: ($default-spacer * 2);
             position: absolute;
             top: 0;
-            width: $mf-font-size;
+            width: $default-font-size;
 
-            transition: transform $mf-transition-speed ease;
+            transition: transform $default-transition-speed ease;
         }
 
         &::after {
-            background-color: $mf-focus-color;
-            border-color: $mf-focus-color;
+            background-color: $focus-color;
+            border-color: $focus-color;
             transform: scale(0);
         }
     }
 
     label:hover .helper {
-        color: $mf-focus-color;
+        color: $focus-color;
     }
 
     // scss-lint:disable QualifyingElement, NestingDepth
@@ -927,7 +947,7 @@ fieldset {
                 transform: scale(0.5);
             }
             &::before {
-                color: $mf-focus-color;
+                color: $focus-color;
             }
         }
     }
@@ -940,68 +960,69 @@ fieldset {
     padding-top: 6px;
 
     .helper {
-        border: ($mf-font-size / 8) solid currentColor;
-        border-radius: ($mf-font-size / 16);
-        color: $mf-border-color;
-        height: $mf-font-size;
+        border: ($default-font-size / 8) solid currentColor;
+        border-radius: ($default-font-size / 16);
+        color: $default-border-color;
+        height: $default-font-size;
         left: 0;
         position: absolute;
-        top: $mf-checkbox-top;
-        width: $mf-font-size;
+        top: $checkbox-top;
+        width: $default-font-size;
         z-index: 0;
 
-        transition: border-color $mf-transition-speed ease;
+        transition: border-color $default-transition-speed ease;
 
         &::before,
         &::after {
-            background-color: $mf-focus-color;
-            border-radius: ($mf-font-size / 4);
+            background-color: $focus-color;
+            border-radius: ($default-font-size / 4);
             content: '';
             display: block;
             height: 0;
             opacity: 0;
             position: absolute;
             transform-origin: left top;
-            width: ($mf-font-size * 0.2);
+            width: ($default-font-size * 0.2);
 
-            transition: opacity $mf-transition-speed ease, height 0s linear $mf-transition-speed;
+            transition: opacity $default-transition-speed ease,
+                        height 0s linear $default-transition-speed;
         }
 
         &::before {
-            box-shadow: 0 0 0 ($mf-font-size / 16) $body-bg;
-            left: ($mf-font-size * 0.38);
-            top: ($mf-font-size * 0.65);
+            box-shadow: 0 0 0 ($default-font-size / 16) $body-bg;
+            left: ($default-font-size * 0.38);
+            top: ($default-font-size * 0.65);
             transform: rotate(-135deg);
         }
 
         &::after {
             left: 0;
             transform: rotate(-45deg);
-            top: ($mf-font-size * 0.3);
+            top: ($default-font-size * 0.3);
         }
     }
 
     label:hover .helper {
-        color: $mf-focus-color;
+        color: $focus-color;
     }
 
     input:checked {
         ~ .helper {
-            color: $mf-focus-color;
+            color: $focus-color;
 
             &::after,
             &::before {
                 opacity: 1;
-                transition: height $mf-transition-speed ease;
+                transition: height $default-transition-speed ease;
             }
 
             &::after {
-                height: ($mf-font-size / 2);
+                height: ($default-font-size / 2);
             }
 
             &::before {
-                height: ($mf-font-size * 1.2);
-                transition-delay: $mf-transition-speed;
+                height: ($default-font-size * 1.2);
+                transition-delay: $default-transition-speed;
             }
         }
     }
@@ -1023,7 +1044,7 @@ fieldset {
 
 .radio + .radio,
 .checkbox + .checkbox {
-    margin-top: $mf-font-size;
+    margin-top: $default-font-size;
 }
 
 .form-radio {
@@ -1034,7 +1055,7 @@ fieldset {
     .legend.legend,
     &.form-group .control-label.control-label {
         // Prevent !importantRule
-        color: $mf-error-color;
+        color: $error-color;
     }
 
     &.form-group,
@@ -1043,13 +1064,13 @@ fieldset {
     &.form-radio {
         .form-help,
         .helper {
-            color: $mf-error-color;
+            color: $error-color;
         }
     }
 
     .bar {
         &::before {
-            background: $mf-error-color;
+            background: $error-color;
             left: 0;
             width: 100%;
         }
@@ -1058,7 +1079,7 @@ fieldset {
 
 .form-group {
     input:read-only {
-        color: $mf-label-color;
+        color: $default-label-color;
         cursor: not-allowed;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1201,185 +1222,6 @@ fieldset {
     }
 }
 
-.button {
-    background: currentColor;
-    border: 1px solid currentColor;
-    border-radius: 3px;
-    box-shadow: $shadow-2;
-    color: lighten($mf-focus-color, 10%);
-    cursor: pointer;
-    float: right;
-    font-size: ($mf-font-size * 1.1);
-    margin: 0;
-    overflow: hidden;
-    padding: ($mf-gap / 2) ($mf-gap * 2);
-    position: relative;
-
-    transition: background-color $mf-transition-speed ease, color $mf-transition-speed ease, box-shadow $mf-transition-speed ease;
-
-    span {
-        color: #FFFFFF;
-        display: inline-block;
-        font-size: 1rem;
-        font-weight: 500;
-        line-height: 1.125rem;
-        margin: 0;
-        position: relative;
-        text-transform: uppercase;
-        z-index: 1;
-    }
-
-    &.flat-button {
-        background: transparent;
-        border: 0 none;
-        box-shadow: none;
-        height: 2.125rem;
-        margin: 0.4375rem 0 0.4375rem 0.5rem;
-        min-width: 5.5rem;
-        padding: 0;
-        position: relative;
-        text-align: center;
-
-        span {
-            color: $mf-focus-color;
-            padding: 0.5rem;
-        }
-
-        &:hover,
-        &.hover {
-            background: rgba($mf-focus-color, 0.12) !important;
-            box-shadow: none;
-
-            span {
-                color: darken($mf-focus-color, 10%) !important;
-            }
-        }
-
-        &.active-state {
-            // background: transparent !important;
-
-            span {
-                color: darken($mf-focus-color, 20%) !important;
-            }
-        }
-
-        &::before {
-            background: rgba($mf-focus-color, 0.24);
-            border: 4px solid rgba($mf-focus-color, 0.0525);
-        }
-    }
-
-    &.delete-action {
-        margin-right: 0.5rem;
-
-        span {
-            color: $mf-delete-action-color;
-        }
-
-        &:hover,
-        &.hover {
-            background: rgba($mf-delete-action-color, 0.12) !important;
-
-            span {
-                color: darken($mf-delete-action-color, 10%) !important;
-            }
-        }
-
-        &.active-state {
-            span {
-                color: darken($mf-delete-action-color, 20%) !important;
-            }
-        }
-
-        &::before {
-            background: rgba($mf-delete-action-color, 0.24);
-            border: 4px solid rgba($mf-delete-action-color, 0.0525);
-        }
-    }
-
-    &.primary-action {
-        margin-right: 0.5rem;
-
-        span {
-            color: $mf-primary-action-color;
-        }
-
-        &:hover,
-        &.hover {
-            background: rgba($mf-primary-action-color, 0.12) !important;
-
-            span {
-                color: darken($mf-primary-action-color, 10%) !important;
-            }
-        }
-
-        &.active-state {
-            span {
-                color: darken($mf-primary-action-color, 20%) !important;
-            }
-        }
-
-        &::before {
-            background: rgba($mf-primary-action-color, 0.24);
-            border: 4px solid rgba($mf-primary-action-color, 0.0525);
-        }
-    }
-
-    &::before {
-        // background: darken($mf-focus-color, 40%);
-        background-color: #192024;
-        // border: 4px solid darken($mf-focus-color, 20%);
-        border-color: 4px solid #192024;
-        border-radius: 50%;
-        content: '';
-        display: block;
-        height: 20px;
-        left: 50%;
-        margin: -10px 0 0 -10px;
-        opacity: 0;
-        position: absolute;
-        // transform: scale(0);
-        top: 50%;
-        width: 20px;
-        will-change: opacity, transform;
-        z-index: 0;
-
-        // transition-duration: 750ms !important;
-        // transition: all 1000ms ease-in,  opacity 750ms cubic-bezier(0.250, 0.460, 0.450, 0.940);
-        // transition-timing-function: cubic-bezier(0.250, 0.460, 0.450, 0.940);
-    }
-
-    &.click-init {
-        &::before {
-            transform: scale(0);
-        }
-    }
-
-    &:hover,
-    &.hover {
-        box-shadow: $shadow-6;
-        color: $mf-focus-color;
-    }
-
-    // &:active,
-    // &:focus,
-    &.active-state {
-        &::before {
-            opacity: 1;
-            transform: scale(9);
-
-            transition-duration: 750ms !important;
-            transition-property: transform, opacity, -webkit-transform;
-            transition-timing-function: cubic-bezier(0.250, 0.460, 0.450, 0.940);
-            // transition: transform ($mf-transition-speed * 4) ease, opacity $mf-transition-speed ease ($mf-transition-speed * 1.3);
-        }
-    }
-
-    &:focus {
-        outline: none;
-    }
-}
-
 #modal-holder {
     .modal-inner {
         .delete-confirmation-text {
@@ -1391,7 +1233,7 @@ fieldset {
             .button-text-inline {
                 color: #212121;
                 font-size: 14px;
-                font-weight: bold;
+                font-weight: 700;
                 padding: 0 2px 0 1px;
                 text-transform: uppercase;
             }
@@ -1400,7 +1242,7 @@ fieldset {
         .to-be-deleted-list {
             color: #424242;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 700;
             line-height: 1rem;
             margin: 0 1.5rem 1.5rem;
             padding: 0;
@@ -1419,7 +1261,7 @@ fieldset {
 
         .datepicker--day-name {
             color: #AAAAAA;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         &.active {

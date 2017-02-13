@@ -1,11 +1,13 @@
 // Roboto font
-@if not $offline {
+@if ($offline) {
+    @import url(http://fonts.googleapis.com/css?family=Roboto);
+} else {
     @import url(http://fonts.googleapis.com/css?family=Roboto);
 }
 
 // FontAwesome
 $fa-font-path: "../fonts/font-awesome";
-@import "../../bower_components/font-awesome/scss/font-awesome";
+@import "../../node_modules/font-awesome/scss/font-awesome";
 
 
 body {

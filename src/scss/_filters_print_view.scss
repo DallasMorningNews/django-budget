@@ -54,6 +54,12 @@ $line-margin: (($daily-image-height - $line-container-height) / 2);
     #print-placement-toggle {
         margin-top: 12px;
 
+        &::after {
+            clear: both;
+            content: ' ';
+            display: block;
+        }
+
         .icon-holder {
             color: #9E9E9E;
             font-size: 24px;

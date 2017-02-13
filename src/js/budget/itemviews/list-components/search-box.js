@@ -1,237 +1,222 @@
-define([
-    'backbone',
-    'marionette',
-    'selectize',
-    'underscore',
-    'common/settings',
-    'common/tpl',
-    'budget/collections/search-options',
-    'budget/models/search-option',
-], function(
-    Backbone,
-    Mn,
-    selectize,
-    _,
-    settings,
-    tpl,
-    SearchOptionCollection,
-    SearchOption
-) {
-    return Mn.ItemView.extend({
-        template: tpl('packages-list-searchbox'),
+import 'selectize';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Mn from 'backbone.marionette';
 
-        ui: {
-            searchBox: '#package-search-box',
-        },
+import deline from '../../../vendored/deline';
 
-        initialize: function() {
-            this.searchOptions = new SearchOptionCollection();
-        },
+import settings from '../../../common/settings';
 
-        onRender: function() {
-            var commonQueryTerms,
-                selectizeObj;
+import SearchOption from '../../models/search-option';
+import SearchOptionCollection from '../../collections/search-options';
 
-            this._radio = Backbone.Wreqr.radio.channel('global');
+const radio = Backbone.Wreqr.radio.channel('global');
 
-            this.generateSearchOptions();
+export default Mn.ItemView.extend({
+    template: 'budget/packages-list-searchbox',
 
-            this.selectizeBox = this.ui.searchBox.selectize({
-                plugins: ['remove_button', 'restore_on_backspace'],
-                persist: false,
-                create: function(input) {
-                    this.ui.searchBox.parent().find('.selectize-dropdown').addClass('super-hidden');
+    ui: {
+        searchBox: '#package-search-box',
+    },
 
-                    setTimeout(
-                        function() {
-                            this.ui.searchBox[0].selectize.close();
-                            this.ui.searchBox.parent().find('.selectize-dropdown')
-                                                        .removeClass('super-hidden');
-                        }.bind(this),
-                        75
-                    );
+    initialize(options) {
+        this.options = options;
+        this.searchOptions = new SearchOptionCollection();
+    },
 
-                    return {
-                        name: input,
-                        value: input,
-                    };
-                }.bind(this),
-                hideSelected: true,
-                valueField: 'value',
-                labelField: 'name',
-                searchField: ['name'],
-                selectOnTab: true,
-                closeAfterSelect: true,
-                options: this.searchOptions.toJSON(),
-                optgroupField: 'type',
-                optgroupLabelField: 'name',
-                optgroupValueField: 'value',
-                optgroups: [
-                    {name: 'People', value: 'person', $order: 2},
-                    {name: 'Hubs', value: 'hub', $order: 3},
-                    {name: 'Verticals', value: 'vertical', $order: 4},
-                    {name: 'Content types', value: 'contentType', $order: 5},
-                ],
-                lockOptgroupOrder: true,
-                addPrecedence: false,
-                render: {
-                    item: function(data, escape) {  // eslint-disable-line no-unused-vars
-                        var dataType = 'fullText';
-                        if (typeof(data.type) !== 'undefined') {
-                            dataType = data.type;
-                        }
+    onRender() {
+        let selectizeObj;
 
-                        return '<div data-value="' + data.value + '" data-type="' +
-                                    dataType + '" class="item">' +
-                                    data.name +
-                                '</div>';
+        this.generateSearchOptions();
+
+        this.selectizeBox = this.ui.searchBox.selectize({
+            plugins: ['remove_button', 'restore_on_backspace'],
+            persist: false,
+            create: (input) => {
+                this.ui.searchBox.parent().find('.selectize-dropdown').addClass('super-hidden');
+
+                setTimeout(
+                    () => {
+                        this.ui.searchBox[0].selectize.close();
+                        this.ui.searchBox.parent().find('.selectize-dropdown')
+                                                    .removeClass('super-hidden');
                     },
-                    option_create: function(data, escape) {
-                        return '<div class="create">Search all content for <strong>"' +
-                                    escape(data.input) +
-                                '"</strong>&hellip;</div>';
-                    },
+                    75
+                );
+
+                return {
+                    name: input,
+                    value: input,
+                };
+            },
+            hideSelected: true,
+            valueField: 'value',
+            labelField: 'name',
+            searchField: ['name'],
+            selectOnTab: true,
+            closeAfterSelect: true,
+            options: this.searchOptions.toJSON(),
+            optgroupField: 'type',
+            optgroupLabelField: 'name',
+            optgroupValueField: 'value',
+            optgroups: [
+                { name: 'People', value: 'person', $order: 2 },
+                { name: 'Hubs', value: 'hub', $order: 3 },
+                { name: 'Verticals', value: 'vertical', $order: 4 },
+                { name: 'Content types', value: 'contentType', $order: 5 },
+            ],
+            lockOptgroupOrder: true,
+            addPrecedence: false,
+            render: {
+                item: (data) => {
+                    const dataType = (
+                      typeof data.type !== 'undefined'
+                    ) ? data.type : 'fullText';
+
+                    return deline`
+                        <div data-value="${data.value}"
+                             data-type="${dataType}"
+                             class="item">${
+                                 data.name
+                             }</div>`;
                 },
-                onItemAdd: function(value, $item) {
-                    var additionalParam = {};
-                    additionalParam.type = $item.data('type');
-                    additionalParam.value = $item.data('value');
+                option_create: (data, escape) => deline`
+                    <div class="create">Search all content for
+                        <strong>"${escape(data.input)}"</strong>&hellip;</div>`,
+            },
+            onItemAdd: (value, $item) => {
+                const additionalParam = {};
+                additionalParam.type = $item.data('type');
+                additionalParam.value = $item.data('value');
 
-                    this._radio.commands.execute(
-                        'pushQueryTerm',
-                        this.options.stateKey,
-                        additionalParam
-                    );
-                }.bind(this),
-                onItemRemove: function(value) {
-                    this._radio.commands.execute(
-                        'popQueryTerm',
-                        this.options.stateKey,
-                        value
-                    );
-                }.bind(this),
-                // preload: true
-            });
+                radio.commands.execute(
+                    'pushQueryTerm',
+                    this.options.stateKey,
+                    additionalParam
+                );
+            },
+            onItemRemove: (value) => {
+                radio.commands.execute(
+                    'popQueryTerm',
+                    this.options.stateKey,
+                    value
+                );
+            },
+            // preload: true
+        });
 
-            commonQueryTerms = this._radio.reqres.request(
-                'getState',
-                this.options.stateKey,
-                'queryTerms'
-            );
+        const commonQueryTerms = radio.reqres.request(
+            'getState',
+            this.options.stateKey,
+            'queryTerms'
+        );
 
-            if (!commonQueryTerms.isEmpty()) {
-                // Add all currently-selected fields to the selectize box.
-                // Nota bene: I'm doing this manually, rather than by
-                // specifying an 'items' array, because the latter way won't
-                // let you add created (in our case, full-text search) options.
-                selectizeObj = this.ui.searchBox[0].selectize;
+        if (!commonQueryTerms.isEmpty()) {
+            // Add all currently-selected fields to the selectize box.
+            // Nota bene: I'm doing this manually, rather than by
+            // specifying an 'items' array, because the latter way won't
+            // let you add created (in our case, full-text search) options.
+            selectizeObj = this.ui.searchBox[0].selectize;
 
-                selectizeObj.off('item_add');
+            selectizeObj.off('item_add');
 
-                commonQueryTerms.each(function(term, i) {
-                    if (term.get('type') === 'fullText') {
-                        selectizeObj.createItem(term.get('value'), false);
-                    } else {
-                        selectizeObj.addItem(term.get('value'), true);
-                    }
-
-                    if (i + 1 === commonQueryTerms.length) {
-                        selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
-                    }
-                }.bind(this));  // eslint-disable-line no-extra-bind
-            }
-        },
-
-        generateSearchOptions: function() {
-            var rawOptions = {
-                    hubs: [],
-                    verticals: [],
-                    contentTypes: [],
-                },
-                addedVerticals = [];
-
-            rawOptions.staffers = this.options.data.staffers.map(
-                function(staffer, idx) {  // eslint-disable-line no-unused-vars
-                    return new SearchOption({
-                        name: staffer.get('fullName'),
-                        value: staffer.get('email'),
-                        type: 'person',
-                        sortKey: staffer.get('lastName'),
-                    });
+            commonQueryTerms.each((term, i) => {
+                if (term.get('type') === 'fullText') {
+                    selectizeObj.createItem(term.get('value'), false);
+                } else {
+                    selectizeObj.addItem(term.get('value'), true);
                 }
-            );
 
-            this.options.data.hubs.each(
-                function(hub) {
-                    var vertical = hub.get('vertical');
-
-                    rawOptions.hubs.push(
-                        new SearchOption({
-                            name: hub.get('name'),
-                            value: hub.get('slug') + '.hub',
-                            type: 'hub',
-                        })
-                    );
-
-                    if (!_.contains(addedVerticals, vertical.slug)) {
-                        addedVerticals.push(vertical.slug);
-
-                        rawOptions.verticals.push(
-                            new SearchOption({
-                                name: vertical.name,
-                                value: vertical.slug + '.v',
-                                type: 'vertical',
-                            })
-                        );
-                    }
+                if (i + 1 === commonQueryTerms.length) {
+                    selectizeObj.on('item_add', selectizeObj.settings.onItemAdd);
                 }
-            );
+            });  // eslint-disable-line no-extra-bind
+        }
+    },
 
-            _.each(settings.contentTypes, function(typeConfig, slug) {
-                rawOptions.contentTypes.push(
+    generateSearchOptions() {
+        const rawOptions = {
+            hubs: [],
+            verticals: [],
+            contentTypes: [],
+        };
+        const addedVerticals = [];
+
+        rawOptions.staffers = this.options.data.staffers.map(
+            staffer => new SearchOption({
+                name: staffer.get('fullName'),
+                value: staffer.get('email'),
+                type: 'person',
+                sortKey: staffer.get('lastName'),
+            })
+        );
+
+        this.options.data.hubs.each(
+            (hub) => {
+                const vertical = hub.get('vertical');
+
+                rawOptions.hubs.push(
                     new SearchOption({
-                        name: typeConfig.verboseName,
-                        value: slug + '.ct',
-                        type: 'contentType',
+                        name: hub.get('name'),
+                        value: `${hub.get('slug')}.hub`,
+                        type: 'hub',
                     })
                 );
-            });
 
-            this.searchOptions.comparator = function(item1, item2) {
-                var optionType1 = item1.get('type'),
-                    optionType2 = item2.get('type'),
-                    typeRanking1,
-                    typeRanking2,
-                    optionValue1,
-                    optionValue2;
+                if (!_.contains(addedVerticals, vertical.slug)) {
+                    addedVerticals.push(vertical.slug);
 
-                if (optionType1 !== optionType2) {
-                    typeRanking1 = settings.typeRankingIndex[optionType1];
-                    typeRanking2 = settings.typeRankingIndex[optionType2];
-
-                    return (typeRanking1 > typeRanking2) ? 1 : -1;
+                    rawOptions.verticals.push(
+                        new SearchOption({
+                            name: vertical.name,
+                            value: `${vertical.slug}.v`,
+                            type: 'vertical',
+                        })
+                    );
                 }
+            }
+        );
 
-                optionValue1 = item1.get('value').toLowerCase();
-                optionValue2 = item2.get('value').toLowerCase();
+        _.each(settings.contentTypes, (typeConfig, slug) => {
+            rawOptions.contentTypes.push(
+                new SearchOption({
+                    name: typeConfig.verboseName,
+                    value: `${slug}.ct`,
+                    type: 'contentType',
+                })
+            );
+        });
 
-                if (item1.has('sortKey')) {
-                    optionValue1 = item1.get('sortKey').toLowerCase();
-                }
+        this.searchOptions.comparator = (item1, item2) => {
+            const optionType1 = item1.get('type');
+            const optionType2 = item2.get('type');
 
-                if (item2.has('sortKey')) {
-                    optionValue2 = item2.get('sortKey').toLowerCase();
-                }
+            if (optionType1 !== optionType2) {
+                const typeRanking1 = settings.typeRankingIndex[optionType1];
+                const typeRanking2 = settings.typeRankingIndex[optionType2];
 
-                return (optionValue1 > optionValue2) ? 1 : -1;
-            };
+                return (typeRanking1 > typeRanking2) ? 1 : -1;
+            }
 
-            this.searchOptions.reset();
+            let optionValue1 = item1.get('value').toLowerCase();
+            let optionValue2 = item2.get('value').toLowerCase();
 
-            this.searchOptions.add(rawOptions.staffers);
-            this.searchOptions.add(rawOptions.hubs);
-            this.searchOptions.add(rawOptions.verticals);
-            this.searchOptions.add(rawOptions.contentTypes);
-        },
-    });
+            if (item1.has('sortKey')) {
+                optionValue1 = item1.get('sortKey').toLowerCase();
+            }
+
+            if (item2.has('sortKey')) {
+                optionValue2 = item2.get('sortKey').toLowerCase();
+            }
+
+            return (optionValue1 > optionValue2) ? 1 : -1;
+        };
+
+        this.searchOptions.reset();
+
+        this.searchOptions.add(rawOptions.staffers);
+        this.searchOptions.add(rawOptions.hubs);
+        this.searchOptions.add(rawOptions.verticals);
+        this.searchOptions.add(rawOptions.contentTypes);
+    },
 });

@@ -1,537 +1,530 @@
-define([
-    'backbone',
-    'jquery',
-    'marionette',
-    'moment',
-    'underscore',
-    'common/poller',
-    'common/settings',
-    'common/tpl',
-    'budget/collections/packages',
-    'budget/collections/query-terms',
-    'budget/itemviews/packages/no-package',
-], function(
-    Backbone,
-    $,
-    Mn,
-    moment,
-    _,
-    Poller,
-    settings,
-    tpl,
-    PackageCollection,
-    QueryTermCollection,
-    NoPackagesView
-) {
-    return Mn.CompositeView.extend({
-        id: 'package-archive',
+import Backbone from 'backbone';
+import jQuery from 'jquery';
+import Mn from 'backbone.marionette';
+import _ from 'underscore';
 
-        regions: {},
+import deline from '../../../vendored/deline';
 
-        filterViews: [],
+import Poller from '../../../common/poller';
+import settings from '../../../common/settings';
 
-        queryTerms: [],
+import PackageCollection from '../../collections/packages';
+import QueryTermCollection from '../../collections/query-terms';
+import NoPackagesView from '../../itemviews/packages/no-package';
 
-        isAttached: false,
+export default Mn.CompositeView.extend({
+    id: 'package-archive',
 
-        filtersRendered: false,
+    regions: {},
 
-        events: {
-            // 'all': 'logEvents',
-            dataUpdated: 'onDataUpdated',
-        },
+    filterViews: [],
 
-        // Initialize the collection.
-        collection: new PackageCollection(),
+    queryTerms: [],
 
-        collectionEvents: {
-            sync: 'onCollectionSync',
-        },
+    isAttached: false,
 
-        childEvents: {
-            'dom:refresh': 'onChildRender',
-        },
+    filtersRendered: false,
 
-        ui: {
-            filterHolder: '#filter-holder',
-            facetedCollectionHolder: '#faceted-packages',
-            collectionHolder: '#package-list div',
-        },
+    events: {
+        // 'all': 'logEvents',
+        dataUpdated: 'onDataUpdated',
+    },
 
-        childViewOptions: function(model, index) {  // eslint-disable-line no-unused-vars
-            return {
-                currentUser: this.options.currentUser,
-                hubConfigs: this.options.data.hubs,
-                printPublications: this.options.data.printPublications,
-            };
-        },
+    // Initialize the collection.
+    collection: new PackageCollection(),
 
-        getEmptyView: function() {
-            // custom logic
-            return NoPackagesView;
-        },
+    collectionEvents: {
+        sync: 'onCollectionSync',
+    },
 
-        initialize: function() {
-            // Initialize the Wreqr channel.
-            this._radio = Backbone.Wreqr.radio.channel('global');
+    childEvents: {
+        'dom:refresh': 'onChildRender',
+    },
 
-            // Initialize the poller and the list of polled data.
-            this._poller = new Poller();
-            this.polledData = [this.collection];
+    ui: {
+        filterHolder: '#filter-holder',
+        facetedCollectionHolder: '#faceted-packages',
+        collectionHolder: '#package-list div',
+    },
 
-            // Initialize additional regions.
-            this.extraViewInstances = {};
+    childViewOptions(model, index) {  // eslint-disable-line no-unused-vars
+        return {
+            currentUser: this.options.currentUser,
+            hubConfigs: this.options.data.hubs,
+            printPublications: this.options.data.printPublications,
+        };
+    },
 
-            // Parse querystring to get initial state.
-            this.initialState = this.parseQueryString(this.options.boundData.querystring);
+    getEmptyView() {
+        // custom logic
+        return NoPackagesView;
+    },
 
-            // Bind radio event handlers.
-            this.bindRadioEvents();
+    initialize() {
+        // Initialize the Wreqr channel.
+        this.radio = Backbone.Wreqr.radio.channel('global');
 
-            // If the view's initial date range is saved, defer to that value.
-            if (_.isUndefined(this._radio.reqres.request('getState', this.stateKey, 'dateRange'))) {
-                // If there's no saved date range and no given range, fall through to the default.
-                if (_.isEmpty(this.initialState.dateRange)) {
-                    this.initialState.dateRange = this.generateDefaultDateRange();
+        // Initialize the poller and the list of polled data.
+        this.poller = new Poller();
+        this.polledData = [this.collection];
+
+        // Initialize additional regions.
+        this.extraViewInstances = {};
+
+        // Parse querystring to get initial state.
+        this.initialState = this.parseQueryString(this.options.boundData.querystring);
+
+        // Bind radio event handlers.
+        this.bindRadioEvents();
+
+        // If the view's initial date range is saved, defer to that value.
+        if (_.isUndefined(this.radio.reqres.request('getState', this.stateKey, 'dateRange'))) {
+            // If there's no saved date range and no given range, fall through to the default.
+            if (_.isEmpty(this.initialState.dateRange)) {
+                this.initialState.dateRange = this.generateDefaultDateRange();
+            }
+
+            // Cache this view's date range for future requests.
+            this.radio.commands.execute(
+                'setState',
+                this.stateKey,
+                'dateRange',
+                this.initialState.dateRange
+            );
+        }
+
+        // If no cached term collection exists, create and cache the
+        // collection where they will be stored.
+        if (_.isUndefined(
+            this.radio.reqres.request('getState', this.stateKey, 'queryTerms')
+        )) {
+            this.radio.commands.execute(
+                'setState',
+                this.stateKey,
+                'queryTerms',
+                new QueryTermCollection()
+            );
+        }
+
+        // If there have been initial query terms specified in the URL,
+        // apply those.
+        if (!_.isEmpty(this.initialState.queryTerms)) {
+            this.radio.commands.execute(
+                'setState',
+                this.stateKey,
+                'queryTerms',
+                (terms) => {
+                    terms.reset();
+                    _.each(
+                        this.initialState.queryTerms,
+                        (queryValue) => { terms.add(queryValue); }
+                    );
                 }
-
-                // Cache this view's date range for future requests.
-                this._radio.commands.execute(
-                    'setState',
-                    this.stateKey,
-                    'dateRange',
-                    this.initialState.dateRange
-                );
-            }
-
-            // If no cached term collection exists, create and cache the
-            // collection where they will be stored.
-            if (_.isUndefined(
-                this._radio.reqres.request('getState', this.stateKey, 'queryTerms')
-            )) {
-                this._radio.commands.execute(
-                    'setState',
-                    this.stateKey,
-                    'queryTerms',
-                    new QueryTermCollection()
-                );
-            }
-
-            // If there have been initial query terms specified in the URL,
-            // apply those.
-            if (!_.isEmpty(this.initialState.queryTerms)) {
-                this._radio.commands.execute(
-                    'setState',
-                    this.stateKey,
-                    'queryTerms',
-                    function(terms) {
-                        terms.reset();
-                        _.each(
-                            this.initialState.queryTerms,
-                            function(queryValue) { terms.add(queryValue); }
-                        );
-                    }.bind(this)
-                );
-            }
-
-            // Initialize all filters on this page.
-            this.filters = {};
-            this.filterIDs = {};
-            _.each(this.filterViews, function(filterConfig) {
-                this.filterIDs[filterConfig.slug] = filterConfig.elementID;
-
-                this.filters[filterConfig.slug] = new filterConfig.ViewClass({
-                    collection: this.collection,
-                    data: this.options.data,
-                    stateKey: this.stateKey,
-                });
-            }.bind(this));
-
-            // Set the appropriate data URL for this query.
-            this.collection.url = this.generateCollectionURL();
-
-            // Retrieve packages based on the current query parameters.
-            this.updatePackages();
-
-            // On subsequent data updates after initial load, the 'dataUpdated'
-            // event will be triggered. Bind that to the `onDataUpdated()` fn.
-            this.on('dataUpdated', this.onDataUpdated);
-
-            // Run overrides to init method.
-            if (!_.isUndefined(this.extendInitialize)) {
-                this.extendInitialize();
-            }
-        },
-
-        bindRadioEvents: function() {
-            // Handler for updating our internal date filters.
-            this._radio.commands.setHandler(
-                'switchListDates',
-                function(stateKey, newDates) {
-                    this._radio.commands.execute('setState', stateKey, 'dateRange', newDates);
-
-                    this.updatePackages();
-                    this.updateQuerystring();
-                    this.trigger('changeParams');
-                },
-                this
             );
+        }
 
-            // Handler for adding a query term.
-            this._radio.commands.setHandler(
-                'pushQueryTerm',
-                function(stateKey, queryObject) {
-                    this._radio.commands.execute(
-                        'setState',
-                        stateKey,
-                        'queryTerms',
-                        function(terms) {
-                            terms.push(queryObject);
-                        }.bind(this)  // eslint-disable-line no-extra-bind
-                    );
+        // Initialize all filters on this page.
+        this.filters = {};
+        this.filterIDs = {};
+        _.each(this.filterViews, (filterConfig) => {
+            this.filterIDs[filterConfig.slug] = filterConfig.elementID;
 
-                    this.updatePackages();
-                    this.updateQuerystring();
-                    this.trigger('changeParams');
-                },
-                this
-            );
+            this.filters[filterConfig.slug] = new filterConfig.ViewClass({
+                collection: this.collection,
+                data: this.options.data,
+                stateKey: this.stateKey,
+            });
+        });
 
-            // Handler for removing a query term.
-            this._radio.commands.setHandler(
-                'popQueryTerm',
-                function(stateKey, queryValue, options) {
-                    var opts = options || {silent: false};
+        // Set the appropriate data URL for this query.
+        this.collection.url = this.generateCollectionURL();
 
-                    this._radio.commands.execute(
-                        'setState',
-                        stateKey,
-                        'queryTerms',
-                        function(terms) {
-                            terms.remove(terms.where({value: queryValue}));
-                        }.bind(this)  // eslint-disable-line no-extra-bind
-                    );
+        // Retrieve packages based on the current query parameters.
+        this.updatePackages();
 
-                    if ((opts.silent === false)) {
-                        this.updatePackages();
-                        this.updateQuerystring();
-                        this.trigger('changeParams');
+        // On subsequent data updates after initial load, the 'dataUpdated'
+        // event will be triggered. Bind that to the `onDataUpdated()` fn.
+        this.on('dataUpdated', this.onDataUpdated);
+
+        // Run overrides to init method.
+        if (!_.isUndefined(this.extendInitialize)) {
+            this.extendInitialize();
+        }
+    },
+
+    bindRadioEvents() {
+        // Handler for updating our internal date filters.
+        this.radio.commands.setHandler(
+            'switchListDates',
+            (stateKey, newDates) => {
+                this.radio.commands.execute('setState', stateKey, 'dateRange', newDates);
+
+                this.updatePackages();
+                this.updateQuerystring();
+                this.trigger('changeParams');
+            },
+            this
+        );
+
+        // Handler for adding a query term.
+        this.radio.commands.setHandler(
+            'pushQueryTerm',
+            (stateKey, queryObject) => {
+                this.radio.commands.execute(
+                    'setState',
+                    stateKey,
+                    'queryTerms',
+                    (terms) => { terms.push(queryObject); }
+                );
+
+                this.updatePackages();
+                this.updateQuerystring();
+                this.trigger('changeParams');
+            },
+            this
+        );
+
+        // Handler for removing a query term.
+        this.radio.commands.setHandler(
+            'popQueryTerm',
+            (stateKey, queryValue, options) => {
+                const opts = options || { silent: false };
+
+                this.radio.commands.execute(
+                    'setState',
+                    stateKey,
+                    'queryTerms',
+                    (terms) => {
+                        terms.remove(terms.where({ value: queryValue }));
                     }
-                },
-                this
-            );
-        },
+                );
 
-        generateCollectionURL: function() { return settings.apiEndpoints.package; },
+                if ((opts.silent === false)) {
+                    this.updatePackages();
+                    this.updateQuerystring();
+                    this.trigger('changeParams');
+                }
+            },
+            this
+        );
+    },
 
-        generateCollectionFetchOptions: function() { return {}; },
+    generateCollectionURL() { return settings.apiEndpoints.package; },
 
-        generateDefaultDateRange: function() {
-            var currentDate = moment().tz('America/Chicago').startOf('day');
+    generateCollectionFetchOptions() { return {}; },
 
-            return {
-                start: currentDate.format('YYYY-MM-DD'),
-                end: currentDate.clone().add({days: 3}).format('YYYY-MM-DD'),
-            };
-        },
+    generateDefaultDateRange() {
+        return {};
+    },
 
-        generateFacetedCollections: function() {
-            return [];
-        },
+    generateFacetedCollections() {
+        return [];
+    },
 
-        parseQueryString: function(querystring, returnValue) {  // eslint-disable-line no-unused-vars,max-len
-            var parsedQueryTerms = [],
-                parsedDateRange = {},
-                extraContext = {},
-                invalidTerms = [],
-                dateQueryTerms = ['startDate', 'endDate'];
+    parseQueryString(querystring) {
+        let parsedQueryTerms = [];
+        const parsedDateRange = {};
+        const extraContext = {};
+        const invalidTerms = [];
+        const dateQueryTerms = ['startDate', 'endDate'];
 
-            if (!_.isNull(querystring)) {
-                parsedQueryTerms = _.chain(querystring.split('&'))
-                    .map(function(component) {
-                        var termParts = _.map(component.split('='), decodeURIComponent);
+        if (!_.isNull(querystring)) {
+            parsedQueryTerms = _.chain(querystring.split('&'))
+                .map((component) => {
+                    const termParts = _.map(
+                        component.split('='),
+                        decodeURIComponent
+                    );
 
-                        if (_.contains(dateQueryTerms, termParts[0])) {
-                            parsedDateRange[termParts[0].slice(0, -4)] = moment(
-                                termParts[1]
-                            ).format('YYYY-MM-DD');
-
-                            return null;
-                        } else if (
-                            _.contains(_.pluck(this.queryTerms, 'urlSlug'), termParts[0])
-                        ) {
-                            return {type: termParts[0], value: termParts[1]};
-                        }
-
-                        invalidTerms.push({type: termParts[0], value: termParts[1]});
+                    if (_.contains(dateQueryTerms, termParts[0])) {
+                        parsedDateRange[
+                            termParts[0].slice(0, -4)
+                        ] = settings.moment(termParts[1]).format('YYYY-MM-DD');
 
                         return null;
-                    }.bind(this))
-                    .compact()
-                    .value();
-
-                // Log invalid query terms.
-                if (!_.isEmpty(invalidTerms)) {
-                    _.each(
-                        invalidTerms,
-                        function(term) {
-                            var message = '' +
-                                'Invalid querystring term: "' +
-                                encodeURIComponent(term.type) + '=' +
-                                encodeURIComponent(term.value) + '" ' +
-                                '(ignored)';
-                            console.log(message);  // eslint-disable-line no-console
-                        }
-                    );
-                }
-            }
-
-            return {
-                queryTerms: parsedQueryTerms,
-                dateRange: parsedDateRange,
-                invalidTerms: invalidTerms,
-                extraContext: extraContext,
-            };
-        },
-
-        generateQuerystring: function() {
-            var terms = this._radio.reqres.request('getState', this.stateKey, 'queryTerms'),
-                dateRange = this._radio.reqres.request('getState', this.stateKey, 'dateRange'),
-                fullQuerystring = terms.filter(
-                    function(termValue) {
-                        return !_.contains(
-                            _.pluck(this.extraQueryTerms, 'urlSlug'),
-                            termValue.get('type')
-                        );
-                    }.bind(this)
-                ).map(
-                    function(term) {
-                        var termType = encodeURIComponent(term.get('type')),
-                            termValue = encodeURIComponent(term.get('value').replace('&', '+'));
-                        return termType + '=' + termValue;
+                    } else if (
+                        _.contains(
+                            _.pluck(this.queryTerms, 'urlSlug'),
+                            termParts[0]
+                        )
+                    ) {
+                        return { type: termParts[0], value: termParts[1] };
                     }
-                ).reduce(function(memo, queryComponent, index) {
-                    var newAddition = (index !== 0) ? '&' : '';
-                    newAddition += queryComponent;
-                    return memo + newAddition;
-                }, '');
 
-            if (!_.isEmpty(dateRange)) {
-                if (fullQuerystring !== '') {
-                    fullQuerystring += '&';
-                }
+                    invalidTerms.push({
+                        type: termParts[0],
+                        value: termParts[1],
+                    });
 
-                fullQuerystring += _.chain(dateRange)
-                    .map(
-                        function(value, key) {
-                            return encodeURIComponent(key) + 'Date=' +
-                                    encodeURIComponent(value);
-                        }
-                    )
-                    .reduce(
-                        function(memo, queryComponent, index) {
-                            var dateAddition = '';
+                    return null;
+                })
+                .compact()
+                .value();
 
-                            if (index !== 0) {
-                                dateAddition += '&';
-                            }
+            // Log invalid query terms.
+            if (!_.isEmpty(invalidTerms)) {
+                _.each(
+                    invalidTerms,
+                    (term) => {
+                        const message = deline`
+                            Invalid querystring term: "${
+                                encodeURIComponent(term.type)
+                            }=${
+                                encodeURIComponent(term.value)
+                            }"(ignored)`;
+                        console.log(message);  // eslint-disable-line no-console
+                    }
+                );
+            }
+        }
 
-                            dateAddition += queryComponent;
+        return {
+            queryTerms: parsedQueryTerms,
+            dateRange: parsedDateRange,
+            invalidTerms,
+            extraContext,
+        };
+    },
 
-                            return memo + dateAddition;
-                        },
-                        ''
-                    )
-                    .value();
+    generateQuerystring() {
+        const terms = this.radio.reqres.request(
+            'getState',
+            this.stateKey,
+            'queryTerms'
+        );
+
+        const dateRange = this.radio.reqres.request(
+            'getState',
+            this.stateKey,
+            'dateRange'
+        );
+        let fullQuerystring = terms.filter(
+            termValue => !_.contains(
+                _.pluck(this.extraQueryTerms, 'urlSlug'),
+                termValue.get('type')
+            )
+        ).map((term) => {
+            const termType = encodeURIComponent(term.get('type'));
+            const termValue = encodeURIComponent(term.get('value')
+                                .replace('&', '+'));
+            return `${termType}=${termValue}`;
+        }).reduce((memo, queryComponent, index) => {
+            let newAddition = (index !== 0) ? '&' : '';
+            newAddition += queryComponent;
+            return memo + newAddition;
+        }, '');
+
+        if (!_.isEmpty(dateRange)) {
+            if (fullQuerystring !== '') {
+                fullQuerystring += '&';
             }
 
-            if (!_.isUndefined(this.extendGenerateQuerystring)) {
-                return this.extendGenerateQuerystring(fullQuerystring);
+            fullQuerystring += _.chain(dateRange)
+                .map(
+                    (value, key) => deline`
+                        ${
+                            encodeURIComponent(key)
+                        }Date=${
+                            encodeURIComponent(value)
+                        }`
+                )
+                .reduce(
+                    (memo, queryComponent, index) => {
+                        let dateAddition = (index !== 0) ? '&' : '';
+
+                        dateAddition += queryComponent;
+
+                        return memo + dateAddition;
+                    },
+                    ''
+                )
+                .value();
+        }
+
+        if (!_.isUndefined(this.extendGenerateQuerystring)) {
+            return this.extendGenerateQuerystring(fullQuerystring);
+        }
+
+        return fullQuerystring;
+    },
+
+    updateQuerystring() {
+        // Generate a querystring based on the current terms selected.
+        const querystring = this.generateQuerystring();
+        let newURL = this.urlBase + querystring;
+
+        if (querystring !== '') {
+            newURL += '/';
+        }
+
+        // Navigate to that querystring.
+        this.radio.commands.execute('navigate', newURL, { trigger: false });
+    },
+
+    renderFilters() {
+        // Create DOM elements for all unrendered filter objects, then
+        // attach them.
+        _.each(
+            this.filters,
+            (filterObj, filterName) => {
+                const filterEl = jQuery(
+                    `<div id="${this.filterIDs[filterName]}"></div>`
+                ).appendTo(this.ui.filterHolder);
+
+                filterObj.setElement(filterEl[0]);
             }
+        );
 
-            return fullQuerystring;
-        },
+        // Render all filters.
+        // eslint-disable-next-line newline-per-chained-call,max-len
+        _.chain(this.filters).values().invoke('render').value();
 
-        updateQuerystring: function() {
-            // Generate a querystring based on the current terms selected.
-            var querystring = this.generateQuerystring(),
-                newURL = this.urlBase + querystring;
+        // if (!this.filtersRendered) {
+            // Set this flag to true, so this step is only called once.
+            // this.filtersRendered = true;
+        // }
+    },
 
-            if (querystring !== '') {
-                newURL += '/';
-            }
+    renderFacetedLists() {
+        // Create each faceted list.
+        this.facetedCollections = this.generateFacetedCollections();
 
-            // Navigate to that querystring.
-            this._radio.commands.execute('navigate', newURL, {trigger: false});
-        },
+        // Render each of the faceted collections.
+        _.invoke(this.facetedCollections, 'render');
+    },
 
-        renderFilters: function() {
-            // Create DOM elements for all unrendered filter objects, then
-            // attach them.
-            _.each(
-                this.filters,
-                function(filterObj, filterName) {
-                    var filterEl = $(
-                        '<div id="' + this.filterIDs[filterName] + '"></div>'
-                    ).appendTo(this.ui.filterHolder);
+    updatePackages() {
+        // Configure poller with fetch options.
+        // This includes all querystring arguments (the `data` option sent
+        // to `sync()`).
+        this.poller.requestConfig = this.generateCollectionFetchOptions();
 
-                    filterObj.setElement(filterEl[0]);
-                }.bind(this)
+        // Retrieve collection from the server.
+        this.poller.get(this.polledData, this.poller.requestConfig);
+    },
+
+    onCollectionSync() {
+        // When collection is synced with the server get all related items,
+        // render child views and restart poller.
+        const packageRelatedDeferred = [];
+        const wasAttached = this.isAttached;
+
+        if (this.rerenderFacetedLists === true) {
+            this.renderFacetedLists();
+            this.rerenderFacetedLists = false;
+        }
+
+        this.poller.pause({ muteConsole: true });
+
+        // If this view is not yet attached, finalize that process.
+        if (!this.isAttached) {
+            this.options.initFinishedCallback(this);
+        }
+
+        this.collection.each((pkg) => {
+            const loadDeferred = pkg.loadRelatedItems(
+                pkg.toJSON(),
+                { muteConsole: true }
             );
 
-            // Render all filters.
-            // eslint-disable-next-line newline-per-chained-call,max-len
-            _.chain(this.filters).values().invoke('render').value();
+            packageRelatedDeferred.push(loadDeferred);
 
-            // if (!this.filtersRendered) {
-                // Set this flag to true, so this step is only called once.
-                // this.filtersRendered = true;
-            // }
-        },
+            loadDeferred.done(() => {
+                pkg.trigger('change', pkg, {});
+            });  // eslint-disable-line no-extra-bind
+        });  // eslint-disable-line no-extra-bind
 
-        renderFacetedLists: function() {
-            // Create each faceted list.
-            this.facetedCollections = this.generateFacetedCollections();
-
-            // Render each of the faceted collections.
-            _.invoke(this.facetedCollections, 'render');
-        },
-
-        updatePackages: function() {
-            // Configure poller with fetch options.
-            // This includes all querystring arguments (the `data` option sent
-            // to `sync()`).
-            this._poller.requestConfig = this.generateCollectionFetchOptions();
-
-            // Retrieve collection from the server.
-            this._poller.get(this.polledData, this._poller.requestConfig);
-        },
-
-        onCollectionSync: function() {
-            // When collection is synced with the server get all related items,
-            // render child views and restart poller.
-            var packageRelatedDeferred = [],
-                wasAttached = this.isAttached;
-
-            if (this.rerenderFacetedLists === true) {
-                this.renderFacetedLists();
-                this.rerenderFacetedLists = false;
-            }
-
-            this._poller.pause({muteConsole: true});
-
+        jQuery.when(...packageRelatedDeferred).done(() => {
             // If this view is not yet attached, finalize that process.
-            if (!this.isAttached) {
-                this.options.initFinishedCallback(this);
+            if (wasAttached) {
+                this.trigger('dataUpdated');
             }
 
-            this.collection.each(function(package) {
-                var loadDeferred = package.loadRelatedItems(
-                    package.toJSON(),
-                    {muteConsole: true}
-                );
+            // Resume polling. In 30 seconds the app will sync with the server again.
+            this.poller.resume({ muteConsole: true });
+        });
+    },
 
-                packageRelatedDeferred.push(loadDeferred);
+    onChildRender(childView) {
+        if ((!childView.model.isNew()) && (!childView.model.primaryContentItem.isNew())) {
+            if (!childView.hasPrimary) {
+                childView.hasPrimary = true;  // eslint-disable-line no-param-reassign
 
-                loadDeferred.done(function() {
-                    package.trigger('change', package, {});
-                }.bind(this));  // eslint-disable-line no-extra-bind
-            }.bind(this));  // eslint-disable-line no-extra-bind
-
-            $.when.apply($, packageRelatedDeferred).done(function() {
-                // If this view is not yet attached, finalize that process.
-                if (wasAttached) {
-                    this.trigger('dataUpdated');
-                }
-
-                // Resume polling. In 30 seconds the app will sync with the server again.
-                this._poller.resume({muteConsole: true});
-            }.bind(this));
-        },
-
-        onChildRender: function(childView) {
-            if ((!childView.model.isNew()) && (!childView.model.primaryContentItem.isNew())) {
-                if (!childView.hasPrimary) {
-                    childView.hasPrimary = true;  // eslint-disable-line no-param-reassign
-
-                    if (!childView.$el.find('.package-sheet').hasClass('has-primary')) {
-                        setTimeout(function() {
-                            childView.$el.find('.package-sheet').addClass('has-primary');
-                        }, 100);
-                    }
+                if (!childView.$el.find('.package-sheet').hasClass('has-primary')) {
+                    setTimeout(() => {
+                        childView.$el.find('.package-sheet').addClass('has-primary');
+                    }, 100);
                 }
             }
+        }
 
-            childView.model.trigger('setPrimary', childView.model, {});
-        },
+        childView.model.trigger('setPrimary', childView.model, {});
+    },
 
-        onDataUpdated: function() {
-            // console.log('ODU.');
-        },
+    onDataUpdated() {
+        // console.log('ODU.');
+    },
 
-        attachBuffer: function(collectionView, buffer) {
-            this.ui.collectionHolder.append(buffer);
-        },
+    attachBuffer(collectionView, buffer) {
+        this.ui.collectionHolder.append(buffer);
+    },
 
-        _insertBefore: function(childView, index) {
-            var currentView,
-                findPosition = this.getOption('sort') && (index < this.children.length - 1);
+    _insertBefore(childView, index) {
+        let currentView;
 
-            if (findPosition) {
-                // Find the view after this one
-                currentView = this.children.find(function(view) {
-                    return view._index === index + 1;  // eslint-disable-line no-underscore-dangle
-                });
-            }
+        if (this.getOption('sort') && (index < this.children.length - 1)) {
+            // Find the view after this one
+            // eslint-disable-next-line no-underscore-dangle
+            currentView = this.children.find(view => view._index === index + 1);
+        }
 
-            if (currentView) {
-                currentView.$el.before(childView.el);
-                return true;
-            }
+        if (currentView) {
+            currentView.$el.before(childView.el);
+            return true;
+        }
 
-            return false;
-        },
+        return false;
+    },
 
-        // Internal method. Append a view to the end of the $el
-        _insertAfter: function(childView) {
-            this.ui.collectionHolder.append(childView.el);
-        },
+    // Internal method. Append a view to the end of the $el
+    _insertAfter(childView) {
+        this.ui.collectionHolder.append(childView.el);
+    },
 
-        onAttach: function() {
-            this.renderFacetedLists();
-        },
+    onAttach() {
+        this.renderFacetedLists();
+    },
 
-        onRender: function() {
-            this.$el.addClass(this.outerClass);
+    onRender() {
+        this.$el.addClass(this.outerClass);
 
-            this.renderFilters();
+        this.renderFilters();
 
-            // if (!_.isEmpty(this.extraChildViews)) {
-            //     // TODO: Destroy old views.
-            //     this.extraViewInstances = {};
-            //
-            //     _.each(
-            //         this.extraChildViews,
-            //         function(ViewClass, region) {
-            //             var viewInstance = new ViewClass({
-            //                 data: this.options.data,
-            //                 stateKey: this.stateKey,
-            //             });
-            //
-            //             this.extraViewInstances[region] = viewInstance;
-            //             this.showChildView(region, viewInstance);
-            //         }.bind(this)
-            //     );
-            // }
-            //
-            // this.showChildView('dateFilter', this.dateFilterView);
-            // this.showChildView('searchBox', this.searchBoxView);
-            //
-            // this.showChildView('packages', this.collectionView);
-        },
+        // if (!_.isEmpty(this.extraChildViews)) {
+        //     // TODO: Destroy old views.
+        //     this.extraViewInstances = {};
+        //
+        //     _.each(
+        //         this.extraChildViews,
+        //         function(ViewClass, region) {
+        //             var viewInstance = new ViewClass({
+        //                 data: this.options.data,
+        //                 stateKey: this.stateKey,
+        //             });
+        //
+        //             this.extraViewInstances[region] = viewInstance;
+        //             this.showChildView(region, viewInstance);
+        //         }.bind(this)
+        //     );
+        // }
+        //
+        // this.showChildView('dateFilter', this.dateFilterView);
+        // this.showChildView('searchBox', this.searchBoxView);
+        //
+        // this.showChildView('packages', this.collectionView);
+    },
 
-        onBeforeDestroy: function() {
-            this._poller.destroy();
-        },
-    });
+    onBeforeDestroy() {
+        this.poller.destroy();
+    },
 });
