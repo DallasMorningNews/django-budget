@@ -12,7 +12,7 @@ An internal story-budgeting tool for the staff of The Dallas Morning News.
 
 More information TK here.
 
-<img src="http://www.dallasnews.com/resrsc/premium/www/img/logo-black.png" width="200px">
+<img src="https://www.dallasnews.com/resources/motif/images/dallas-news-by-dmn-logo--small.svg" width="200px">
 
 
 # Installation

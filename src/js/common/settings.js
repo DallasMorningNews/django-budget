@@ -29,9 +29,9 @@ moment.defineLocale('en-us-apstyle', {
 
 
 const apiBases = {
-    auth: 'http://datalab.dallasnews.com/auth/api/',
-    budget: 'http://datalab.dallasnews.com/budget/api/',
-    staff: 'http://datalab.dallasnews.com/staff/api/',
+    auth: 'https://datalab.dallasnews.com/auth/api/',
+    budget: 'https://datalab.dallasnews.com/budget/api/',
+    staff: 'https://datalab.dallasnews.com/staff/api/',
 };
 
 const standardSettings = {
