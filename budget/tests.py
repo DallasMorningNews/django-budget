@@ -328,7 +328,7 @@ class ItemTestCase(TestCase):
 
     def test_primary_or_additional_required(self):
         """Raise a ValidationError if primary or additional aren't set"""
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 ValidationError,
                 "Items must be connected to a package"):
             item = Item(slug_key='sluggy-slug', type='text',
@@ -337,7 +337,7 @@ class ItemTestCase(TestCase):
 
     def test_primary_and_additional_raise_error(self):
         """Raise a ValidationError if primary and additional are both set"""
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 ValidationError,
                 "Items cannot be connected to a package as both"):
             package_one = package_factory(slug_key='test-item-tpaare1')
@@ -476,7 +476,7 @@ class ChangeQuerysetTestCase(TestCase):
         """Our custom queryset should tolearte queries that don't return model
         instances"""
         user_ids = Change.objects.all().values('by')
-        expect = map(lambda x: {'by': self.user.pk}, range(0, 10))
+        expect = [{'by': self.user.pk} for x in range(0, 10)]
         self.assertListEqual(list(user_ids), list(expect))
 
 
@@ -844,8 +844,7 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
 
         # Get the publish dates of the returned packages and make sure they
         # align with what we expect
-        returned_dates = map(lambda x: x['publishDate'],
-                             json.loads(response.content)['results'])
+        returned_dates = [x['publishDate'] for x in json.loads(response.content)['results']]
         expected_dates = [
             ['2015-05-06T05:00:00Z', '2015-05-07T05:00:00Z'],
             ['2015-05-05T05:00:00Z', '2015-05-06T05:00:00Z'],
@@ -914,10 +913,7 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
 
         # Get the publish dates of the returned packages and make sure they
         # align with what we expect
-        returned_dates = map(
-            lambda x: x['printRunDate'],
-            json.loads(response.content)['results']
-        )
+        returned_dates = [x['printRunDate'] for x in json.loads(response.content)['results']]
         expected_dates = [
             ['2015-05-02', '2015-05-03'],
             ['2015-05-01', '2015-05-03'],
