@@ -1,0 +1,58 @@
+{%extends 'base.html'%}
+{% load staticfiles %}
+
+{%block head%}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{%static 'staff/css/main.css'%}">
+
+{%endblock%}
+
+{%block title%}
+
+{%endblock%}  
+
+{%block scripts%}
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script>
+	$("#rescrape").click(function(){
+		$("#ajax").show();
+		$.get($(this).data("url"), function(){
+			location.reload();
+		});
+	});
+</script>
+{%endblock%}
+
+{%block content%}
+
+<div class="center-content">
+<h1>
+	Change
+	<a id="api-link" href="{%url 'staff-api-staffer' staffer.email%}">
+		<i class="fa fa-cogs" title="API"></i>
+	</a>
+</h1>
+<div class="right-align">
+<img id="ajax" src="{%static 'staff/img/ajax-loader.gif'%}" hidden>
+<button id="rescrape" class="btn btn-sm" data-url='{% url "staff-rescrape" staffer.email%}'>
+	Rescrape <i class="fa fa-slack" aria-hidden="true"></i>
+</button>
+</div>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" class="btn btn-lg" value="Submit" />
+</form>
+</div>
+
+{%endblock%}
+
+{%block breadcrumbs%}
+	<ol class="breadcrumb">
+	  <li class="breadcrumb-item"><a href="/">dataLab</a></li>
+	  <li class="breadcrumb-item"><a href="{%url 'staff-staffers'%}">Staff</a></li>
+	  <li class="breadcrumb-item active">Change</li>
+	</ol>
+{%endblock%}

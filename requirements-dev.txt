@@ -1,0 +1,9 @@
+coverage
+mock
+moto==0.4.31  # last one first-class with boto 2 support
+tblib
+freezegun
+flake8
+ipython
+pip-tools
+-r requirements.txt

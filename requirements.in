@@ -1,0 +1,57 @@
+#
+# Below modules are used in multiple apps or in the main Django project, unless
+# otherwise noted.
+#
+Django~=1.11.0
+dj-database-url==0.3.0
+django-colorfield==0.1.10  # staff
+django-cors-headers==1.1.0  # budget, staff
+django-debug-toolbar~=1.8.0
+django-dotenv~=1.4.1
+django-filter~=1.0.0  # budget, foiatracker
+django-queryinspect==0.1.0  # budget, staff
+django-rest-swagger~=2.1.2  # budget, staff
+djangorestframework~=3.6.0  # budget, staff
+djangorestframework-camel-case==0.2.0  # budget
+gunicorn==19.0.0
+psycopg2==2.6.1
+pytz==2016.3
+slacker~=0.9.0  # foiatracker, staff
+whitenoise~=3.3.0
+
+# Django~=1.11.0
+# # Pillow~=4.1
+# # beautifulsoup4==4.4.0  # jailscrape, liveblog
+# # bleach==1.4.2  # liveblog
+# # boto==2.39.0
+# dj-database-url==0.3.0
+# # django-bootstrap3~=9.0.0  # foiatracker, corrections
+# # django-chartwerk~=0.5.0
+# # django-celery-results~=1.0.0
+# # django-ckeditor==5.0.3  # liveblog
+# django-colorfield==0.1.10  # staff
+# django-cors-headers==1.1.0
+# django-debug-toolbar~=1.8.0
+# django-dotenv~=1.4.1
+# django-filter~=1.0.0  # budget, foiatracker
+# # django-mailgun==0.8.0  # foiatracker
+# django-queryinspect==0.1.0
+# django-rest-swagger~=2.1.2
+# # django-storages==1.4.1
+# djangorestframework~=3.6.0  # budget, staff
+# djangorestframework-camel-case==0.2.0  # budget
+# # easy-thumbnails~=2.4
+# # fuzzywuzzy~=0.15.0  # foiatracker
+# gunicorn==19.0.0
+# # holidays==0.4.1  # foiatracker
+# # lxml~=3.8.0  # quotecard
+# # mechanize==0.2.5  # jailscrape
+# # micawber==0.3.3  # liveblog
+# psycopg2==2.6.1
+# # python-Levenshtein~=0.12.0  # foiatracker
+# pytz==2016.3
+# # requests==2.9.1
+# slacker~=0.9.0  # foiatracker, staff
+# # social-auth-app-django~=1.2.0
+# whitenoise~=3.3.0
+# # redis~=2.10

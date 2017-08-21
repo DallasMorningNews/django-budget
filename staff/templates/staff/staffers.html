@@ -1,0 +1,112 @@
+{%extends 'base.html'%}
+{% load staticfiles %}
+
+{%block head%}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="{%static 'staff/css/main.css'%}">
+
+{%endblock%}
+
+{%block title%}
+
+{%endblock%}  
+
+{%block scripts%}
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.2.0/list.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/list.pagination.js/0.1.1/list.pagination.min.js"></script>
+<script>
+var options = {
+    valueNames: [ 'name' ],
+    page: 10,
+    plugins: [
+      ListPagination({})
+    ]
+};
+
+var staffList = new List('staff-list', options);
+
+</script>
+{%endblock%}
+
+{%block content%}
+
+<div class="center-content">
+<h1>Staff
+	<a id="api-link" href="{%url 'staff-api-staff'%}">
+		<i class="fa fa-cogs" title="API"></i>
+	</a>
+</h1>
+
+
+<div class="last-added clearfix">
+	<h3>
+		New faces
+	</h3>
+	<div>
+		{%if last_add.image_url%}
+		<img src="{{last_add.image_url}}" />
+		{%else%}
+		<img src="{%static 'staff/img/smiley.png'%}" />
+		{%endif%}
+		{%if not last_add.last_name and not last_add.first_name %}
+			Anonymous
+		{%else%}
+			{{last_add.first_name}} {{last_add.last_name}}
+		{%endif%}
+	</div>
+	<div class="add-staff">
+		<a href="{% url 'staff-create' %}" title="Add new staffer"><i class="fa fa-plus"></i></a>
+	</div>
+</div>
+
+
+<div id="staff-list">
+
+	<input class="search" placeholder="Search" />
+
+	<ul class="list">
+	{%for staffer in staff%}
+	<li class="staffer-row">
+		<div class="profile-img">
+			{%if staffer.image_url%}
+				<img src="{{staffer.image_url}}" />
+			{%else%}
+				<img src="{%static 'staff/img/smiley.png'%}" />
+			{%endif%}
+		</div>
+		<div class="name">
+			{{staffer.last_name}}, {{staffer.first_name}} 
+		</div>
+		<div class="profile-links">
+			{%if staffer.active%}
+				<i class="fa fa-check" aria-hidden="true" title="active"></i>
+			{%else%}
+				<i class="fa fa-times" aria-hidden="true" title="inactive"></i>
+			{%endif%}
+			<a href="mailto:{{staffer.email}}" target="_blank">
+				<i class="fa fa-envelope" aria-hidden="true"></i>
+			</a>
+			<a href="{% url 'staff-update' staffer.pk %}">
+				<i class="fa fa-pencil" aria-hidden="true"></i>
+			</a>
+		</div>
+	</li>
+	{%endfor%}
+	</ul>
+
+	<ul class="pagination"></ul>
+</div>
+</div>
+
+{%endblock%}
+
+{%block breadcrumbs%}
+  <ol class="breadcrumb">
+  	<li class="breadcrumb-item"><a href="/">dataLab</a></li>
+    <li class="breadcrumb-item active">Staff</li>
+  </ol>
+{%endblock%}
