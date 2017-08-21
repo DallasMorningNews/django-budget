@@ -1,1 +1,1 @@
-web: gunicorn datalab.wsgi --log-file -
+web: gunicorn storybase.wsgi --log-file -
