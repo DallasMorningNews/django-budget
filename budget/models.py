@@ -20,7 +20,7 @@ from django.db.models import F, Func  # NOQA
 from django.utils.timezone import get_current_timezone
 
 
-# Imports from datalab.
+# Imports from budget.
 from budget.querysets import ChangeQuerySet, PackageQuerySet  # NOQA
 from budget.validators import hub_exists
 

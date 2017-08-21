@@ -3,7 +3,7 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 
-# Imports from datalab.
+# Imports from staff.
 from staff.models import Hub
 
 

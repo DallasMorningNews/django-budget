@@ -292,9 +292,9 @@ except KeyError:
 # https://github.com/os/slacker
 SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
 
-SLACK_USERNAME = "Geoff"
+SLACK_USERNAME = ""
 
-SLACK_ICON_URL = "http://s3.amazonaws.com/datalab-assets/static/img/robot.png"
+SLACK_ICON_URL = ""
 
 
 # # Python Social Auth - Django
