@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 from django.db import connections
 from django.db.utils import ConnectionDoesNotExist
 from django.test import SimpleTestCase, TestCase, override_settings  # NOQA
+from django.utils import timezone
 from django.utils.timezone import make_aware
 
 
@@ -39,11 +40,10 @@ from psycopg2.extras import (  # NOQA
     DateRange,
     DateTimeTZRange
 )
-import pytz
 from rest_framework.test import APIClient
 
 
-tz = pytz.timezone('America/Chicago')
+tz = timezone.get_default_timezone()
 
 # Figure out which database we should use to check query counts
 try:
@@ -106,6 +106,15 @@ def item_factory(primary_for=None, additional_for=None, item_type='text',
         primary_for_package=primary_for,
         additional_for_package=additional_for
     )
+
+
+def get_timestamp_for_date(raw_iso_date):
+    return tz.localize(
+        datetime.strptime(
+            raw_iso_date,
+            '%Y-%m-%d'
+        )
+    ).astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 class AuthedApiTestMixin(TestCase):
@@ -569,7 +578,10 @@ class CommonAPITestCase(AuthedApiTestMixin, TestCase):
 
         response = self.client.get(package_url, data={'format': 'json'})
         json_response = json.loads(response.content)
-        expect = ['2015-05-01T05:00:00Z', '2015-05-02T05:00:00Z']
+        expect = [
+            get_timestamp_for_date('2015-05-01'),
+            get_timestamp_for_date('2015-05-02'),
+        ]
         self.assertEqual(json_response['publishDate'], expect)
 
     def test_write_to_daterange_field(self):
@@ -634,7 +646,10 @@ formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].']
             PACKAGES_API_ENDPOINT, package.pk,)
 
         update = {
-            'publishDate': ['2015-05-03T05:00:00Z', '2015-05-02T05:00:00Z']
+            'publishDate': [
+                get_timestamp_for_date('2015-05-03'),
+                get_timestamp_for_date('2015-05-02'),
+            ]
         }
         response = self.client.patch(package_url, update, format='json')
         self.assertEqual(response.status_code, 400)
@@ -844,15 +859,38 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
 
         # Get the publish dates of the returned packages and make sure they
         # align with what we expect
-        returned_dates = [x['publishDate'] for x in json.loads(response.content)['results']]
+        returned_dates = [
+            x['publishDate'] for x in json.loads(response.content)['results']
+        ]
         expected_dates = [
-            ['2015-05-06T05:00:00Z', '2015-05-07T05:00:00Z'],
-            ['2015-05-05T05:00:00Z', '2015-05-06T05:00:00Z'],
-            ['2015-05-04T05:00:00Z', '2015-05-05T05:00:00Z'],
-            ['2015-05-03T05:00:00Z', '2015-05-05T05:00:00Z'],
-            ['2015-05-02T05:00:00Z', '2015-05-05T05:00:00Z'],
-            ['2015-05-03T05:00:00Z', '2015-05-04T05:00:00Z'],
-            ['2015-05-02T05:00:00Z', '2015-05-03T05:00:00Z']
+            [
+                get_timestamp_for_date('2015-05-06'),
+                get_timestamp_for_date('2015-05-07'),
+            ],
+            [
+                get_timestamp_for_date('2015-05-05'),
+                get_timestamp_for_date('2015-05-06'),
+            ],
+            [
+                get_timestamp_for_date('2015-05-04'),
+                get_timestamp_for_date('2015-05-05'),
+            ],
+            [
+                get_timestamp_for_date('2015-05-03'),
+                get_timestamp_for_date('2015-05-05'),
+            ],
+            [
+                get_timestamp_for_date('2015-05-02'),
+                get_timestamp_for_date('2015-05-05'),
+            ],
+            [
+                get_timestamp_for_date('2015-05-03'),
+                get_timestamp_for_date('2015-05-04'),
+            ],
+            [
+                get_timestamp_for_date('2015-05-02'),
+                get_timestamp_for_date('2015-05-03'),
+            ]
         ]
         self.assertListEqual(returned_dates, expected_dates)
 
@@ -913,7 +951,10 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
 
         # Get the publish dates of the returned packages and make sure they
         # align with what we expect
-        returned_dates = [x['printRunDate'] for x in json.loads(response.content)['results']]
+        returned_dates = [
+            x['printRunDate'] for x in json.loads(response.content)['results']
+        ]
+
         expected_dates = [
             ['2015-05-02', '2015-05-03'],
             ['2015-05-01', '2015-05-03'],
@@ -1166,8 +1207,8 @@ class AuditTrailApiMixinTestCase(AuthedApiTestMixin, TestCase):
             json.dumps({
                 'hub': 'hub',
                 'publishDate': [
-                    '2016-08-18T05:00:00Z',
-                    '2016-08-19T05:00:00Z'
+                    get_timestamp_for_date('2016-08-18'),
+                    get_timestamp_for_date('2016-08-19'),
                 ],
                 'slugKey': 'test-audit-usopc'
             }),
