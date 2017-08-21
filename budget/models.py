@@ -98,19 +98,21 @@ class ChangeQuerySet(models.QuerySet):
 
         # Get all models that are missing a cached _user property
         missing_users = list(
-            filter(lambda x: not hasattr(x, '_user'), self._result_cache))
+            [x for x in self._result_cache if not hasattr(x, '_user')]
+        )
 
         if not missing_users:
             return
 
         # Get all unique user IDs from the models missing _user attributes
-        user_ids = map(lambda x: x.by, missing_users)
+        user_ids = [x.by for x in missing_users]
         unique_user_ids = list(set(user_ids))
 
         # Then get all matching user models
         UserModel = get_user_model()
         users = list(
-            UserModel.objects.filter(id__in=unique_user_ids).iterator())
+            UserModel.objects.filter(id__in=unique_user_ids).iterator()
+        )
 
         # Now attach those user models to the results models in our results
         # cache
@@ -132,15 +134,17 @@ class ChangeQuerySet(models.QuerySet):
 
         # Get all items that are missing a cached _item property
         missing = list(
-            filter(lambda x: not hasattr(x, '_item'), self._result_cache))
+            [x for x in self._result_cache if not hasattr(x, '_item')]
+        )
 
         if not missing:
             return
 
         # Get all unique item IDs and model names for missing _items
-        item_ids = list(set(map(lambda x: (x.item_content_type, x.item_id),
-                                missing)))
-        item_types = list(set(map(lambda x: x.item_content_type, missing)))
+        item_ids = list(
+            set([(x.item_content_type, x.item_id) for x in missing])
+        )
+        item_types = list(set([x.item_content_type for x in missing]))
 
         # Now go through each of the unique model names referenced and load
         # all items of that type needed by this queryset
@@ -150,8 +154,8 @@ class ChangeQuerySet(models.QuerySet):
             # Get the model by name
             Model = apps.get_model(app_label='budget', model_name=model)
             # Then get all unique model IDs for matching models
-            matches = list(filter(lambda x: x[0] == model, item_ids))
-            ids_for_model = list(map(lambda x: x[1], matches))
+            matches = list([x for x in item_ids if x[0] == model])
+            ids_for_model = list([x[1] for x in matches])
             # And run a query to get them all at once
             items = list(Model.objects.filter(id__in=ids_for_model).iterator())
 
