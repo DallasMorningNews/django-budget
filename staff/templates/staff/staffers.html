@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{%static 'staff/css/wrapper.css'%}">
 	<link rel="stylesheet" type="text/css" href="{%static 'staff/css/main.css'%}">
 
 {%endblock%}
 
 {%block title%}
 
-{%endblock%}  
+{%endblock%}
 
 {%block scripts%}
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
@@ -79,7 +80,7 @@ var staffList = new List('staff-list', options);
 			{%endif%}
 		</div>
 		<div class="name">
-			{{staffer.last_name}}, {{staffer.first_name}} 
+			{{staffer.last_name}}, {{staffer.first_name}}
 		</div>
 		<div class="profile-links">
 			{%if staffer.active%}
