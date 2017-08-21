@@ -56,7 +56,7 @@ class AuthenticatedUserView(CamelCasedAPIViewMixin, APIView):
             login_redirect_url = '%s?next=%s?%s' % (
                 login_url,
                 reverse_lazy('external-redirect'),
-                urllib.urlencode({
+                urllib.parse.urlencode({
                     'to': request.META['HTTP_REFERER']
                 })
             )
