@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 delete = False
                 while delete is False:
                     msg = 'Delete package "%s"? [y/n] ' % orphan
-                    answer = raw_input(msg).lower()
+                    answer = input(msg).lower()
                     if answer == 'y':
                         self.stdout.write('Deleting "%s".' % orphan)
                         orphan.delete()
