@@ -1,0 +1,35 @@
+{% extends "admin/login.html" %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+  <style>
+  .login .submit-row {
+    padding: 0;
+    text-align: center;
+  }
+
+  .form-separator {
+    margin-top: -12px;
+    height: 38px;
+    text-align: center;
+  }
+
+  .google-login {
+    text-align: center;
+  }
+  .google-login a.button {
+    padding: 10px 15px;
+    font-size: 13px;
+  }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {{ block.super }}
+  <div class="clearfix">&nbsp;</div>
+  <div class="form-separator">- or -</div>
+  <div class="google-login clearfix">
+    <a class="button" href="{{ social_login_url }}?next={{ next }}"><i class="fa fa-google"></i> Log in with Google</a>
+  </div>
+{% endblock %}
