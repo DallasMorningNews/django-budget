@@ -32,7 +32,7 @@ anons = [
 
 
 def slack_user_search(email):
-    """Return a user if found in slack."""
+    """Return a user if found in Slack."""
     users = SLACK.users.list().body['members']
     for user in users:
         if user['profile'].get('email', None) == email:
@@ -41,7 +41,7 @@ def slack_user_search(email):
 
 
 class Vertical(models.Model):
-    '''Model for top-level organizational entities.'''
+    """Model for top-level organizational entities."""
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100)
 
@@ -59,7 +59,7 @@ class Vertical(models.Model):
 
 
 class Hub(models.Model):
-    '''Model for lower-level organizational entities.'''
+    """Model for lower-level organizational entities."""
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100)
     vertical = models.ForeignKey(Vertical, on_delete=models.CASCADE)
@@ -84,7 +84,7 @@ class Hub(models.Model):
 
 
 class Staffer(models.Model):
-    '''Model for individual human staffers.'''
+    """Model for individual staffers."""
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50, blank=True, null=True)
