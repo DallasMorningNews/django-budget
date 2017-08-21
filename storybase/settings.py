@@ -1,6 +1,6 @@
 # Imports from python.  # NOQA
 import os
-# import warnings
+import warnings
 
 
 # Imports from other dependencies.
@@ -297,49 +297,51 @@ SLACK_USERNAME = ""
 SLACK_ICON_URL = ""
 
 
-# # Python Social Auth - Django
-# # https://python-social-auth.readthedocs.io/en/latest/
-# # configuration/settings.html
-# try:
-#     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ[
-#         'GOOGLE_OAUTH2_CLIENT_SECRET'
-#     ]
-#     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ['GOOGLE_OAUTH2_CLIENT_ID']
-#
-#     LOGIN_URL = '/login/google-oauth2/'
-#
-#     SOCIAL_AUTH_LOGIN_ERROR_URL = '/core/auth/error/'
-#
-#     AUTHENTICATION_BACKENDS = (
-#         'social_core.backends.google.GoogleOAuth2',
-#         'django.contrib.auth.backends.ModelBackend',
-#     )
-#
-#     SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
-#         'dallasnews.com',
-#         'ahbelo.com',
-#         'aldiadallas.com'
-#     ]
-#
-#     SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
-#         'https://www.googleapis.com/auth/drive',
-#         'https://www.googleapis.com/auth/userinfo.profile'
-#     ]
-#
-#     SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
-#
-#     SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
-#
-#     SOCIAL_AUTH_GOOGLE_PLUS_USE_DEPRECATED_API = True
-#
-#     # Allow non-SSL Oauth redirect URLs for cases where SSL isn't easily
-#     # available (like testing on localhost)
-#     SOCIAL_AUTH_REDIRECT_IS_HTTPS = not DEBUG_MODE
-# except KeyError:
-#     warnings.warn(
-#         'Google OAuth credentials not supplied. Using built-in Django auth.')
-#
-#     LOGIN_URL = '/admin/login/'
+# Python Social Auth - Django
+# https://python-social-auth.readthedocs.io/en/latest/
+# configuration/settings.html
+try:
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ[
+        'GOOGLE_OAUTH2_CLIENT_SECRET'
+    ]
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ['GOOGLE_OAUTH2_CLIENT_ID']
+
+    LOGIN_URL = '/login/google-oauth2/'
+
+    SOCIAL_AUTH_LOGIN_ERROR_URL = '/core/auth/error/'
+
+    AUTHENTICATION_BACKENDS = (
+        'social_core.backends.google.GoogleOAuth2',
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
+    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
+        'dallasnews.com',
+        'ahbelo.com',
+        'aldiadallas.com'
+    ]
+
+    SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/userinfo.profile'
+    ]
+
+    SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+
+    SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
+
+    SOCIAL_AUTH_GOOGLE_PLUS_USE_DEPRECATED_API = True
+
+    # Allow non-SSL Oauth redirect URLs for cases where SSL isn't easily
+    # available (like testing on localhost)
+    SOCIAL_AUTH_REDIRECT_IS_HTTPS = not DEBUG_MODE
+
+except KeyError:
+    warnings.warn(
+        'Google OAuth credentials not supplied. Using built-in Django auth.'
+    )
+
+    LOGIN_URL = '/admin/login/'
 
 
 # API Authentication
