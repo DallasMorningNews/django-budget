@@ -44,7 +44,7 @@ class PackageAdmin(admin.ModelAdmin):
             'fields': ('headline_status',)
         }),
         ('Debugging info', {
-            'fields': ('created_by', 'last_changed_by')
+            'fields': ('created_by', 'last_changed_by_old',)
         })
     )
 
