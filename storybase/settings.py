@@ -308,7 +308,9 @@ try:
 
     LOGIN_URL = '/login/google-oauth2/'
 
-    SOCIAL_AUTH_LOGIN_ERROR_URL = '/core/auth/error/'
+    SOCIAL_AUTH_LOGIN_ERROR_URL = '/auth/error/'
+
+    SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/auth/api/users/me/'
 
     AUTHENTICATION_BACKENDS = (
         'social_core.backends.google.GoogleOAuth2',
