@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'django_filters',
     'debug_toolbar',
 
+    'apiauth',
     'staff',
     'budget',
 ]
