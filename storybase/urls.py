@@ -39,9 +39,9 @@ urlpatterns = [
     url(r'^docs/api/', budget_apidocs_view),
     url(r'^auth/', include('apiauth.urls')),
     # url(r'^core/', include('core.urls')),
+    url(r'^logout/$', LogoutView.as_view()),
     # social
     url('', include('social_django.urls', namespace='social')),
-    url(r'^logout/$', LogoutView.as_view())
 ] + static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT
