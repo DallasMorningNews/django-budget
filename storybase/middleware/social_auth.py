@@ -23,8 +23,8 @@ class FriendlySocialExceptionMiddleware(SocialAuthExceptionMiddleware):
             ])
 
             return (
-                ''.join([
-                    'DataLab requires a {} Google account, not a personal',
+                ' '.join([
+                    'This site requires a {} Google account, not a personal',
                     '@gmail.com account. Select your company Google account',
                     'during login or sign out of your personal Gmail account',
                     'to log in.'
