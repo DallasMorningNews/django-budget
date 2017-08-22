@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
 
     # 'storages',
-    # 'social_django',
+    'social_django',
     'corsheaders',
     'colorfield',
     'rest_framework',
@@ -89,7 +89,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    # 'core.middleware.social_auth.FriendlySocialExceptionMiddleware',
+    'storybase.middleware.social_auth.FriendlySocialExceptionMiddleware',
 ]
 
 if DEBUG_MODE:
@@ -111,9 +111,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
-                # 'social_django.context_processors.backends',
-                # 'django.template.context_processors.media',
-                # 'social_django.context_processors.login_redirect',
+                'social_django.context_processors.backends',
+                'django.template.context_processors.media',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -317,20 +317,15 @@ try:
 
     SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
         'dallasnews.com',
-        'ahbelo.com',
-        'aldiadallas.com'
+        'bayareanewsgroup.com',
     ]
 
-    SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
         'https://www.googleapis.com/auth/drive',
         'https://www.googleapis.com/auth/userinfo.profile'
     ]
 
     SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
-
-    SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
-
-    SOCIAL_AUTH_GOOGLE_PLUS_USE_DEPRECATED_API = True
 
     # Allow non-SSL Oauth redirect URLs for cases where SSL isn't easily
     # available (like testing on localhost)
