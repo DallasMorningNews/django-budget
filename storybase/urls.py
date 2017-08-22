@@ -4,7 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 
-
+# Imports from storybase.
+from storybase.views import LogoutView
 # Imports from other dependencies.
 from rest_framework_swagger.views import get_swagger_view
 
@@ -40,6 +41,7 @@ urlpatterns = [
     # url(r'^core/', include('core.urls')),
     # social
     url('', include('social_django.urls', namespace='social')),
+    url(r'^logout/$', LogoutView.as_view())
 ] + static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT
