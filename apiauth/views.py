@@ -5,11 +5,13 @@ import urllib
 # Imports from Django.
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.http import HttpResponseBadRequest, HttpResponseForbidden  # NOQA
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_GET
+from django.views.generic import RedirectView, TemplateView  # NOQA
 
 
 # Imports from apiauth.
@@ -68,6 +70,23 @@ class AuthenticatedUserView(CamelCasedAPIViewMixin, APIView):
             'login_url': login_url,
             'login_redirect_url': login_redirect_url
         }, status=HTTP_403_FORBIDDEN)
+
+
+class AuthErrorView(TemplateView):
+    template_name = 'auth/auth-error.html'
+
+
+class LogoutView(RedirectView):
+    """A view that logs the user out and redirects to the homepage."""
+    permanent = False
+    query_string = True
+    pattern_name = 'home'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """Log the user out and redirect them to the target url."""
+        if self.request.user.is_authenticated():
+            logout(self.request)
+        return super(LogoutView, self).get_redirect_url(*args, **kwargs)
 
 
 @login_required
