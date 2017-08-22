@@ -1,0 +1,227 @@
+#filter-holder {
+    border-bottom: 1px solid #D9D9D9;
+    padding-bottom: 12px;
+
+    #date-filter,
+    #search-box {
+        &::after {
+            clear: both;
+            content: ' ';
+            display: block;
+        }
+
+        .icon-holder {
+            color: #9E9E9E;
+            font-size: 24px;
+            line-height: 50px;
+            text-align: center;
+            width: 6.33333%;
+        }
+    }
+
+    #date-filter {
+        height: 50px;
+        margin-bottom: 12px;
+
+        .date-chooser-holder {
+            padding-bottom: 9px;
+            padding-left: 0;
+            padding-top: 9px;
+        }
+
+        input {
+            float: left;
+            font-size: 14px;
+            line-height: 16px;
+            padding: 6px 8px;
+            width: 45%;
+        }
+
+        .to-label {
+            color: #757575;
+            display: inline-block;
+            float: left;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 32px;
+            text-align: center;
+            text-transform: uppercase;
+            width: 10%;
+        }
+
+        .create-button {
+            text-align: right;
+
+            .material-button {
+                background-color: #0185D3;
+                border: 1px solid #0171B2;
+                border-radius: 2px;
+                font-family: 'Roboto', sans-serif;
+                font-weight: 700;
+                height: 40px;
+                margin: 5px 0;
+                padding: 0.625rem 0.75rem;
+                text-transform: uppercase;
+
+                &:hover {
+                    background-color: #275F7F;
+                    border-color: #1D465E;
+                }
+            }
+        }
+    }
+
+    #search-box,
+    #print-placement-toggle {
+        font-family: 'Roboto', sans-serif;
+        padding-left: 0;
+
+        .search-box-holder {
+            padding-left: 0;
+            width: 93.66667%;
+        }
+
+        input[type="text"] {
+            box-sizing: border-box;
+            color: #212121;
+            display: block;
+            font-size: 16px;
+            height: 32px;
+            line-height: 16px;
+            margin: 0;
+            padding: 8px 0 7px;
+            text-indent: 3px;
+            margin-top: 6px;
+        }
+
+        .selectize-control {
+            .selectize-input {
+                background: #FAFAFA;
+                box-sizing: border-box;
+                height: 50px;
+                padding: 8px 17px;
+
+                &.has-items {
+                    padding: 8px 5px;
+                }
+
+                input {
+                    font-size: 14px;
+                    line-height: 48px;
+                }
+
+                .item {
+                    background: #E7E7E7;
+                    border: 0 none;
+                    border-radius: 17px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    height: 32px;
+                    line-height: 14px;
+                    margin: 0 6px 0 0;
+                    padding: 9px 32px 9px 12px !important;
+                    position: relative;
+
+                    a {
+                        background-color: #757575;
+                        border: 0 none;
+                        border-radius: 12px;
+                        box-sizing: border-box;
+                        color: #E7E7E7;
+                        content: "\00d7";
+                        display: block;
+                        font-size: 20px;
+                        height: 24px;
+                        line-height: 22px;
+                        padding: 0;
+                        position: absolute;
+                        right: 4px;
+                        text-align: center;
+                        text-decoration: none;
+                        top: 4px;
+                        vertical-align: middle;
+                        width: 24px;
+
+                        &:hover {
+                            background-color: #9E9E9E;
+                        }
+                    }
+
+                    &.active {
+                        background: #F5F5F5;
+                        box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.4)
+                    }
+                }
+            }
+
+            .selectize-dropdown {
+                z-index: 20;
+
+                &.super-hidden {
+                    display: none !important;
+                }
+
+                .selectize-dropdown-content {
+                    background-color: #FAFAFA;
+                    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+                    max-height: 300px;
+
+                    .create {
+                        color: #212121;
+                        font-size: 14px;
+                        line-height: 48px;
+                        height: 48px;
+                        margin: 0;
+                        padding: 0 15px;
+                        text-overflow: ellipsis;
+                        transition: background .15s linear;
+                        white-space: nowrap;
+
+                        &.active {
+                            background: #EEEEEE;
+                        }
+                    }
+
+                    .optgroup {
+                        .optgroup-header {
+                            background-color: #E0E0E0;
+                            color: #757575;
+                            font-size: 12px;
+                            font-weight: 700;
+                            line-height: 27px;
+                            height: 27px;
+                            margin: 0;
+                            padding: 0 12px;
+                            text-transform: uppercase;
+                        }
+                    }
+
+                    .option {
+                        color: #212121;
+                        font-size: 14px;
+                        line-height: 48px;
+                        height: 48px;
+                        margin: 0;
+                        padding: 0 17px;
+                        text-overflow: ellipsis;
+                        transition: background .15s linear;
+                        white-space: nowrap;
+
+                        &.active {
+                            background: #EEEEEE;
+                        }
+                    }
+
+                    [data-selectable] .highlight {
+                        background: none;
+                        color: #757575;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.date-picker-wrapper {
+    z-index: 20;
+}

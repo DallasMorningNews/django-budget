@@ -1,0 +1,76 @@
+#snackbar-holder {
+    bottom: 0;
+    height: 3rem;
+    left: 0;
+    pointer-events: none;
+    position: fixed;
+    width: 100%;
+    z-index: 50;
+
+    &.edit-page {
+        bottom: 49px;
+    }
+
+    .snackbar {
+        background-color: #323232;
+        border-radius: 2px;
+        color: #FFFFFF;
+        font-size: 0.875rem;
+        height: 3rem;
+        line-height: 20px;
+        margin: 3rem auto 0;
+        max-width: 35.5rem;
+        min-width: 19.5rem;
+        padding: 14px 24px;
+        pointer-events: all;
+        width: 100%;
+
+        transition: margin 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.2s;
+
+        .contents {
+            opacity: 0;
+
+            transition: opacity 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) 0s;
+        }
+
+        &.line-2 {
+            height: 5rem;
+            margin-top: 5rem;
+        }
+
+        &.active {
+            margin-top: 0;
+
+            transition: margin 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) 0s;
+
+            .contents {
+                opacity: 1;
+
+                transition: opacity 0.25s cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.25s;
+            }
+        }
+
+        .action-trigger,
+        .action-trigger a {
+            background: transparent;
+            border: 0 none;
+            box-shadow: none !important;
+            color: #EEFF41;
+            cursor: pointer;
+            float: right;
+            font-size: 14px;
+            font-weight: 500;
+            height: 20px;
+            line-height: 20px;
+            margin: 0;
+            min-width: 0;
+            padding: 0 0 0 48px;
+            text-transform: uppercase;
+            width: auto;
+
+            &:hover {
+                color: #AEEA00;
+            }
+        }
+    }
+}

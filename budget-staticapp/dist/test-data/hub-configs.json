@@ -1,0 +1,137 @@
+[
+    {
+        "color": "#B35BD3",
+        "name": "Arts",
+        "vertical": {
+            "name": "Lifestyles and Entertainment",
+            "slug": "life-ent"
+        },
+        "slug": "arts"
+    },
+    {
+        "color": "#D31313",
+        "name": "Breaking",
+        "vertical": {
+            "name": "News",
+            "slug": "news"
+        },
+        "slug": "breaking"
+    },
+    {
+        "color": "#F5F514",
+        "name": "Communities",
+        "vertical": {
+            "name": "News",
+            "slug": "news"
+        },
+        "slug": "communities"
+    },
+    {
+        "color": "#FFC812",
+        "name": "Dallas",
+        "vertical": {
+            "name": "News",
+            "slug": "news"
+        },
+        "slug": "dallas"
+    },
+    {
+        "color": "#0BD339",
+        "name": "Data and Newsapps",
+        "vertical": {
+            "name": "Visual Journalism",
+            "slug": "visual"
+        },
+        "slug": "data-newsapps"
+    },
+    {
+        "color": "#11913C",
+        "name": "Education",
+        "vertical": {
+            "name": "News",
+            "slug": "news"
+        },
+        "slug": "education"
+    },
+    {
+        "color": "#46D341",
+        "name": "Guide",
+        "vertical": {
+            "name": "Lifestyles and Entertainment",
+            "slug": "life-ent"
+        },
+        "slug": "guide"
+    },
+    {
+        "color": "#D319D3",
+        "name": "GuideLive",
+        "vertical": {
+            "name": "Lifestyles and Entertainment",
+            "slug": "life-ent"
+        },
+        "slug": "guidelive"
+    },
+    {
+        "color": "#86F7F7",
+        "name": "How We Live",
+        "vertical": {
+            "name": "Lifestyles and Entertainment",
+            "slug": "life-ent"
+        },
+        "slug": "how-we-live"
+    },
+    {
+        "color": "#FC97F6",
+        "name": "Interactives and Graphics",
+        "vertical": {
+            "name": "Visual Journalism",
+            "slug": "visual"
+        },
+        "slug": "interactives-graphics"
+    },
+    {
+        "color": "#EB5959",
+        "name": "Justice",
+        "vertical": {
+            "name": "News",
+            "slug": "news"
+        },
+        "slug": "justice"
+    },
+    {
+        "color": "#676BD3",
+        "name": "Photo",
+        "vertical": {
+            "name": "Visual Journalism",
+            "slug": "visual"
+        },
+        "slug": "photo"
+    },
+    {
+        "color": "#3019FF",
+        "name": "Politics",
+        "vertical": {
+            "name": "News",
+            "slug": "news"
+        },
+        "slug": "politics"
+    },
+    {
+        "color": "#7C72D3",
+        "name": "Topics",
+        "vertical": {
+            "name": "News",
+            "slug": "news"
+        },
+        "slug": "topics"
+    },
+    {
+        "color": "#AAA0D3",
+        "name": "Video",
+        "vertical": {
+            "name": "Visual Journalism",
+            "slug": "visual"
+        },
+        "slug": "video"
+    }
+]

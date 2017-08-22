@@ -1,0 +1,152 @@
+[
+    {
+        "name": "Dana Amihere",
+        "value": "damihere@dallasnews.com",
+        "type": "person"
+    },
+    {
+        "name": "Andrew Chavez",
+        "value": "achavez@dallasnews.com",
+        "type": "person"
+    },
+    {
+        "name": "John Hancock",
+        "value": "jhancock@dallasnews.com",
+        "type": "person"
+    },
+    {
+        "name": "Jon McClure",
+        "value": "jmcclure@dallasnews.com",
+        "type": "person"
+    },
+    {
+        "name": "Troy Oxford",
+        "value": "toxford@dallasnews.com",
+        "type": "person"
+    },
+    {
+        "name": "Layne Smith",
+        "value": "lsmith@dallasnews.com",
+        "type": "person"
+    },
+    {
+        "name": "Allan James Vestal",
+        "value": "ajvestal@dallasnews.com",
+        "type": "person"
+    },
+    {
+        "name": "Arts",
+        "value": "arts",
+        "type": "hub"
+    },
+    {
+        "name": "Breaking",
+        "value": "breaking",
+        "type": "hub"
+    },
+    {
+        "name": "Communities",
+        "value": "communities",
+        "type": "hub"
+    },
+    {
+        "name": "Dallas",
+        "value": "dallas",
+        "type": "hub"
+    },
+    {
+        "name": "Data and Newsapps",
+        "value": "data-newsapps",
+        "type": "hub"
+    },
+    {
+        "name": "Education",
+        "value": "education",
+        "type": "hub"
+    },
+    {
+        "name": "Guide",
+        "value": "guide",
+        "type": "hub"
+    },
+    {
+        "name": "GuideLive",
+        "value": "guidelive",
+        "type": "hub"
+    },
+    {
+        "name": "How We Live",
+        "value": "how-we-live",
+        "type": "hub"
+    },
+    {
+        "name": "Interactives and Graphics",
+        "value": "interactives-graphics",
+        "type": "hub"
+    },
+    {
+        "name": "Justice",
+        "value": "justice",
+        "type": "hub"
+    },
+    {
+        "name": "Photo",
+        "value": "photo",
+        "type": "hub"
+    },
+    {
+        "name": "Politics",
+        "value": "politics",
+        "type": "hub"
+    },
+    {
+        "name": "Topics",
+        "value": "topics",
+        "type": "hub"
+    },
+    {
+        "name": "Video",
+        "value": "video",
+        "type": "hub"
+    },
+    {
+        "name": "Business",
+        "value": "business",
+        "type": "vertical"
+    },
+    {
+        "name": "Enterprise",
+        "value": "enterprise",
+        "type": "vertical"
+    },
+    {
+        "name": "Investigations",
+        "value": "investigations",
+        "type": "vertical"
+    },
+    {
+        "name": "Lifestyles and Entertainment",
+        "value": "life-ent",
+        "type": "vertical"
+    },
+    {
+        "name": "News",
+        "value": "news",
+        "type": "vertical"
+    },
+    {
+        "name": "Opinion",
+        "value": "opinion",
+        "type": "vertical"
+    },
+    {
+        "name": "Sports",
+        "value": "sports",
+        "type": "vertical"
+    },
+    {
+        "name": "Visual Journalism",
+        "value": "visual",
+        "type": "vertical"
+    }
+]

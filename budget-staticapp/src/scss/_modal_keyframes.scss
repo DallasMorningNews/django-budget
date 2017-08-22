@@ -1,0 +1,27 @@
+// Content animations
+
+@mixin keyframes-vex-fadeforward {
+  @include vex-keyframes("vex-fadeforward") {
+    0% {
+      opacity: 0;
+      @include vex-transform(scale(0.5, 0.5));
+    }
+    100% {
+      opacity: 1;
+      @include vex-transform(scale(1, 1));
+    }
+  }
+}
+
+@mixin keyframes-vex-fadebackward {
+  @include vex-keyframes("vex-fadebackward") {
+    0% {
+      opacity: 1;
+      @include vex-transform(scale(1, 1));
+    }
+    100% {
+      opacity: 0;
+      @include vex-transform(scale(0.5, 0.5));
+    }
+  }
+}

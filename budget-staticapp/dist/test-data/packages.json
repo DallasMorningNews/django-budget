@@ -1,0 +1,585 @@
+[
+    {
+        "pubDate": {
+            "timestamp": 1455537600,
+            "resolution": "d",
+            "formatted": "Feb. 15, 2016"
+        },
+        "hub": "breaking",
+        "tags": [],
+        "URL": null,
+        "notes": "",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [
+            {
+                "isReady": false,
+                "budgetLine": [
+                    "Interactive for package."
+                ],
+                "editors": [
+                    {
+                        "formattedName": "McClure",
+                        "firstName": "Jon",
+                        "lastName": "McClure",
+                        "imageURL": "",
+                        "fullName": "Jon McClure",
+                        "email": "jmcclure@dallasnews.com"
+                    }
+                ],
+                "id": 79,
+                "subscribers": [],
+                "authors": [
+                    {
+                        "formattedName": "Hancock",
+                        "firstName": "John",
+                        "lastName": "Hancock",
+                        "imageURL": "",
+                        "fullName": "John Hancock",
+                        "email": "jhancock@dallasnews.com"
+                    },
+                    {
+                        "formattedName": "Oxford",
+                        "firstName": "Troy",
+                        "lastName": "Oxford",
+                        "imageURL": "",
+                        "fullName": "Troy Oxford",
+                        "email": "toxford@dallasnews.com"
+                    }
+                ],
+                "type": "interactive",
+                "slug": "news.breaking.susan-hawk.interactive"
+            },
+            {
+                "isReady": false,
+                "budgetLine": [
+                    "Photos outside her home."
+                ],
+                "editors": [],
+                "id": 78,
+                "subscribers": [],
+                "authors": [],
+                "type": "photo",
+                "slug": "news.breaking.susan-hawk.photo"
+            }
+        ],
+        "editURL": "/package/48/",
+        "createdBy": null,
+        "id": 48,
+        "primaryContent": {
+            "isReady": true,
+            "budgetLine": [
+                "Susan Hawk's break from reality continues."
+            ],
+            "editors": [
+                {
+                    "formattedName": "McClure",
+                    "firstName": "Jon",
+                    "lastName": "McClure",
+                    "imageURL": "",
+                    "fullName": "Jon McClure",
+                    "email": "jmcclure@dallasnews.com"
+                }
+            ],
+            "id": 77,
+            "length": "30 inches",
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "Vestal",
+                    "firstName": "Allan James",
+                    "lastName": "Vestal",
+                    "imageURL": "",
+                    "fullName": "Allan James Vestal",
+                    "email": "ajvestal@dallasnews.com"
+                }
+            ],
+            "type": "text",
+            "slug": "news.breaking.susan-hawk"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1455537600,
+            "resolution": "d",
+            "formatted": "Feb. 15, 2016"
+        },
+        "hub": "interactives-graphics",
+        "tags": [],
+        "URL": null,
+        "notes": "<h2>learnings</h2>\n\n<p>Fuego information overload nonprofit Bill Keller digital first data journalism, TweetDeck inverted pyramid Like button Google+ I saw it on Mediagazer Frontline The Work of Art in the Age of Mechanical Reproduction, Paul Steiger Quora the medium is the massage fourth estate This Week in Review.</p>\n\n<p>&nbsp;</p>\n\n<h2>put the paper&nbsp;</h2>\n\n<p>to bed Knight News Challenge What Would Google Do 5% corruption should isn&#39;t a business model Pulse learnings Google+ people formerly known as the audience digital circulation strategy, Fuego Pulse content farm Arab spring #twittermakesyoustupid Lucius Nieman advertising MinnPost Project Thunderdome, curmudgeon anonymity put the paper to bed scoop production of innocence cops beat Groupon analytics.</p>\n",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [
+            {
+                "isReady": false,
+                "budgetLine": [
+                    "A video introduces this package."
+                ],
+                "editors": [],
+                "id": 81,
+                "subscribers": [],
+                "authors": [
+                    {
+                        "formattedName": "McClure",
+                        "firstName": "Jon",
+                        "lastName": "McClure",
+                        "imageURL": "",
+                        "fullName": "Jon McClure",
+                        "email": "jmcclure@dallasnews.com"
+                    }
+                ],
+                "type": "video",
+                "slug": "tornado-lost-and-found-app.video"
+            }
+        ],
+        "editURL": "/package/49/",
+        "createdBy": null,
+        "id": 49,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "An app to reunite."
+            ],
+            "editors": [],
+            "id": 80,
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "Amihere",
+                    "firstName": "Dana",
+                    "lastName": "Amihere",
+                    "imageURL": "",
+                    "fullName": "Dana Amihere",
+                    "email": "damihere@dallasnews.com"
+                },
+                {
+                    "formattedName": "Oxford",
+                    "firstName": "Troy",
+                    "lastName": "Oxford",
+                    "imageURL": "",
+                    "fullName": "Troy Oxford",
+                    "email": "toxford@dallasnews.com"
+                },
+                {
+                    "formattedName": "Vestal",
+                    "firstName": "Allan James",
+                    "lastName": "Vestal",
+                    "imageURL": "",
+                    "fullName": "Allan James Vestal",
+                    "email": "ajvestal@dallasnews.com"
+                }
+            ],
+            "type": "interactive",
+            "slug": "tornado-lost-and-found-app"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1455566400,
+            "resolution": "t",
+            "formatted": "Feb. 15, 2016 2 p.m."
+        },
+        "hub": "how-we-live",
+        "tags": [],
+        "URL": null,
+        "notes": "",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [
+            {
+                "isReady": false,
+                "budgetLine": [
+                    "Video of him eating his feet."
+                ],
+                "editors": [],
+                "id": 84,
+                "subscribers": [],
+                "authors": [
+                    {
+                        "formattedName": "McClure",
+                        "firstName": "Jon",
+                        "lastName": "McClure",
+                        "imageURL": "",
+                        "fullName": "Jon McClure",
+                        "email": "jmcclure@dallasnews.com"
+                    }
+                ],
+                "type": "video",
+                "slug": "2016.02.15-fridge-boy.video"
+            }
+        ],
+        "editURL": "/package/51/",
+        "createdBy": null,
+        "id": 51,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "Boy trapped in refrigerator eats own foot."
+            ],
+            "editors": [],
+            "id": 83,
+            "length": "30 inches",
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "Oxford",
+                    "firstName": "Troy",
+                    "lastName": "Oxford",
+                    "imageURL": "",
+                    "fullName": "Troy Oxford",
+                    "email": "toxford@dallasnews.com"
+                }
+            ],
+            "type": "text",
+            "slug": "2016.02.15-fridge-boy"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1455753600,
+            "resolution": "t",
+            "formatted": "Feb. 17, 2016 6 p.m."
+        },
+        "hub": "dallas",
+        "tags": [],
+        "URL": null,
+        "notes": "",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [],
+        "editURL": "/package/50/",
+        "createdBy": null,
+        "id": 50,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "A new Walmart is opening up somewhere and people are crazy."
+            ],
+            "editors": [],
+            "id": 82,
+            "length": "50 inches",
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "McClure",
+                    "firstName": "Jon",
+                    "lastName": "McClure",
+                    "imageURL": "",
+                    "fullName": "Jon McClure",
+                    "email": "jmcclure@dallasnews.com"
+                }
+            ],
+            "type": "text",
+            "slug": "2016.02.17-new-walmart"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1455926400,
+            "resolution": "t",
+            "formatted": "Feb. 19, 2016 6 p.m."
+        },
+        "hub": "guidelive",
+        "tags": [],
+        "URL": null,
+        "notes": "",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [],
+        "editURL": "/package/53/",
+        "createdBy": null,
+        "id": 53,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "Jeff gives up ties to charity for young republicans. Takes up fashion coordinated iphone cases, instead."
+            ],
+            "editors": [
+                {
+                    "formattedName": "Oxford",
+                    "firstName": "Troy",
+                    "lastName": "Oxford",
+                    "imageURL": "",
+                    "fullName": "Troy Oxford",
+                    "email": "toxford@dallasnews.com"
+                }
+            ],
+            "id": 86,
+            "length": "21 inches",
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "McClure",
+                    "firstName": "Jon",
+                    "lastName": "McClure",
+                    "imageURL": "",
+                    "fullName": "Jon McClure",
+                    "email": "jmcclure@dallasnews.com"
+                }
+            ],
+            "type": "text",
+            "slug": "jeff-weiss-gives-up-ties"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1456174800,
+            "resolution": "t",
+            "formatted": "Feb. 22, 2016 3 p.m."
+        },
+        "hub": "communities",
+        "tags": [],
+        "URL": null,
+        "notes": "",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [
+            {
+                "isReady": false,
+                "budgetLine": [
+                    "An interactive about that."
+                ],
+                "editors": [],
+                "id": 90,
+                "subscribers": [],
+                "authors": [
+                    {
+                        "formattedName": "Hancock",
+                        "firstName": "John",
+                        "lastName": "Hancock",
+                        "imageURL": "",
+                        "fullName": "John Hancock",
+                        "email": "jhancock@dallasnews.com"
+                    }
+                ],
+                "type": "interactive",
+                "slug": "hov-community-garden-disaster.interactive"
+            }
+        ],
+        "editURL": "/package/56/",
+        "createdBy": null,
+        "id": 56,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "HOV lane community garden scheme ends in tragedy. \"Mashed potatoes,\" says mayor."
+            ],
+            "editors": [
+                {
+                    "formattedName": "Hancock",
+                    "firstName": "John",
+                    "lastName": "Hancock",
+                    "imageURL": "",
+                    "fullName": "John Hancock",
+                    "email": "jhancock@dallasnews.com"
+                }
+            ],
+            "id": 89,
+            "length": "60 inches",
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "Oxford",
+                    "firstName": "Troy",
+                    "lastName": "Oxford",
+                    "imageURL": "",
+                    "fullName": "Troy Oxford",
+                    "email": "toxford@dallasnews.com"
+                }
+            ],
+            "type": "text",
+            "slug": "hov-community-garden-disaster"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1456300800,
+            "resolution": "t",
+            "formatted": "Feb. 24, 2016 2 a.m."
+        },
+        "hub": "politics",
+        "tags": [],
+        "URL": null,
+        "notes": "",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [],
+        "editURL": "/package/54/",
+        "createdBy": null,
+        "id": 54,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "Whig party makes surprising return to Dallas county politics in landslide victory for comptroller."
+            ],
+            "editors": [
+                {
+                    "formattedName": "Amihere",
+                    "firstName": "Dana",
+                    "lastName": "Amihere",
+                    "imageURL": "",
+                    "fullName": "Dana Amihere",
+                    "email": "damihere@dallasnews.com"
+                }
+            ],
+            "id": 87,
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "McClure",
+                    "firstName": "Jon",
+                    "lastName": "McClure",
+                    "imageURL": "",
+                    "fullName": "Jon McClure",
+                    "email": "jmcclure@dallasnews.com"
+                }
+            ],
+            "type": "video",
+            "slug": "whig-party-revenant"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1456725599,
+            "resolution": "w",
+            "formatted": "Week of Feb. 22, 2016"
+        },
+        "hub": "education",
+        "tags": [],
+        "URL": null,
+        "notes": "<p>Troy will shoot this when it happens...</p>\n",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [
+                {"headline": "Badminton taking Texas by storm", "id": 1, "votes": 21},
+                {"headline": "This sport mashup started in 1873. You won't believe what happened next.", "id": 2, "votes": 34},
+                {"headline": "You'll never guess what big Danish sport is also popular in Texas.", "id": 3, "votes": 15}
+            ],
+            "status": "voting"
+        },
+        "additionalContent": [],
+        "editURL": "/package/52/",
+        "createdBy": null,
+        "id": 52,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "New national badminton league surpasses superbowl viewership. "
+            ],
+            "editors": [],
+            "id": 85,
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "Oxford",
+                    "firstName": "Troy",
+                    "lastName": "Oxford",
+                    "imageURL": "",
+                    "fullName": "Troy Oxford",
+                    "email": "toxford@dallasnews.com"
+                }
+            ],
+            "type": "photo",
+            "slug": "badminton-amaze!"
+        },
+        "lastChangedBy": null
+    },
+    {
+        "pubDate": {
+            "timestamp": 1462078799,
+            "resolution": "m",
+            "formatted": "April 2016"
+        },
+        "hub": "communities",
+        "tags": [],
+        "URL": null,
+        "notes": "",
+        "printPlacement": {
+            "printIssue": null,
+            "printPages": null
+        },
+        "headlines": {
+            "candidates": [],
+            "status": "drafting"
+        },
+        "additionalContent": [],
+        "editURL": "/package/55/",
+        "createdBy": null,
+        "id": 55,
+        "primaryContent": {
+            "isReady": false,
+            "budgetLine": [
+                "Hallmark stocks slump on Valentines Day tradition replacing traditional greeting card. People now trade in live pigeons bedazzled with custom greetings."
+            ],
+            "editors": [],
+            "id": 88,
+            "subscribers": [],
+            "authors": [
+                {
+                    "formattedName": "Smith",
+                    "firstName": "Layne",
+                    "lastName": "Smith",
+                    "imageURL": "",
+                    "fullName": "Layne Smith",
+                    "email": "lsmith@dallasnews.com"
+                }
+            ],
+            "type": "interactive",
+            "slug": "Hallmark-slumps"
+        },
+        "lastChangedBy": null
+    }
+]

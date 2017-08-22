@@ -1,0 +1,43 @@
+$page-background-color: #EEEEEE;
+$base-text-color: #3C3C3C;
+
+$hat-background-color: #3C3C3C;
+$hat-text-color: #FFFFFF;
+
+$neon-color: #74F5A9;
+
+$max-content-width: 800px;
+
+// Colors
+$budget-blue: #0185D3;
+$budget-red: #D9534F;
+
+$default-border-color: #999999 !default;
+$default-label-color: #9E9E9E !default;
+
+$active-label-color: darken($default-border-color, 10%) !default;
+$button-focus-color: $budget-blue !default;
+$delete-action-color: $budget-red;
+$error-color: $budget-red !default;
+$focus-color: $budget-blue !default;
+$input-color: #333333 !default;
+$save-action-color: $budget-blue;
+$primary-action-color: #212121;
+
+
+// Font Sizes
+$default-font-size: 1rem !default;
+$default-active-font-size: $default-font-size * 0.8 !default;
+$default-active-top: -$default-font-size !default;
+
+// Margin & Paddings
+$default-gap: $default-font-size * 1.25 !default;
+$default-spacer: $default-font-size / 8 !default;
+
+// Animation
+$default-transition-speed: 0.28s !default;
+
+
+// Shadows
+$shadow-minor: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+$shadow-major: 0 6px 10px 0 rgba(0,0,0,.14),0 1px 18px 0 rgba(0,0,0,.12),0 3px 5px -1px rgba(0,0,0,.2);

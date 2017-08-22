@@ -1,0 +1,58 @@
+[
+    {
+        "firstName": "Dana",
+        "lastName": "Amihere",
+        "fullName": "Dana Amihere",
+        "formattedName": "Amihere",
+        "email": "damihere@dallasnews.com",
+        "imageURL": ""
+    },
+    {
+        "firstName": "Andrew",
+        "lastName": "Chavez",
+        "fullName": "Andrew Chavez",
+        "formattedName": "Chavez",
+        "email": "achavez@dallasnews.com",
+        "imageURL": ""
+    },
+    {
+        "firstName": "John",
+        "lastName": "Hancock",
+        "fullName": "John Hancock",
+        "formattedName": "Hancock",
+        "email": "jhancock@dallasnews.com",
+        "imageURL": ""
+    },
+    {
+        "firstName": "Jon",
+        "lastName": "McClure",
+        "fullName": "Jon McClure",
+        "formattedName": "McClure",
+        "email": "jmcclure@dallasnews.com",
+        "imageURL": ""
+    },
+    {
+        "firstName": "Troy",
+        "lastName": "Oxford",
+        "fullName": "Troy Oxford",
+        "formattedName": "Oxford",
+        "email": "toxford@dallasnews.com",
+        "imageURL": ""
+    },
+    {
+        "firstName": "Layne",
+        "lastName": "Smith",
+        "fullName": "Layne Smith",
+        "formattedName": "L. Smith",
+        "email": "lsmith@dallasnews.com",
+        "imageURL": ""
+    },
+    {
+        "firstName": "Allan James",
+        "lastName": "Vestal",
+        "fullName": "Allan James Vestal",
+        "formattedName": "Vestal",
+        "email": "ajvestal@dallasnews.com",
+        "imageURL": ""
+    }
+]
