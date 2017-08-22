@@ -908,12 +908,29 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
             slug_key='test-pkg-api-dst2'
         )
 
-        response_with_sort = self.client.get(PACKAGES_API_ENDPOINT, data={
-            'format': 'json', 'ordering': 'publish_date'})
-        response_no_sort = self.client.get(PACKAGES_API_ENDPOINT, data={
-            'format': 'json'})
-        self.assertJSONEqual(response_with_sort.content,
-                             response_no_sort.content)
+        response_with_sort = self.client.get(
+            PACKAGES_API_ENDPOINT,
+            data={
+                'format': 'json',
+                'ordering': 'publish_date',
+            }
+        )
+        response_no_sort = self.client.get(
+            PACKAGES_API_ENDPOINT,
+            data={'format': 'json'}
+        )
+
+        ids_with_sort = ','.join([
+            str(_['id'])
+            for _ in json.loads(response_with_sort.content)['results']
+        ])
+
+        ids_no_sort = ','.join([
+            str(_['id'])
+            for _ in json.loads(response_no_sort.content)['results']
+        ])
+
+        self.assertEqual(ids_with_sort, ids_no_sort)
 
     def test_sort_by_print_run_date(self):
         """print_run_date should sort by upper bound, then by range
