@@ -33,11 +33,11 @@ def alphacode(i):
     e.g., 1 = A, 27 = AA, etc.
     """
     letters = list(string.ascii_lowercase)
-    code = ""
+    code = ''
     while i > 0:
         i -= 1
         remainder = i % 26
-        code = letters[remainder] + code
+        code = '{}{}'.format(letters[int(remainder)], code)
         i = (i - remainder) / 26
     return code
 
