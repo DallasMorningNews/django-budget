@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^auth/', include('apiauth.urls')),
     # url(r'^core/', include('core.urls')),
     # social
-    # url('', include('social_django.urls', namespace='social')),
+    url('', include('social_django.urls', namespace='social')),
 ] + static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT
