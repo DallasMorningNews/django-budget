@@ -237,3 +237,10 @@ $RECYCLE.BIN/
 
 # Manual additions.
 staticfiles
+
+.bower-cache
+.bower-registry
+.bower-tmp
+*.log
+aws.json
+.awspublish*
