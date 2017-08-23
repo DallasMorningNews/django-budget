@@ -1,0 +1,32 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+    <head prefix='og: http://ogp.me/ns#'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>DMN Budget</title>
+
+        <link rel="shortcut icon" type="image/x-icon" href="/img/favicon-premium.ico" />
+
+        <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,900,400italic,700italic,500italic' rel='stylesheet' type='text/css'> -->
+
+        <link href="{% static 'budget/css/budget.css' %}" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <script type="text/javascript">
+            var apiBases = {};
+            apiBases.auth = '{{ request.scheme }}//{{ request.get_host }}{% url "auth-api:api-root" %}';
+            apiBases.budget = '{{ request.scheme }}//{{ request.get_host }}{% url "budget-api:api-root" %}';
+            apiBases.staff = '{{ request.scheme }}//{{ request.get_host }}{% url "staff-api-root" %}';
+
+            var adminEmail = 'ajvestal@dallasnews.com';
+
+            var defaultTimezone = 'America/Chicago';
+
+            var externalURLs = {};
+            externalURLs.addVisualsRequest = null;
+        </script>
+        <script async src="{% static 'budget/js/main-budget.js' %}"></script>
+    </body>
+</html>
