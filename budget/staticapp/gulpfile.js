@@ -1,16 +1,14 @@
-const gulp = require('./gulp');
+'use strict';
 
-gulp.task('build-scripts', gulp.series('nunjucks', gulp.parallel('eslint', 'browserify')));
-gulp.task('build-styles', gulp.task('scss'));
-
-gulp.task('build', gulp.parallel('build-scripts', 'build-styles'));
-
-gulp.task(
-  'default',
-  gulp.series(
+const gulp = require('./gulp')([
+    'browserify',
     'nunjucks',
-    // Use watchify instead of browserify, since we want to watch for src/js chagnes
-    gulp.parallel('eslint', 'watchify', 'build-styles'),
-    'server'
-  )
-);
+    'scss',
+    'server',
+    'watchify'
+]);
+
+
+gulp.task('default', ['nunjucks', 'scss', 'watchify', 'server']);
+
+gulp.task('build', ['nunjucks', 'scss', 'browserify']);
