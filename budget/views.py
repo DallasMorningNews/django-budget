@@ -1,6 +1,7 @@
 # Imports from Django.  # NOQA
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView
 
 
 # Imports from budget.
@@ -36,6 +37,11 @@ from rest_framework.authentication import (  # NOQA
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework import viewsets
+
+
+class MainBudgetView(TemplateView):
+    """TK."""
+    template_name = 'budget/index.html'
 
 
 ##########
