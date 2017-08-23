@@ -7,6 +7,7 @@ from budget.views import (  # NOQA
     HeadlineViewSet,
     HeadlineVoteViewSet,
     ItemViewSet,
+    MainBudgetView,
     PackageViewSet,
     PrintPublicationViewSet
 )
@@ -25,7 +26,9 @@ router.register(r'headline-votes', HeadlineVoteViewSet)
 
 
 urlpatterns = [
-    url(r'^api/', include(router.urls)),
+    url(r'^$', MainBudgetView.as_view(), name='main-budget-view'),
+    url(r'^api/', include(router.urls, namespace='budget-api')),
+
     # Add an extra custom route here because the built-in REST RegEx won't
     # match our slugs because of the double-dots
     url(r'^api/packages/(?P<pk>[\d]+)/$', PackageViewSet.as_view({
