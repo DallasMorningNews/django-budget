@@ -33,10 +33,10 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # App includes.
-    url(r'^staff/api/', include('staff.urls')),
-    url(r'^budget/', include('budget.urls')),
+    url(r'^staff/api/', include('staff.urls', namespace='staff')),
+    url(r'^budget/', include('budget.urls', namespace='budget')),
     url(r'^docs/api/', budget_apidocs_view),
-    url(r'^auth/', include('apiauth.urls')),
+    url(r'^auth/', include('apiauth.urls', namespace='apiauth')),
     # url(r'^core/', include('core.urls')),
     # social
     url('', include('social_django.urls', namespace='social')),
