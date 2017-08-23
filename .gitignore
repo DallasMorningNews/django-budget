@@ -237,6 +237,7 @@ $RECYCLE.BIN/
 
 # Manual additions.
 staticfiles
+budget/staticapp/src/js/templates
 
 .bower-cache
 .bower-registry
