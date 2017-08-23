@@ -26,6 +26,7 @@
     "event-stream": "^3.3.4",
     "eyeglass": "^1.2.1",
     "gulp": "^3.9.0",
+    "gulp-changed": "^2.0.0",
     "gulp-header": "^1.8.8",
     "gulp-if": "^2.0.2",
     "gulp-postcss": "^7.0.0",
