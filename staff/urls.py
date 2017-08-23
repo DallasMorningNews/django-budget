@@ -22,7 +22,7 @@ urlpatterns = [
     url(
         r'^$',
         TemplateView.as_view(template_name='staff/api-root.html'),
-        name='staff-api-root'
+        name='api-root'
     ),
     url(
         r'^admin/staff/$',
