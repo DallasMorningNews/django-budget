@@ -27,7 +27,7 @@ router.register(r'headline-votes', HeadlineVoteViewSet)
 
 urlpatterns = [
     url(r'^$', MainBudgetView.as_view(), name='main-budget-view'),
-    url(r'^api/', include(router.urls, namespace='budget-api')),
+    url(r'^api/', include(router.urls)),
 
     # Add an extra custom route here because the built-in REST RegEx won't
     # match our slugs because of the double-dots
