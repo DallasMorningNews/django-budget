@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Mn from 'backbone.marionette';
-import vex from 'vex-js';
+import vex from 'vex-scss';
 
 import NavbarView from './navbar';
 
