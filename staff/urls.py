@@ -1,5 +1,6 @@
 # Imports from Django.  # NOQA
 from django.conf.urls import url
+from django.views.generic import TemplateView
 
 
 # Imports from staff.
@@ -18,6 +19,11 @@ from staff.views import (  # NOQA
 
 
 urlpatterns = [
+    url(
+        r'^$',
+        TemplateView.as_view(template_name='staff/api-root.html'),
+        name='staff-api-root'
+    ),
     url(
         r'^admin/staff/$',
         Staffers.as_view(),
