@@ -26,7 +26,6 @@ router.register(r'headline-votes', HeadlineVoteViewSet)
 
 
 urlpatterns = [
-    url(r'^$', MainBudgetView.as_view(), name='main-budget-view'),
     url(r'^api/', include(router.urls)),
 
     # Add an extra custom route here because the built-in REST RegEx won't
@@ -43,4 +42,6 @@ urlpatterns = [
         'patch': 'partial_update',
         'delete': 'destroy'
     })),
+
+    url(r'^(?P<path>.*)$', MainBudgetView.as_view(), name='main-budget-view'),
 ]
