@@ -66,6 +66,7 @@ export default Mn.CompositeView.extend({
     // Initialize the poller and the list of polled data.
     this.poller = new Poller({
       pollInterval: this.radio.reqres.request('getSetting', 'pollInterval'),
+      // isPolling: false,
     });
     this.polledData = [this.collection];
 
@@ -408,7 +409,7 @@ export default Mn.CompositeView.extend({
     this.poller.requestConfig = this.generateCollectionFetchOptions();
 
     // Retrieve collection from the server.
-    this.poller.get(this.polledData, this.poller.requestConfig);
+    // this.poller.get(this.polledData, this.poller.requestConfig);
   },
 
   onCollectionSync() {
