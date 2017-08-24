@@ -35,9 +35,13 @@ class UserEndpointTestCase(TestCase):
         response = client.get('/api/users/me/', {'format': 'json'})
         self.assertEqual(response.status_code, 403)
 
+        redirect_url = 'http://testserver{}?next=/redirect/?to='.format(
+            settings.LOGIN_URL
+        )
+
         expect = {
             'loginUrl': 'http://testserver%s' % settings.LOGIN_URL,
-            'loginRedirectUrl': None,
+            'loginRedirectUrl': redirect_url,
             'detail': 'Login required'
         }
         self.assertJSONEqual(response.content, expect)
