@@ -28,14 +28,14 @@ class StaffCreate(LoginRequiredMixin, CreateView):
     template_name = 'staff/staffer_new.html'
     model = Staffer
     fields = ['email']
-    success_url = reverse_lazy('staff-staffers')
+    success_url = reverse_lazy('staff:staff-staffers')
 
 
 class StaffUpdate(LoginRequiredMixin, UpdateView):
     template_name = 'staff/staffer_edit.html'
     model = Staffer
     fields = ['email', 'first_name', 'last_name', 'active', 'image_url']
-    success_url = reverse_lazy('staff-staffers')
+    success_url = reverse_lazy('staff:staff-staffers')
 
 
 class StaffList(View):
