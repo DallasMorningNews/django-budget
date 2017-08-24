@@ -124,6 +124,9 @@ class HeadlineSerializer(UserMetadataMixin, serializers.ModelSerializer):
     class Meta:  # NOQA
         model = Headline
         fields = ('id', 'url', 'package', 'text', 'winner')
+        extra_kwargs = {
+            'url': {'view_name': 'budget:headline-detail'},
+        }
 
 
 class HeadlineVoteSerializer(UserMetadataMixin, serializers.ModelSerializer):
@@ -133,6 +136,9 @@ class HeadlineVoteSerializer(UserMetadataMixin, serializers.ModelSerializer):
     class Meta:  # NOQA
         model = HeadlineVote
         fields = ('id', 'url', 'headline', 'voter', 'timestamp')
+        extra_kwargs = {
+            'url': {'view_name': 'budget:headlinevote-detail'},
+        }
 
 
 class ItemSerializer(UserMetadataMixin, serializers.ModelSerializer):
@@ -200,6 +206,9 @@ class ItemSerializer(UserMetadataMixin, serializers.ModelSerializer):
             'additional_for_package',
             'created_by',
         )
+        extra_kwargs = {
+            'url': {'view_name': 'budget:item-detail'},
+        }
 
 
 class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
@@ -255,6 +264,9 @@ class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
             'additional_content',
             'created_by',
         )
+        extra_kwargs = {
+            'url': {'view_name': 'budget:package-detail'},
+        }
 
 
 class PrintPublicationSerializer(serializers.ModelSerializer):
@@ -270,3 +282,6 @@ class PrintPublicationSerializer(serializers.ModelSerializer):
             'is_active',
             'sections'
         )
+        extra_kwargs = {
+            'url': {'view_name': 'budget:printpublication-detail'},
+        }

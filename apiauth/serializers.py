@@ -13,3 +13,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'url', 'username', 'first_name', 'last_name',
                   'display_name', 'email', 'is_staff', 'is_active',)
+        extra_kwargs = {
+            'url': {'view_name': 'apiauth:user-detail'},
+        }
