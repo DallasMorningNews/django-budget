@@ -3,6 +3,10 @@ import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import _ from 'underscore';
 
+
+let pollInterval = 30 * 60 * 1000;
+
+
 export default Mn.Object.extend({
   initialize(options) {
     this.requestConfig = (_.has(options, 'requestConfig')) ? options.requestConfig : {};
@@ -13,15 +17,13 @@ export default Mn.Object.extend({
       this.commencePolling();
     }
 
-    this.pollInterval = (
+    pollInterval = (
       _.has(options, 'pollInterval')
     ) ? (
       options.pollInterval
     ) : (
       30 * 60 * 1000
     );
-
-    console.log(this.pollInterval);
   },
 
   isActive: [],
@@ -50,7 +52,7 @@ export default Mn.Object.extend({
 
     this.interval = window.setInterval(
       this.poll.bind(this),
-      this.pollInterval  // eslint-disable-line comma-dangle
+      pollInterval  // eslint-disable-line comma-dangle
     );
   },
 
@@ -104,7 +106,7 @@ export default Mn.Object.extend({
     if (!this.isPolling) {
       if (!muteConsole) {
         // eslint-disable-next-line no-console
-        console.log('[poller] Polling resumed.');
+        console.info('[poller] Polling resumed.');
       }
       this.commencePolling();
     }
