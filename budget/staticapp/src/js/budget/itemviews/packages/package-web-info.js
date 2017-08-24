@@ -1,142 +1,147 @@
 import 'underscore.string';
 import _ from 'underscore';
 
-import settings from '../../../common/settings';
-
 import PackageItemView from './package-base';
 
 export default PackageItemView.extend({
-    template: 'budget/package-item-web',
+  template: 'budget/package-item-web',
 
-    ui: {
-        packageSheetOuter: '.package-sheet',
-        minimalCard: '.package-sheet .minimal-card',
-        rippleButton: '.package-sheet .material-button',
-        readinessIndicator: '.package-sheet .minimal-card .indicator-inner',
-        editPackageTrigger: '.package-sheet .edit-package',
-        notesModalTrigger: '.package-sheet .view-notes',
-        subscriptionModalTrigger: '.package-sheet .subscribe',
-        printInfoModalTrigger: '.package-sheet .print-info',
-        webInfoModalTrigger: '.package-sheet .web-info',
-    },
+  ui: {
+    packageSheetOuter: '.package-sheet',
+    minimalCard: '.package-sheet .minimal-card',
+    rippleButton: '.package-sheet .material-button',
+    readinessIndicator: '.package-sheet .minimal-card .indicator-inner',
+    editPackageTrigger: '.package-sheet .edit-package',
+    notesModalTrigger: '.package-sheet .view-notes',
+    subscriptionModalTrigger: '.package-sheet .subscribe',
+    printInfoModalTrigger: '.package-sheet .print-info',
+    webInfoModalTrigger: '.package-sheet .web-info',
+  },
 
-    events: {
-        'click @ui.minimalCard': 'expandPackageSheet',
-        'mousedown @ui.rippleButton': 'addButtonClickedClass',
-        'click @ui.readinessIndicator': 'onReadinessIndicatorClick',
-        'click @ui.editPackageTrigger': 'showPackageEdit',
-        'click @ui.notesModalTrigger': 'showNotesModal',
-        'click @ui.subscriptionModalTrigger': 'showSubscriptionModal',
-        'click @ui.printInfoModalTrigger': 'showPrintInfoModal',
-        'click @ui.webInfoModalTrigger': 'showWebInfoModal',
-    },
+  events: {
+    'click @ui.minimalCard': 'expandPackageSheet',
+    'mousedown @ui.rippleButton': 'addButtonClickedClass',
+    'click @ui.readinessIndicator': 'onReadinessIndicatorClick',
+    'click @ui.editPackageTrigger': 'showPackageEdit',
+    'click @ui.notesModalTrigger': 'showNotesModal',
+    'click @ui.subscriptionModalTrigger': 'showSubscriptionModal',
+    'click @ui.printInfoModalTrigger': 'showPrintInfoModal',
+    'click @ui.webInfoModalTrigger': 'showWebInfoModal',
+  },
 
-    hasPrimary: false,
+  hasPrimary: false,
 
-    initEnd() {
-        this.primaryIsExpanded = false;
+  initEnd() {
+    this.primaryIsExpanded = false;
 
-        settings.moment.locale('en-us-apstyle');
-    },
+    const moment = this.radio.reqres.request('getSetting', 'moment');
+    moment.locale('en-us-apstyle');
+  },
 
-    serializeData() {
-        const templateContext = {};
-        const packageObj = this.model.toJSON();
-        const packageHub = this.options.hubConfigs.findWhere({
-            slug: packageObj.hub,
-        });
-        const additionals = this.model.additionalContentCollection;
+  serializeData() {
+    const templateContext = {};
+    const packageObj = this.model.toJSON();
+    const packageHub = this.options.hubConfigs.findWhere({
+      slug: packageObj.hub,
+    });
+    const additionals = this.model.additionalContentCollection;
 
-        // Template context, in order of appearance:
+    // Template context, in order of appearance:
 
-        // Has-primary item (used to show or hide packages).
-        templateContext.hasPrimary = this.hasPrimary;
+    // Edit-view link base.
+    const navLinks = this.radio.reqres.request('getSetting', 'navigationLinks');
+    const homeView = _.findWhere(navLinks, { name: 'Home' });
+    templateContext.homeViewLink = homeView.destination;
 
-        // Expanded (or not) package state.
-        templateContext.primaryIsExpanded = this.primaryIsExpanded;
+    // Has-primary item (used to show or hide packages).
+    templateContext.hasPrimary = this.hasPrimary;
 
-        // Underlying model.
-        templateContext.packageObj = _.clone(packageObj);
+    // Expanded (or not) package state.
+    templateContext.primaryIsExpanded = this.primaryIsExpanded;
 
-        templateContext.packageObj.primaryContent = _.clone(
-            this.model.primaryContentItem.toJSON()
-        );
+    // Underlying model.
+    templateContext.packageObj = _.clone(packageObj);
 
-        // Slug date.
-        templateContext.packageObj.primaryContent.slugDate = this.model.generateSlugDate();
+    templateContext.packageObj.primaryContent = _.clone(
+      this.model.primaryContentItem.toJSON()  // eslint-disable-line comma-dangle
+    );
 
-        // Is-published indicator.
-        templateContext.packageHasURL = !_.isNull(packageObj.publishedUrl);
+    // Slug date.
+    templateContext.packageObj.primaryContent.slugDate = this.model.generateSlugDate();
 
-        // Hub color and vertical slug.
-        if (!_.isUndefined(packageHub)) {
-            templateContext.hubDotColor = packageHub.get('color');
-            templateContext.verticalSlug = packageHub.get('vertical').slug;
-            templateContext.hubName = packageHub.get('name');
-            templateContext.verticalName = packageHub.get('vertical').name;
-        }
+    // Is-published indicator.
+    templateContext.packageHasURL = !_.isNull(packageObj.publishedUrl);
 
-        // Formatted run date.
-        templateContext.publishDate = this.model.generateFormattedPublishDate().join(' ');
+    // Hub color and vertical slug.
+    if (!_.isUndefined(packageHub)) {
+      templateContext.hubDotColor = packageHub.get('color');
+      templateContext.verticalSlug = packageHub.get('vertical').slug;
+      templateContext.hubName = packageHub.get('name');
+      templateContext.verticalName = packageHub.get('vertical').name;
+    }
 
-        // Editor and author lists.
-        templateContext.allPeople = _.union(
-            _.pluck(this.model.primaryContentItem.get('editors'), 'email'),
-            _.pluck(this.model.primaryContentItem.get('authors'), 'email'),
-            _.pluck(_.flatten(additionals.pluck('editors')), 'email'),
-            _.pluck(_.flatten(additionals.pluck('authors')), 'email')
-        ).join(' ');
+    // Formatted run date.
+    templateContext.publishDate = this.model.generateFormattedPublishDate().join(' ');
 
-        // Leading headline (if voting is open),
-        // or winning headline if one was selected.
-        if (packageObj.headlineCandidates.length > 0) {
-            templateContext.leadingHeadline = _.chain(
-                packageObj.headlineCandidates
-            )
-                .sortBy('votes')
-                .last()
-                .value()
-                .text;
-        }
+    // Editor and author lists.
+    templateContext.allPeople = _.union(
+      _.pluck(this.model.primaryContentItem.get('editors'), 'email'),
+      _.pluck(this.model.primaryContentItem.get('authors'), 'email'),
+      _.pluck(_.flatten(additionals.pluck('editors')), 'email'),
+      // eslint-disable-next-line comma-dangle
+      _.pluck(_.flatten(additionals.pluck('authors')), 'email')
+    ).join(' ');
 
-        // Verbose name and other information for primary content type icon.
-        templateContext.primaryTypeMeta = settings.contentTypes[
-            this.model.primaryContentItem.get('type')
-        ];
+    // Leading headline (if voting is open),
+    // or winning headline if one was selected.
+    if (packageObj.headlineCandidates.length > 0) {
+      templateContext.leadingHeadline = _.chain(packageObj.headlineCandidates)
+        .sortBy('votes')
+        .last()
+        .value()
+        .text;
+    }
 
-        // Fallback function for comma-formatted length (1 of 2).
-        // if (_.has(packageObj.primaryContentItem, 'length')) {
-        //     templateContext.primaryLengthFormatted = _string_.numberFormat(
-        //         packageObj.primaryContentItem.get('length')
-        //     );
-        // }
+    const contentTypes = this.radio.reqres.request('getSetting', 'contentTypes');
 
-        // List of additional content item types and icons
-        // (Needed for "Includes [other icons]" list).
-        templateContext.additionalItemTypes = _.map(
-            additionals.pluck('type'),
-            (typeSlug) => {
-                const typeObj = _.clone(settings.contentTypes[typeSlug]);
-                typeObj.slug = typeSlug;
-                return typeObj;
-            }
-        );
+    // Verbose name and other information for primary content type icon.
+    templateContext.primaryTypeMeta = contentTypes[
+        this.model.primaryContentItem.get('type')
+    ];
 
-        // List of additional content items, in an object with
-        // on-model ('model') and 'typemeta' attributes.
-        templateContext.additionalWithTypeMetas = additionals.map((item) => {
-            const additionalConfig = {
-                model: item.toJSON(),
-                typeMeta: settings.contentTypes[item.get('type')],
-            };
+    // Fallback function for comma-formatted length (1 of 2).
+    // if (_.has(packageObj.primaryContentItem, 'length')) {
+    //     templateContext.primaryLengthFormatted = _string_.numberFormat(
+    //         packageObj.primaryContentItem.get('length')
+    //     );
+    // }
 
-            return additionalConfig;
-        });
+    // List of additional content item types and icons
+    // (Needed for "Includes [other icons]" list).
+    templateContext.additionalItemTypes = _.map(
+      additionals.pluck('type'),
+      (typeSlug) => {
+        const typeObj = _.clone(contentTypes[typeSlug]);
+        typeObj.slug = typeSlug;
+        return typeObj;
+      }  // eslint-disable-line comma-dangle
+    );
 
-        return templateContext;
-    },
+    // List of additional content items, in an object with
+    // on-model ('model') and 'typemeta' attributes.
+    templateContext.additionalWithTypeMetas = additionals.map((item) => {
+      const additionalConfig = {
+        model: item.toJSON(),
+        typeMeta: contentTypes[item.get('type')],
+      };
 
-    onRenderCallback() {
-        this.ui.rippleButton.addClass('click-init');
-    },
+      return additionalConfig;
+    });
+
+    return templateContext;
+  },
+
+  onRenderCallback() {
+    this.ui.rippleButton.addClass('click-init');
+  },
 });

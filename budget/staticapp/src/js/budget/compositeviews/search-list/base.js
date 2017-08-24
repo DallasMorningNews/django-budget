@@ -6,525 +6,533 @@ import _ from 'underscore';
 import deline from '../../../vendored/deline';
 
 import Poller from '../../../common/poller';
-import settings from '../../../common/settings';
 
 import PackageCollection from '../../collections/packages';
 import QueryTermCollection from '../../collections/query-terms';
 import NoPackagesView from '../../itemviews/packages/no-package';
 
 export default Mn.CompositeView.extend({
-    id: 'package-archive',
+  id: 'package-archive',
 
-    regions: {},
+  regions: {},
 
-    filterViews: [],
+  filterViews: [],
 
-    queryTerms: [],
+  queryTerms: [],
 
-    isAttached: false,
+  isAttached: false,
 
-    filtersRendered: false,
+  filtersRendered: false,
 
-    events: {
-        // 'all': 'logEvents',
-        dataUpdated: 'onDataUpdated',
-    },
+  events: {
+    // 'all': 'logEvents',
+    dataUpdated: 'onDataUpdated',
+  },
 
-    // Initialize the collection.
-    collection: new PackageCollection(),
+  // Initialize the collection.
+  collection: new PackageCollection(),
 
-    collectionEvents: {
-        sync: 'onCollectionSync',
-    },
+  collectionEvents: {
+    sync: 'onCollectionSync',
+  },
 
-    childEvents: {
-        'dom:refresh': 'onChildRender',
-    },
+  childEvents: {
+    'dom:refresh': 'onChildRender',
+  },
 
-    ui: {
-        filterHolder: '#filter-holder',
-        facetedCollectionHolder: '#faceted-packages',
-        collectionHolder: '#package-list div',
-    },
+  ui: {
+    filterHolder: '#filter-holder',
+    facetedCollectionHolder: '#faceted-packages',
+    collectionHolder: '#package-list div',
+  },
 
-    childViewOptions(model, index) {  // eslint-disable-line no-unused-vars
-        return {
-            currentUser: this.options.currentUser,
-            hubConfigs: this.options.data.hubs,
-            printPublications: this.options.data.printPublications,
-        };
-    },
+  childViewOptions(model, index) {  // eslint-disable-line no-unused-vars
+    return {
+      currentUser: this.options.currentUser,
+      hubConfigs: this.options.data.hubs,
+      printPublications: this.options.data.printPublications,
+    };
+  },
 
-    getEmptyView() {
-        // custom logic
-        return NoPackagesView;
-    },
+  getEmptyView() {
+    // custom logic
+    return NoPackagesView;
+  },
 
-    initialize() {
-        // Initialize the Wreqr channel.
-        this.radio = Backbone.Wreqr.radio.channel('global');
+  initialize() {
+    // Initialize the Wreqr channel.
+    this.radio = Backbone.Wreqr.radio.channel('global');
 
-        // Initialize the poller and the list of polled data.
-        this.poller = new Poller();
-        this.polledData = [this.collection];
+    // Initialize the poller and the list of polled data.
+    this.poller = new Poller({
+      pollInterval: this.radio.reqres.request('getSetting', 'pollInterval'),
+    });
+    this.polledData = [this.collection];
 
-        // Initialize additional regions.
-        this.extraViewInstances = {};
+    // Initialize additional regions.
+    this.extraViewInstances = {};
 
-        // Parse querystring to get initial state.
-        this.initialState = this.parseQueryString(this.options.boundData.querystring);
+    // Parse querystring to get initial state.
+    this.initialState = this.parseQueryString(this.options.boundData.querystring);
 
-        // Bind radio event handlers.
-        this.bindRadioEvents();
+    // Bind radio event handlers.
+    this.bindRadioEvents();
 
-        // If the view's initial date range is saved, defer to that value.
-        if (_.isUndefined(this.radio.reqres.request('getState', this.stateKey, 'dateRange'))) {
-            // If there's no saved date range and no given range, fall through to the default.
-            if (_.isEmpty(this.initialState.dateRange)) {
-                this.initialState.dateRange = this.generateDefaultDateRange();
-            }
+    // If the view's initial date range is saved, defer to that value.
+    if (_.isUndefined(this.radio.reqres.request('getState', this.stateKey, 'dateRange'))) {
+      // If there's no saved date range and no given range, fall through to the default.
+      if (_.isEmpty(this.initialState.dateRange)) {
+        this.initialState.dateRange = this.generateDefaultDateRange();
+      }
 
-            // Cache this view's date range for future requests.
-            this.radio.commands.execute(
-                'setState',
-                this.stateKey,
-                'dateRange',
-                this.initialState.dateRange
+      // Cache this view's date range for future requests.
+      this.radio.commands.execute(
+        'setState',
+        this.stateKey,
+        'dateRange',
+        this.initialState.dateRange  // eslint-disable-line comma-dangle
+      );
+    }
+
+    // If no cached term collection exists, create and cache the
+    // collection where they will be stored.
+    if (_.isUndefined(
+      // eslint-disable-next-line comma-dangle
+      this.radio.reqres.request('getState', this.stateKey, 'queryTerms')
+    )) {
+      this.radio.commands.execute(
+        'setState',
+        this.stateKey,
+        'queryTerms',
+        new QueryTermCollection()  // eslint-disable-line comma-dangle
+      );
+    }
+
+    // If there have been initial query terms specified in the URL,
+    // apply those.
+    if (!_.isEmpty(this.initialState.queryTerms)) {
+      this.radio.commands.execute(
+          'setState',
+          this.stateKey,
+          'queryTerms',
+          (terms) => {
+            terms.reset();
+            _.each(
+              this.initialState.queryTerms,
+              // eslint-disable-next-line comma-dangle
+              (queryValue) => { terms.add(queryValue); }
             );
-        }
+          }  // eslint-disable-line comma-dangle
+      );
+    }
 
-        // If no cached term collection exists, create and cache the
-        // collection where they will be stored.
-        if (_.isUndefined(
-            this.radio.reqres.request('getState', this.stateKey, 'queryTerms')
-        )) {
-            this.radio.commands.execute(
-                'setState',
-                this.stateKey,
-                'queryTerms',
-                new QueryTermCollection()
-            );
-        }
+    // Initialize all filters on this page.
+    this.filters = {};
+    this.filterIDs = {};
+    _.each(this.filterViews, (filterConfig) => {
+      this.filterIDs[filterConfig.slug] = filterConfig.elementID;
 
-        // If there have been initial query terms specified in the URL,
-        // apply those.
-        if (!_.isEmpty(this.initialState.queryTerms)) {
-            this.radio.commands.execute(
-                'setState',
-                this.stateKey,
-                'queryTerms',
-                (terms) => {
-                    terms.reset();
-                    _.each(
-                        this.initialState.queryTerms,
-                        (queryValue) => { terms.add(queryValue); }
-                    );
-                }
-            );
-        }
+      this.filters[filterConfig.slug] = new filterConfig.ViewClass({
+        collection: this.collection,
+        data: this.options.data,
+        stateKey: this.stateKey,
+      });
+    });
 
-        // Initialize all filters on this page.
-        this.filters = {};
-        this.filterIDs = {};
-        _.each(this.filterViews, (filterConfig) => {
-            this.filterIDs[filterConfig.slug] = filterConfig.elementID;
+    // Set the appropriate data URL for this query.
+    this.collection.url = this.generateCollectionURL();
 
-            this.filters[filterConfig.slug] = new filterConfig.ViewClass({
-                collection: this.collection,
-                data: this.options.data,
-                stateKey: this.stateKey,
-            });
-        });
+    // Retrieve packages based on the current query parameters.
+    this.updatePackages();
 
-        // Set the appropriate data URL for this query.
-        this.collection.url = this.generateCollectionURL();
+    // On subsequent data updates after initial load, the 'dataUpdated'
+    // event will be triggered. Bind that to the `onDataUpdated()` fn.
+    this.on('dataUpdated', this.onDataUpdated);
 
-        // Retrieve packages based on the current query parameters.
+    // Run overrides to init method.
+    if (!_.isUndefined(this.extendInitialize)) {
+      this.extendInitialize();
+    }
+  },
+
+  bindRadioEvents() {
+    // Handler for updating our internal date filters.
+    this.radio.commands.setHandler(
+      'switchListDates',
+      (stateKey, newDates) => {
+        this.radio.commands.execute('setState', stateKey, 'dateRange', newDates);
+
         this.updatePackages();
+        this.updateQuerystring();
+        this.trigger('changeParams');
+      },
+      this  // eslint-disable-line comma-dangle
+    );
 
-        // On subsequent data updates after initial load, the 'dataUpdated'
-        // event will be triggered. Bind that to the `onDataUpdated()` fn.
-        this.on('dataUpdated', this.onDataUpdated);
+    // Handler for adding a query term.
+    this.radio.commands.setHandler(
+      'pushQueryTerm',
+      (stateKey, queryObject) => {
+        this.radio.commands.execute(
+          'setState',
+          stateKey,
+          'queryTerms',
+          (terms) => { terms.push(queryObject); }  // eslint-disable-line comma-dangle
+        );
 
-        // Run overrides to init method.
-        if (!_.isUndefined(this.extendInitialize)) {
-            this.extendInitialize();
+        this.updatePackages();
+        this.updateQuerystring();
+        this.trigger('changeParams');
+      },
+      this  // eslint-disable-line comma-dangle
+    );
+
+    // Handler for removing a query term.
+    this.radio.commands.setHandler(
+      'popQueryTerm',
+      (stateKey, queryValue, options) => {
+        const opts = options || { silent: false };
+
+        this.radio.commands.execute(
+          'setState',
+          stateKey,
+          'queryTerms',
+          (terms) => {
+            terms.remove(terms.where({ value: queryValue }));
+          }  // eslint-disable-line comma-dangle
+        );
+
+        if ((opts.silent === false)) {
+          this.updatePackages();
+          this.updateQuerystring();
+          this.trigger('changeParams');
         }
-    },
+      },
+      this  // eslint-disable-line comma-dangle
+    );
+  },
 
-    bindRadioEvents() {
-        // Handler for updating our internal date filters.
-        this.radio.commands.setHandler(
-            'switchListDates',
-            (stateKey, newDates) => {
-                this.radio.commands.execute('setState', stateKey, 'dateRange', newDates);
+  generateCollectionURL() {
+    return this.radio.reqres.request('getSetting', 'apiEndpoints').package;
+  },
 
-                this.updatePackages();
-                this.updateQuerystring();
-                this.trigger('changeParams');
-            },
-            this
-        );
+  generateCollectionFetchOptions() { return {}; },
 
-        // Handler for adding a query term.
-        this.radio.commands.setHandler(
-            'pushQueryTerm',
-            (stateKey, queryObject) => {
-                this.radio.commands.execute(
-                    'setState',
-                    stateKey,
-                    'queryTerms',
-                    (terms) => { terms.push(queryObject); }
-                );
+  generateDefaultDateRange() {
+    return {};
+  },
 
-                this.updatePackages();
-                this.updateQuerystring();
-                this.trigger('changeParams');
-            },
-            this
-        );
+  generateFacetedCollections() {
+    return [];
+  },
 
-        // Handler for removing a query term.
-        this.radio.commands.setHandler(
-            'popQueryTerm',
-            (stateKey, queryValue, options) => {
-                const opts = options || { silent: false };
+  parseQueryString(querystring) {
+    let parsedQueryTerms = [];
+    const parsedDateRange = {};
+    const extraContext = {};
+    const invalidTerms = [];
+    const dateQueryTerms = ['startDate', 'endDate'];
 
-                this.radio.commands.execute(
-                    'setState',
-                    stateKey,
-                    'queryTerms',
-                    (terms) => {
-                        terms.remove(terms.where({ value: queryValue }));
-                    }
-                );
+    if (!_.isNull(querystring)) {
+      parsedQueryTerms = _.chain(querystring.split('&'))
+        .map((component) => {
+          const termParts = _.map(
+            component.split('='),
+            decodeURIComponent  // eslint-disable-line comma-dangle
+          );
 
-                if ((opts.silent === false)) {
-                    this.updatePackages();
-                    this.updateQuerystring();
-                    this.trigger('changeParams');
-                }
-            },
-            this
-        );
-    },
+          const moment = this.radio.reqres.request('getSetting', 'moment');
 
-    generateCollectionURL() { return settings.apiEndpoints.package; },
+          if (_.contains(dateQueryTerms, termParts[0])) {
+            parsedDateRange[
+                termParts[0].slice(0, -4)
+            ] = moment(termParts[1]).format('YYYY-MM-DD');
 
-    generateCollectionFetchOptions() { return {}; },
-
-    generateDefaultDateRange() {
-        return {};
-    },
-
-    generateFacetedCollections() {
-        return [];
-    },
-
-    parseQueryString(querystring) {
-        let parsedQueryTerms = [];
-        const parsedDateRange = {};
-        const extraContext = {};
-        const invalidTerms = [];
-        const dateQueryTerms = ['startDate', 'endDate'];
-
-        if (!_.isNull(querystring)) {
-            parsedQueryTerms = _.chain(querystring.split('&'))
-                .map((component) => {
-                    const termParts = _.map(
-                        component.split('='),
-                        decodeURIComponent
-                    );
-
-                    if (_.contains(dateQueryTerms, termParts[0])) {
-                        parsedDateRange[
-                            termParts[0].slice(0, -4)
-                        ] = settings.moment(termParts[1]).format('YYYY-MM-DD');
-
-                        return null;
-                    } else if (
-                        _.contains(
-                            _.pluck(this.queryTerms, 'urlSlug'),
-                            termParts[0]
-                        )
-                    ) {
-                        return { type: termParts[0], value: termParts[1] };
-                    }
-
-                    invalidTerms.push({
-                        type: termParts[0],
-                        value: termParts[1],
-                    });
-
-                    return null;
-                })
-                .compact()
-                .value();
-
-            // Log invalid query terms.
-            if (!_.isEmpty(invalidTerms)) {
-                _.each(
-                    invalidTerms,
-                    (term) => {
-                        const message = deline`
-                            Invalid querystring term: "${
-                                encodeURIComponent(term.type)
-                            }=${
-                                encodeURIComponent(term.value)
-                            }"(ignored)`;
-                        console.log(message);  // eslint-disable-line no-console
-                    }
-                );
-            }
-        }
-
-        return {
-            queryTerms: parsedQueryTerms,
-            dateRange: parsedDateRange,
-            invalidTerms,
-            extraContext,
-        };
-    },
-
-    generateQuerystring() {
-        const terms = this.radio.reqres.request(
-            'getState',
-            this.stateKey,
-            'queryTerms'
-        );
-
-        const dateRange = this.radio.reqres.request(
-            'getState',
-            this.stateKey,
-            'dateRange'
-        );
-        let fullQuerystring = terms.filter(
-            termValue => !_.contains(
-                _.pluck(this.extraQueryTerms, 'urlSlug'),
-                termValue.get('type')
+            return null;
+          } else if (
+            _.contains(
+              _.pluck(this.queryTerms, 'urlSlug'),
+              termParts[0]  // eslint-disable-line comma-dangle
             )
-        ).map((term) => {
-            const termType = encodeURIComponent(term.get('type'));
-            const termValue = encodeURIComponent(term.get('value')
-                                .replace('&', '+'));
-            return `${termType}=${termValue}`;
-        }).reduce((memo, queryComponent, index) => {
-            let newAddition = (index !== 0) ? '&' : '';
-            newAddition += queryComponent;
-            return memo + newAddition;
-        }, '');
+          ) {
+            return { type: termParts[0], value: termParts[1] };
+          }
 
-        if (!_.isEmpty(dateRange)) {
-            if (fullQuerystring !== '') {
-                fullQuerystring += '&';
-            }
+          invalidTerms.push({
+            type: termParts[0],
+            value: termParts[1],
+          });
 
-            fullQuerystring += _.chain(dateRange)
-                .map(
-                    (value, key) => deline`
-                        ${
-                            encodeURIComponent(key)
-                        }Date=${
-                            encodeURIComponent(value)
-                        }`
-                )
-                .reduce(
-                    (memo, queryComponent, index) => {
-                        let dateAddition = (index !== 0) ? '&' : '';
+          return null;
+        })
+        .compact()
+        .value();
 
-                        dateAddition += queryComponent;
-
-                        return memo + dateAddition;
-                    },
-                    ''
-                )
-                .value();
-        }
-
-        if (!_.isUndefined(this.extendGenerateQuerystring)) {
-            return this.extendGenerateQuerystring(fullQuerystring);
-        }
-
-        return fullQuerystring;
-    },
-
-    updateQuerystring() {
-        // Generate a querystring based on the current terms selected.
-        const querystring = this.generateQuerystring();
-        let newURL = this.urlBase + querystring;
-
-        if (querystring !== '') {
-            newURL += '/';
-        }
-
-        // Navigate to that querystring.
-        this.radio.commands.execute('navigate', newURL, { trigger: false });
-    },
-
-    renderFilters() {
-        // Create DOM elements for all unrendered filter objects, then
-        // attach them.
+      // Log invalid query terms.
+      if (!_.isEmpty(invalidTerms)) {
         _.each(
-            this.filters,
-            (filterObj, filterName) => {
-                const filterEl = jQuery(
-                    `<div id="${this.filterIDs[filterName]}"></div>`
-                ).appendTo(this.ui.filterHolder);
-
-                filterObj.setElement(filterEl[0]);
-            }
+            invalidTerms,
+            (term) => {
+              const message = deline`
+                Invalid querystring term: "${
+                    encodeURIComponent(term.type)
+                }=${
+                    encodeURIComponent(term.value)
+                }"(ignored)`;
+              console.log(message);  // eslint-disable-line no-console
+            }  // eslint-disable-line comma-dangle
         );
+      }
+    }
 
-        // Render all filters.
-        // eslint-disable-next-line newline-per-chained-call,max-len
-        _.chain(this.filters).values().invoke('render').value();
+    return {
+      queryTerms: parsedQueryTerms,
+      dateRange: parsedDateRange,
+      invalidTerms,
+      extraContext,
+    };
+  },
 
-        // if (!this.filtersRendered) {
-            // Set this flag to true, so this step is only called once.
-            // this.filtersRendered = true;
-        // }
-    },
+  generateQuerystring() {
+    const terms = this.radio.reqres.request(
+      'getState',
+      this.stateKey,
+      'queryTerms'  // eslint-disable-line comma-dangle
+    );
 
-    renderFacetedLists() {
-        // Create each faceted list.
-        this.facetedCollections = this.generateFacetedCollections();
+    const dateRange = this.radio.reqres.request(
+      'getState',
+      this.stateKey,
+      'dateRange'  // eslint-disable-line comma-dangle
+    );
+    let fullQuerystring = terms.filter(
+      termValue => !_.contains(
+        _.pluck(this.extraQueryTerms, 'urlSlug'),
+        termValue.get('type')  // eslint-disable-line comma-dangle
+      )  // eslint-disable-line comma-dangle
+    ).map((term) => {
+      const termType = encodeURIComponent(term.get('type'));
+      const termValue = encodeURIComponent(term.get('value')
+                          .replace('&', '+'));
+      return `${termType}=${termValue}`;
+    }).reduce((memo, queryComponent, index) => {
+      let newAddition = (index !== 0) ? '&' : '';
+      newAddition += queryComponent;
+      return memo + newAddition;
+    }, '');
 
-        // Render each of the faceted collections.
-        _.invoke(this.facetedCollections, 'render');
-    },
+    if (!_.isEmpty(dateRange)) {
+      if (fullQuerystring !== '') {
+        fullQuerystring += '&';
+      }
 
-    updatePackages() {
-        // Configure poller with fetch options.
-        // This includes all querystring arguments (the `data` option sent
-        // to `sync()`).
-        this.poller.requestConfig = this.generateCollectionFetchOptions();
+      fullQuerystring += _.chain(dateRange)
+          .map(
+              (value, key) => deline`
+                  ${
+                    encodeURIComponent(key)
+                  }Date=${
+                    encodeURIComponent(value)
+                  }`  // eslint-disable-line comma-dangle
+          )
+          .reduce(
+              (memo, queryComponent, index) => {
+                let dateAddition = (index !== 0) ? '&' : '';
 
-        // Retrieve collection from the server.
-        this.poller.get(this.polledData, this.poller.requestConfig);
-    },
+                dateAddition += queryComponent;
 
-    onCollectionSync() {
-        // When collection is synced with the server get all related items,
-        // render child views and restart poller.
-        const packageRelatedDeferred = [];
-        const wasAttached = this.isAttached;
+                return memo + dateAddition;
+              },
+              ''  // eslint-disable-line comma-dangle
+          )
+          .value();
+    }
 
-        if (this.rerenderFacetedLists === true) {
-            this.renderFacetedLists();
-            this.rerenderFacetedLists = false;
+    if (!_.isUndefined(this.extendGenerateQuerystring)) {
+      return this.extendGenerateQuerystring(fullQuerystring);
+    }
+
+    return fullQuerystring;
+  },
+
+  updateQuerystring() {
+    // Generate a querystring based on the current terms selected.
+    const querystring = this.generateQuerystring();
+    let newURL = this.urlBase + querystring;
+
+    if (querystring !== '') {
+      newURL += '/';
+    }
+
+    // Navigate to that querystring.
+    this.radio.commands.execute('navigate', newURL, { trigger: false });
+  },
+
+  renderFilters() {
+    // Create DOM elements for all unrendered filter objects, then
+    // attach them.
+    _.each(
+        this.filters,
+        (filterObj, filterName) => {
+          const filterEl = jQuery(
+            // eslint-disable-next-line comma-dangle
+            `<div id="${this.filterIDs[filterName]}"></div>`
+          ).appendTo(this.ui.filterHolder);
+
+          filterObj.setElement(filterEl[0]);
+        }  // eslint-disable-line comma-dangle
+    );
+
+    // Render all filters.
+    // eslint-disable-next-line newline-per-chained-call,max-len
+    _.chain(this.filters).values().invoke('render').value();
+
+    // if (!this.filtersRendered) {
+        // Set this flag to true, so this step is only called once.
+        // this.filtersRendered = true;
+    // }
+  },
+
+  renderFacetedLists() {
+    // Create each faceted list.
+    this.facetedCollections = this.generateFacetedCollections();
+
+    // Render each of the faceted collections.
+    _.invoke(this.facetedCollections, 'render');
+  },
+
+  updatePackages() {
+    // Configure poller with fetch options.
+    // This includes all querystring arguments (the `data` option sent
+    // to `sync()`).
+    this.poller.requestConfig = this.generateCollectionFetchOptions();
+
+    // Retrieve collection from the server.
+    this.poller.get(this.polledData, this.poller.requestConfig);
+  },
+
+  onCollectionSync() {
+    // When collection is synced with the server get all related items,
+    // render child views and restart poller.
+    const packageRelatedDeferred = [];
+    const wasAttached = this.isAttached;
+
+    if (this.rerenderFacetedLists === true) {
+      this.renderFacetedLists();
+      this.rerenderFacetedLists = false;
+    }
+
+    this.poller.pause({ muteConsole: true });
+
+    // If this view is not yet attached, finalize that process.
+    if (!this.isAttached) {
+      this.options.initFinishedCallback(this);
+    }
+
+    this.collection.each((pkg) => {
+      const loadDeferred = pkg.loadRelatedItems(
+        pkg.toJSON(),
+        { muteConsole: true }  // eslint-disable-line comma-dangle
+      );
+
+      packageRelatedDeferred.push(loadDeferred);
+
+      loadDeferred.done(() => {
+        pkg.trigger('change', pkg, {});
+      });  // eslint-disable-line no-extra-bind
+    });  // eslint-disable-line no-extra-bind
+
+    jQuery.when(...packageRelatedDeferred).done(() => {
+      // If this view is not yet attached, finalize that process.
+      if (wasAttached) {
+        this.trigger('dataUpdated');
+      }
+
+      // Resume polling. In 30 seconds the app will sync with the server again.
+      this.poller.resume({ muteConsole: true });
+    });
+  },
+
+  onChildRender(childView) {
+    if ((!childView.model.isNew()) && (!childView.model.primaryContentItem.isNew())) {
+      if (!childView.hasPrimary) {
+        childView.hasPrimary = true;  // eslint-disable-line no-param-reassign
+
+        if (!childView.$el.find('.package-sheet').hasClass('has-primary')) {
+          setTimeout(() => {
+            childView.$el.find('.package-sheet').addClass('has-primary');
+          }, 100);
         }
+      }
+    }
 
-        this.poller.pause({ muteConsole: true });
+    childView.model.trigger('setPrimary', childView.model, {});
+  },
 
-        // If this view is not yet attached, finalize that process.
-        if (!this.isAttached) {
-            this.options.initFinishedCallback(this);
-        }
+  onDataUpdated() {
+    // console.log('ODU.');
+  },
 
-        this.collection.each((pkg) => {
-            const loadDeferred = pkg.loadRelatedItems(
-                pkg.toJSON(),
-                { muteConsole: true }
-            );
+  attachBuffer(collectionView, buffer) {
+    this.ui.collectionHolder.append(buffer);
+  },
 
-            packageRelatedDeferred.push(loadDeferred);
+  _insertBefore(childView, index) {
+    let currentView;
 
-            loadDeferred.done(() => {
-                pkg.trigger('change', pkg, {});
-            });  // eslint-disable-line no-extra-bind
-        });  // eslint-disable-line no-extra-bind
+    if (this.getOption('sort') && (index < this.children.length - 1)) {
+      // Find the view after this one
+      // eslint-disable-next-line no-underscore-dangle
+      currentView = this.children.find(view => view._index === index + 1);
+    }
 
-        jQuery.when(...packageRelatedDeferred).done(() => {
-            // If this view is not yet attached, finalize that process.
-            if (wasAttached) {
-                this.trigger('dataUpdated');
-            }
+    if (currentView) {
+      currentView.$el.before(childView.el);
+      return true;
+    }
 
-            // Resume polling. In 30 seconds the app will sync with the server again.
-            this.poller.resume({ muteConsole: true });
-        });
-    },
+    return false;
+  },
 
-    onChildRender(childView) {
-        if ((!childView.model.isNew()) && (!childView.model.primaryContentItem.isNew())) {
-            if (!childView.hasPrimary) {
-                childView.hasPrimary = true;  // eslint-disable-line no-param-reassign
+  // Internal method. Append a view to the end of the $el
+  _insertAfter(childView) {
+    this.ui.collectionHolder.append(childView.el);
+  },
 
-                if (!childView.$el.find('.package-sheet').hasClass('has-primary')) {
-                    setTimeout(() => {
-                        childView.$el.find('.package-sheet').addClass('has-primary');
-                    }, 100);
-                }
-            }
-        }
+  onAttach() {
+    this.renderFacetedLists();
+  },
 
-        childView.model.trigger('setPrimary', childView.model, {});
-    },
+  onRender() {
+    this.$el.addClass(this.outerClass);
 
-    onDataUpdated() {
-        // console.log('ODU.');
-    },
+    this.renderFilters();
 
-    attachBuffer(collectionView, buffer) {
-        this.ui.collectionHolder.append(buffer);
-    },
+    // if (!_.isEmpty(this.extraChildViews)) {
+    //     // TODO: Destroy old views.
+    //     this.extraViewInstances = {};
+    //
+    //     _.each(
+    //         this.extraChildViews,
+    //         function(ViewClass, region) {
+    //             var viewInstance = new ViewClass({
+    //                 data: this.options.data,
+    //                 stateKey: this.stateKey,
+    //             });
+    //
+    //             this.extraViewInstances[region] = viewInstance;
+    //             this.showChildView(region, viewInstance);
+    //         }.bind(this)
+    //     );
+    // }
+    //
+    // this.showChildView('dateFilter', this.dateFilterView);
+    // this.showChildView('searchBox', this.searchBoxView);
+    //
+    // this.showChildView('packages', this.collectionView);
+  },
 
-    _insertBefore(childView, index) {
-        let currentView;
-
-        if (this.getOption('sort') && (index < this.children.length - 1)) {
-            // Find the view after this one
-            // eslint-disable-next-line no-underscore-dangle
-            currentView = this.children.find(view => view._index === index + 1);
-        }
-
-        if (currentView) {
-            currentView.$el.before(childView.el);
-            return true;
-        }
-
-        return false;
-    },
-
-    // Internal method. Append a view to the end of the $el
-    _insertAfter(childView) {
-        this.ui.collectionHolder.append(childView.el);
-    },
-
-    onAttach() {
-        this.renderFacetedLists();
-    },
-
-    onRender() {
-        this.$el.addClass(this.outerClass);
-
-        this.renderFilters();
-
-        // if (!_.isEmpty(this.extraChildViews)) {
-        //     // TODO: Destroy old views.
-        //     this.extraViewInstances = {};
-        //
-        //     _.each(
-        //         this.extraChildViews,
-        //         function(ViewClass, region) {
-        //             var viewInstance = new ViewClass({
-        //                 data: this.options.data,
-        //                 stateKey: this.stateKey,
-        //             });
-        //
-        //             this.extraViewInstances[region] = viewInstance;
-        //             this.showChildView(region, viewInstance);
-        //         }.bind(this)
-        //     );
-        // }
-        //
-        // this.showChildView('dateFilter', this.dateFilterView);
-        // this.showChildView('searchBox', this.searchBoxView);
-        //
-        // this.showChildView('packages', this.collectionView);
-    },
-
-    onBeforeDestroy() {
-        this.poller.destroy();
-    },
+  onBeforeDestroy() {
+    this.poller.destroy();
+  },
 });

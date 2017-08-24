@@ -2,7 +2,7 @@
     "extends": "airbnb",
     "root": true,
     "rules": {
-        "indent": ["error", 4]
+        "indent": ["error", 2]
     },
     "globals": {
         "document": true,

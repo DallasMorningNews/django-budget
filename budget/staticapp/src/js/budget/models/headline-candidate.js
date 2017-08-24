@@ -1,16 +1,22 @@
 import Backbone from 'backbone';
 
-import settings from '../../common/settings';
-
 export default Backbone.Model.extend({
-    urlRoot: settings.apiEndpoints.headlineCandidate,
+  // urlRoot: settings.apiEndpoints.headlineCandidate,
+  urlRoot() {
+    return this.radio.reqres.request('getSetting', 'apiEndpoints').headlineCandidate;
+  },
 
-    url() {
-        return this.urlRoot + this.id + (settings.apiPostfix || '/');
-    },
+  url() {
+    const apiPostfix = this.radio.reqres.request('getSetting', 'apiPostfix');
+    return this.urlRoot + this.id + (apiPostfix || '/');
+  },
 
-    defaults: {
-        text: '',
-        winner: false,
-    },
+  initialize() {
+    this.radio = Backbone.Wreqr.radio.channel('global');
+  },
+
+  defaults: {
+    text: '',
+    winner: false,
+  },
 });

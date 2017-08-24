@@ -16,16 +16,16 @@ import stringFn from 'underscore.string';
 
 
 export default (template, data) => {
-    const tpl = window.nunjucksPrecompiled[template];
+  const tpl = window.nunjucksPrecompiled[template];
 
-    const env = new nunjucks.Environment();
+  const env = new nunjucks.Environment();
 
-    env.addFilter('numberWithCommas', rawNumber => stringFn.numberFormat(rawNumber));
+  env.addFilter('numberWithCommas', rawNumber => stringFn.numberFormat(rawNumber));
 
-    if (typeof tpl === 'undefined') {
-        // eslint-disable-next-line no-console
-        console.error(`[renderer] "${template}" not found in window.nujucksPrecompiled.`);
-        return '';
-    }
-    return env.render(template, data);
+  if (typeof tpl === 'undefined') {
+    // eslint-disable-next-line no-console
+    console.error(`[renderer] "${template}" not found in window.nujucksPrecompiled.`);
+    return '';
+  }
+  return env.render(template, data);
 };

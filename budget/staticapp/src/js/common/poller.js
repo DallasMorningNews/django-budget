@@ -3,111 +3,114 @@ import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import _ from 'underscore';
 
-import settings from './settings';
-
 export default Mn.Object.extend({
-    initialize(options) {
-        this.requestConfig = (_.has(options, 'requestConfig')) ? options.requestConfig : {};
+  initialize(options) {
+    this.requestConfig = (_.has(options, 'requestConfig')) ? options.requestConfig : {};
 
-        if (this.options.isPolling === false) {
-            this.isPolling = false;
-        } else {
-            this.commencePolling();
-        }
-    },
+    if (this.options.isPolling === false) {
+      this.isPolling = false;
+    } else {
+      this.commencePolling();
+    }
 
-    isActive: [],
+    this.pollInterval = (
+      _.has(options, 'pollInterval')
+    ) ? (
+      options.pollInterval
+    ) : (
+      30 * 60 * 1000
+    );
+  },
 
-    poll() {
-        _.each(this.active, (datum) => {
-            if (datum.static === true) {
-                console.info(  // eslint-disable-line no-console
-                  `[poller] Skipping update for static data from ${datum.url()}`
-                );
-                return;
-            }
-            if (datum instanceof Backbone.Model) {
-                console.info(  // eslint-disable-line no-console
-                    `[poller] Updating model from ${datum.url}`
-                );
-            } else if (datum instanceof Backbone.Collection) {
-                console.info(  // eslint-disable-line no-console
-                    `[poller] Updating collection from ${datum.url}`
-                );
-            }
+  isActive: [],
 
-            datum.fetch(this.requestConfig);
-        });
-    },
+  poll() {
+    _.each(this.active, (datum) => {
+      if (datum.static === true) {
+        // eslint-disable-next-line no-console
+        console.info(`[poller] Skipping update for static data from ${datum.url()}`);
+        return;
+      }
+      if (datum instanceof Backbone.Model) {
+        // eslint-disable-next-line no-console
+        console.info(`[poller] Updating model from ${datum.url}`);
+      } else if (datum instanceof Backbone.Collection) {
+        // eslint-disable-next-line no-console
+        console.info(`[poller] Updating collection from ${datum.url}`);
+      }
 
-    commencePolling() {
-        this.isPolling = true;
+      datum.fetch(this.requestConfig);
+    });
+  },
 
-        this.interval = window.setInterval(
-            this.poll.bind(this),
-            settings.pollInterval
-        );
-    },
+  commencePolling() {
+    this.isPolling = true;
 
-    /**
-     * When passed an array of models/collections/etc., fetch the data
-     * for all of them and poll for updates until they're killed.
-     */
-    get(data, options) {
-        let loadingDeferreds = null;
+    this.interval = window.setInterval(
+      this.poll.bind(this),
+      this.pollInterval  // eslint-disable-line comma-dangle
+    );
+  },
 
-        if (!_.isUndefined(this.active) && this.active.length > 0) {
-            console.info(  // eslint-disable-line no-console
-                '[poller] Releasing active data.'
-            );
-            this.active = [];
-        }
+  /**
+  * When passed an array of models/collections/etc., fetch the data
+  * for all of them and poll for updates until they're killed.
+  */
+  get(data, options) {
+    let loadingDeferreds = null;
 
-        loadingDeferreds = _.map(data, datum => datum.fetch(options));
+    if (!_.isUndefined(this.active) && this.active.length > 0) {
+      // eslint-disable-next-line no-console
+      console.info('[poller] Releasing active data.');
+      this.active = [];
+    }
 
-        console.info(  // eslint-disable-line no-console
-            '[poller] Loading new active data.'
-        );
+    loadingDeferreds = _.map(data, datum => datum.fetch(options));
 
-        this.isPolling = true;
+    // eslint-disable-next-line no-console
+    console.info('[poller] Loading new active data.');
 
-        this.active = data;
+    this.isPolling = true;
 
-        return jQuery.when.apply(this, loadingDeferreds);
-    },
+    this.active = data;
 
-    pause(options) {
-        const opts = options || { muteConsole: null };
-        const muteConsole = (
-            _.isBoolean(opts.muteConsole)
-        ) ? opts.muteConsole : false;
+    return jQuery.when.apply(this, loadingDeferreds);
+  },
 
-        if (this.isPolling) {
-            window.clearInterval(this.interval);
-            if (!muteConsole) {
-                console.info('[poller] Polling paused.');  // eslint-disable-line no-console
-            }
-            this.isPolling = false;
-        }
-    },
+  pause(options) {
+    const opts = options || { muteConsole: null };
+    const muteConsole = (
+        _.isBoolean(opts.muteConsole)
+    ) ? opts.muteConsole : false;
 
-    resume(options) {
-        const opts = options || { muteConsole: null };
-        const muteConsole = (
-            _.isBoolean(opts.muteConsole)
-        ) ? opts.muteConsole : false;
+    if (this.isPolling) {
+      window.clearInterval(this.interval);
+      if (!muteConsole) {
+        // eslint-disable-next-line no-console
+        console.info('[poller] Polling paused.');
+      }
+      this.isPolling = false;
+    }
+  },
 
-        if (!this.isPolling) {
-            if (!muteConsole) {
-                console.log('[poller] Polling resumed.');  // eslint-disable-line no-console
-            }
-            this.commencePolling();
-        }
-    },
+  resume(options) {
+    const opts = options || { muteConsole: null };
+    const muteConsole = (
+        _.isBoolean(opts.muteConsole)
+    ) ? opts.muteConsole : false;
 
-    onBeforeDestroy() {
-        if (this.isPolling) {
-            this.pause();
-        }
-    },
+    if (!this.isPolling) {
+      if (!muteConsole) {
+        // eslint-disable-next-line no-console
+        console.log('[poller] Polling resumed.');
+      }
+      this.commencePolling();
+    }
+  },
+
+  onBeforeDestroy() {
+    if (this.isPolling) {
+      this.pause();
+    }
+  },
 });

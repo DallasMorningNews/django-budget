@@ -1,19 +1,22 @@
 import 'selectize';
+import Backbone from 'backbone';
 import Mn from 'backbone.marionette';
 
-import settings from '../../../common/settings';
-
 export default Mn.ItemView.extend({
-    template: 'budget/navigation-user-info',
+  template: 'budget/navigation-user-info',
 
-    onRender() {
-        this.setElement(this.el.innerHTML);
-    },
+  initialize() {
+    this.radio = Backbone.Wreqr.radio.channel('global');
+  },
 
-    serializeData() {
-        return {
-            currentUser: this.options.currentUser,
-            links: settings.navigationLinks,
-        };
-    },
+  onRender() {
+    this.setElement(this.el.innerHTML);
+  },
+
+  serializeData() {
+    return {
+      currentUser: this.options.currentUser,
+      links: this.radio.reqres.request('getSetting', 'navigationLinks'),
+    };
+  },
 });

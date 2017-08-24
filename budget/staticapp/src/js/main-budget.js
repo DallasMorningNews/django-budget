@@ -8,15 +8,22 @@ import './templates/budget';
 
 Marionette.Renderer.render = nunjucksRenderer;
 
-jQuery(document).ready(() => {
+const budget = {};
+
+budget.initialize = (config) => {
+  jQuery(document).ready(() => {
     // Initialize the app.
-    const budgetApp = new App();
+    const budgetApp = new App(config);
 
     // Load underlying data (including the user config), then start
     // the app.
     budgetApp.bootstrapData().done(
-        budgetApp.start.bind(budgetApp)
+      // eslint-disable-next-line comma-dangle
+      budgetApp.start.bind(budgetApp)
     );
 
-    window.app = budgetApp;
-});
+    budget.app = budgetApp;
+  });
+};
+
+window.budget = budget;
