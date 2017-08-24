@@ -344,10 +344,59 @@ except KeyError:
 
 # API Authentication
 # See `apiauth.views.external_redirect`.
-APIAUTH_WHITELIST = ['budget.dallasnews.com']
+APIAUTH_WHITELIST = [
+    'storybase.herokuapp.com',
+    'api.storyba.se',
+    'storyba.se',
+]
 
 if DEBUG_MODE:
-    APIAUTH_WHITELIST.append('dallasnews.dev')
+    APIAUTH_WHITELIST.append('storybase.dev')
+    APIAUTH_WHITELIST.append('api.storybase.dev')
+
+
+# Budget configuration
+# See `budget.views.ConfigView` (docs TK).
+BUDGET_ADMIN_EMAIL = 'avestal@bayareanewsgroup.com'
+
+BUDGET_ALIASED_ORIGINS = [
+    # 'http://localhost:8000',
+]
+
+BUDGET_API_ROOT_URL = os.environ.get('BUDGET_API_ROOT_URL', '')
+
+
+# def get_auth_api_url(reverse):
+#     return '{}{}'.format(
+#         BUDGET_API_ROOT_URL,
+#         reverse('apiauth:api-root')
+#     )
+
+
+def get_budget_api_url(reverse):
+    return '{}{}'.format(
+        BUDGET_API_ROOT_URL,
+        reverse('budget:api-root')
+    )
+
+
+def get_staff_api_url(reverse):
+    return '{}{}'.format(
+        BUDGET_API_ROOT_URL,
+        reverse('staff:api-root')
+    )
+
+
+BUDGET_API_CONFIGS = {
+    # 'auth': get_auth_api_url,
+    'budget': get_budget_api_url,
+    'staff': get_staff_api_url,
+}
+
+BUDGET_ORGANIZATION_NAME = 'Bay Area News Group'
+BUDGET_ORGANIZATION_LOGO_PATH = 'budget/images/bang-logo.png'
+BUDGET_TOOL_NAME = 'Storybase'
+BUDGET_TOOL_LOGO_PATH = 'budget/images/storybase-wordmark.svg'
 
 
 # # Celery
