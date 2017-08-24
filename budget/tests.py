@@ -523,7 +523,7 @@ class CreationTrailTestCase(TestCase):
 # REST API tests #
 ##################
 
-@override_settings(ROOT_URLCONF='budget.urls')
+@override_settings(ROOT_URLCONF='budget.test_urls')
 class CommonAPITestCase(AuthedApiTestMixin, TestCase):
     """Tests for shared (or potentially shareable) logic from our API. Includes
     tests for custom serializers, filters, etc."""
@@ -683,7 +683,7 @@ class HeadlinesAPITestCase(TestCase):
     pass
 
 
-@override_settings(ROOT_URLCONF='budget.urls')
+@override_settings(ROOT_URLCONF='budget.test_urls')
 class ItemsAPITestCase(AuthedApiTestMixin, TestCase):
     multi_db = separate_db
 
@@ -763,7 +763,7 @@ class ItemsAPITestCase(AuthedApiTestMixin, TestCase):
         self.assertEqual(json.loads(response.content)['count'], 2)
 
 
-@override_settings(ROOT_URLCONF='budget.urls')
+@override_settings(ROOT_URLCONF='budget.test_urls')
 class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
     multi_db = separate_db
 
@@ -1156,7 +1156,7 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
         self.assertEqual(json_response['count'], 0)
 
 
-@override_settings(ROOT_URLCONF='budget.urls')
+@override_settings(ROOT_URLCONF='budget.test_urls')
 class PrintPublicationAPITestCase(AuthedApiTestMixin, TestCase):
     multi_db = separate_db
 
@@ -1203,7 +1203,7 @@ class PrintPublicationAPITestCase(AuthedApiTestMixin, TestCase):
         self.assertEqual(json_response['results'][0]['id'], inactive.pk)
 
 
-@override_settings(ROOT_URLCONF='budget.urls')
+@override_settings(ROOT_URLCONF='budget.test_urls')
 class AuditTrailApiMixinTestCase(AuthedApiTestMixin, TestCase):
     """Test our mixin that auto-adds user info and creates Change models"""
     multi_db = separate_db

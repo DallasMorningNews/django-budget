@@ -12,7 +12,7 @@ from django.test import TestCase, override_settings  # NOQA
 from rest_framework.test import APIClient
 
 
-@override_settings(ROOT_URLCONF='apiauth.urls', LOGIN_URL='/login/')
+@override_settings(ROOT_URLCONF='apiauth.test_urls', LOGIN_URL='/login/')
 class UserEndpointTestCase(TestCase):
     def test_authed_user(self):
         """Authed users should have their user info returned by the /me/
@@ -63,7 +63,7 @@ class UserEndpointTestCase(TestCase):
         self.assertJSONEqual(response.content, expect)
 
 
-@override_settings(ROOT_URLCONF='apiauth.urls', LOGIN_URL='/login/')
+@override_settings(ROOT_URLCONF='apiauth.test_urls', LOGIN_URL='/login/')
 class ExternalRedirectTestCase(TestCase):
     def setUp(self):
         user = User.objects.create_user('user')
