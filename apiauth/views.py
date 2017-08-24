@@ -50,20 +50,28 @@ class AuthenticatedUserView(CamelCasedAPIViewMixin, APIView):
     def get(self, request, format=None):
         if request.user.is_authenticated:
             serialized = UserSerializer(
-                request.user, context={'request': request})
+                request.user, context={'request': request}
+            )
             return Response(serialized.data)
 
         login_url = request.build_absolute_uri(settings.LOGIN_URL)
+
         if 'HTTP_REFERER' in request.META:
             login_redirect_url = '%s?next=%s?%s' % (
                 login_url,
-                reverse_lazy('external-redirect'),
+                reverse_lazy('apiauth:external-redirect'),
                 urllib.parse.urlencode({
                     'to': request.META['HTTP_REFERER']
                 })
             )
         else:
-            login_redirect_url = None
+            login_redirect_url = '%s?next=%s?%s' % (
+                login_url,
+                reverse_lazy('apiauth:external-redirect'),
+                urllib.parse.urlencode({
+                    'to': request.GET.get('success-url', '')
+                })
+            )
 
         return Response({
             'detail': 'Login required',
