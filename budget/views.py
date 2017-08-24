@@ -76,8 +76,7 @@ class ConfigView(View):
 
         originURL = request.GET.get('origin')
         aliased_origins = getattr(settings, 'BUDGET_ALIASED_ORIGINS', [])
-        print(aliased_origins[0])
-        print(originURL)
+
         if originURL is not None and originURL in aliased_origins:
             root_url = None
         else:
