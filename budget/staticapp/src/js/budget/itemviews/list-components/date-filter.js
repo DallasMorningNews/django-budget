@@ -4,6 +4,8 @@ import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import 'daterange-picker-ex';
 
+import urlConfig from '../../misc/urls';
+
 export default Mn.ItemView.extend({
   // id: '',
   template: 'budget/packages-list-datefilter',
@@ -42,6 +44,14 @@ export default Mn.ItemView.extend({
     this.dateRange = {
       start: this.moment(rangeRaw.start, 'YYYY-MM-DD'),
       end: this.moment(rangeRaw.end, 'YYYY-MM-DD'),
+    };
+  },
+
+  serializeData() {
+    const navLinks = this.radio.reqres.request('getSetting', 'navigationLinks');
+    const homeView = _.findWhere(navLinks, { name: 'Home' });
+    return {
+      homeViewLink: homeView.destination,
     };
   },
 
@@ -169,18 +179,16 @@ export default Mn.ItemView.extend({
   },
 
   showPackageCreate(event) {
-    let triggerElement;
+    const createLink = urlConfig.createPage.reversePattern;
 
     if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-
-      triggerElement = jQuery(event.currentTarget);
 
       setTimeout(
         () => {
           this.radio.commands.execute(
             'navigate',
-            triggerElement.find('a').attr('href'),
+            createLink,
             { trigger: true }  // eslint-disable-line comma-dangle
           );
         },
