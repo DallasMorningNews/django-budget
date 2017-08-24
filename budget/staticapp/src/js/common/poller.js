@@ -20,6 +20,8 @@ export default Mn.Object.extend({
     ) : (
       30 * 60 * 1000
     );
+
+    console.log(this.pollInterval);
   },
 
   isActive: [],
