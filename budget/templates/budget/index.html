@@ -11,6 +11,7 @@
         <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,900,400italic,700italic,500italic' rel='stylesheet' type='text/css'> -->
 
         <link href="{% static 'budget/css/budget.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'budget/css/branding.css' %}" rel="stylesheet" type="text/css" />
     </head>
 
     <body>
@@ -27,6 +28,12 @@
             var externalURLs = {};
             externalURLs.addVisualsRequest = null;
         </script>
-        <script async src="{% static 'budget/js/main-budget.js' %}"></script>
+        <script src="{% static 'budget/js/main-budget.js' %}"></script>
+
+        <script type="text/javascript">
+          budget.initialize({
+            configURL: '{% url "budget:config" %}'
+          });
+        </script>
     </body>
 </html>
