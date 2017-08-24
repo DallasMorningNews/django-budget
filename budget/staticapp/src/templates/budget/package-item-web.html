@@ -63,7 +63,7 @@
 
                 <div class="mobile-action-buttons">
                     <div class="action-button material-button edit-package">
-                        <a href="/edit/{{ packageObj.id }}/">
+                        <a href="{{ homeViewLink }}edit/{{ packageObj.id }}/">
                             <div class="button-contents">
                                 <div class="button-innermost">
                                     <i class="fa fa-fw fa-pencil-square-o"></i>
@@ -100,7 +100,7 @@
     </div>
     <div class="action-buttons column small-1 medium-1 large-1 text-center">
         <div class="edit-package action-button">
-            <a href="/edit/{{ packageObj.id }}/">
+            <a href="{{ homeViewLink }}edit/{{ packageObj.id }}/">
                 <i class="fa fa-pencil-square-o"></i>
                 <span class="hover-info">Edit</span>
             </a>
