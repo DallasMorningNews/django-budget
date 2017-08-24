@@ -1,7 +1,11 @@
 # Imports from Django.  # NOQA
-from django.http import Http404
+from django.conf import settings
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.http import Http404, JsonResponse  # NOQA
 from django.shortcuts import get_object_or_404
-from django.views.generic import TemplateView
+from django.urls import reverse
+from django.utils import timezone
+from django.views.generic import TemplateView, View  # NOQA
 
 
 # Imports from budget.
@@ -42,6 +46,71 @@ from rest_framework import viewsets
 class MainBudgetView(TemplateView):
     """TK."""
     template_name = 'budget/index.html'
+
+
+class ConfigView(View):
+    def get(self, request, *args, **kwargs):
+        empty_admin_case = [['', 'test@example.com']]
+        django_admins = getattr(settings, 'ADMINS', empty_admin_case)
+        default_admin_email = django_admins[0][1]
+
+        actual_admin_email = getattr(
+            settings,
+            'BUDGET_ADMIN_EMAIL',
+            default_admin_email
+        )
+
+        api_bases = {
+            'auth': reverse('apiauth:api-root'),
+            'budget': reverse('budget:api-root'),
+            'staff': reverse('staff:api-root'),
+        }
+
+        explicit_api_bases = getattr(settings, 'BUDGET_API_CONFIGS', {})
+
+        for key, val in explicit_api_bases.items():
+            if callable(val):
+                api_bases[key] = val(reverse)
+            else:
+                api_bases[key] = val
+
+        originURL = request.GET.get('origin')
+        aliased_origins = getattr(settings, 'BUDGET_ALIASED_ORIGINS', [])
+        print(aliased_origins[0])
+        print(originURL)
+        if originURL is not None and originURL in aliased_origins:
+            root_url = None
+        else:
+            root_url = reverse('budget:main-budget-view', kwargs={'path': ''})
+
+        return JsonResponse({
+            'adminEmail': actual_admin_email,
+            'apiBases': api_bases,
+            'branding': {
+                'mastheadLogoAltText': getattr(
+                    settings,
+                    'BUDGET_ORGANIZATION_NAME',
+                    'Your organization here'
+                ),
+                'mastheadLogoURL': static(getattr(
+                    settings,
+                    'BUDGET_ORGANIZATION_LOGO_PATH',
+                    'budget/images/your_name_here.svg'
+                )),
+                'siteLogoAltText': getattr(
+                    settings,
+                    'BUDGET_TOOL_NAME',
+                    'Budget'
+                ),
+                'siteLogoURL': static(getattr(
+                    settings,
+                    'BUDGET_TOOL_LOGO_PATH',
+                    'budget/images/budget_logo.svg'
+                )),
+            },
+            'defaultTimezone': timezone.get_default_timezone_name(),
+            'rootURL': root_url
+        })
 
 
 ##########

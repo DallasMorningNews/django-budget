@@ -4,6 +4,7 @@ from django.conf.urls import url, include  # NOQA
 
 # Imports from budget.
 from budget.views import (  # NOQA
+    ConfigView,
     HeadlineViewSet,
     HeadlineVoteViewSet,
     ItemViewSet,
@@ -42,6 +43,8 @@ urlpatterns = [
         'patch': 'partial_update',
         'delete': 'destroy'
     })),
+
+    url(r'^config/$', ConfigView.as_view(), name='config'),
 
     url(r'^(?P<path>.*)$', MainBudgetView.as_view(), name='main-budget-view'),
 ]
