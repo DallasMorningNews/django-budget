@@ -409,8 +409,7 @@ export default Mn.CompositeView.extend({
     this.poller.requestConfig = this.generateCollectionFetchOptions();
 
     // Retrieve collection from the server.
-    console.log('Will run.');
-    // this.poller.get(this.polledData, this.poller.requestConfig);
+    this.poller.get(this.polledData, this.poller.requestConfig);
   },
 
   onCollectionSync() {
