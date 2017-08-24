@@ -16,6 +16,9 @@ from apiauth.views import (  # NOQA
 from rest_framework import routers
 
 
+app_name = 'apiauth'
+
+
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 

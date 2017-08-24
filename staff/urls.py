@@ -18,6 +18,9 @@ from staff.views import (  # NOQA
 )
 
 
+app_name = 'staff'
+
+
 urlpatterns = [
     url(
         r'^$',

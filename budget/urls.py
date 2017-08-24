@@ -18,6 +18,9 @@ from budget.views import (  # NOQA
 from rest_framework import routers
 
 
+app_name = 'budget'
+
+
 router = routers.DefaultRouter()
 router.register(r'packages', PackageViewSet)
 router.register(r'items', ItemViewSet)
