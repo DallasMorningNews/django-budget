@@ -728,7 +728,12 @@
 
     .vex-content {
         @include vex-animation(vex-fadeforward 0.5s);
+        z-index: 800;
     }
+}
+
+.vex-overlay {
+  z-index: 300;
 }
 
 .vex-open {
