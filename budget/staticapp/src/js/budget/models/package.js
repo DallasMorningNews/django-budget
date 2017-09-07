@@ -1,15 +1,15 @@
 import Backbone from 'backbone';
 import _ from 'underscore';
-// import deepModel from 'backbone-deep-model';
-import DeepModel from '@kahwee/backbone-deep-model';
 import jQuery from 'jquery';
 import _string_ from 'underscore.string';
+
+import CSRFAwareModel from '../../common/csrf-aware-model';
 
 import BudgetItem from '../models/item';
 import BudgetItemCollection from '../collections/items';
 import HeadlineCandidateCollection from '../collections/headline-candidates';
 
-export default DeepModel.extend({
+export default CSRFAwareModel.extend({
   // urlRoot: settings.apiEndpoints.package,
   urlRoot() {
     return this.radio.reqres.request('getSetting', 'apiEndpoints').package;
@@ -18,10 +18,10 @@ export default DeepModel.extend({
   url() {
     if (this.has('id')) {
       const apiPostfix = this.radio.reqres.request('getSetting', 'apiPostfix');
-      return this.urlRoot + this.id + (apiPostfix || '/');
+      return this.urlRoot() + this.id + (apiPostfix || '/');
     }
 
-    return this.urlRoot;
+    return this.urlRoot();
   },
 
   defaults: {

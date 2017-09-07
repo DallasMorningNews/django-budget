@@ -1,6 +1,8 @@
 import Backbone from 'backbone';
 
-export default Backbone.Model.extend({
+import CSRFAwareModel from '../../common/csrf-aware-model';
+
+export default CSRFAwareModel.extend({
   // urlRoot: settings.apiEndpoints.item,
   urlRoot() {
     return this.radio.reqres.request('getSetting', 'apiEndpoints').item;
@@ -9,10 +11,10 @@ export default Backbone.Model.extend({
   url() {
     if (this.has('id')) {
       const apiPostfix = this.radio.reqres.request('getSetting', 'apiPostfix');
-      return this.urlRoot + this.id + (apiPostfix || '/');
+      return this.urlRoot() + this.id + (apiPostfix || '/');
     }
 
-    return this.urlRoot;
+    return this.urlRoot();
   },
 
   initialize() {
