@@ -190,7 +190,10 @@ class ItemSerializer(UserMetadataMixin, serializers.ModelSerializer):
 
     class Meta:  # NOQA
         model = Item
-        read_only_fields = ('slug', 'created_by',)
+        read_only_fields = (
+            'slug',
+            'created_by',
+        )
         fields = (
             'id',
             'url',
@@ -233,20 +236,25 @@ class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
     )
 
     slug = serializers.ReadOnlyField(source='full_slug')
+    slug_date = serializers.ReadOnlyField(source='slugified_date')
 
     def _get_package(self, instance):
         return instance
 
     class Meta:  # NOQA
         model = Package
-        read_only_fields = ('created_by', 'slug',)
+        read_only_fields = (
+            'created_by',
+            'slug',
+        )
         fields = (
             'id',
             'url',
             'vertical',
             'hub',
-            'slug_key',
             'slug',
+            'slug_date',
+            'slug_key',
             'pub_date',
             'pub_date_resolution',
             'publish_date',
