@@ -62,7 +62,7 @@ export default Mn.ItemView.extend({
         const newSlug = `${(vals[1] !== '') ? vals.join('.') : vals[0]}.keyword`;
 
         $el.text(newSlug);
-        model.set('slug', newSlug);
+        // model.set('slug', newSlug);
       },
     };
 

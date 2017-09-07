@@ -694,7 +694,7 @@ export default Mn.CompositeView.extend({
             }
 
             // Next check for slug keyword.
-            if (_.isEmpty(this.model.primaryContentItem.get('slugKey'))) {
+            if (_.isEmpty(this.model.get('slugKey'))) {
               // eslint-disable-next-line no-param-reassign
               response.responseJSON.slugKey = [
                 'This field may not be blank.',
@@ -1093,25 +1093,23 @@ export default Mn.CompositeView.extend({
       ],
     };
 
-    const dbPrimarySlug = this.model.primaryContentItem.get('slug');
+    // const dbPrimarySlug = this.model.get('slug');
     const currentPrimarySlug = this.ui.packageTitle.text();
     const itemSlugEndings = this.model.additionalContentCollection.map(
-      additionalItem => _.last(
-        // eslint-disable-next-line comma-dangle
-        additionalItem.get('slug').split(`${dbPrimarySlug}.`)
-      )  // eslint-disable-line comma-dangle
+      // eslint-disable-next-line comma-dangle
+      additionalItem => additionalItem.get('slugKey')
     );
 
+    // Add blank additional key to begining of slugs list (which will represent
+    // the primary content item/parent package).
     itemSlugEndings.unshift('');
 
     const itemsToDelete = deline`
         <ul class="to-be-deleted-list">${
             _.chain(
-              _.map(itemSlugEndings, (slugEnding) => {
-                const slugSuffix = (
-                    slugEnding !== ''
-                ) ? `.${slugEnding}` : '';
-                return currentPrimarySlug + slugSuffix;
+              _.map(itemSlugEndings, (slugEnd) => {
+                const slugSuffix = (slugEnd !== '') ? `.${slugEnd}` : '';
+                return `${currentPrimarySlug}${slugSuffix}`;
               })  // eslint-disable-line comma-dangle
             ).map(additionalSlug => deline`
                 <li class="to-be-deleted-item">${additionalSlug}

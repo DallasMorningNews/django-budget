@@ -17,7 +17,7 @@
                 <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-desktop"></i>{% if packageObj %}{% if packageObj.publishedUrl %}Published{% else %}Expected{% endif %}{% else %}Expected{% endif %} {{ publishDate }}</h4>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
-                <h3 class="additional-info-line package-slug"><span>{{ packageObj.primaryContent.slugKey }}.{{ packageObj.primaryContent.slugDate }}</span></h3>
+                <h3 class="additional-info-line package-slug"><span>{{ packageObj.slugKey }}.{{ packageObj.slugDate }}</span></h3>
 
                 <h3 class="might-overflow">
                 {% if packageObj.primaryContent.authors|length > 0 %}

@@ -414,7 +414,7 @@ export default Mn.ItemView.extend({
         model.updatePublishDate(...values);
 
         // Simulate slug keyword change to reset slug dates.
-        model.trigger('change:primaryContent.slugKey');
+        model.trigger('change:slugKey');
       },
       attributes: [
         {
@@ -579,7 +579,7 @@ export default Mn.ItemView.extend({
         model.updatePublishDate(...values);
 
         // Simulate slug keyword change to reset slug dates.
-        model.trigger('change:primaryContent.slugKey');
+        model.trigger('change:slugKey');
       },
       attributes: [
         {
@@ -593,10 +593,10 @@ export default Mn.ItemView.extend({
     bindings[uiElements.slugGroup] = {
       observe: [
         'hub',
-        'primaryContent.slugKey',
+        'slugKey',
         'publishDate',
       ],
-      observeErrors: 'primaryContent.slugKey',
+      observeErrors: 'slugKey',
       errorTranslations: {
         'This field may not be blank.': 'Enter a slug keyword.',
         'Ensure this field has no more than 20 characters.': '' +
@@ -625,7 +625,7 @@ export default Mn.ItemView.extend({
       },
       onGet: values => [
         values[0],
-        model.primaryContentItem.get('slugKey'),
+        model.get('slugKey'),
         values[2],
         values[3],
       ],
@@ -643,7 +643,7 @@ export default Mn.ItemView.extend({
     };
 
     bindings[uiElements.slugField] = {
-      observe: 'primaryContent.slugKey',
+      observe: 'slugKey',
       initialize($el, mdl, options) {
         $el.attr('data-original-value', mdl.get(options.observe));
 
@@ -655,16 +655,16 @@ export default Mn.ItemView.extend({
           $el.closest('.slug-group-holder').removeClass('input-focused');
         });
       },
-      onGet: () => model.primaryContentItem.get('slugKey'),
+      onGet: () => model.get('slugKey'),
       set(attr, value) {
-        model.primaryContentItem.set('slugKey', value);
-        model.trigger('change:primaryContent.slugKey');
+        model.set('slugKey', value);
+        model.trigger('change:slugKey');
       },
     };
 
     bindings[uiElements.slugPlaceholder] = {
-      observe: 'primaryContent.slugKey',
-      onGet: () => model.primaryContentItem.get('slugKey'),
+      observe: 'slugKey',
+      onGet: () => model.get('slugKey'),
       update($el, value) {
         if (value !== '') {
           $el.text(value);

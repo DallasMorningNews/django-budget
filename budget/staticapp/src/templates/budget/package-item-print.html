@@ -17,7 +17,7 @@
                 <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-newspaper-o"></i>{% if packageObj %}{% if not packageObj.printPlacement.isFinalized %}Planned for {% else %}Set for {% endif %}{{ formattedPrintRunDate }}{% endif %}</h4>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
-                <h3 class="additional-info-line package-slug"><span>{{ packageObj.primaryContent.slugKey }}.{{ packageObj.primaryContent.slugDate }}</span></h3>
+                <h3 class="additional-info-line package-slug"><span>{{ packageObj.slugKey }}.{{ packageObj.slugDate }}</span></h3>
 
                 <h3 class="might-overflow">{% if packageObj.primaryContent.authors|length > 0 %}{% if packageObj.primaryContent.authors|length == 1 %}Author{% else %}Authors{% endif %}: {% for author in packageObj.primaryContent.authors %}{{ author.formattedName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</h3>
 

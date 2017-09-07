@@ -43,9 +43,7 @@ export default PackageItemView.extend({
   serializeData() {
     const templateContext = {};
     const packageObj = this.model.toJSON();
-    const packageHub = this.options.hubConfigs.findWhere({
-      slug: packageObj.hub,
-    });
+    const packageHub = this.options.hubConfigs.findWhere({ slug: packageObj.hub });
     const additionals = this.model.additionalContentCollection;
     const moment = this.radio.reqres.request('getSetting', 'moment');
     const defaultTimezone = this.radio.reqres.request(
@@ -79,7 +77,7 @@ export default PackageItemView.extend({
     );
 
     // Slug date.
-    templateContext.packageObj.primaryContent.slugDate = this.model.generateSlugDate();
+    templateContext.packageObj.slugDate = packageObj.slugDate;
 
     // Is-published indicator.
     templateContext.packageHasURL = !_.isNull(packageObj.publishedUrl);

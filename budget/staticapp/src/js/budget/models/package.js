@@ -182,19 +182,19 @@ export default DeepModel.extend({
 
       // Evaluate whether there's a suffix on the primary content
       // item's slug.
-      const entireSlug = primaryItem.get('slug');
-      const generatedSlug = this.generatePackageTitle();
+      // const entireSlug = this.get('slug');
+      // const generatedSlug = this.generatePackageTitle();
 
-      if (
-        (entireSlug !== generatedSlug) &&
-        (_string_.startsWith(entireSlug, generatedSlug))
-      ) {
-        this.primaryContentItem.set(
-          'slugSuffix',
-          // eslint-disable-next-line comma-dangle
-          _string_.strRight(entireSlug, generatedSlug)
-        );
-      }
+      // if (
+      //   (entireSlug !== generatedSlug) &&
+      //   (_string_.startsWith(entireSlug, generatedSlug))
+      // ) {
+      //   this.primaryContentItem.set(
+      //     'slugSuffix',
+      //     // eslint-disable-next-line comma-dangle
+      //     _string_.strRight(entireSlug, generatedSlug)
+      //   );
+      // }
 
       return '';
     }).done(() => { itemRequestPromise.resolve(); });
@@ -398,7 +398,7 @@ export default DeepModel.extend({
     let rawKey;
 
     if (!_.isUndefined(this.primaryContentItem)) {
-      rawKey = this.primaryContentItem.get('slugKey');
+      rawKey = this.get('slugKey');
     }
 
     return [

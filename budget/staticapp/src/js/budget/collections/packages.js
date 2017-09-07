@@ -66,8 +66,8 @@ export default Backbone.Collection.extend({
           pkg,
           'budgetLine'  // eslint-disable-line comma-dangle
         ),
-        primarySlug: pkg.primaryContentItem.get('slug'),
-        primarySlugCleaned: this.cleanSlug(pkg.primaryContentItem.get('slug')),
+        primarySlug: pkg.get('slug'),
+        primarySlugCleaned: this.cleanSlug(pkg.get('slug')),
         primaryBudgetLine: pkg.primaryContentItem.get('budgetLine'),
       });
     });
