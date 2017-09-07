@@ -279,7 +279,6 @@ export default Mn.Application.extend({
 
     if (rootURL !== null) {
       historyDict.root = rootURL;
-      console.log(rootURL);
     }
 
     Backbone.history.start(historyDict);
