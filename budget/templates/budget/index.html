@@ -16,14 +16,7 @@
 
     <body>
         <script type="text/javascript">
-            var apiBases = {};
-            apiBases.auth = '{{ request.scheme }}//{{ request.get_host }}{% url "apiauth:api-root" %}';
-            apiBases.budget = '{{ request.scheme }}//{{ request.get_host }}{% url "budget:api-root" %}';
-            apiBases.staff = '{{ request.scheme }}//{{ request.get_host }}{% url "staff:api-root" %}';
-
             var adminEmail = 'ajvestal@dallasnews.com';
-
-            var defaultTimezone = 'America/Chicago';
 
             var externalURLs = {};
             externalURLs.addVisualsRequest = null;
