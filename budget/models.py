@@ -488,7 +488,8 @@ class Item(CreationTrailModel):
     @property
     def full_slug(self):
         if self.primary_for_package:
-            return self.primary_for_package.full_slug
+            # return self.primary_for_package.full_slug
+            return None
 
         return '{}.{}'.format(
             self.additional_for_package.full_slug,
