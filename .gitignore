@@ -245,3 +245,5 @@ budget/staticapp/src/js/templates
 *.log
 aws.json
 .awspublish*
+
+*.sql
