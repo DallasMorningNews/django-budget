@@ -38,7 +38,7 @@ ROOT_URLCONF = 'storybase.urls'
 WSGI_APPLICATION = 'storybase.wsgi.application'
 
 MANAGERS = (
-    ('Allan James Vestal', 'ajvestal@dallasnews.com'),
+    ('Allan James Vestal', 'ajvestal@bayareanewsgroup.com'),
 )
 
 ADMINS = MANAGERS
@@ -319,8 +319,8 @@ try:
     )
 
     SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = [
-        'dallasnews.com',
         'bayareanewsgroup.com',
+        'scng.com',
     ]
 
     SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
@@ -352,7 +352,10 @@ APIAUTH_WHITELIST = [
 
 if DEBUG_MODE:
     APIAUTH_WHITELIST.append('storybase.dev')
-    APIAUTH_WHITELIST.append('api.storybase.dev')
+    APIAUTH_WHITELIST.append('api.storybase.dev:3000')
+    APIAUTH_WHITELIST.append('api.storybase.dev:8000')
+    APIAUTH_WHITELIST.append('localhost:3000')
+    APIAUTH_WHITELIST.append('localhost:8000')
 
 
 # Budget configuration
