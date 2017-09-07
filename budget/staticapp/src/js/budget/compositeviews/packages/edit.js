@@ -249,7 +249,6 @@ export default Mn.CompositeView.extend({
 
   serializeData() {
     return {
-      csrfToken: '',
       visualsRequestURL: this.radio.reqres.request(
         'getSetting',
         'externalURLs'  // eslint-disable-line comma-dangle
