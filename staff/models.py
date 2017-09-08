@@ -1,39 +1,23 @@
-# Imports from python.  # NOQA
-import os
-import random
-
-
-# Imports from Django.
+# Imports from Django.  # NOQA
 from django.db import models
+
+
+# Imports from staff.
+from staff.service_connections import SlackConnection
+from staff.service_connections.slack import format_slack_staffer
+from staff.utils import get_random_anonymous_animal
 
 
 # Imports from other dependencies.
 from colorfield.fields import ColorField
-from slacker import Slacker
 
 
-SLACK = Slacker(os.environ.get('SLACK_TOKEN'))
-
-anons = [
-    'alligator', 'anteater', 'armadillo', 'auroch',
-    'axolotl', 'badger', 'bat', 'beaver', 'buffalo',
-    'camel', 'chameleon', 'cheetah', 'chipmunk',
-    'chinchilla', 'chupacabra', 'cormorant', 'coyote', 'crow',
-    'dingo', 'dinosaur', 'dolphin', 'duck', 'elephant',
-    'ferret', 'fox', 'frog', 'giraffe', 'gopher', 'grizzly',
-    'hedgehog', 'hippo', 'hyena', 'jackal', 'ibex',
-    'ifrit', 'iguana', 'koala', 'kraken', 'lemur', 'leopard',
-    'liger', 'llama', 'manatee', 'mink', 'monkey', 'narwhal',
-    'nyan cat', 'orangutan', 'otter', 'panda', 'penguin',
-    'platypus', 'python', 'pumpkin', 'quagga', 'rabbit',
-    'raccoon', 'rhino', 'sheep', 'shrew', 'skunk', 'slow loris',
-    'squirrel', 'turtle', 'walrus', 'wolf', 'wolverine', 'wombat'
-]
+SLACK_CONNECTION = SlackConnection()
 
 
 def slack_user_search(email):
     """Return a user if found in Slack."""
-    users = SLACK.users.list().body['members']
+    users = SLACK_CONNECTION.users.list().body['members']
     for user in users:
         if user['profile'].get('email', None) == email:
             return user
@@ -99,17 +83,15 @@ class Staffer(models.Model):
 
     def fetch_slack_details(self):
         staffer = slack_user_search(self.email)
+
         if staffer:
-            profile = staffer['profile']
-            self.last_name = profile.get(
-                'last_name',
-                random.choice(anons)
-            ).strip()
-            self.first_name = profile.get('first_name', 'anonymous').strip()
-            self.image_url = profile.get('image_72', '')
+            staffer_data = format_slack_staffer(staffer, exclude_email=True)
+
+            for attr, value in staffer_data.items():
+                setattr(self, attr, value)
         else:
             self.first_name = 'anonymous'
-            self.last_name = random.choice(anons)
+            self.last_name = get_random_anonymous_animal()
 
     def save(self, *args, **kwargs):
         if not self.last_name or not self.first_name:
@@ -119,10 +101,7 @@ class Staffer(models.Model):
     def render_full_name(self):
         if self.last_name:
             if self.first_name:
-                return '{} {}'.format(
-                    self.first_name.encode("utf-8"),
-                    self.last_name.encode("utf-8")
-                )
+                return '{} {}'.format(self.first_name, self.last_name)
 
             return self.last_name
 
