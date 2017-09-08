@@ -1,19 +1,16 @@
-{%extends 'base.html'%}
+{% extends 'base.html' %}
 {% load staticfiles %}
 
-{%block head%}
+{% block head %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="{%static 'staff/css/wrapper.css'%}">
-	<link rel="stylesheet" type="text/css" href="{%static 'staff/css/main.css'%}">
+  <link rel="stylesheet" type="text/css" href="{% static 'staff/css/wrapper.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'staff/css/main.css' %}">
+{% endblock %}
 
-{%endblock%}
+{% block title %}{% endblock %}
 
-{%block title%}
-
-{%endblock%}
-
-{%block scripts%}
+{% block scripts %}
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script>
@@ -24,20 +21,19 @@
 		});
 	});
 </script>
-{%endblock%}
+{% endblock %}
 
-{%block content%}
-
+{% block content %}
 <div class="center-content">
 <h1>
 	Change
-	<a id="api-link" href="{%url 'staff-api-staffer' staffer.email%}">
+	<a id="api-link" href="{% url 'staff:staff-api-staffer' staffer.email %}">
 		<i class="fa fa-cogs" title="API"></i>
 	</a>
 </h1>
 <div class="right-align">
-<img id="ajax" src="{%static 'staff/img/ajax-loader.gif'%}" hidden>
-<button id="rescrape" class="btn btn-sm" data-url='{% url "staff-rescrape" staffer.email%}'>
+<img id="ajax" src="{% static 'staff/img/ajax-loader.gif' %}" hidden>
+<button id="rescrape" class="btn btn-sm" data-url='{% url "staff:staff-rescrape" staffer.email %}'>
 	Rescrape <i class="fa fa-slack" aria-hidden="true"></i>
 </button>
 </div>
@@ -47,13 +43,12 @@
     <input type="submit" class="btn btn-lg" value="Submit" />
 </form>
 </div>
+{% endblock %}
 
-{%endblock%}
-
-{%block breadcrumbs%}
+{% block breadcrumbs %}
 	<ol class="breadcrumb">
 	  <li class="breadcrumb-item"><a href="/">storybase</a></li>
-	  <li class="breadcrumb-item"><a href="{%url 'staff-staffers'%}">Staff</a></li>
+	  <li class="breadcrumb-item"><a href="{% url 'staff:staff-staffers' %}">Staff</a></li>
 	  <li class="breadcrumb-item active">Change</li>
 	</ol>
-{%endblock%}
+{% endblock %}

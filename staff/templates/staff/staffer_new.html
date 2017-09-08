@@ -1,25 +1,21 @@
-{%extends 'base.html'%}
+{% extends 'base.html' %}
 {% load staticfiles %}
 
-{%block head%}
+{% block head %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="{%static 'staff/css/wrapper.css'%}">
-	<link rel="stylesheet" type="text/css" href="{%static 'staff/css/main.css'%}">
+  <link rel="stylesheet" type="text/css" href="{% static 'staff/css/wrapper.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'staff/css/main.css' %}">
+{% endblock %}
 
-{%endblock%}
+{% block title %}{% endblock %}
 
-{%block title%}
-
-{%endblock%}
-
-{%block scripts%}
+{% block scripts %}
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-{%endblock%}
+{% endblock %}
 
-{%block content%}
-
+{% block content %}
 <div class="center-content">
 <h1>New</h1>
 <p>Make sure any new staff members are first added in Slack, with a profile picture and correct first and last names.</p>
@@ -30,12 +26,12 @@
 </form>
 </div>
 
-{%endblock%}
+{% endblock %}
 
-{%block breadcrumbs%}
+{% block breadcrumbs %}
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">storybase</a></li>
-    <li class="breadcrumb-item"><a href="{%url 'staff-staffers'%}">Staff</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:staff-staffers' %}">Staff</a></li>
     <li class="breadcrumb-item active">New</li>
   </ol>
-{%endblock%}
+{% endblock %}
