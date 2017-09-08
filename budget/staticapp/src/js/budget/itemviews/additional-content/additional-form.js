@@ -137,6 +137,8 @@ export default Mn.ItemView.extend({
           name: 'field-active',
           observe: 'type',
           onGet(value) {
+            const contentTypes = this.radio.reqres.request('getSetting', 'contentTypes');
+
             if (value && contentTypes[value].usesLengthAttribute) {
               return 'true';
             }
@@ -572,7 +574,7 @@ export default Mn.ItemView.extend({
             // eslint-disable-next-line no-unused-vars
             deleteRequest.done((mdl, resp, opts) => {
               setTimeout(() => {
-                this.deleteSuccessCallback(resp);
+                this.deleteSuccessCallback.call(this, resp);
               }, 1500);
             });
 
@@ -613,9 +615,6 @@ export default Mn.ItemView.extend({
     setTimeout(() => {
       this.radio.commands.execute('destroyModal');
     }, 500);
-
-    // Pop item from the local collection.
-    // TK.
 
     // Destroy view.
     this.destroy();
