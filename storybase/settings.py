@@ -233,6 +233,7 @@ def add_cloudfront_headers(headers, path, url):
     if not DEBUG:
         headers['Cache-Control'] = 'public, s-maxage=31536000, max-age=86400'
 
+
 WHITENOISE_ADD_HEADERS_FUNCTION = add_cloudfront_headers
 
 
