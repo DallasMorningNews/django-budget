@@ -178,6 +178,32 @@ export default Mn.CompositeView.extend({
     packageLoaded: 'bindForm',
   },
 
+  childEvents: {
+    destroy: 'removeAdditionalItem',
+  },
+
+  appendAdditionalItem(model) {
+    const initialList = this.model.get('additionalContent');
+    const idToAdd = model.id;
+
+    const additionalIDs = new Set(initialList);
+    additionalIDs.add(idToAdd);
+    const finalList = Array.from(additionalIDs);
+
+    this.model.set('additionalContent', finalList);
+  },
+
+  removeAdditionalItem(additionalView) {
+    const initialList = this.model.get('additionalContent');
+    const idToRemove = additionalView.model.id;
+
+    const additionalIDs = new Set(initialList);
+    additionalIDs.delete(idToRemove);
+    const finalList = Array.from(additionalIDs);
+
+    this.model.set('additionalContent', finalList);
+  },
+
   initialize() {
     this.isFirstRender = true;
 
@@ -583,6 +609,10 @@ export default Mn.CompositeView.extend({
               /* eslint-disable no-unused-vars */
               additionalItemSave.done(
                 (modelObj, responseObj, optionsObj) => {
+                  if (optionsObj.status === 201) {  // If initial create.
+                    this.appendAdditionalItem(modelObj);
+                  }
+
                   additionalItemDeferred.resolve();
                 }  // eslint-disable-line comma-dangle
               );
