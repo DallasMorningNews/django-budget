@@ -10,6 +10,7 @@ import PackageItemPrintView from '../../itemviews/packages/package-print-info';
 import PrintPlacementToggleView from '../../itemviews/list-components/print-placement-toggle';
 import SearchBoxView from '../../itemviews/list-components/search-box';
 import SectionPackagesCollection from '../../collectionviews/section-packages';
+import urlConfig from '../../misc/urls';
 
 export default BaseSearchList.extend({
   template: 'budget/package-search-list-print',
@@ -40,7 +41,7 @@ export default BaseSearchList.extend({
   childView: PackageItemPrintView,
   outerClass: 'print-archive',
   stateKey: 'printSearchList',
-  urlBase: '/print/',
+  urlBase: urlConfig.printListPage.reversePattern,
 
   queryTerms: [
     {

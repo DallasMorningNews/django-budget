@@ -4,6 +4,7 @@ import BaseSearchList from './base';
 import DateFilterView from '../../itemviews/list-components/date-filter';
 import PackageItemWebView from '../../itemviews/packages/package-web-info';
 import SearchBoxView from '../../itemviews/list-components/search-box';
+import urlConfig from '../../misc/urls';
 
 export default BaseSearchList.extend({
   template: 'budget/package-search-list-web',
@@ -24,7 +25,7 @@ export default BaseSearchList.extend({
   childView: PackageItemWebView,
   outerClass: 'web-archive',
   stateKey: 'webSearchList',
-  urlBase: '/',
+  urlBase: urlConfig.listPage.reversePattern,
 
   queryTerms: [
     {

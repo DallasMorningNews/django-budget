@@ -193,7 +193,7 @@ export default Mn.CompositeView.extend({
       'listViewType'  // eslint-disable-line comma-dangle
     );
 
-    this.priorPath = '/';
+    this.priorPath = urlConfig.listPage.reversePattern;
     if (
         !_.isUndefined(this.priorViewName) &&
         _.has(urlConfig, this.priorViewName)
@@ -1238,7 +1238,7 @@ export default Mn.CompositeView.extend({
     } else if (mode === 'saveAndContinue') {
       this.radio.commands.execute(
         'navigate',
-        `edit/${this.model.id}/`,
+        `${urlConfig.editPage.reversePattern}${this.model.id}/`,
         { trigger: true }  // eslint-disable-line comma-dangle
       );
 

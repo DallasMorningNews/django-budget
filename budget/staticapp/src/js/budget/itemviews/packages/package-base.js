@@ -5,6 +5,7 @@ import Mn from 'backbone.marionette';
 import 'underscore.string';
 
 import deline from '../../../vendored/deline';
+import urlConfig from '../../misc/urls';
 
 import ModalView from '../modals/modal-window';
 import PrintPublishingModalView from '../list-modals/print-publishing';
@@ -409,14 +410,12 @@ export default Mn.ItemView.extend({
   },
 
   showPackageEdit(event) {
-    const triggerElement = jQuery(event.currentTarget);
-
     if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
       event.preventDefault();
 
       this.radio.commands.execute(
         'navigate',
-        triggerElement.find('a').attr('href'),
+        `${urlConfig.editPage.reversePattern}${this.model.id}/`,
         { trigger: true }  // eslint-disable-line comma-dangle
       );
     }
