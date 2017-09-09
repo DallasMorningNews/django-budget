@@ -47,6 +47,13 @@ class MainBudgetView(TemplateView):
     """TK."""
     template_name = 'budget/index.html'
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(MainBudgetView, self).get_context_data(*args, **kwargs)
+        context.update({
+            'budget_name': getattr(settings, 'BUDGET_TOOL_NAME', 'Budget'),
+        })
+        return context
+
 
 class ConfigView(View):
     def get(self, request, *args, **kwargs):
