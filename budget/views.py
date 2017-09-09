@@ -113,6 +113,11 @@ class ConfigView(View):
                     'BUDGET_TOOL_LOGO_PATH',
                     'budget/images/budget_logo.svg'
                 )),
+                'printLogoURL': static(getattr(
+                    settings,
+                    'BUDGET_PRINT_LOGO_PATH',
+                    'budget/images/the-daily.svg'
+                )),
             },
             'defaultTimezone': timezone.get_default_timezone_name(),
             'rootURL': root_url
