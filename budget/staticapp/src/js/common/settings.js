@@ -238,9 +238,7 @@ const standardSettings = {
     onItemRemove() {},
   },
 
-  externalURLs: {
-    addVisualsRequest: 'https://sites.google.com/a/dallasnews.com/dmnutilities/add-request',
-  },
+  externalURLs: {},
 
   messages: {
     slugField: {
@@ -333,6 +331,10 @@ export default (dynamicConfig) => {
         standardSettings.apiEndpoints = generateEndpointsFromBases(data.apiBases);
       }
 
+      if (_.has(data, 'externalURLs')) {
+        standardSettings.externalURLs = JSON.parse(data.externalURLs);
+      }
+
       if (_.has(data, 'rootURL')) {
         const rootPrefix = (data.rootURL === null) ? '/' : data.rootURL;
         standardSettings.navigationLinks = generateNavigationLinks(rootPrefix);
@@ -340,6 +342,7 @@ export default (dynamicConfig) => {
 
       _.chain(data)
         .omit('apiBases')
+        .omit('externalURLs')
         .each((value, key) => { standardSettings[key] = value; });
 
       configLoaded.resolve(
