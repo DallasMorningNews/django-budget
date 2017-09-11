@@ -41,6 +41,7 @@ from rest_framework.authentication import (  # NOQA
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework import viewsets
+from six.moves.urllib.parse import urlparse, urlunparse
 
 
 class MainBudgetView(TemplateView):
@@ -99,15 +100,22 @@ class ConfigView(View):
             else:
                 raw_value = val
 
-            if originURL is not None and originURL in aliased_origins:
-                pass
-            else:
-                raw_value = '{}{}'.format(
-                    getattr(settings, 'BUDGET_ALIASED_API_URL', ''),
-                    raw_value
-                )
-
             api_bases[key] = raw_value
+
+        for k, endpoint_url in api_bases.items():
+            if originURL is not None and originURL in aliased_origins:
+                endpoint_url_parts = urlparse(endpoint_url)
+
+                aliased_url = getattr(settings, 'BUDGET_ALIASED_API_URL', '')
+                aliased_url_parts = urlparse(aliased_url)
+
+                final_url = urlunparse(endpoint_url_parts._replace(
+                    scheme=aliased_url_parts.scheme,
+                    netloc=aliased_url_parts.netloc,
+                    path=endpoint_url_parts.path.replace('//', '/')
+                ))
+
+                api_bases[k] = final_url
 
         if originURL is not None and originURL in aliased_origins:
             root_url = None
