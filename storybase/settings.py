@@ -368,6 +368,8 @@ BUDGET_ALIASED_ORIGINS = [
     'https://www.storyba.se',
 ]
 
+BUDGET_ALIASED_API_URL = 'https://api.storyba.se'
+
 BUDGET_API_ROOT_URL = os.environ.get('BUDGET_API_ROOT_URL', '')
 
 
@@ -399,8 +401,11 @@ BUDGET_API_CONFIGS = {
 }
 
 BUDGET_ORGANIZATION_NAME = 'Bay Area News Group'
+
 BUDGET_ORGANIZATION_LOGO_PATH = 'budget/images/bang-logo.png'
+
 BUDGET_TOOL_NAME = 'Storybase'
+
 BUDGET_TOOL_LOGO_PATH = 'budget/images/storybase-wordmark.svg'
 
 
