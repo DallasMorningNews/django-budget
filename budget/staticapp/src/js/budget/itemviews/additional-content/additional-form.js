@@ -438,11 +438,17 @@ export default Mn.ItemView.extend({
   },
 
   serializeData() {
-    const externalURLs = this.radio.reqres.request('getSetting', 'externalURLs');
-    return {
+    const context = {
       formID: this.generateFormID(),
-      visualsRequestURL: externalURLs.addVisualsRequest,
     };
+
+    const externalURLs = this.radio.reqres.request('getSetting', 'externalURLs');
+
+    if (_.has(externalURLs, 'addVisualsRequest')) {
+      context.visualsRequestURL = externalURLs.addVisualsRequest;
+    }
+
+    return context;
   },
 
   onRender() {

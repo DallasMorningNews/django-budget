@@ -274,12 +274,15 @@ export default Mn.CompositeView.extend({
   },
 
   serializeData() {
-    return {
-      visualsRequestURL: this.radio.reqres.request(
-        'getSetting',
-        'externalURLs'  // eslint-disable-line comma-dangle
-      ).addVisualsRequest,
-    };
+    const context = {};
+
+    const externalURLs = this.radio.reqres.request('getSetting', 'externalURLs');
+
+    if (_.has(externalURLs, 'addVisualsRequest')) {
+      context.visualsRequestURL = externalURLs.addVisualsRequest;
+    }
+
+    return context;
   },
 
   onBeforeRender() {
