@@ -35,11 +35,13 @@
                         <i class="bar"></i>
                     </div>
 
+                    {% if visualsRequestURL %}
                     <div class="request-link-group variable-attribute">
                         <div class="request-button-holder">
                             <div class="request-link material-button flat-button"><a href="{{ visualsRequestURL }}" target="_blank"><span>Request visuals</span></a></div>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
 
