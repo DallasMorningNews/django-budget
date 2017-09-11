@@ -57,6 +57,9 @@ class MainBudgetView(TemplateView):
 
 class ConfigView(View):
     def get(self, request, *args, **kwargs):
+        originURL = request.GET.get('origin')
+        aliased_origins = getattr(settings, 'BUDGET_ALIASED_ORIGINS', [])
+
         empty_admin_case = [['', 'test@example.com']]
         django_admins = getattr(settings, 'ADMINS', empty_admin_case)
         default_admin_email = django_admins[0][1]
@@ -77,12 +80,19 @@ class ConfigView(View):
 
         for key, val in explicit_api_bases.items():
             if callable(val):
-                api_bases[key] = val(reverse)
+                raw_value = val(reverse)
             else:
-                api_bases[key] = val
+                raw_value = val
 
-        originURL = request.GET.get('origin')
-        aliased_origins = getattr(settings, 'BUDGET_ALIASED_ORIGINS', [])
+            if originURL is not None and originURL in aliased_origins:
+                pass
+            else:
+                raw_value = '{}{}'.format(
+                    getattr(settings, 'BUDGET_ALIASED_API_URL', ''),
+                    raw_value
+                )
+
+            api_bases[key] = raw_value
 
         if originURL is not None and originURL in aliased_origins:
             root_url = None
