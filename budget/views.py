@@ -57,10 +57,12 @@ class MainBudgetView(TemplateView):
             'budget_name': getattr(settings, 'BUDGET_TOOL_NAME', 'Budget'),
         })
 
-        if hostURL is not None and hostURL in aliased_origins:
-            aliased = 'y'
-        else:
-            aliased = 'n'
+        aliased = 'n'
+        if hostURL is not None:
+            formatted_url = '{}://{}'.format(self.request.scheme, hostURL)
+
+            if formatted_url in aliased_origins:
+                aliased = 'y'
 
         context.update({
             'aliased': aliased,
