@@ -373,6 +373,13 @@ BUDGET_ALIASED_API_URL = 'https://api.storyba.se'
 
 BUDGET_API_ROOT_URL = os.environ.get('BUDGET_API_ROOT_URL', '')
 
+BUDGET_EXTERNAL_URLS = {
+    # 'addVisualsRequest': ''.join([
+    #     'https://sites.google.com/',
+    #     'a/dallasnews.com/dmnutilities/add-request',
+    # ]),
+}
+
 
 # def get_auth_api_url(reverse):
 #     return '{}{}'.format(
