@@ -364,7 +364,8 @@ if DEBUG_MODE:
 BUDGET_ADMIN_EMAIL = 'avestal@bayareanewsgroup.com'
 
 BUDGET_ALIASED_ORIGINS = [
-    # 'http://localhost:8000',
+    'https://storyba.se',
+    'https://www.storyba.se',
 ]
 
 BUDGET_API_ROOT_URL = os.environ.get('BUDGET_API_ROOT_URL', '')
