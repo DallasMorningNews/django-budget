@@ -351,6 +351,8 @@ APIAUTH_WHITELIST = [
     'storyba.se',
 ]
 
+CSRF_TRUSTED_ORIGINS = APIAUTH_WHITELIST
+
 if DEBUG_MODE:
     APIAUTH_WHITELIST.append('storybase.dev')
     APIAUTH_WHITELIST.append('api.storybase.dev:3000')
