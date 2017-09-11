@@ -49,8 +49,21 @@ class MainBudgetView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(MainBudgetView, self).get_context_data(*args, **kwargs)
+
+        hostURL = self.request.META['HTTP_HOST']
+        aliased_origins = getattr(settings, 'BUDGET_ALIASED_ORIGINS', [])
+
         context.update({
             'budget_name': getattr(settings, 'BUDGET_TOOL_NAME', 'Budget'),
+        })
+
+        if hostURL is not None and hostURL in aliased_origins:
+            aliased = 'y'
+        else:
+            aliased = 'n'
+
+        context.update({
+            'aliased': aliased,
         })
         return context
 
