@@ -41,7 +41,7 @@ from rest_framework.authentication import (  # NOQA
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework import viewsets
-from six.moves.urllib.parse import urlparse, urlunparse
+from six.moves.urllib.parse import urlparse, urlunparse  # NOQA
 
 
 class MainBudgetView(TemplateView):
@@ -58,16 +58,25 @@ class MainBudgetView(TemplateView):
             'budget_name': getattr(settings, 'BUDGET_TOOL_NAME', 'Budget'),
         })
 
-        aliased = 'n'
+        # Config AJAX URL.
+        config_url = reverse('budget:config')
         if hostURL is not None:
             formatted_url = '{}://{}'.format(self.request.scheme, hostURL)
 
             if formatted_url in aliased_origins:
-                aliased = 'y'
+                root_budget_url = reverse(
+                    'budget:main-budget-view',
+                    kwargs={'path': ''}
+                )
+                config_url = config_url.lstrip(root_budget_url)
+
+                if config_url[0] != '/':
+                    config_url = '/{}'.format(config_url)
 
         context.update({
-            'aliased': aliased,
+            'config_url': config_url,
         })
+
         return context
 
 
