@@ -1,4 +1,8 @@
-# Imports from Django.  # NOQA
+# Imports from python.  # NOQA
+import json
+
+
+# Imports from Django.
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import Http404, JsonResponse  # NOQA
@@ -162,6 +166,9 @@ class ConfigView(View):
                 )),
             },
             'defaultTimezone': timezone.get_default_timezone_name(),
+            'externalURLs': json.dumps(
+                getattr(settings, 'BUDGET_EXTERNAL_URLS', {})
+            ),
             'rootURL': root_url
         })
 
