@@ -348,6 +348,7 @@ except KeyError:
 APIAUTH_WHITELIST = [
     'storybase.herokuapp.com',
     'api.storyba.se',
+    'www.storyba.se',
     'storyba.se',
 ]
 
