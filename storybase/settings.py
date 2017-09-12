@@ -380,6 +380,8 @@ BUDGET_EXTERNAL_URLS = {
     # ]),
 }
 
+# BUDGET_PRINT_SLUG_NAME = 'NewsGate slug'
+
 BUDGET_SHOW_HEADLINES = False
 
 
