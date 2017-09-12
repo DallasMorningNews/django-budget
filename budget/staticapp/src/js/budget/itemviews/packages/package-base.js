@@ -232,21 +232,24 @@ export default Mn.ItemView.extend({
       }  // eslint-disable-line comma-dangle
     );
 
-    formRows.push(
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'input',
-            widthClasses: 'small-12 medium-12 large-12',
-            labelText: 'NewsGate slug',
-            inputID: 'print_system_slug',
-            inputName: 'print_system_slug',
-            inputType: 'text',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
+    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
+    if (printSlugName !== null) {
+      formRows.push(
+        {
+          extraClasses: '',
+          fields: [
+            {
+              type: 'input',
+              widthClasses: 'small-12 medium-12 large-12',
+              labelText: printSlugName,
+              inputID: 'print_system_slug',
+              inputName: 'print_system_slug',
+              inputType: 'text',
+            },
+          ],
+        }  // eslint-disable-line comma-dangle
+      );
+    }
 
     formRows.push(
       {

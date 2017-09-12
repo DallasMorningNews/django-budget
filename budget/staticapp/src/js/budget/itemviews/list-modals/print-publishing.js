@@ -208,9 +208,12 @@ export default Mn.ItemView.extend({
       },
     };
 
-    bindings['#print_system_slug'] = {
-      observe: 'printSystemSlug',
-    };
+    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
+    if (printSlugName !== null) {
+      bindings['#print_system_slug'] = {
+        observe: 'printSystemSlug',
+      };
+    }
 
     bindings['#print_publication'] = {
       observe: 'printSection',
