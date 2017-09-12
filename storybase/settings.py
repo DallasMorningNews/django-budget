@@ -381,6 +381,7 @@ BUDGET_EXTERNAL_URLS = {
 }
 
 # BUDGET_PRINT_SLUG_NAME = 'NewsGate slug'
+BUDGET_PRINT_SLUG_NAME = 'Print publishing slug'
 
 BUDGET_SHOW_HEADLINES = False
 
