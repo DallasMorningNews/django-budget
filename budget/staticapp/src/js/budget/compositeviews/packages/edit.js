@@ -97,6 +97,8 @@ export default Mn.CompositeView.extend({
   ui: uiElements,
 
   bindings() {
+    const showHeadlines = this.radio.reqres.request('getSetting', 'showHeadlines');
+
     const baseStructureBindings = new BaseStructureBindingsView({
       model: this.model,
       parentUI: this.ui,
@@ -124,13 +126,16 @@ export default Mn.CompositeView.extend({
       },
     });
 
-    const headlineGroupBindings = new HeadlineGroupBindingsView({
-      model: this.model,
-      parentUI: this.ui,
-      uiElements,
+    let headlineGroupBindings;
+    if (showHeadlines === true) {
+      headlineGroupBindings = new HeadlineGroupBindingsView({
+        model: this.model,
+        parentUI: this.ui,
+        uiElements,
 
-      extraContext: {},
-    });
+        extraContext: {},
+      });
+    }
 
     const notesGroupBindings = new NotesGroupBindingsView({
       model: this.model,
@@ -154,10 +159,19 @@ export default Mn.CompositeView.extend({
       },
     });
 
+    if (showHeadlines === true) {
+      return Object.assign(
+        baseStructureBindings.getBindings(),
+        mainFormBindings.getBindings(),
+        headlineGroupBindings.getBindings(),
+        notesGroupBindings.getBindings(),
+        pubGroupBindings.getBindings(),
+      );
+    }
+
     return Object.assign(
       baseStructureBindings.getBindings(),
       mainFormBindings.getBindings(),
-      headlineGroupBindings.getBindings(),
       notesGroupBindings.getBindings(),
       pubGroupBindings.getBindings(),
     );
@@ -274,7 +288,9 @@ export default Mn.CompositeView.extend({
   },
 
   serializeData() {
-    const context = {};
+    const context = {
+      showHeadlines: this.radio.reqres.request('getSetting', 'showHeadlines'),
+    };
 
     const externalURLs = this.radio.reqres.request('getSetting', 'externalURLs');
 
