@@ -125,9 +125,12 @@ export default Mn.ItemView.extend({
       },
     };
 
-    bindings[uiElements.printSystemSlugField] = {
-      observe: 'printSystemSlug',
-    };
+    const printSlug = this.radio.reqres.request('getSetting', 'printSlugName');
+    if (printSlug !== null) {
+      bindings[uiElements.printSystemSlugField] = {
+        observe: 'printSystemSlug',
+      };
+    }
 
     bindings[uiElements.printPublicationDropdown] = {
       observe: 'printSection',

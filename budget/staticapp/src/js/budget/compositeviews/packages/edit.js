@@ -289,8 +289,15 @@ export default Mn.CompositeView.extend({
 
   serializeData() {
     const context = {
+      hasPrintSystemSlug: false,
       showHeadlines: this.radio.reqres.request('getSetting', 'showHeadlines'),
     };
+
+    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
+    if (printSlugName !== null) {
+      context.hasPrintSystemSlug = true;
+      context.printSlugName = printSlugName;
+    }
 
     const externalURLs = this.radio.reqres.request('getSetting', 'externalURLs');
 
