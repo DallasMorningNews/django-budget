@@ -110,9 +110,11 @@
                 </div>
             </div>
 
+            {% if showHeadlines %}
             <div class="row collapsible-row-header" data-expand-target="headlines">
                 <h4>Headlines</h4>
             </div>
+            {% endif %}
 
             <div class="row can-collapse" data-expand-receiver="headlines">
                 <div id="headline-fields" class="collapsable-inner">
