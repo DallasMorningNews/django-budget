@@ -169,6 +169,7 @@ class ConfigView(View):
             'externalURLs': json.dumps(
                 getattr(settings, 'BUDGET_EXTERNAL_URLS', {})
             ),
+            'showHeadlines': getattr(settings, 'BUDGET_SHOW_HEADLINES', False),
             'rootURL': root_url
         })
 
