@@ -380,6 +380,8 @@ BUDGET_EXTERNAL_URLS = {
     # ]),
 }
 
+BUDGET_SHOW_HEADLINES = False
+
 
 # def get_auth_api_url(reverse):
 #     return '{}{}'.format(
