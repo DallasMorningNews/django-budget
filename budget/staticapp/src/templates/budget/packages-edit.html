@@ -323,12 +323,14 @@
                         </div>
                     </div>
 
+                    {% if hasPrintSystemSlug %}
                     <div class="medium-12 columns form-group print-slug-group">
                           <!-- <input id="print-system-slug" name="" type="text" required="" value="" /> -->
                           <input id="print-system-slug" name="print-system-slug" data-form="package" type="text" required="" value="" />
-                          <label for="print-system-slug" class="control-label">NewsGate slug</label>
+                          <label for="print-system-slug" class="control-label">{{ printSlugName }}</label>
                           <i class="bar"></i>
                     </div>
+                    {% endif %}
                     <div class="medium-4 columns form-group publication-group">
                         <input id="print-publication" name="print-publication" class="to-selectize" type="text" placeholder="Choose an option" autocomplete="off" autocorrect="off" data-form="primary" value="" required="" isRequired="true" />
                         <label for="print-publication" class="control-label">Publication<span class="required-marker">*</span></label>
