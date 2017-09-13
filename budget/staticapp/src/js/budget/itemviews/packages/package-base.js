@@ -2,7 +2,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
-import 'underscore.string';
+import _string_ from 'underscore.string';
 
 import deline from '../../../vendored/deline';
 import urlConfig from '../../misc/urls';
@@ -23,6 +23,8 @@ export default Mn.ItemView.extend({
     this.radio = Backbone.Wreqr.radio.channel('global');
 
     this.printPlacementChoices = this.enumeratePrintPlacementChoices();
+
+    this.imageAssets = this.radio.reqres.request('getSetting', 'imageAssets');
 
     this.initEnd();
   },
@@ -313,11 +315,20 @@ export default Mn.ItemView.extend({
   },
 
   showNotesModal() {
-    const notesModal = {
-      modalTitle: 'Production notes',
-      innerID: 'production-notes-modal',
-      contentClassName: 'package-modal',
-      extraHTML: deline`
+    const noteText = this.model.get('notes');
+    const noteLines = _string_.lines(noteText);
+
+    let displayedHTML = '';
+    const strippedLength = _.chain(noteLines)
+                                  .map(d => _string_.stripTags(d))
+                                  .reduce((m, n) => `${m} ${n}`)
+                                .value()
+                                .length;
+
+    if (strippedLength > 0) {
+      const formattedLines = _.map(noteLines, d => _string_.stripTags(d));
+
+      displayedHTML = deline`
         <div class="mode-toggle">
 
             <div trigger-mode="read-only">Read</div>
@@ -328,11 +339,26 @@ export default Mn.ItemView.extend({
 
         <div class="modes">
 
-            <div class="read-only">${this.model.get('notes')}</div>
+            <div class="read-only ruled">${formattedLines.join('<br />')}</div>
 
-            <div class="edit"><textarea>${this.model.get('notes')}</textarea></div>
+            <div class="edit"><textarea>${formattedLines.join('<br />')}</textarea></div>
 
-        </div>`,
+        </div>`;
+    } else {
+      displayedHTML = deline`
+        <div class="inline-image-holder">
+          <img class="notes-placeholder" src="${this.imageAssets.notepad}" alt="" />
+        </div>
+
+        <p class="note-placeholder-message">There aren't any production notes attached to this item yet.</p>
+      `;
+    }
+
+    const notesModal = {
+      modalTitle: 'Production notes',
+      innerID: 'production-notes-modal',
+      contentClassName: 'package-modal',
+      extraHTML: displayedHTML,
       buttons: [
         {
           buttonID: 'package-notes-save-button',
@@ -369,15 +395,18 @@ export default Mn.ItemView.extend({
       innerID: 'subscription-modal',
       contentClassName: 'package-modal',
       extraHTML: '' +
+        '<div class="image-holder">' +
+        `    <img src="${this.imageAssets.slackProgress}" alt="Slack subscriptions coming soon" />` +
+        '</div>' +
         '<p>' +
-            'Soon you will be able to follow budgeted ' +
-            'content on Slack. We&rsquo;ll keep track of ' +
-            'everything you follow, and let you know any ' +
-            'time it&rsquo;s updated.' +
+            'Soon you will be able to follow budgeted content on Slack.' +
         '</p>' +
         '<p>' +
-            'Check back shortly as we finish implementing ' +
-            'this feature.' +
+            'We&rsquo;ll keep track of everything you follow, and let you ' +
+            'know whenever there&rsquo;s been an&nbsp;update.' +
+        '</p>' +
+        '<p>' +
+            'Check back shortly as we finish implementing this feature.' +
         '</p>',
       buttons: [
         {
