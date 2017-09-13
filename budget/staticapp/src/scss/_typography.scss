@@ -1,8 +1,10 @@
 // Roboto font
 @if ($offline) {
     @import url(https://fonts.googleapis.com/css?family=Roboto);
+    @import url(https://fonts.googleapis.com/css?family=Roboto+Mono);
 } else {
     @import url(https://fonts.googleapis.com/css?family=Roboto);
+    @import url(https://fonts.googleapis.com/css?family=Roboto+Mono);
 }
 
 // FontAwesome
