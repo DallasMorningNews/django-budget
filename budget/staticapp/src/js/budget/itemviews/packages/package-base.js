@@ -325,9 +325,6 @@ export default Mn.ItemView.extend({
                                 .value()
                                 .length;
 
-    console.log(strippedLength);
-    console.log('BBB');
-
     if (strippedLength > 0) {
       const formattedLines = _.map(noteLines, d => _string_.stripTags(d));
 
