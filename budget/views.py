@@ -169,6 +169,10 @@ class ConfigView(View):
             'externalURLs': json.dumps(
                 getattr(settings, 'BUDGET_EXTERNAL_URLS', {})
             ),
+            'imageAssets': {
+                'notepad': static('budget/images/notepad.svg'),
+                'slackProgress': static('budget/images/slack-in-progress.png'),
+            },
             'printSlugName': getattr(settings, 'BUDGET_PRINT_SLUG_NAME', None),
             'showHeadlines': getattr(settings, 'BUDGET_SHOW_HEADLINES', False),
             'rootURL': root_url
