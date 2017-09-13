@@ -325,7 +325,9 @@ export default Mn.ItemView.extend({
                                 .value()
                                 .length;
 
-    if (strippedLength > 0) {
+    console.log(strippedLength);
+
+    if (1 > 0) {
       const formattedLines = _.map(noteLines, d => _string_.stripTags(d));
 
       displayedHTML = deline`
