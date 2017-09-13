@@ -319,20 +319,16 @@ export default Mn.ItemView.extend({
     const noteLines = _string_.lines(noteText);
 
     let displayedHTML = '';
-    // const strippedLength = _.chain(noteLines)
-    //                               .map(d => _string_.stripTags(d))
-    //                               .reduce((m, n) => `${m} ${n}`)
-    //                             .value()
-    //                             .length;
-    //
-    // console.log(strippedLength);
-    console.log('aaa');
-    window.uuu = _;
-    window.sss = _string_;
-    window.nnn = noteLines;
-    window.ttt = noteText;
+    const strippedLength = _.chain(noteLines)
+                                  .map(d => _string_.stripTags(d))
+                                  .reduce((m, n) => `${m} ${n}`, '')
+                                .value()
+                                .length;
 
-    if (1 > 0) {
+    console.log(strippedLength);
+    console.log('BBB');
+
+    if (strippedLength > 0) {
       const formattedLines = _.map(noteLines, d => _string_.stripTags(d));
 
       displayedHTML = deline`
