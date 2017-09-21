@@ -65,6 +65,11 @@ class Staffer(models.Model):
     )
     active = models.BooleanField(default=True)
 
+    created = models.DateTimeField(
+        auto_now_add=True,
+        editable=False,
+    )
+
     class Meta:  # noqa
         ordering = ['last_name', 'first_name']
 
