@@ -404,7 +404,7 @@ def get_budget_api_url(reverse):
 def get_staff_api_url(reverse):
     return '{}{}'.format(
         BUDGET_API_ROOT_URL,
-        reverse('staff:api-root')
+        reverse('staff:api:root')
     )
 
 
