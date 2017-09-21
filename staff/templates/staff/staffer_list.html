@@ -73,7 +73,7 @@
     <ul>
         {% for addition in latest_additions %}
         <li class="added-staffer">
-            <div class="time-kicker">Time TK</div>
+            <div class="time-kicker">{{ addition.created|date:"N j" }}</div>
             <div class="staffer-addition-details activity-item">
                 <a class="activity-link" href="{% url 'staff:staffer-edit' addition.pk %}">
                     <div class="image">
