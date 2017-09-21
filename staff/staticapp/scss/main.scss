@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Bungee');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
 @import 'immaterial/immaterial';
 @import 'immaterial/typography';
@@ -15,7 +14,6 @@
     }
 
     .navbar-brand {
-        color: rgba(255,255,255,0.95);
         // font-family: 'Cuprum', sans-serif;
         font-family: 'Bungee', cursive;
     }
