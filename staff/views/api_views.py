@@ -1,7 +1,6 @@
 # Imports from Django.  # NOQA
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
 from django.views.generic import View
 
@@ -19,6 +18,15 @@ if PROVIDER_MODULE is not None:
         DATA_PROVIDER = DataProviderClass()
     except ImportError:
         pass
+
+
+class RootAPIView(View):
+    """Provides a base URL for staff-API requests from JS frontends."""
+    def get(self, request):
+        return JsonResponse({
+            'status': 200,
+            'message': 'You are at the root of the staff API.',
+        })
 
 
 class StaffList(View):

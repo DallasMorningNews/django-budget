@@ -36,6 +36,7 @@ urlpatterns = [
     # API views.
     url(r'^api/', include(
         [
+            url(r'^$', api_views.RootAPIView.as_view(), name='root'),
             url(r'^staff/', include([
                 url(
                     r'^$',
