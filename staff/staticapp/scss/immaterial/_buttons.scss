@@ -131,7 +131,7 @@ $standard-curve-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
     text-align: center;
     text-transform: uppercase;
-    transition: box-shadow 0.2s $bmd-animation-curve-fast-out-linear-in;
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1);
     will-change: box-shadow;
     z-index: 1;
 
