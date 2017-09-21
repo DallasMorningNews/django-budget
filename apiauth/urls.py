@@ -27,6 +27,6 @@ urlpatterns = [
     url(r'^api/users/me/', AuthenticatedUserView.as_view()),
     url(r'^api/', include(router.urls)),
     url(r'^error/$', AuthErrorView.as_view(), name='auth-error'),
-    url(r'^logout/$', LogoutView.as_view()),
+    url(r'^logout/$', LogoutView.as_view(), name='logout'),
     url(r'^redirect/', external_redirect, name='external-redirect')
 ]
