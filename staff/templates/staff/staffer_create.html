@@ -79,8 +79,8 @@
     {% with placeholderEmail="user@"|add:mainEmailDomain %}
     <form id="slack-entry" class="tabbed-area shown loading-cover" method="post" data-scraper-url="{% url "staff:api:staffer-rescrape" placeholderEmail %}" data-placeholder-email="{{ placeholderEmail }}">
         <p class="emphasized">Enter a user&rsquo;s email address to automatically fill the form on the next page with their name and profile image as stored in Slack. (You&rsquo;ll be able to manually edit this information before&nbsp;saving.)</p>
-        <p class="emphasized">When ready, click <span>Continue</span> below to import the user's&nbsp;details.</p>
-        <p class="emphasized">If the user you want to create doesn&rsquo;t have an active Slack account associated with their email address, click <span>Add manually</span> above to skip the auto-loading&nbsp;process.</p>
+        <p class="emphasized">When ready, click <span>Look&nbsp;up&nbsp;user</span> below to import the user's&nbsp;details.</p>
+        <p class="emphasized">If the user you want to create doesn&rsquo;t have an active Slack account associated with their email address, click <span>Add&nbsp;manually</span> above to skip the auto-loading&nbsp;process.</p>
         <div class="inline-form">
             <div class="form-group">
                 <input type="email" name="slack_email" maxlength="254" class="form-control" placeholder="{{ placeholderEmail }}" title="" id="id_slack_email" autocomplete="off">
