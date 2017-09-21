@@ -39,11 +39,44 @@ ul {
 
     @include z-depth(4);
 
-    .navbar-brand {
-        box-sizing: border-box;
-        float: left;
-        height: 64px;
-        padding: 16px 6px;
+    .left-group {
+        display: flex;
+        flex-direction: row;
+
+        .left-button {
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            height: 64px;
+            padding: 8px;
+            text-align: center;
+            width: 64px;
+
+            &:hover {
+                background-color: rgba(255,255,255,0.2);
+            }
+
+            &.home-nav {
+                margin-left: 8px;
+                margin-right: 8px;
+
+                .material-icons {
+                    font-size: 28px;
+                }
+            }
+
+            .material-icons {
+                color: #FFFFFF;
+                line-height: 48px;
+            }
+        }
+
+        .navbar-brand {
+            box-sizing: border-box;
+            float: left;
+            height: 64px;
+            padding: 16px 6px;
+        }
     }
 
     .right-buttons {
