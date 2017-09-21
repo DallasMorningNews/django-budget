@@ -1,17 +1,8 @@
 //
 
 import Foundation from '../material-base/foundation';
-// import RippleAdapter from './adapter';
 import { cssClasses, strings, numbers } from './constants';
 import { getNormalizedEventCoords } from './utils';
-
-// let ActivationStateType;
-
-// let ListenerInfoType;
-
-// let ListenersType;
-
-// let PointType;
 
 const DEACTIVATION_ACTIVATION_PAIRS = {
   mouseup: 'mousedown',

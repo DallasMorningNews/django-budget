@@ -1,4 +1,5 @@
-// import { MDCRipple } from '@material/ripple/dist/mdc.ripple.min';
+//
+
 import { Ripple } from './ripple/index';
 
 

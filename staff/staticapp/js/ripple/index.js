@@ -1,7 +1,6 @@
 //
 
 import Component from '../material-base/component';
-// import RippleAdapter from './adapter';
 import RippleFoundation from './foundation';
 import * as utils from './utils';
 
@@ -11,7 +10,7 @@ export { utils };
 export class Ripple extends Component {
   static attachTo(root, { isUnbounded = undefined } = {}) {
     const ripple = new Ripple(root);
-    // Only override unbounded behavior if option is explicitly specified
+    // Only override unbounded behavior if option is explicitly specified.
     if (isUnbounded !== undefined) {
       ripple.unbounded = (isUnbounded);
     }
