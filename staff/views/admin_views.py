@@ -16,7 +16,7 @@ class Staffers(LoginRequiredMixin, View):
     def get(self, request):
         staff = Staffer.objects.all()
 
-        latest_additions = Staffer.objects.order_by('-pk')[:10]
+        latest_additions = Staffer.objects.order_by('-created')[:10]
 
         return render_to_response(
             'staff/staffer_list.html',
