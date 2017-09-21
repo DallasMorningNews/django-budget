@@ -16,7 +16,14 @@
 
     <body class="{% block body_class %}default{% endblock %}">
         <header class="navbar fixed-top navbar-toggleable-md navbar-dark double-nav scrolling-navbar top-nav-collapse {% block nav_class %}{% endblock %}">
-            <h4 class="navbar-brand" href="#">{% block nav_header %}Staff management{% endblock nav_header %}</h4>
+            <div class="left-group">
+                {% block back_nav %}
+                <div class="home-nav left-button">
+                    <a href="{% url 'staff:staffer-list' %}"><i class="material-icons md-24">arrow_back</i></a>
+                </div>
+                {% endblock %}
+                <h4 class="navbar-brand" href="#">{% block nav_header %}Staff management{% endblock nav_header %}</h4>
+            </div>
 
             <div class="right-buttons">
                 <div class="show-feed right-button">
@@ -34,8 +41,8 @@
 
         <div class="collapsible-nav">
             <ul class="nav-items">
-                <li><a href="{% url 'staff:staffer-list'%}">Staff management home</a></li>
-                <li><a href="{% url 'staff:staffer-create'%}">Add new staffer</a></li>
+                <li><a href="{% url 'staff:staffer-list' %}">Staff management home</a></li>
+                <li><a href="{% url 'staff:staffer-create' %}">Add new staffer</a></li>
                 {% comment %}<li><a href="">Help</a></li>{% endcomment %}
                 <li><a href="{% url 'apiauth:logout' %}">Log out</a></li>
             </ul>
