@@ -1,0 +1,19 @@
+<ul class="tight-list">
+    {% for staffer in staff %}
+    <li class="card-holder">
+        <div class="card">
+            <a href="{% url 'staff:staff-edit' staffer.pk %}">
+                <div class="card-content with-images">
+                    <div class="image">
+                        <img src="{% if staffer.image_url %}{{ staffer.image_url }}{% else %}{% static 'staff/img/smiley.png' %}{% endif %}" />
+                		</div>
+                    <div class="multi-line image-adjust">
+                        <h6>{{ staffer.first_name }} <span class="last-name">{{ staffer.last_name }}</span></h6>
+                        <p>{% if staffer.active %}{{ staffer.email }}{% else %}<em>Deactivated user</em>{% endif %}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>

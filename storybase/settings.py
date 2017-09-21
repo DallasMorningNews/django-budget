@@ -66,6 +66,7 @@ INSTALLED_APPS = [
 
     # 'storages',
     'social_django',
+    'bootstrap3',
     'corsheaders',
     'colorfield',
     'rest_framework',
@@ -422,6 +423,13 @@ BUDGET_TOOL_NAME = 'Storybase'
 BUDGET_TOOL_LOGO_PATH = 'budget/images/storybase-wordmark.svg'
 
 
+# Staff app configuration
+# See `staff.views.api_views` (docs TK).
+STAFF_DATA_PROVIDER = 'staff.data_providers.SlackProvider'
+
+STAFF_EMAIL_DOMAIN = 'bayareanewsgroup.com'
+
+
 # # Celery
 # # http://docs.celeryproject.org/en/latest/configuration.html
 # # http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
@@ -441,3 +449,12 @@ BUDGET_TOOL_LOGO_PATH = 'budget/images/storybase-wordmark.svg'
 #     CELERY_TASK_ALWAYS_EAGER = True
 #
 #     CELERY_TASK_EAGER_PROPAGATES = True
+
+
+BOOTSTRAP3 = {
+    'field_renderers': {
+        'default': 'bootstrap3.renderers.FieldRenderer',
+        'inline': 'bootstrap3.renderers.InlineFieldRenderer',
+        'immaterial': 'staff.field_renderers.ImmaterialFieldRenderer',
+    },
+}

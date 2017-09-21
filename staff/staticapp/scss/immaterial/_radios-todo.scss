@@ -1,0 +1,61 @@
+// RADIO BUTTONS
+// (Will be merged into 'immaterial/forms' when done)
+
+// Variables (can be removed when merged into form styles)
+$form-focus-color: #337AB7 !default;
+$form-error-color: #D9534F !default;
+$form-transition-speed: 0.28s !default;
+
+
+.radio {
+    margin-bottom: 16px;
+
+    .helper {
+        color: rgba(0,0,0,0.87);
+        cursor: pointer;
+        display: block;
+        font-size: 16px;
+        left: -4px;
+        position: absolute;
+        top: -4px;
+        user-select: none;
+
+        &::before, &::after {
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            content: '';
+            height: 16px;
+            left: 0;
+            margin: 4px;
+            position: absolute;
+            top: 0;
+            transition: transform $form-transition-speed ease;
+            width: 16px;
+        }
+
+        &::after {
+            background-color: $form-focus-color;
+            border-color: $form-focus-color;
+            transform: scale(0);
+        }
+    }
+
+    label:hover .helper {
+        color: $form-focus-color;
+    }
+
+    input:checked {
+        ~ .helper {
+            &::after {
+                transform: scale(0.5);
+            }
+            &::before {
+                color: $form-focus-color;
+            }
+        }
+    }
+}
+
+.radio + .radio, .checkbox + .checkbox {
+    margin-top: 16px;
+}

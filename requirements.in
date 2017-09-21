@@ -4,6 +4,7 @@
 #
 Django~=1.11.0
 dj-database-url==0.4.2
+django-bootstrap3~=9.0.0
 django-colorfield==0.1.10  # staff
 django-cors-headers==2.1.0  # budget, staff
 django-debug-toolbar~=1.8.0
@@ -27,7 +28,6 @@ whitenoise~=3.3.0
 # # bleach==1.4.2  # liveblog
 # # boto==2.39.0
 # dj-database-url==0.3.0
-# # django-bootstrap3~=9.0.0  # foiatracker, corrections
 # # django-chartwerk~=0.5.0
 # # django-celery-results~=1.0.0
 # # django-ckeditor==5.0.3  # liveblog

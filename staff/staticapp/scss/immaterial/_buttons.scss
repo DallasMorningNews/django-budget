@@ -1,0 +1,460 @@
+@import 'immaterial/elevation';
+@import 'immaterial/helpers/color-functions';
+
+/*         */
+/* BUTTONS */
+/*         */
+
+$standard-curve-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+
+@keyframes ripple-fg-radius-in {
+    from {
+        animation-timing-function: $standard-curve-timing-function;
+        // NOTE: For these keyframes, we do not need custom property fallbacks
+        // because they are only used in conjunction with `.has-js`.
+        // Since RippleFoundation checks to ensure custom properties are
+        // supported within the browser before adding this class, we can safely
+        // use them without a fallback.
+        transform: translate(var(--ripple-foreground-translate-start, 0)) scale(1);
+    }
+
+    to {
+        transform: translate(var(--ripple-foreground-translate-end, 0))
+                    scale(var(--ripple-foreground-scale, 1));
+    }
+}
+
+@keyframes ripple-fg-opacity-in {
+    from {
+        animation-timing-function: linear;
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes ripple-fg-opacity-out {
+    from {
+      animation-timing-function: linear;
+      opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@function default-button-config_() {
+    @return (
+        font-color: '',
+        is-flat: 'false',
+        is-raised: 'true',
+        radius: 100%,
+
+        // Primary flat button.
+        base-color: $primary-button-color,
+        opacity: 0.09,
+
+        // Chartreuse flat button.
+        // base-color: #64DD17,
+        // opacity: 0.32,
+
+        // Black flat button.
+        // base-color: #000,
+        // opacity: 0.06,
+    );
+}
+
+@mixin immaterial-button($config: ()) {
+    $config: map-merge(default-button-config_(), $config);
+
+    $base-color: map-get($config, base-color);
+    $font-color: map-get($config, font-color);
+    $is-flat: map-get($config, is-flat);
+    $is-raised: map-get($config, is-raised);
+    $opacity: map-get($config, opacity);
+    $radius: map-get($config, radius);
+
+    $reverse-text: is-reverse-text($base-color);
+
+    $accent-color: #000000;
+    @if ($reverse-text == 'yes') {
+        $accent-color: #FFFFFF;
+    }
+
+    @if ($font-color == '') {
+        $font-color: $accent-color;
+    }
+
+    $flat: false;
+    @if $is-flat == true or
+    $is-flat == "true" or
+    $is-flat == 'true' or
+    $is-flat == 1 {
+        $flat: true;
+    }
+
+    $raised: false;
+    @if ($flat == false) {
+        @if $is-raised == true or
+        $is-raised == "true" or
+        $is-raised == 'true' or
+        $is-raised == 1 {
+            $raised: true;
+        }
+    }
+
+    // @if ($raised == true) {
+    //     content: 'rY';
+    // } @else {
+    //     content: 'rN';
+    // }
+
+    background-color: $base-color;
+        @if ($flat == true) { background: transparent; }
+    border: none;
+    border-radius: 2px;
+    box-sizing: border-box;
+    color: $font-color;
+        @if ($flat == true) { color: $base-color; }
+    cursor: pointer;
+    display: inline-block;
+    height: 36px;
+    margin: 6px;
+    min-width: 96px;
+    outline: none;
+    padding: 6px 16px;
+    position: relative;
+    text-decoration: none;
+    text-align: center;
+    text-transform: uppercase;
+    transition: box-shadow 0.2s $bmd-animation-curve-fast-out-linear-in;
+    will-change: box-shadow;
+    z-index: 1;
+
+    @include typography-button-text();
+
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-appearance: none;
+    -webkit-box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
+
+        @if ($raised == true) { @include z-depth(2); }
+    }
+
+    &:active {
+        outline: none;
+    }
+
+    &::-moz-focus-inner {
+        border: 0;
+        padding: 0;
+    }
+
+    &:disabled {
+        @if ($flat != true) {
+          background-color: rgba(0, 0, 0, 0.12);
+        }
+
+        box-shadow: none;
+        color: rgba(0, 0, 0, 0.38);
+        cursor: default;
+        pointer-events: none;
+
+        &::before,
+        &::after {
+            display: none;
+        }
+    }
+
+    &:not(:disabled) {
+        --ripple-surface-width: 0;
+        --ripple-surface-height: 0;
+        --ripple-foreground-size: 0;
+        --ripple-left: 0;
+        --ripple-top: 0;
+        --ripple-foreground-scale: 1;
+        --ripple-foreground-translate-end: 0;
+        --ripple-foreground-translate-start: 0;
+
+        will-change: transform, opacity;
+        -webkit-tap-highlight-color: transparent;
+
+        &:not(.has-js) {
+            &::before {
+                background-color: transparent;
+                content: '';
+                left: -6px;
+                position: absolute;
+                top: -6px;
+                bottom: -6px;
+                right: -6px;
+            }
+
+            &::after {
+                @if ($flat == true) {
+                    background-color: transparentize($base-color, (1 - $opacity));
+                } @else {
+                    background-color: transparentize($accent-color, (1 - $opacity));
+                }
+                border-radius: 2px;
+                bottom: 0;
+                content: '';
+                left: 0;
+                opacity: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+                transition: opacity 250ms linear, z-index 250ms linear;
+                z-index: -1;
+            }
+
+            &:hover,
+            &:focus {
+                &::after {
+                    opacity: 0.6;
+                    transition-duration: 83ms;
+                }
+            }
+
+            &:active {
+                &::after {
+                    $offset: (1 - $opacity);
+
+                    @if ($flat == true) {
+                        background-color: transparentize($base-color, ($offset * $offset));
+                    } @else {
+                        background-color: transparentize($accent-color, ($offset * $offset));
+                    }
+
+                    opacity: 0.64;
+                    z-index: 3;
+                }
+            }
+        }
+
+        &.has-js {
+            &::before {
+                @if ($flat == true) {
+                    background-color: transparentize($base-color, (1 - $opacity));
+                } @else {
+                    background-color: transparentize($accent-color, (1 - $opacity));
+                }
+
+                border-radius: 50%;
+                content: '';
+                height: $radius * 2;
+                left: calc(50% - #{$radius});
+                opacity: 0;
+                pointer-events: none;
+                position: absolute;
+                top: calc(50% - #{$radius});
+                transform: scale(0);
+                transition: opacity 250ms linear;
+                width: $radius * 2;
+
+                /* @alternate */
+                height: $radius * 2;
+                left: calc(50% - #{$radius});
+                top: calc(50% - #{$radius});
+                transform: scale(var(--ripple-foreground-scale, 0));
+                width: $radius * 2;
+            }
+
+            &:hover::before {
+              opacity: 0.6;
+            }
+
+            &.ripple--background-focused::before {
+                opacity: .99999;
+            }
+
+            &.ripple--background-active-fill::before {
+                opacity: 1;
+                transition-duration: 120ms;
+            }
+
+            &.ripple--unbounded::before {
+                /* @alternate */
+                height: $radius;
+                height: var(--ripple-foreground-size, $radius);
+
+                /* @alternate */
+                left: calc(50% - #{$radius / 2});
+                left: var(--ripple-left, calc(50% - #{$radius / 2}));
+
+                /* @alternate */
+                top: calc(50% - #{$radius / 2});
+                top: var(--ripple-top, calc(50% - #{$radius / 2}));
+
+                /* @alternate */
+                transform: scale(0);
+                transform: scale(var(--ripple-foreground-scale, 0));
+
+                /* @alternate */
+                width: $radius;
+                width: var(--ripple-foreground-size, $radius);
+            }
+
+            &::after {
+                @if ($flat == true) {
+                    background-color: transparentize($base-color, (1 - $opacity));
+                } @else {
+                    background-color: transparentize($accent-color, (1 - $opacity));
+                }
+
+                border-radius: 50%;
+                content: '';
+                height: $radius * 2;
+                left: calc(50% - #{$radius});
+                opacity: 0;
+                pointer-events: none;
+                position: absolute;
+                top: calc(50% - #{$radius});
+                transform: scale(0);
+                transform-origin: center center;
+                transition: opacity 250ms linear;
+                width: $radius * 2;
+
+                /* @alternate */
+                height: $radius;
+                height: var(--ripple-foreground-size, $radius);
+
+                left: 0;
+
+                top: 0;
+
+                /* @alternate */
+                width: $radius;
+                width: var(--ripple-foreground-size, $radius);
+            }
+
+            &:not(.ripple--unbounded)::after {
+                transform-origin: center center;
+            }
+
+            &.ripple--unbounded::after {
+                /* @alternate */
+                height: $radius;
+                height: var(--ripple-foreground-size, $radius);
+
+                /* @alternate */
+                left: 0;
+                left: var(--ripple-left, 0);
+
+                /* @alternate */
+                top: 0;
+                top: var(--ripple-top, 0);
+
+                transform: scale(0);
+                transform-origin: center center;
+
+                /* @alternate */
+                width: $radius;
+                width: var(--ripple-foreground-size, $radius);
+            }
+
+            &.ripple--foreground-activation::after {
+                animation: 300ms ripple-fg-radius-in forwards,
+                            83ms ripple-fg-opacity-in forwards;
+            }
+            &.ripple--foreground-deactivation::after {
+                animation: 83ms ripple-fg-opacity-out;
+                // Retain transform from ripple-fg-radius-in activation
+                transform: translate(var(--ripple-foreground-translate-end, 0))
+                            scale(var(--ripple-foreground-scale, 1));
+            }
+        }
+    }
+
+
+    // &.has-js {
+    //     &::before {
+    //         @if ($flat == true) {
+    //             background-color: transparentize($base-color, (1 - $opacity));
+    //         } @else {
+    //             background-color: transparentize($accent-color, (1 - $opacity));
+    //         }
+    //
+    //         // background-color: rgba(0, 0, 0, 0.32);
+    //         bottom: 0;
+    //         content: '';
+    //         left: 0;
+    //         opacity: 0;
+    //         position: absolute;
+    //         right: 0;
+    //         top: 0;
+    //         transition: opacity 250ms linear;
+    //         z-index: -1;
+    //     }
+    //     &::after {
+    //         content: '';
+    //     }
+    //
+    //     &.bg-active {
+    //         &::before {
+    //             opacity: 1;
+    //             transition-duration: 120ms;
+    //         }
+    //         &::after {}
+    //     }
+    //
+    //     .fg-active {
+    //         &::before {}
+    //         &::after {}
+    //     }
+    // }
+}
+
+.btn-primary {
+    @include immaterial-button();
+}
+
+.btn-primary-flat {
+    @include immaterial-button((
+        // Primary flat button.
+        base-color: $primary-button-color,
+        opacity: 0.21,
+        is-flat: 'true',
+        // opacity: 0.32,
+    ));
+}
+
+
+// .aaa {
+//     -webkit-animation: none;
+//     animation: none;
+//     background: radial-gradient(circle farthest-side,rgba(0,0,0,0.12),rgba(0,0,0,0.12) 80%,rgba(0,0,0,0) 100%);
+//     -webkit-background-size: cover;
+//     background-size: cover;
+//     -webkit-border-radius: 50%;
+//     border-radius: 50%;
+//     display: none;
+//     height: 1px;
+//     margin-left: -50%;
+//     margin-top: -50%;
+//     pointer-events: none;
+//     position: absolute;
+//     -webkit-transform: scale(0);
+//     transform: scale(0);
+//     width: 1px;
+//
+//     height: 49.3356px;
+//     width: 49.3356px;
+//     margin-top: -24.6678px;
+//     margin-left: -24.6678px;
+//     left: 47px;
+//     top: 15px;
+// }

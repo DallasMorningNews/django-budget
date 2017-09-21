@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <link rel="stylesheet" href="https://cloud.typography.com/6922714/7642152/css/fonts.css">
+
+        <link rel="stylesheet" href="{% static 'inspections/css/card.css' %}" />
+    </head>
+    <body>
+        <div id="card">
+            <h3>Health inspection grade</h3>
+
+            <div class="gradebox grade-{{ establishment.latest_inspection_letter_grade }}">
+                <p class="grade">{{ establishment.latest_inspection_letter_grade }}</p>
+                <p class="score">{{ establishment.latest_inspection_numeric_grade }}/100</p>
+            </div>
+
+            <div class="details">
+                <h2>{{ establishment.establishment_name }}</h2>
+                <p>{{ establishment.address }}</p>
+                <p>{{ establishment.city }}, TX{% if establishment.zip_code %} {{ establishment.zip_code }}{% endif %}</p>
+                {% if establishment.latest_inspection_date %}<p>Last inspected: {{ establishment.latest_inspection_date|date:"N j, Y" }}</p>{% endif %}
+            </div>
+
+            <p><a href="{{ establishment.get_absolute_url }}">Click here to see inspection details.</a></p>
+        </div>
+    </body>
+</html>

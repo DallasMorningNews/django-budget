@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # App includes.
-    url(r'^staff/api/', include('staff.urls')),
+    url(r'^staff/', include('staff.urls')),
     url(r'^budget/', include('budget.urls')),
     url(r'^docs/api/', budget_apidocs_view),
     url(r'^auth/', include('apiauth.urls')),

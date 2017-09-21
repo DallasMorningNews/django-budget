@@ -1,10 +1,38 @@
-var gulp = require('./gulp')([
-    'vendor',
-    'sass',
+'use strict';
+
+const gulp = require('./gulp')([
     'browserify',
-    'watch',
-    'img'
+    'fonts',
+    'images',
+    'nunjucks',
+    'scss',
+    'server',
+    'test-data',
+    'watchify'
 ]);
 
-gulp.task('build', ['vendor','sass','browserify','watch']);
-gulp.task('default', ['build']);
+
+gulp.task(
+  'default',
+  [
+    'fonts',
+    'images',
+    'test-data',
+    'nunjucks',
+    'scss',
+    'watchify',
+    'server'
+  ]
+);
+
+gulp.task(
+  'build',
+  [
+    'fonts',
+    'images',
+    'test-data',
+    'nunjucks',
+    'scss',
+    'browserify'
+  ]
+);

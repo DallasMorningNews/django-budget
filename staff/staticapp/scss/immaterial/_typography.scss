@@ -1,0 +1,217 @@
+/*            */
+/* TYPOGRAPHY */
+/*            */
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:500,700');
+
+@mixin common-font-base() {
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+@mixin common-code-font-base() {
+    font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
+    -webkit-font-smoothing: antialiased
+}
+
+@mixin common-font-nowrap() {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@mixin typography-display-4() {
+    @include common-font-base();
+    @include common-font-nowrap();
+
+    font-size: 112px;
+    font-weight: 300;
+    letter-spacing: calc(-0.044 * 16px);
+    line-height: 120px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-display-3() {
+    @include common-font-base();
+    @include common-font-nowrap();
+
+    font-size: 56px;
+    font-weight: 400;
+    letter-spacing: calc(-0.026 * 16px);
+    line-height: 60px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-display-2() {
+    @include common-font-base();
+
+    font-size: 45px;
+    font-weight: 400;
+    letter-spacing: calc(-0.018 * 16px);
+    line-height: 48px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-display-1() {
+    @include common-font-base();
+
+    font-size: 34px;
+    font-weight: 400;
+    letter-spacing: calc(-0.01 * 16px);
+    line-height: 40px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-headline() {
+    @include common-font-base();
+
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: calc(-0.012 * 16px);
+    line-height: 32px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-title () {
+    @include common-font-base();
+    @include common-font-nowrap();
+
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: calc(0.02 * 16px);
+    line-height: 28px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-subheading-2() {
+    @include common-font-base();
+
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: calc(0.04 * 16px);
+    line-height: 24px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-subheading-1() {
+    @include common-font-base();
+
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: calc(0.04 * 16px);
+    line-height: 24px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+
+@mixin typography-body-1() {
+    @include common-font-base();
+
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: calc(0.04 * 16px);
+    line-height: 20px;
+    text-decoration: inherit;
+    text-transform: inherit;
+}
+@mixin typography-body-2() {
+    @include common-font-base();
+
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: calc(0.04 * 16px);
+    line-height: 24px;
+}
+
+@mixin typography-caption() {
+    @include common-font-base();
+    @include common-font-nowrap();
+
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: calc(0.008 * 16px);
+    line-height: 20px;
+}
+
+@mixin typography-menu-text() {
+    @include common-font-base();
+    @include common-font-nowrap();
+
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 24px;
+}
+
+@mixin typography-button-text() {
+    @include common-font-base();
+    @include common-font-nowrap();
+
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: calc(0.04 * 16px);
+    line-height: 24px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+body, h0, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 16px;
+
+  @include common-font-base();
+}
+
+h0 { @include typography-display-4(); }
+
+h1 { @include typography-display-3(); }
+
+h2 { @include typography-display-2(); }
+
+h3 { @include typography-display-1(); }
+
+h4 { @include typography-headline(); }
+
+h5 { @include typography-title(); }
+
+h6 { @include typography-subheading-2(); }
+
+p {
+    @include typography-body-1();
+
+    &.emphasized {
+        @include typography-body-2();
+    }
+
+    &.code {
+        font-weight: 500;
+        line-height: 20px;
+
+        @include common-code-font-base();
+
+        &.emphasized {
+            font-weight: 700;
+        }
+    }
+}
+
+.caption { @include typography-caption(); }
+
+.menu-text { @include typography-menu-text(); }
+
+.button-text { @include typography-button-text(); }
+
+.capped {
+    text-transform: uppercase;
+}

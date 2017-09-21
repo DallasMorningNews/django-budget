@@ -1,0 +1,135 @@
+{% extends 'staff/base.html' %}
+
+{% load bootstrap3 %}{% load staticfiles %}
+
+{% block html_title %}Create staffer | {{ block.super }}{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" type="text/css" href="{% static 'staff/css/main.css' %}">
+{% endblock %}
+
+{% block body_class %}create-staffer{% endblock %}
+
+{% block nav_header %}New staffer{% endblock nav_header %}
+
+{% block nav_class %}disable-feed{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'staff/js/staffer.create.js' %}" > </script>
+{% endblock %}
+
+{% block content %}
+<div class="form-holder unpadded">
+    <div class="tab-bar-holder among-content">
+        <nav id="basic-tab-bar" class="tab-bar">
+            <!-- <a class="tab tab-active" href="#slack-entry">Add from Slack profile</a>
+            <a class="tab" href="#manual-entry">Add manually</a> -->
+
+            <div class="tab tab-active" data-tab="slack-entry">Add from Slack profile</div>
+            <div class="tab" data-tab="manual-entry">Add manually</div>
+
+            <script type="text/javascript">
+                var tabs = document.getElementsByClassName('tab');
+
+                var currentTab = document.querySelector('.tab.tab-active');
+
+                for (var i = 0; i < tabs.length; i++) {
+                    var el = tabs[i];
+
+                    el.addEventListener(
+                        'click',
+                        (e) => {
+                            if (!e.target.classList.contains('has-js')) {
+                                e.preventDefault();
+
+                                currentTab.classList.remove('tab-active');
+
+                                e.target.classList.add('tab-active');
+
+                                currentTab = e.target;
+
+                                var activated = e.target.getAttribute('data-tab');
+
+                                var newEl = document.getElementById(activated);
+
+                                var tabsToHide = Array.from(
+                                  document.querySelectorAll('.tab:not(.has-js)')
+                                ).map(
+                                  el => el.getAttribute('data-tab')
+                                ).filter(e => e !== activated);
+
+                                if (!newEl.classList.contains('shown')) {
+                                    tabsToHide.forEach((tabToHide) => {
+                                      document.getElementById(tabToHide).classList.remove('shown');
+                                    });
+
+                                    newEl.classList.add('shown');
+                                }
+                            }
+                        },
+                        false
+                    );
+                };
+            </script>
+
+            <span class="tab-bar-indicator"></span>
+        </nav>
+    </div>
+
+    {% with placeholderEmail="user@"|add:mainEmailDomain %}
+    <form id="slack-entry" class="tabbed-area shown loading-cover" method="post" data-scraper-url="{% url "staff:api:staffer-rescrape" placeholderEmail %}" data-placeholder-email="{{ placeholderEmail }}">
+        <p class="emphasized">Enter a user&rsquo;s email address to automatically fill the form on the next page with their name and profile image as stored in Slack. (You&rsquo;ll be able to manually edit this information before&nbsp;saving.)</p>
+        <p class="emphasized">When ready, click <span>Continue</span> below to import the user's&nbsp;details.</p>
+        <p class="emphasized">If the user you want to create doesn&rsquo;t have an active Slack account associated with their email address, click <span>Add manually</span> above to skip the auto-loading&nbsp;process.</p>
+        <div class="inline-form">
+            <div class="form-group">
+                <input type="email" name="slack_email" maxlength="254" class="form-control" placeholder="{{ placeholderEmail }}" title="" id="id_slack_email" autocomplete="off">
+                <label class="control-label" for="id_slack_email">Email address</label>
+                <i class="bar"></i>
+                <div class="help-block"></div>
+            </div>
+
+            <div class="button-holder">
+                <button id="scrape-slack" class="btn btn-primary" type="submit" value="_scrape" name="scrape-slack">Look up user</button>
+            </div>
+        </div>
+
+        <div class="loading-label">
+            <svg class="im-spinner" width="42px" height="42px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+                <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+            </svg>
+            <p>Loading user information from Slack...</p>
+        </div>
+    </form>
+    {% endwith %}
+
+    <form id="manual-entry" class="tabbed-area" method="post">
+        {% bootstrap_form form layout='immaterial' %}
+        {% csrf_token %}
+
+        <div class="edit-actions">
+            <div class="wrap">
+                <div class="right-buttons">
+                    <button id="save" class="btn btn-primary" type="submit" value="_save" name="submit">Save</button>
+                    <!-- <input type="submit" class="prompt" value="Save" /> -->
+
+                    <button id="save-and-continue" class="btn btn-primary-flat" type="submit" name="submit" value="_continue">Save & continue editing</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+
+{% block snackbars %}
+<div class="snackbar"
+     aria-live="assertive"
+     aria-atomic="true"
+     aria-hidden="true">
+  <div class="snackbar-text">Text goes here.</div>
+  <div class="snackbar-action-wrapper">
+    <button type="button" class="btn snackbar-action-button">Dismiss</button>
+  </div>
+</div>
+{% endblock %}

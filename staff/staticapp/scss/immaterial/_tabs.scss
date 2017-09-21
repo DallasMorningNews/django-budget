@@ -1,0 +1,288 @@
+$tab-primary-color: $primary-color;
+$tab-secondary-color: lighten(desaturate($primary-color, 75%), 35%);
+
+$tab-ripple-opacity: 0.32;
+$tab-ripple-radius: 100%;
+
+$tab-height-with-text: 48px;
+$tab-height-with-icon-and-text: 72px;
+
+$animation-deceleration-curve-timing-function: cubic-bezier(0, 0, .2, 1);
+
+.tab {
+    @include typography-body-2();
+
+    box-sizing: border-box;
+    cursor: pointer;
+    display: table-cell;
+    min-height: $tab-height-with-text;
+    min-width: 160px;
+    overflow: hidden;
+    padding: 0 24px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    white-space: nowrap;
+
+    color: $tab-secondary-color;
+
+    &:hover {
+        color: $tab-primary-color;
+    }
+
+    &:focus {
+        outline-color: $tab-secondary-color;
+    }
+
+    @media screen and (max-width: 600px) {
+      min-width: 72px;
+      padding: 0 12px;
+    }
+
+    &-icon {
+        display: block;
+        height: 24px;
+        margin: 0 auto;
+        width: 24px;
+
+        .tab-icons-with-text & {
+            margin-top: 4px;
+        }
+    }
+
+    &-icon-text {
+        display: block;
+        margin: 0 auto;
+    }
+
+    &-icon + &-icon-text {
+        padding-top: 6px;
+    }
+}
+
+.tab-active {
+    color: $tab-primary-color;
+
+    &.dark {
+      color: #FFFFFF;
+    }
+
+    &::before {
+        bottom: 0;
+    }
+}
+
+.tab-bar:not(.has-js) .tab {
+    position: relative;
+
+    &::after {
+        content: '';
+        display: none;
+        height: 2px;
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: $tab-height-with-text - 2px;
+        width: calc(100% - 4px);
+
+        background-color: $tab-primary-color;
+
+        // .toolbar & {
+        //     // Was 'text-primary-on-primary'.
+        //     background-color: $tab-primary-color;
+        // }
+    }
+
+    &-active,
+    &:active,
+    &:hover {
+        &::after {
+            display: block;
+        }
+    }
+
+    &:not(.tab-active):hover::after {
+        opacity: 0.38;
+    }
+
+    &-active,
+    &:not(.tab-active):active::after {
+        opacity: 0.87;
+    }
+}
+
+.tab-bar-icons-with-text:not(.has-js) .tab::after {
+    top: $tab-height-with-icon-and-text - 2px;
+}
+
+.tab.has-js {
+    --ripple-surface-width: 0;
+    --ripple-surface-height: 0;
+    --ripple-foreground-size: 0;
+    --ripple-left: 0;
+    --ripple-top: 0;
+    --ripple-foreground-scale: 1;
+    --ripple-foreground-translate-end: 0;
+    --ripple-foreground-translate-start: 0;
+
+    will-change: transform, opacity;
+    -webkit-tap-highlight-color: transparent;
+
+
+    &::after {
+        background-color: transparentize(
+            $tab-primary-color,
+            (1 - $tab-ripple-opacity)
+        );
+        border-radius: 50%;
+        content: '';
+        height: $tab-ripple-radius * 2;
+        left: calc(50% - #{$tab-ripple-radius});
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: calc(50% - #{$tab-ripple-radius});
+        transform: scale(0);
+        transform-origin: center center;
+        transition: opacity 250ms linear;
+        width: $tab-ripple-radius * 2;
+
+        /* @alternate */
+        height: tab-ripple-radius;
+        height: var(--ripple-foreground-size, $tab-ripple-radius);
+
+        left: 0;
+
+        top: 0;
+
+        /* @alternate */
+        width: $tab-ripple-radius;
+        width: var(--ripple-foreground-size, $tab-ripple-radius);
+    }
+
+    &:not(.ripple--unbounded)::after {
+        transform-origin: center center;
+    }
+
+    &.ripple--unbounded::after {
+        /* @alternate */
+        height: $tab-ripple-radius;
+        height: var(--ripple-foreground-size, $tab-ripple-radius);
+
+        /* @alternate */
+        left: 0;
+        left: var(--ripple-left, 0);
+
+        /* @alternate */
+        top: 0;
+        top: var(--ripple-top, 0);
+
+        transform: scale(0);
+        transform-origin: center center;
+
+        /* @alternate */
+        width: $tab-ripple-radius;
+        width: var(--ripple-foreground-size, $tab-ripple-radius);
+    }
+
+    &.ripple--foreground-activation::after {
+        animation: 300ms ripple-fg-radius-in forwards,
+                    83ms ripple-fg-opacity-in forwards;
+    }
+    &.ripple--foreground-deactivation::after {
+        animation: 83ms ripple-fg-opacity-out;
+        // Retain transform from ripple-fg-radius-in activation
+        transform: translate(var(--ripple-foreground-translate-end, 0))
+                    scale(var(--ripple-foreground-scale, 1));
+    }
+
+    // .toolbar & {
+    //   @include ripple-bg((pseudo: "::before", base-color: map-get($theme-property-values, text-primary-on-primary), opacity: .16));
+    //   @include ripple-fg((pseudo: "::after", base-color: map-get($theme-property-values, text-primary-on-primary), opacity: .16));
+    // }
+
+    &:focus {
+        outline: none;
+    }
+}
+
+
+/* --------------- */
+
+.tab-bar {
+    display: table;
+    height: 48px;
+    margin: 0 auto;
+    position: relative;
+    text-transform: uppercase;
+
+    &-indicator {
+        background-color: $tab-primary-color;
+        bottom: 0;
+        height: 2px;
+        left: 0;
+        position: absolute;
+        transform-origin: left top;
+        transition: transform 240ms 0ms $animation-deceleration-curve-timing-function;
+        visibility: hidden;
+        width: 100%;
+        will-change: transform;
+    }
+
+    .toolbar & {
+      .tab {
+          color: $tab-secondary-color;  // Was 'text-secondary-on-primary'.
+      }
+
+      .tab-active,
+      .tab:hover {
+          color: $tab-primary-color;  // Was 'text-primary-on-primary'.
+      }
+
+      // postcss-bem-linter: ignore
+      .tab-bar-indicator {
+          color: $tab-primary-color;  // Was 'text-primary-on-primary'.
+      }
+    }
+}
+
+.tab-icons-with-text {
+    height: 72px;
+}
+
+.tab-bar-indicator-primary,
+.toolbar .tab-bar-indicator-primary {
+    .tab-bar-indicator {
+        background-color: $tab-primary-color;
+    }
+
+    &.tab-bar:not(.has-js) .tab::after {
+        background-color: $tab-primary-color;
+    }
+}
+
+.tab-bar-indicator-accent,
+.toolbar .tab-bar-indicator-accent {
+    .tab-bar-indicator {
+        background-color: $tab-secondary-color;
+    }
+
+    &.tab-bar:not(.has-js) .tab::after {
+        background-color: $tab-secondary-color;
+    }
+}
+
+
+.tabbed-area {
+    display: none;
+
+    &.shown {
+        display: block;
+    }
+}
+
+.tab-bar-holder.among-content {
+    border-bottom: 1px solid rgba(0,0,0,0.0975);
+    padding-top: 2px;
+}

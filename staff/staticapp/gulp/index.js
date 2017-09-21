@@ -1,9 +1,12 @@
-var gulp = require('gulp');
+'use strict';
 
-module.exports = function(tasks) {
-    tasks.forEach(function(name) {
-        gulp.task(name, require('./tasks/' + name));
-    });
+const gulp = require('gulp');
 
-    return gulp;
+
+module.exports = (tasks) => {
+  tasks.forEach((name) => {
+    gulp.task(name, require(`./tasks/${name}`)); // eslint-disable-line import/no-dynamic-require,global-require
+  });
+
+  return gulp;
 };
