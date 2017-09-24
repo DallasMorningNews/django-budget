@@ -142,6 +142,7 @@ class PrintPublication(models.Model):
 
     class Meta:  # NOQA
         ordering = ['priority', 'is_active', 'slug']
+        verbose_name = "publishing destination"
 
     def __str__(self):
         """String formatting."""
@@ -171,7 +172,7 @@ class PrintSection(models.Model):
         on_delete=models.CASCADE,
     )
     priority = models.PositiveSmallIntegerField(
-        default=10,
+        default=0,
         help_text=' '.join([
             'In the list of all active print publications,',
             'how high should this entry show up?'
@@ -192,13 +193,11 @@ class PrintSection(models.Model):
 
     class Meta:  # NOQA
         ordering = [
-            'publication__priority',
-            'publication__is_active',
-            'publication__slug',
             'priority',
             'is_active',
             'slug',
         ]
+        verbose_name = "placement type"
 
     def __str__(self):
         """String formatting."""
