@@ -3,22 +3,21 @@
 /*           */
 
 // $primary-color: #446178;
-$primary-color: #00695C;
+$primary-color: #00695C;  // 800
 
 // $primary-button-color: #446178;
-$primary-button-color: #00796B;
+$primary-button-color: #00796B;  // 700
 
 // $form-focus-color: #337AB7;
-$form-focus-color: #00897B;
+$form-focus-color: #00897B;  // 600
 $form-error-color: #D9534F !default;
 $form-transition-speed: 0.28s !default;
 
+
+$snackbar-secondary-color: #80CBC4 !default;  // 200
+
 $base-lr-gutter: 24px;
 
-$bmd-animation-curve-fast-out-slow-in: cubic-bezier(0.4, 0, 0.2, 1) !default;
-$bmd-animation-curve-linear-out-slow-in: cubic-bezier(0, 0, 0.2, 1) !default;
-$bmd-animation-curve-fast-out-linear-in: cubic-bezier(0.4, 0, 1, 1) !default;
-$bmd-animation-curve-default: $bmd-animation-curve-fast-out-slow-in !default;
 
 @mixin undo-bs-tab-focus() {
   // clear out the tab-focus() from BS
