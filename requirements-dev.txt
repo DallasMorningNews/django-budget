@@ -4,6 +4,6 @@ moto==0.4.31  # last one first-class with boto 2 support
 tblib
 freezegun
 flake8
-ipython
+ipython==6.2.0
 pip-tools
 -r requirements.txt
