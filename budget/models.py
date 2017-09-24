@@ -282,9 +282,9 @@ class Package(CreationTrailModel):
 
     # Placement
     published_url = models.URLField(blank=True, null=True)
-    print_section = models.ManyToManyField(PrintSection, blank=True)
-    print_run_date_old = models.DateField(blank=True, null=True)
-    print_run_date = DateRangeField(blank=True, null=True)
+    # print_section = models.ManyToManyField(PrintSection, blank=True)
+    # print_run_date_old = models.DateField(blank=True, null=True)
+    # print_run_date = DateRangeField(blank=True, null=True)
 
     slug_key = models.CharField(
         # Package slug keys can be longer than Item slug keys, to allow for
@@ -298,13 +298,17 @@ class Package(CreationTrailModel):
         # once we've migrated primary content items' slugs to this field.
     )
 
-    print_placements = ArrayField(
-        models.CharField(max_length=15, blank=True, null=True),
-        blank=True,
-        null=True,
-    )
-    print_system_slug = models.CharField(max_length=250, blank=True, null=True)
-    is_print_placement_finalized = models.BooleanField(default=False)
+    # print_placements = ArrayField(
+    #     models.CharField(max_length=15, blank=True, null=True),
+    #     blank=True,
+    #     null=True,
+    # )
+    # print_system_slug = models.CharField(
+    #     max_length=250,
+    #     blank=True,
+    #     null=True
+    # )
+    # is_print_placement_finalized = models.BooleanField(default=False)
 
     # TODO(ajv/achavez): Deprecate this in favor of using publish_date
     pub_date = models.DateTimeField(blank=True, null=True, editable=False)
