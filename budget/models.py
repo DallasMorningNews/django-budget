@@ -521,6 +521,43 @@ class Item(CreationTrailModel):
                     })
 
 
+class ContentPlacement(CreationTrailModel):
+    """"""
+    package = models.ForeignKey(
+        Package,
+        related_name='placements',
+        on_delete=models.CASCADE
+    )
+
+    destination = models.ForeignKey(
+        PrintPublication,
+        related_name='placed_content',
+        on_delete=models.CASCADE
+    )
+    placement_types = ArrayField(
+        models.CharField(max_length=15, blank=True, null=True),
+        blank=True,
+        null=True,
+    )
+    placement_details = models.CharField(
+        max_length=25,
+        help_text='E.G., print page number.'
+    )
+
+    run_date = DateRangeField(blank=True, null=True)
+
+    external_slug = models.CharField(max_length=250, blank=True, null=True)
+
+    is_finalized = models.BooleanField(default=False)
+
+    def __str__(self):
+        """String formatting."""
+        return '{} in {}'.format(
+            self.package.full_slug,
+            self.destination.name
+        )
+
+
 class Headline(models.Model):
     """Headline model."""
 
