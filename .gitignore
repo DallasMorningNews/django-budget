@@ -247,3 +247,4 @@ aws.json
 .awspublish*
 
 *.sql
+f_*.json
