@@ -14,6 +14,10 @@ from budget.models import (  # NOQA
 )
 
 
+# Imports from other dependencies.
+from adminsortable2.admin import SortableInlineAdminMixin
+
+
 admin.site.register(Headline)
 admin.site.register(HeadlineVote)
 
@@ -90,6 +94,11 @@ class ItemAdmin(admin.ModelAdmin):
     is_primary.boolean = True
 
 
+class PrintSectionInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = PrintSection
+    extra = 0
+
+
 @admin.register(PrintPublication)
 class PrintPublicationAdmin(admin.ModelAdmin):
     """Admin config for print publications."""
@@ -106,15 +115,10 @@ class PrintPublicationAdmin(admin.ModelAdmin):
             'fields': ('slug',),
         }),
     )
+    inlines = [PrintSectionInline]
     prepopulated_fields = {
         'slug': ('name',)
     }
-
-
-@admin.register(PrintSection)
-class PrintSectionAdmin(admin.ModelAdmin):
-    """(Un-tailored) admin config for print sections."""
-    pass
 
 
 @admin.register(Change)
