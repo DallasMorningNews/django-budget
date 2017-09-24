@@ -15,7 +15,7 @@ import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/hea
 import MainFormBindingsView from '../../itemviews/package-edit-bindings/main-form';
 import ModalView from '../../itemviews/modals/modal-window';
 import NotesGroupBindingsView from '../../itemviews/package-edit-bindings/notes-group';
-import PubGroupBindingsView from '../../itemviews/package-edit-bindings/publishing-group';
+// import PubGroupBindingsView from '../../itemviews/package-edit-bindings/publishing-group';
 import SnackbarView from '../../itemviews/snackbars/snackbar';
 import urlConfig from '../../misc/urls';
 
@@ -61,13 +61,13 @@ const uiElements = {
   headlineVoteSubmissionToggleInput: '#package-form #vote-submission-toggle input',
   notesField: '#package-form #notes-quill .text-holder',
   notesToolbar: '#package-form #notes-quill .toolbar-holder',
-  publishingGroup: '#package-form #publishing-fields',
+  // publishingGroup: '#package-form #publishing-fields',
   urlField: '#package-form #url',
-  printRunDatesGroup: '#package-form #publishing-fields #print-run-dates',
-  printPublicationDropdown: '#package-form #print-publication',
-  printSystemSlugField: '#package-form #print-system-slug',
-  printSectionCheckboxes: '#package-form #print-sections',
-  printFinalized: '#package-form #is_placement_finalized',
+  // printRunDatesGroup: '#package-form #publishing-fields #print-run-dates',
+  // printPublicationDropdown: '#package-form #print-publication',
+  // printSystemSlugField: '#package-form #print-system-slug',
+  // printSectionCheckboxes: '#package-form #print-sections',
+  // printFinalized: '#package-form #is_placement_finalized',
         /* eslint-disable indent */
         addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
         bottomButtonHolder: '.single-page .bottom-button-holder',
@@ -145,19 +145,19 @@ export default Mn.CompositeView.extend({
       extraContext: {},
     });
 
-    const pubGroupBindings = new PubGroupBindingsView({
-      model: this.model,
-      parentUI: this.ui,
-      uiElements,
-
-      extraContext: {
-        getActivePublication: () => this.activePublication,
-        printPlacementChoices: this.printPlacementChoices,
-        printPublicationSections: this.printPublicationSections,
-        sectionPublicationMap: this.sectionPublicationMap,
-        setActivePublication: (newPub) => { this.activePublication = newPub; },
-      },
-    });
+    // const pubGroupBindings = new PubGroupBindingsView({
+    //   model: this.model,
+    //   parentUI: this.ui,
+    //   uiElements,
+    //
+    //   extraContext: {
+    //     getActivePublication: () => this.activePublication,
+    //     printPlacementChoices: this.printPlacementChoices,
+    //     printPublicationSections: this.printPublicationSections,
+    //     sectionPublicationMap: this.sectionPublicationMap,
+    //     setActivePublication: (newPub) => { this.activePublication = newPub; },
+    //   },
+    // });
 
     if (showHeadlines === true) {
       return Object.assign(
@@ -165,7 +165,7 @@ export default Mn.CompositeView.extend({
         mainFormBindings.getBindings(),
         headlineGroupBindings.getBindings(),
         notesGroupBindings.getBindings(),
-        pubGroupBindings.getBindings(),
+        // pubGroupBindings.getBindings(),
       );
     }
 
@@ -173,7 +173,7 @@ export default Mn.CompositeView.extend({
       baseStructureBindings.getBindings(),
       mainFormBindings.getBindings(),
       notesGroupBindings.getBindings(),
-      pubGroupBindings.getBindings(),
+      // pubGroupBindings.getBindings(),
     );
   },
 
@@ -289,15 +289,15 @@ export default Mn.CompositeView.extend({
 
   serializeData() {
     const context = {
-      hasPrintSystemSlug: false,
+      // hasPrintSystemSlug: false,
       showHeadlines: this.radio.reqres.request('getSetting', 'showHeadlines'),
     };
 
-    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
-    if (printSlugName !== null) {
-      context.hasPrintSystemSlug = true;
-      context.printSlugName = printSlugName;
-    }
+    // const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
+    // if (printSlugName !== null) {
+    //   context.hasPrintSystemSlug = true;
+    //   context.printSlugName = printSlugName;
+    // }
 
     const externalURLs = this.radio.reqres.request('getSetting', 'externalURLs');
 
@@ -566,7 +566,7 @@ export default Mn.CompositeView.extend({
 
   saveAllComponents(successCallback, errorCallback) {
     const savePromise = new jQuery.Deferred();
-    const cachedPrintSections = _.clone(this.model.get('printSection'));
+    // const cachedPrintSections = _.clone(this.model.get('printSection'));
 
     const packageSave = this.model.save(
       undefined,
@@ -582,13 +582,13 @@ export default Mn.CompositeView.extend({
       const packageID = mdl.id;
       const wasCreated = (opts.statusText.toLowerCase() === 'created');
 
-      // Restore the print sections that were cached on save -- for
-      // some reason, they revert to their old values in the
-      // re-hydration at the end of 'save()'.
-      // That glitch is momentary, though: the correct updates still
-      // get applied to the remote version. This is just a shim for
-      // local rendering.
-      this.model.set('printSection', cachedPrintSections);
+      // // Restore the print sections that were cached on save -- for
+      // // some reason, they revert to their old values in the
+      // // re-hydration at the end of 'save()'.
+      // // That glitch is momentary, though: the correct updates still
+      // // get applied to the remote version. This is just a shim for
+      // // local rendering.
+      // this.model.set('printSection', cachedPrintSections);
 
       this.model.primaryContentItem.set(
         'primaryForPackage',

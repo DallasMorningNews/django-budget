@@ -1,7 +1,7 @@
 import 'underscore.string';
 import _ from 'underscore';
 
-import deline from '../../../vendored/deline';
+// import deline from '../../../vendored/deline';
 
 import PackageItemView from './package-base';
 
@@ -45,16 +45,16 @@ export default PackageItemView.extend({
     const packageObj = this.model.toJSON();
     const packageHub = this.options.hubConfigs.findWhere({ slug: packageObj.hub });
     const additionals = this.model.additionalContentCollection;
-    const moment = this.radio.reqres.request('getSetting', 'moment');
-    const defaultTimezone = this.radio.reqres.request(
-      'getSetting',
-      'defaultTimezone'  // eslint-disable-line comma-dangle
-    );
+    // const moment = this.radio.reqres.request('getSetting', 'moment');
+    // const defaultTimezone = this.radio.reqres.request(
+    //   'getSetting',
+    //   'defaultTimezone'  // eslint-disable-line comma-dangle
+    // );
 
-    const printDateStart = moment(this.model.get('printRunDate')[0], 'YYYY-MM-DD')
-            .tz(defaultTimezone);
-    const printDateEnd = moment(this.model.get('printRunDate')[1], 'YYYY-MM-DD')
-            .tz(defaultTimezone).subtract({ days: 1 });
+    // const printDateStart = moment(this.model.get('printRunDate')[0], 'YYYY-MM-DD')
+    //         .tz(defaultTimezone);
+    // const printDateEnd = moment(this.model.get('printRunDate')[1], 'YYYY-MM-DD')
+    //         .tz(defaultTimezone).subtract({ days: 1 });
 
     // Template context, in order of appearance:
 
@@ -90,56 +90,56 @@ export default PackageItemView.extend({
       templateContext.verticalName = packageHub.get('vertical').name;
     }
 
-    // Print placement lists.
-    templateContext.formattedPrintPlacements = _.chain(this.model.get('printSection'))
-        .map((sectionID) => {
-          const matchingSection = _.findWhere(
-            this.options.allSections,
-            { id: sectionID }  // eslint-disable-line comma-dangle
-          );
-
-          if (!_.isUndefined(matchingSection)) {
-            return {
-              name: matchingSection.name,
-              priority: matchingSection.priority,
-            };
-          }
-
-          return null;
-        })
-        .compact()
-        .sortBy('priority')
-        .pluck('name')
-        .value();
-
-    // Formatted print run date.
-    if (printDateStart.year() === printDateEnd.year()) {
-      if (printDateStart.month() === printDateEnd.month()) {
-        if (printDateStart.date() === printDateEnd.date()) {
-          templateContext.formattedPrintRunDate = printDateStart.format(
-            'MMM D, YYYY'  // eslint-disable-line comma-dangle
-          );
-        } else {
-          templateContext.formattedPrintRunDate = deline`${
-            printDateStart.format('MMM D')
-          } - ${
-            printDateEnd.format('D, YYYY')
-          }`;
-        }
-      } else {
-        templateContext.formattedPrintRunDate = deline`${
-          printDateStart.format('MMM D')
-        } - ${
-          printDateEnd.format('MMM D, YYYY')
-        }`;
-      }
-    } else {
-      templateContext.formattedPrintRunDate = deline`${
-        printDateStart.format('MMM D, YYYY')
-      } - ${
-        printDateEnd.format('MMM D, YYYY')
-      }`;
-    }
+    // // Print placement lists.
+    // templateContext.formattedPrintPlacements = _.chain(this.model.get('printSection'))
+    //     .map((sectionID) => {
+    //       const matchingSection = _.findWhere(
+    //         this.options.allSections,
+    //         { id: sectionID }  // eslint-disable-line comma-dangle
+    //       );
+    //
+    //       if (!_.isUndefined(matchingSection)) {
+    //         return {
+    //           name: matchingSection.name,
+    //           priority: matchingSection.priority,
+    //         };
+    //       }
+    //
+    //       return null;
+    //     })
+    //     .compact()
+    //     .sortBy('priority')
+    //     .pluck('name')
+    //     .value();
+    //
+    // // Formatted print run date.
+    // if (printDateStart.year() === printDateEnd.year()) {
+    //   if (printDateStart.month() === printDateEnd.month()) {
+    //     if (printDateStart.date() === printDateEnd.date()) {
+    //       templateContext.formattedPrintRunDate = printDateStart.format(
+    //         'MMM D, YYYY'  // eslint-disable-line comma-dangle
+    //       );
+    //     } else {
+    //       templateContext.formattedPrintRunDate = deline`${
+    //         printDateStart.format('MMM D')
+    //       } - ${
+    //         printDateEnd.format('D, YYYY')
+    //       }`;
+    //     }
+    //   } else {
+    //     templateContext.formattedPrintRunDate = deline`${
+    //       printDateStart.format('MMM D')
+    //     } - ${
+    //       printDateEnd.format('MMM D, YYYY')
+    //     }`;
+    //   }
+    // } else {
+    //   templateContext.formattedPrintRunDate = deline`${
+    //     printDateStart.format('MMM D, YYYY')
+    //   } - ${
+    //     printDateEnd.format('MMM D, YYYY')
+    //   }`;
+    // }
 
     // Editor and author lists.
     templateContext.allPeople = _.union(

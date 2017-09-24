@@ -30,10 +30,10 @@ export default CSRFAwareModel.extend({
     headlineCandidates: [],
     headlineStatus: 'drafting',
 
-    printPlacements: null,
-    isPrintPlacementFinalized: false,
-    printRunDate: null,
-    publication: null,
+    // printPlacements: null,
+    // isPrintPlacementFinalized: false,
+    // printRunDate: null,
+    // publication: null,
 
     publishDate: [],
     publishDateResolution: null,
@@ -482,20 +482,20 @@ export default CSRFAwareModel.extend({
     return ['Invalid date'];
   },
 
-  generateFormattedRunDate(formatString, runDateValue) {
-    const value = (
-        !_.isUndefined(runDateValue)
-    ) ? runDateValue : this.get('printRunDate');
-
-    const defaultTimezone = this.radio.reqres.request(
-      'getSetting',
-      'defaultTimezone'  // eslint-disable-line comma-dangle
-    );
-
-    return this.moment(value, formatString)
-                        .tz(defaultTimezone)
-                        .toDate();
-  },
+  // generateFormattedRunDate(formatString, runDateValue) {
+  //   const value = (
+  //       !_.isUndefined(runDateValue)
+  //   ) ? runDateValue : this.get('printRunDate');
+  //
+  //   const defaultTimezone = this.radio.reqres.request(
+  //     'getSetting',
+  //     'defaultTimezone'  // eslint-disable-line comma-dangle
+  //   );
+  //
+  //   return this.moment(value, formatString)
+  //                       .tz(defaultTimezone)
+  //                       .toDate();
+  // },
 
   parseRunDate(formatString, runDate) {
     const defaultTimezone = this.radio.reqres.request(
