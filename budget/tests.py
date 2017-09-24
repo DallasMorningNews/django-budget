@@ -89,7 +89,7 @@ def package_factory(publish_date_lower=tz.localize(datetime(2015, 5, 1)),
         notes='Notes field',
         publish_date=DateTimeTZRange(lower=publish_date_lower,
                                      upper=publish_date_upper),
-        print_run_date=print_run_date,
+        # print_run_date=print_run_date,
         slug_key=slug_key
     )
 
@@ -800,20 +800,23 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
         response = self.client.get(PACKAGES_API_ENDPOINT, data=query)
         self.assertEqual(json.loads(response.content)['count'], 3)
 
-    def test_print_date_filter(self):
-        """A comma-separated print_date param should perform a range query on
-        print_run_date"""
-        package_factory(
-            print_run_date=DateRange(
-                lower=date(2015, 5, 3),
-                upper=date(2015, 5, 4)
-            ),
-            slug_key='test-pkg-api-pdf'
-        )
-
-        query = {'format': 'json', 'print_run_date': '2015-05-03,2015-05-04'}
-        response = self.client.get(PACKAGES_API_ENDPOINT, data=query)
-        self.assertEqual(json.loads(response.content)['count'], 1)
+    # def test_print_date_filter(self):
+    #     """A comma-separated print_date param should perform a range query on
+    #     print_run_date"""
+    #     package_factory(
+    #         print_run_date=DateRange(
+    #             lower=date(2015, 5, 3),
+    #             upper=date(2015, 5, 4)
+    #         ),
+    #         slug_key='test-pkg-api-pdf'
+    #     )
+    #
+    #     query = {
+    #         'format': 'json',
+    #         'print_run_date': '2015-05-03,2015-05-04'
+    #     }
+    #     response = self.client.get(PACKAGES_API_ENDPOINT, data=query)
+    #     self.assertEqual(json.loads(response.content)['count'], 1)
 
     def test_get_by_slug(self):
         """The package detail view should allow GETing by slug"""
@@ -932,52 +935,53 @@ class PackagesAPITestCase(AuthedApiTestMixin, TestCase):
 
         self.assertEqual(ids_with_sort, ids_no_sort)
 
-    def test_sort_by_print_run_date(self):
-        """print_run_date should sort by upper bound, then by range
-        precision"""
-        package_factory(
-            slug_key='test-one',
-            print_run_date=DateRange(
-                lower=date(2015, 5, 1),
-                upper=date(2015, 5, 3)
-            )
-        )
-        package_factory(
-            slug_key='test-two',
-            print_run_date=DateRange(
-                lower=date(2015, 5, 1),
-                upper=date(2015, 5, 2)
-            )
-        )
-        package_factory(
-            slug_key='test-three',
-            print_run_date=DateRange(
-                lower=date(2015, 5, 2),
-                upper=date(2015, 5, 3)
-            )
-        )
-
-        response = self.client.get(
-            PACKAGES_API_ENDPOINT,
-            data={
-                'format': 'json',
-                'ordering': 'print_run_date',
-                'print_run_date': '2015-05-01,2015-05-04'
-            }
-        )
-
-        # Get the publish dates of the returned packages and make sure they
-        # align with what we expect
-        returned_dates = [
-            x['printRunDate'] for x in json.loads(response.content)['results']
-        ]
-
-        expected_dates = [
-            ['2015-05-02', '2015-05-03'],
-            ['2015-05-01', '2015-05-03'],
-            ['2015-05-01', '2015-05-02']
-        ]
-        self.assertListEqual(returned_dates, expected_dates)
+    # def test_sort_by_print_run_date(self):
+    #     """print_run_date should sort by upper bound, then by range
+    #     precision"""
+    #     package_factory(
+    #         slug_key='test-one',
+    #         print_run_date=DateRange(
+    #             lower=date(2015, 5, 1),
+    #             upper=date(2015, 5, 3)
+    #         )
+    #     )
+    #     package_factory(
+    #         slug_key='test-two',
+    #         print_run_date=DateRange(
+    #             lower=date(2015, 5, 1),
+    #             upper=date(2015, 5, 2)
+    #         )
+    #     )
+    #     package_factory(
+    #         slug_key='test-three',
+    #         print_run_date=DateRange(
+    #             lower=date(2015, 5, 2),
+    #             upper=date(2015, 5, 3)
+    #         )
+    #     )
+    #
+    #     response = self.client.get(
+    #         PACKAGES_API_ENDPOINT,
+    #         data={
+    #             'format': 'json',
+    #             'ordering': 'print_run_date',
+    #             'print_run_date': '2015-05-01,2015-05-04'
+    #         }
+    #     )
+    #
+    #     # Get the publish dates of the returned packages and make sure they
+    #     # align with what we expect
+    #     returned_dates = [
+    #         x['printRunDate']
+    #         for x in json.loads(response.content)['results']
+    #     ]
+    #
+    #     expected_dates = [
+    #         ['2015-05-02', '2015-05-03'],
+    #         ['2015-05-01', '2015-05-03'],
+    #         ['2015-05-01', '2015-05-02']
+    #     ]
+    #     self.assertListEqual(returned_dates, expected_dates)
 
     def test_searches_budget_lines(self):
         """Search queries should find packages based on both primary and

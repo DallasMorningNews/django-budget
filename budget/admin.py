@@ -35,15 +35,15 @@ class PackageAdmin(admin.ModelAdmin):
         ('Digital publishing info', {
             'fields': ('publish_date', 'published_url', 'notes')
         }),
-        ('Print publishing info', {
-            'fields': (
-                'print_section',
-                'print_system_slug',
-                'print_run_date',
-                'print_placements',
-                'is_print_placement_finalized'
-            )
-        }),
+        # ('Print publishing info', {
+        #     'fields': (
+        #         'print_section',
+        #         'print_system_slug',
+        #         'print_run_date',
+        #         'print_placements',
+        #         'is_print_placement_finalized'
+        #     )
+        # }),
         ('Headlines', {
             'fields': ('headline_status',)
         }),

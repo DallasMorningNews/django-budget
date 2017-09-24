@@ -216,7 +216,7 @@ class ItemSerializer(UserMetadataMixin, serializers.ModelSerializer):
 
 class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
     publish_date = DateTimeRangeField()
-    print_run_date = DateRangeField(allow_null=True, required=False)
+    # print_run_date = DateRangeField(allow_null=True, required=False)
 
     primary_content = serializers.PrimaryKeyRelatedField(read_only=True)
     additional_content = serializers.PrimaryKeyRelatedField(
@@ -229,11 +229,11 @@ class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
         many=True,
         queryset=Headline.objects.all()
     )
-    print_section = serializers.PrimaryKeyRelatedField(
-        required=False,
-        many=True,
-        queryset=PrintSection.objects.all()
-    )
+    # print_section = serializers.PrimaryKeyRelatedField(
+    #     required=False,
+    #     many=True,
+    #     queryset=PrintSection.objects.all()
+    # )
 
     slug = serializers.ReadOnlyField(source='full_slug')
     slug_date = serializers.ReadOnlyField(source='slugified_date')
@@ -262,11 +262,11 @@ class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
             'published_url',
             'headline_status',
             'headline_candidates',
-            'print_run_date',
-            'print_system_slug',
-            'print_placements',
-            'print_section',
-            'is_print_placement_finalized',
+            # 'print_run_date',
+            # 'print_system_slug',
+            # 'print_placements',
+            # 'print_section',
+            # 'is_print_placement_finalized',
             'notes',
             'primary_content',
             'additional_content',

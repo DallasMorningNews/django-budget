@@ -211,7 +211,10 @@ class PackageViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
     filter_class = PackageViewFilter
 
     queryset = Package.objects.distinct().prefetch_related(
-        'additional_content', 'headline_candidates', 'print_section',)
+        'additional_content',
+        'headline_candidates',
+        # 'print_section',
+    )
 
     def get_object(self):
         """Attempt to retrieve the package by multiple means.
