@@ -84,6 +84,11 @@ class MainBudgetView(TemplateView):
         return context
 
 
+class ExceptionView(View):
+    def get(self, request, *args, **kwargs):
+        return 1 / 0
+
+
 class ConfigView(View):
     def get(self, request, *args, **kwargs):
         originURL = request.GET.get('origin')

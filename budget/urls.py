@@ -5,6 +5,7 @@ from django.conf.urls import url, include  # NOQA
 # Imports from budget.
 from budget.views import (  # NOQA
     ConfigView,
+    ExceptionView,
     HeadlineViewSet,
     HeadlineVoteViewSet,
     ItemViewSet,
@@ -31,6 +32,8 @@ router.register(r'headline-votes', HeadlineVoteViewSet)
 
 urlpatterns = [
     url(r'^api/', include(router.urls)),
+
+    url(r'^exception/$', ExceptionView.as_view()),
 
     # Add an extra custom route here because the built-in REST RegEx won't
     # match our slugs because of the double-dots
