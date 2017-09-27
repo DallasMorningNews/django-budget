@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_filters',
     'debug_toolbar',
+    'raven.contrib.django.raven_compat',
 
     'apiauth',
     'staff',
