@@ -360,7 +360,7 @@ except KeyError:
 
 
 # Opbeat (error monitoring)
-# See <link TK>
+# See https://opbeat.com/docs/articles/get-started-with-django/
 if 'OPBEAT_ORGANIZATION_ID' in os.environ:
     OPBEAT = {
         'ORGANIZATION_ID': os.environ.get('OPBEAT_ORGANIZATION_ID', ''),
