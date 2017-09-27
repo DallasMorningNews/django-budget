@@ -28,12 +28,22 @@ class Vertical(models.Model):
         }
 
 
+class HubManager(models.Manager):
+    def get_queryset(self):
+        return super(
+            HubManager,
+            self
+        ).get_queryset().select_related('vertical')
+
+
 class Hub(models.Model):
     """Model for lower-level organizational entities."""
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100)
     vertical = models.ForeignKey(Vertical, on_delete=models.CASCADE)
     color = ColorField(default='#0185D3')
+
+    objects = HubManager()
 
     class Meta:  # noqa
         ordering = ['name']
