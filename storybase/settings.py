@@ -74,12 +74,21 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_filters',
     'debug_toolbar',
-    'raven.contrib.django.raven_compat',
 
     'apiauth',
     'staff',
     'budget',
 ]
+
+if 'SENTRY_DSN' in os.environ:
+    INSTALLED_APPS = INSTALLED_APPS + [
+        'raven.contrib.django.raven_compat',
+    ]
+
+if 'OPBEAT_ORGANIZATION_ID' in os.environ:
+    INSTALLED_APPS = INSTALLED_APPS + [
+        'opbeat.contrib.django',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -98,6 +107,11 @@ MIDDLEWARE = [
 if DEBUG_MODE:
     MIDDLEWARE = [
         'qinspect.middleware.QueryInspectMiddleware',
+    ] + MIDDLEWARE
+
+if 'OPBEAT_ORGANIZATION_ID' in os.environ:
+    MIDDLEWARE = [
+        'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     ] + MIDDLEWARE
 
 
@@ -343,6 +357,16 @@ except KeyError:
     )
 
     LOGIN_URL = '/admin/login/'
+
+
+# Opbeat (error monitoring)
+# See <link TK>
+if 'OPBEAT_ORGANIZATION_ID' in os.environ:
+    OPBEAT = {
+        'ORGANIZATION_ID': os.environ.get('OPBEAT_ORGANIZATION_ID', ''),
+        'APP_ID': os.environ.get('OPBEAT_APP_ID', ''),
+        'SECRET_TOKEN': os.environ.get('OPBEAT_SECRET_TOKEN', ''),
+    }
 
 
 # API Authentication
