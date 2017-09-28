@@ -144,6 +144,11 @@ DATABASES = {
     'default': dj_database_url.config(default=os.environ['DATABASE_URL']),
 }
 
+# Persistent database connections
+# See http://bit.do/django-heroku-db-connections
+# and https://docs.djangoproject.com/en/1.11/ref/settings/#conn-max-age.
+DATABASES['default']['CONN_MAX_AGE'] = 500
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
