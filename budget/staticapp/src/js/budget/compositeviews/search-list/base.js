@@ -415,7 +415,6 @@ export default Mn.CompositeView.extend({
   onCollectionSync() {
     // When collection is synced with the server get all related items,
     // render child views and restart poller.
-    const packageRelatedDeferred = [];
     const wasAttached = this.isAttached;
 
     if (this.rerenderFacetedLists === true) {
@@ -430,28 +429,65 @@ export default Mn.CompositeView.extend({
       this.options.initFinishedCallback(this);
     }
 
-    this.collection.each((pkg) => {
-      const loadDeferred = pkg.loadRelatedItems(
-        pkg.toJSON(),
-        { muteConsole: true }  // eslint-disable-line comma-dangle
-      );
+    const allIDsPerItem = this.collection.map(pkg => _.chain([
+      pkg.get('primaryContent'),
+      pkg.get('additionalContent'),
+    ]).flatten().clone().value());
 
-      packageRelatedDeferred.push(loadDeferred);
+    const allRelatedIDs = _.flatten(allIDsPerItem);
 
-      loadDeferred.done(() => {
-        pkg.trigger('change', pkg, {});
-      });  // eslint-disable-line no-extra-bind
-    });  // eslint-disable-line no-extra-bind
+    if (this.collection.length > 0) {
+      const additionalQuery = jQuery.getJSON({
+        url: this.collection.at(0).additionalContentCollection.url(),
+        data: { id__in: allRelatedIDs.join(',') },
+        type: 'GET',
+        beforeSend: (xhr) => {
+          xhr.withCredentials = true;  // eslint-disable-line no-param-reassign
+        },
+      });
+      additionalQuery.done((data) => {
+        this.collection.each((pkg) => {
+          const primaryDetails = _.findWhere(data.results, {
+            id: pkg.get('primaryContent'),
+          });
 
-    jQuery.when(...packageRelatedDeferred).done(() => {
-      // If this view is not yet attached, finalize that process.
-      if (wasAttached) {
-        this.trigger('dataUpdated');
-      }
+          const additionalDetails = _.filter(
+            data.results,
+            // eslint-disable-next-line comma-dangle
+            i => _.contains(pkg.get('additionalContent'), i.id)
+          );
 
-      // Resume polling. In 30 seconds the app will sync with the server again.
-      this.poller.resume({ muteConsole: true });
-    });
+          if (typeof primaryDetails !== 'undefined') {
+            pkg.primaryContentItem.set(primaryDetails);
+            pkg.additionalContentCollection.reset(additionalDetails);
+
+            pkg.trigger('change', pkg, {});
+            pkg.bindPrimaryItem();
+
+            this.poller.resume({ muteConsole: true });
+          } else {
+            /* eslint-disable no-console */
+            console.error(
+              `ERROR: Primary item with PK '${pkg.get('primaryContent')}' was ` +
+              'requested by view, but wasn\'t found.'  // eslint-disable-line comma-dangle
+            );
+            /* eslint-enable no-console */
+          }
+        });
+
+        if (wasAttached) {
+          this.trigger('dataUpdated');
+        }
+      });
+      additionalQuery.fail((resp, textStatus, errorThrown) => {
+        /* eslint-disable no-console */
+        console.error('Failed to load budgeted items.');
+        console.log(`--- Response: ${resp}`);
+        console.log(`--- Text status: ${textStatus}`);
+        console.log(`--- Error thrown: ${errorThrown}`);
+        /* eslint-enable no-console */
+      });
+    }
   },
 
   onChildRender(childView) {
