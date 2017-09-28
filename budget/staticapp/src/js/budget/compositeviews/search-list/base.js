@@ -431,7 +431,7 @@ export default Mn.CompositeView.extend({
 
     const allIDsPerItem = this.collection.map(pkg => _.chain([
       pkg.get('primaryContent'),
-      pkg.get('additionalContent'),
+      // pkg.get('additionalContent'),
     ]).flatten().clone().value());
 
     const allRelatedIDs = _.flatten(allIDsPerItem);
