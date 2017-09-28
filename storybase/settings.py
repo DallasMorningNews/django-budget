@@ -444,6 +444,8 @@ BUDGET_API_CONFIGS = {
     'staff': get_staff_api_url,
 }
 
+BUDGET_API_MAX_ITEMS = 500
+
 BUDGET_ORGANIZATION_NAME = 'Bay Area News Group'
 
 BUDGET_ORGANIZATION_LOGO_PATH = 'budget/images/bang-logo.png'

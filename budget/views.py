@@ -26,6 +26,7 @@ from budget.filters import (  # NOQA
     HeadlineViewFilter,
     PrintPublicationViewFilter
 )
+from budget.paginators import ItemViewPagination
 from budget.serializers import (  # NOQA
     HeadlineSerializer,
     HeadlineVoteSerializer,
@@ -178,6 +179,7 @@ class ConfigView(View):
                 'notepad': static('budget/images/notepad.svg'),
                 'slackProgress': static('budget/images/slack-in-progress.png'),
             },
+            'maxItemsToLoad': getattr(settings, 'BUDGET_API_MAX_ITEMS', 500),
             'printSlugName': getattr(settings, 'BUDGET_PRINT_SLUG_NAME', None),
             'showHeadlines': getattr(settings, 'BUDGET_SHOW_HEADLINES', False),
             'rootURL': root_url
@@ -245,6 +247,7 @@ class ItemViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
     )
     serializer_class = ItemSerializer
     filter_class = ItemViewFilter
+    pagination_class = ItemViewPagination
 
 
 class HeadlineViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
