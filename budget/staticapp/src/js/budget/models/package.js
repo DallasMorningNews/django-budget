@@ -130,7 +130,19 @@ export default CSRFAwareModel.extend({
     return data;
   },
 
+  bindPrimaryItem() {
+    this.primaryContentItem.on('change', () => {
+      _.each(
+          _.keys(this.primaryContentItem.changedAttributes()),
+          (changedKey) => {
+            this.trigger(`change:primaryContent.${changedKey}`);
+          }  // eslint-disable-line comma-dangle
+      );
+    });
+  },
+
   loadRelatedItems(data, options) {
+    console.log('LRI.');
     const itemRequestPromise = new jQuery.Deferred();
     const allAdditionalRequests = [itemRequestPromise];
     const relatedItemPromise = new jQuery.Deferred();
@@ -171,14 +183,7 @@ export default CSRFAwareModel.extend({
       this.additionalContentCollection.remove(primaryItem);
       this.additionalContentCollection.trigger('reset');
 
-      this.primaryContentItem.on('change', () => {
-        _.each(
-            _.keys(this.primaryContentItem.changedAttributes()),
-            (changedKey) => {
-              this.trigger(`change:primaryContent.${changedKey}`);
-            }  // eslint-disable-line comma-dangle
-        );
-      });
+      this.bindPrimaryItem();
 
       // Evaluate whether there's a suffix on the primary content
       // item's slug.
