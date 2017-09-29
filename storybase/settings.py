@@ -85,6 +85,10 @@ if 'SENTRY_DSN' in os.environ:
         'raven.contrib.django.raven_compat',
     ]
 
+    RAVEN_CONFIG = {
+        'dsn': os.environ.get('SENTRY_DSN', ''),
+    }
+
 if 'OPBEAT_ORGANIZATION_ID' in os.environ:
     INSTALLED_APPS = INSTALLED_APPS + [
         'opbeat.contrib.django',
