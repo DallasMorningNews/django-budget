@@ -429,42 +429,41 @@ export default Mn.CompositeView.extend({
       this.options.initFinishedCallback(this);
     }
 
-    const allIDsPerItem = this.collection.map(pkg => _.chain([
-      pkg.get('primaryContent'),
-      // pkg.get('additionalContent'),
-    ]).flatten().clone().value());
+    const primaryIDs = _.flatten(
+      this.collection.map(pkg => _.chain([
+        pkg.get('primaryContent'),
+        // pkg.get('additionalContent'),
+      ]).flatten().clone().value())  // eslint-disable-line comma-dangle
+    );
 
-    const allRelatedIDs = _.flatten(allIDsPerItem);
+    const additionalIDs = _.flatten(
+      this.collection.map(pkg => _.chain([
+        // pkg.get('primaryContent'),
+        pkg.get('additionalContent'),
+      ]).flatten().clone().value())  // eslint-disable-line comma-dangle
+    );
 
     if (this.collection.length > 0) {
-      const additionalQuery = jQuery.getJSON({
+      const primariesQuery = jQuery.getJSON({
         url: this.collection.at(0).additionalContentCollection.url(),
-        data: { id__in: allRelatedIDs.join(',') },
+        data: { id__in: primaryIDs.join(',') },
         type: 'GET',
         beforeSend: (xhr) => {
           xhr.withCredentials = true;  // eslint-disable-line no-param-reassign
         },
       });
-      additionalQuery.done((data) => {
+
+      primariesQuery.done((data) => {
         this.collection.each((pkg) => {
           const primaryDetails = _.findWhere(data.results, {
             id: pkg.get('primaryContent'),
           });
 
-          const additionalDetails = _.filter(
-            data.results,
-            // eslint-disable-next-line comma-dangle
-            i => _.contains(pkg.get('additionalContent'), i.id)
-          );
-
           if (typeof primaryDetails !== 'undefined') {
             pkg.primaryContentItem.set(primaryDetails);
-            pkg.additionalContentCollection.reset(additionalDetails);
 
             pkg.trigger('change', pkg, {});
             pkg.bindPrimaryItem();
-
-            this.poller.resume({ muteConsole: true });
           } else {
             /* eslint-disable no-console */
             console.error(
@@ -475,11 +474,52 @@ export default Mn.CompositeView.extend({
           }
         });
 
-        if (wasAttached) {
-          this.trigger('dataUpdated');
+        let additionalsQuery;
+
+        if (additionalIDs.length > 0) {
+          additionalsQuery = jQuery.getJSON({
+            url: this.collection.at(0).additionalContentCollection.url(),
+            data: { id__in: additionalIDs.join(',') },
+            type: 'GET',
+            beforeSend: (xhr) => {
+              xhr.withCredentials = true;  // eslint-disable-line no-param-reassign
+            },
+          });
+        } else {
+          additionalsQuery = new jQuery.Deferred();
+          additionalsQuery.resolve();
         }
+
+        additionalsQuery.done((additionalData) => {
+          console.log(additionalData);
+          this.collection.each((pkg) => {
+            const additionalDetails = _.filter(
+              additionalData.results,
+              // eslint-disable-next-line comma-dangle
+              i => _.contains(pkg.get('additionalContent'), i.id)
+            );
+            pkg.additionalContentCollection.reset(additionalDetails);
+            pkg.trigger('change', pkg, {});
+          });
+
+          this.poller.resume({ muteConsole: false });
+          // this.poller.resume({ muteConsole: true });
+
+          if (wasAttached) {
+            this.trigger('dataUpdated');
+          }
+        });
+
+        additionalsQuery.fail((resp, textStatus, errorThrown) => {
+          /* eslint-disable no-console */
+          console.error('Failed to load additional content items.');
+          console.log(`--- Response: ${resp}`);
+          console.log(`--- Text status: ${textStatus}`);
+          console.log(`--- Error thrown: ${errorThrown}`);
+          /* eslint-enable no-console */
+        });
       });
-      additionalQuery.fail((resp, textStatus, errorThrown) => {
+      primariesQuery.fail((resp, textStatus, errorThrown) => {
         /* eslint-disable no-console */
         console.error('Failed to load budgeted items.');
         console.log(`--- Response: ${resp}`);
