@@ -81,6 +81,20 @@ INSTALLED_APPS = [
     'budget',
 ]
 
+if 'SENTRY_DSN' in os.environ:
+    INSTALLED_APPS = INSTALLED_APPS + [
+        'raven.contrib.django.raven_compat',
+    ]
+
+    RAVEN_CONFIG = {
+        'dsn': os.environ.get('SENTRY_DSN', ''),
+    }
+
+if 'OPBEAT_ORGANIZATION_ID' in os.environ:
+    INSTALLED_APPS = INSTALLED_APPS + [
+        'opbeat.contrib.django',
+    ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -98,6 +112,11 @@ MIDDLEWARE = [
 if DEBUG_MODE:
     MIDDLEWARE = [
         'qinspect.middleware.QueryInspectMiddleware',
+    ] + MIDDLEWARE
+
+if 'OPBEAT_ORGANIZATION_ID' in os.environ:
+    MIDDLEWARE = [
+        'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     ] + MIDDLEWARE
 
 
@@ -129,6 +148,11 @@ TEMPLATES = [
 DATABASES = {
     'default': dj_database_url.config(default=os.environ['DATABASE_URL']),
 }
+
+# Persistent database connections
+# See http://bit.do/django-heroku-db-connections
+# and https://docs.djangoproject.com/en/1.11/ref/settings/#conn-max-age.
+DATABASES['default']['CONN_MAX_AGE'] = 500
 
 
 # Password validation
@@ -345,6 +369,16 @@ except KeyError:
     LOGIN_URL = '/admin/login/'
 
 
+# Opbeat (error monitoring)
+# See https://opbeat.com/docs/articles/get-started-with-django/
+if 'OPBEAT_ORGANIZATION_ID' in os.environ:
+    OPBEAT = {
+        'ORGANIZATION_ID': os.environ.get('OPBEAT_ORGANIZATION_ID', ''),
+        'APP_ID': os.environ.get('OPBEAT_APP_ID', ''),
+        'SECRET_TOKEN': os.environ.get('OPBEAT_SECRET_TOKEN', ''),
+    }
+
+
 # API Authentication
 # See `apiauth.views.external_redirect`.
 APIAUTH_WHITELIST = [
@@ -414,6 +448,8 @@ BUDGET_API_CONFIGS = {
     'budget': get_budget_api_url,
     'staff': get_staff_api_url,
 }
+
+BUDGET_API_MAX_ITEMS = 500
 
 BUDGET_ORGANIZATION_NAME = 'Bay Area News Group'
 

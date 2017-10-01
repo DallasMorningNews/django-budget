@@ -16,9 +16,11 @@ django-rest-swagger~=2.1.2  # budget, staff
 djangorestframework~=3.6.0  # budget, staff
 djangorestframework-camel-case==0.2.0  # budget
 gunicorn~=19.0.0  # Can go up to 19.7.1.
+opbeat==3.5.2
 psycopg2==2.6.1  # Can go up to 2.7.3.
 python-dateutil~=2.6.1
 pytz==2017.2
+raven>=3
 slacker~=0.9.0  # foiatracker, staff
 social-auth-app-django~=1.2.0
 whitenoise~=3.3.0
