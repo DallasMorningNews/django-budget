@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_by', models.PositiveSmallIntegerField(db_index=True, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('placement_types', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=15, null=True), blank=True, null=True, size=None)),
+                ('placement_types', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=100, null=True), blank=True, null=True, size=None)),
                 ('placement_details', models.CharField(help_text='E.G., print page number.', max_length=25)),
                 ('run_date', django.contrib.postgres.fields.ranges.DateRangeField(blank=True, null=True)),
                 ('external_slug', models.CharField(blank=True, max_length=250, null=True)),

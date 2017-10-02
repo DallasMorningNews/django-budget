@@ -539,7 +539,7 @@ class ContentPlacement(CreationTrailModel):
         on_delete=models.CASCADE
     )
     placement_types = ArrayField(
-        models.CharField(max_length=15, blank=True, null=True),
+        models.CharField(max_length=100, blank=True, null=True),
         blank=True,
         null=True,
     )
