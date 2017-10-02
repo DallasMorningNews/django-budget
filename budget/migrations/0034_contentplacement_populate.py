@@ -59,21 +59,28 @@ def forward_func(apps, schema_editor):
                 'destination/placement-type pairs\' data will be deleted.',
             ]))
 
+        published_destination = Publication.objects.get(
+            id=saved_publication_id
+        )
+
+        # NOTE: This needs to be coerced to a basic list, to avoid
+        # serialization issues during the migration.
+        placement_type_slugs = list(print_sections_to_migrate.values_list(
+            'slug',
+            flat=True
+        ))
+
         placement_obj = {
             'package': package,
-            'destination': Publication.objects.get(id=saved_publication_id),
-            'placement_types': print_sections_to_migrate.values_list(
-                'slug',
-                flat=True
-            ),
+            'destination': published_destination,
+            'placement_types': placement_type_slugs,
             'placement_details': '',
             'run_date': package.print_run_date,
             'external_slug': package.print_system_slug,
             'is_finalized': package.is_print_placement_finalized,
         }
 
-        placement = ContentPlacement(**placement_obj)
-        placement.save()
+        ContentPlacement.objects.create(**placement_obj)
 
 
 def backward_func(apps, schema_editor):
