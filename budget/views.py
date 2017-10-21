@@ -14,6 +14,7 @@ from django.views.generic import TemplateView, View  # NOQA
 
 # Imports from budget.
 from budget.models import (  # NOQA
+    ContentPlacement,
     Item,
     Headline,
     HeadlineVote,
@@ -28,6 +29,7 @@ from budget.filters import (  # NOQA
 )
 from budget.paginators import ItemViewPagination
 from budget.serializers import (  # NOQA
+    ContentPlacementSerializer,
     HeadlineSerializer,
     HeadlineVoteSerializer,
     ItemSerializer,
@@ -212,6 +214,7 @@ class CamelCasedViewSet(object):
 # Viewsets #
 ############
 
+
 class PackageViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
                      viewsets.ModelViewSet):
     serializer_class = PackageSerializer
@@ -251,6 +254,14 @@ class ItemViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
     serializer_class = ItemSerializer
     filter_class = ItemViewFilter
     pagination_class = ItemViewPagination
+
+
+class ContentPlacementViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
+                              viewsets.ModelViewSet):
+    serializer_class = ContentPlacementSerializer
+    # filter_class = None
+
+    queryset = ContentPlacement.objects.distinct()
 
 
 class HeadlineViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
