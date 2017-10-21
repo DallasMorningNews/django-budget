@@ -6,13 +6,15 @@ from budget.models import (  # NOQA
     HeadlineVote,
     PrintPublication,
     PrintSection,
-    Change
+    Change,
+    ContentPlacement,
 )
 
 
 # Imports from other dependencies.
 from psycopg2.extras import DateTimeTZRange, DateRange  # NOQA
 from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 
 
 class UserMetadataMixin(object):
@@ -117,7 +119,42 @@ class DateTimeRangeField(DateRangeField):
     range_class = DateTimeTZRange
 
 
-class HeadlineSerializer(UserMetadataMixin, serializers.ModelSerializer):
+class ContentPlacementSerializer(UserMetadataMixin, ModelSerializer):
+    package = serializers.PrimaryKeyRelatedField(
+        required=True,
+        many=False,
+        queryset=Package.objects.all()
+    )
+    destination = serializers.PrimaryKeyRelatedField(
+        required=True,
+        many=False,
+        queryset=PrintPublication.objects.all()
+    )
+
+    class Meta:  # NOQA
+        model = ContentPlacement
+        read_only_fields = (
+            # 'slug',
+            'created_by',
+        )
+        fields = (
+            'id',
+            'url',
+            'package',  # ForeignKey.
+            'destination',  # ForeignKey.
+            # 'placement_types',  # ArrayField.
+            'placement_details',  # CharField.
+            # 'run_date',  # Date range.
+            'external_slug',  # CharField.
+            'is_finalized',  # Bool.
+            'created_by',
+        )
+        extra_kwargs = {
+            'url': {'view_name': 'budget:contentplacement-detail'},
+        }
+
+
+class HeadlineSerializer(UserMetadataMixin, ModelSerializer):
     def _get_package(self, instance):
         return instance.package
 
@@ -129,7 +166,7 @@ class HeadlineSerializer(UserMetadataMixin, serializers.ModelSerializer):
         }
 
 
-class HeadlineVoteSerializer(UserMetadataMixin, serializers.ModelSerializer):
+class HeadlineVoteSerializer(UserMetadataMixin, ModelSerializer):
     def _get_package(self, instance):
         return instance.headline.package
 
@@ -141,7 +178,7 @@ class HeadlineVoteSerializer(UserMetadataMixin, serializers.ModelSerializer):
         }
 
 
-class ItemSerializer(UserMetadataMixin, serializers.ModelSerializer):
+class ItemSerializer(UserMetadataMixin, ModelSerializer):
     editors = EmptyArrayJsonField(allow_null=True, required=False)
     authors = EmptyArrayJsonField()
 
@@ -214,7 +251,7 @@ class ItemSerializer(UserMetadataMixin, serializers.ModelSerializer):
         }
 
 
-class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
+class PackageSerializer(UserMetadataMixin, ModelSerializer):
     publish_date = DateTimeRangeField()
     # print_run_date = DateRangeField(allow_null=True, required=False)
 
@@ -277,7 +314,7 @@ class PackageSerializer(UserMetadataMixin, serializers.ModelSerializer):
         }
 
 
-class PrintPublicationSerializer(serializers.ModelSerializer):
+class PrintPublicationSerializer(ModelSerializer):
     class Meta:  # NOQA
         depth = 1
         model = PrintPublication
