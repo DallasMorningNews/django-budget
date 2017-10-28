@@ -130,6 +130,7 @@ class ContentPlacementSerializer(UserMetadataMixin, ModelSerializer):
         many=False,
         queryset=PrintPublication.objects.all()
     )
+    run_date = DateRangeField(allow_null=True, required=False)
 
     class Meta:  # NOQA
         model = ContentPlacement
@@ -144,7 +145,7 @@ class ContentPlacementSerializer(UserMetadataMixin, ModelSerializer):
             'destination',  # ForeignKey.
             # 'placement_types',  # ArrayField.
             'placement_details',  # CharField.
-            # 'run_date',  # Date range.
+            'run_date',  # Date range.
             'external_slug',  # CharField.
             'is_finalized',  # Bool.
             'created_by',
