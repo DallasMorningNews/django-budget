@@ -2,24 +2,34 @@
 from django.contrib import admin
 
 
-# Imports from budget.
-from budget.models import (  # NOQA
-    PrintPublication,
-    PrintSection,
-    Headline,
-    HeadlineVote,
-    Item,
-    Package,
-    Change,
-)
-
-
 # Imports from other dependencies.
 from adminsortable2.admin import SortableInlineAdminMixin
 
 
+# Imports from budget.
+from budget.models import Change
+from budget.models import ContentPlacement
+from budget.models import Headline
+from budget.models import HeadlineVote
+from budget.models import Item
+from budget.models import Package
+from budget.models import PrintPublication
+from budget.models import PrintSection
+
+
 admin.site.register(Headline)
 admin.site.register(HeadlineVote)
+
+
+class ContentPlacementInline(admin.StackedInline):
+    model = ContentPlacement
+    extra = 0
+    fields = (
+        'destination',
+        ('run_date', 'external_slug',),
+        ('placement_types', 'placement_details',),
+        'is_finalized',
+    )
 
 
 @admin.register(Package)
@@ -51,6 +61,9 @@ class PackageAdmin(admin.ModelAdmin):
             'fields': ('created_by', 'last_changed_by_old',)
         })
     )
+    inlines = [
+        ContentPlacementInline
+    ]
 
     def scheduled_publish_date(self, obj):
         return '%s (%s)' % (
