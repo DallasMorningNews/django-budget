@@ -544,6 +544,8 @@ class ContentPlacement(CreationTrailModel):
         null=True,
     )
     placement_details = models.CharField(
+        blank=True,
+        null=True,
         max_length=25,
         help_text='E.G., print page number.'
     )
