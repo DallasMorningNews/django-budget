@@ -143,7 +143,7 @@ class ContentPlacementSerializer(UserMetadataMixin, ModelSerializer):
             'url',
             'package',  # ForeignKey.
             'destination',  # ForeignKey.
-            # 'placement_types',  # ArrayField.
+            'placement_types',  # ArrayField.
             'placement_details',  # CharField.
             'run_date',  # Date range.
             'external_slug',  # CharField.
