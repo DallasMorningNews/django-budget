@@ -533,7 +533,7 @@ $radio-margin: $default-font-size / -4 !default;
         padding: 0;
     }
 
-    #publication-placements-table {
+    #content-placements-table {
         .list-header {
             h4 {
                 .hint {
@@ -544,16 +544,27 @@ $radio-margin: $default-font-size / -4 !default;
                 }
             }
         }
-        .destination {
-            width: 150px;
+
+        #content-placements-loading {
+            color: rgba(0,0,0,0.25);
+            font-size: 18px;
+            padding: 8px 22px 28px;
         }
 
-        .run-date {
-            width: 180px;
-        }
+        .table-holder {
+            display: none;
 
-        .is-finalized {
-            width: 110px;
+            .destination {
+                width: 150px;
+            }
+
+            .run-date {
+                width: 180px;
+            }
+
+            .is-finalized {
+                width: 110px;
+            }
         }
     }
 }

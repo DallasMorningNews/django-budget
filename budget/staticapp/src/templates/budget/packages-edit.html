@@ -356,50 +356,6 @@
         </form>
     </div>
 
-    <div id="publication-placements-table" class="single-page table-card">
-        <div class="list-header">
-            <h4>Print placements <span class="hint">(Click to edit)</span></h4>
-            <div class="create-placement material-button flat-button"><span>Create new placement</span></div>
-        </div>
-        <table class="full-results">
-          <thead>
-              <tr>
-                  <th class="destination">Destination</th>
-                  <th class="run-date">Date(s)</th>
-                  <th class="external-slug">Slug</th>
-                  <th class="placement-types">Type(s)</th>
-                  <th class="is-finalized">Final?</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr>
-                  <td class="destination"><span>Argus (Fremont)</span></td>
-                  <td class="run-date"><span>Jan. 1&thinsp;&ndash;Jan. 3, 2017</span></td>
-                  <td class="external-slug"><span>restTest</span></td>
-                  <td class="placement-types"><span>(none)</span></td>
-                  <td class="is-finalized boolean true"><span><i class="material-icons">done</i></span></td>
-              </tr>
-              <tr>
-                  <td class="destination"><span>Daily Review (Hayward)</span></td>
-                  <td class="run-date"><span>Jan. 8, 2017</span></td>
-                  <td class="external-slug"><span>rest-test-2</span></td>
-                  <td class="placement-types"><span>(none)</span></td>
-                  <td class="is-finalized boolean false"><span><i class="material-icons">not_interested</i></span></td>
-              </tr>
-          </tbody>
-        </table>
-        <div class="table-pagination">
-            <div class="current-range">
-                <span class="this-page-range"><span class="range-start">0</span>&thinsp;&mdash;&thinsp;<span class="range-end">0</span></span> of <span class="total-records">0</span></div>
-                <a class="btn disabled btn-default btn-primary-flat prev-trigger" href="#" type="link">
-                    <i class="material-icons md-24">keyboard_arrow_left</i>
-                </a>
-                <a class="btn disabled btn-default btn-primary-flat next-trigger" href="#" type="link">
-                    <i class="material-icons md-24">keyboard_arrow_right</i>
-                </a>
-            </div>
-    </div>
-
     <div class="single-page">
         <div id="additional-forms">
             <div class="section-header">
@@ -412,6 +368,43 @@
 
         <div class="bottom-button-holder">
             <div class="add-additional-content-trigger material-button"><i class="fa fa-plus"></i><span>&thinsp;Add content</span></div>
+        </div>
+    </div>
+
+    <div id="content-placements-table" class="single-page table-card">
+        <div class="list-header">
+            <h4>Print placements <span class="hint">(Click to edit)</span></h4>
+            <div class="create-placement material-button flat-button"><span>Create new placement</span></div>
+        </div>
+        <div id="content-placements-loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading...</div>
+        </div>
+        <div class="table-holder">
+            <table class="full-results">
+                <thead>
+                    <tr>
+                        <th class="destination">Destination</th>
+                        <th class="run-date">Date(s)</th>
+                        <th class="external-slug">Slug</th>
+                        <th class="placement-types">Type(s)</th>
+                        <th class="is-finalized">Final?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <div class="table-pagination">
+                <div class="current-range">
+                    <span class="this-page-range"><span class="range-start">0</span>&thinsp;&mdash;&thinsp;<span class="range-end">0</span></span> of <span class="total-records">0</span></div>
+                    <a class="btn disabled btn-default btn-primary-flat prev-trigger" href="#" type="link">
+                        <i class="material-icons md-24">keyboard_arrow_left</i>
+                    </a>
+                    <a class="btn disabled btn-default btn-primary-flat next-trigger" href="#" type="link">
+                        <i class="material-icons md-24">keyboard_arrow_right</i>
+                    </a>
+            </div>
         </div>
     </div>
 </div>

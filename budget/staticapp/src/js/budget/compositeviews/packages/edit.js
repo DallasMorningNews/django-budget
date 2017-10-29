@@ -11,6 +11,7 @@ import deline from '../../../vendored/deline';
 
 import AdditionalContentForm from '../../itemviews/additional-content/additional-form';
 import BaseStructureBindingsView from '../../itemviews/package-edit-bindings/base-structure';
+import ContentPlacementCollection from '../../collections/content-placements';
 import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/headline-group';
 import MainFormBindingsView from '../../itemviews/package-edit-bindings/main-form';
 import ModalView from '../../itemviews/modals/modal-window';
@@ -77,6 +78,10 @@ const uiElements = {
         packageSaveTrigger: '.edit-bar .button-holder .material-button.save-trigger',
         packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-continue-editing-trigger',
         /* eslint-enable indent */
+  contentPlacementsPlaceholder: '#content-placements-loading',
+  contentPlacementsTableGroup: '#content-placements-table .table-holder',
+  contentPlacementsTable: '#content-placements-table table',
+  contentPlacementsTableBody: '#content-placements-table table tbody',
 };
 
 export default Mn.CompositeView.extend({
@@ -245,6 +250,7 @@ export default Mn.CompositeView.extend({
     /* Moment.js configuration. */
     const moment = this.radio.reqres.request('getSetting', 'moment');
     moment.locale('en-us-apstyle');
+    this.moment = moment;
 
 
     /* Choice generation for selectize lists. */
@@ -344,6 +350,130 @@ export default Mn.CompositeView.extend({
 
   bindForm() {
     this.stickit();
+
+    this.initContentPlacements();
+  },
+
+  initContentPlacements() {
+    this.contentPlacementAddMode = 'after-initial-save';
+
+    if (!_.isUndefined(this.model.id)) {
+      this.contentPlacementAddMode = 'immediate-async';
+      this.loadContentPlacements({
+        success: this.contentPlacementLoadSuccess.bind(this),
+        error: this.contentPlacementLoadError.bind(this),
+      });
+    } else {
+      this.showContentPlacementsTable();
+    }
+
+    window.ttt = this;
+  },
+
+  loadContentPlacements(config) {
+    // this.model.id
+    this.contentPlacements = new ContentPlacementCollection();
+    this.contentPlacements.fetch(Object.assign({}, config, {
+      data: { package: this.model.id },
+    }));
+  },
+
+  contentPlacementLoadSuccess(collection, response, options) {
+    this.ui.contentPlacementsTableBody.empty();
+
+    collection.forEach((placementObj) => {
+      const placementRow = this.formatPlacementRow(placementObj);
+      this.ui.contentPlacementsTableBody.append(placementRow);
+    });
+
+    this.showContentPlacementsTable();
+  },
+
+  contentPlacementLoadError(collection, response, options) {
+    console.log('ERROR');
+  },
+
+  formatDateRange(startDate, endDate) {
+    const startISO = startDate.toISOString();
+    const endISO = endDate.toISOString();
+
+    if (startISO.substr(0, 10) === endISO.substr(0, 10)) {  // 'YYYY-MM-DD' matches
+      return startDate.format('MMM D, YYYY');
+    } else if (startISO.substr(0, 7) === endISO.substr(0, 7)) {  // 'YYYY-MM' matches
+      return `${
+        startDate.format('MMM D')
+      }&thinsp;&ndash;&thinsp;${
+        endDate.format('D, YYYY')
+      }`;
+    } else if (startISO.substr(0, 4) === endISO.substr(0, 4)) {  // 'YYYY' matches
+      return `${
+        startDate.format('MMM D')
+      }&thinsp;&ndash;&thinsp;${
+        endDate.format('MMM D, YYYY')
+      }`;
+    }
+
+    return `${
+      startDate.format('MMM D, YYYY')
+    }&thinsp;&ndash;&thinsp;${
+      endDate.format('MMM D, YYYY')
+    }`;
+  },
+
+  formatPlacementRow(placementObj) {
+    const runDate = placementObj.get('runDate');
+
+    const startDate = this.moment(runDate[0]);
+    const endDate = this.moment(runDate[1]).subtract(1, 'day');
+
+    window.sss = startDate;
+    window.eee = endDate;
+
+    const dateRangeFormatted = this.formatDateRange(startDate, endDate);
+
+    const formattedValues = {
+      destination: 'TK',
+      runDate: dateRangeFormatted,
+      externalSlug: placementObj.get('externalSlug'),
+      placementTypes: '',
+      isFinalizedClass: placementObj.get('isFinalized').toString(),
+      isFinalizedIcon: (
+        placementObj.get('isFinalized')
+      ) ? (
+        'done'
+      ) : (
+        'not_interested'
+      ),
+    };
+
+    const placementHTML = deline`<tr>
+        <td class="destination">
+            <span>${formattedValues.destination}</span>
+        </td>
+        <td class="run-date">
+            <span>${formattedValues.runDate}</span>
+        </td>
+        <td class="external-slug">
+            <span>${formattedValues.externalSlug}</span>
+        </td>
+        <td class="placement-types">
+            <span>${formattedValues.placementTypes}</span>
+        </td>
+        <td class="is-finalized boolean ${formattedValues.isFinalizedClass}">
+            <span>
+                <i class="material-icons">${
+                    formattedValues.isFinalizedIcon
+                }</i>
+            </span>
+        </td>
+    </tr>`;
+
+    return placementHTML;
+  },
+
+  showContentPlacementsTable() {
+    this.ui.contentPlacementsPlaceholder.hide();
+    this.ui.contentPlacementsTableGroup.show();
   },
 
 
