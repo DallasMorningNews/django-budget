@@ -366,8 +366,6 @@ export default Mn.CompositeView.extend({
     } else {
       this.showContentPlacementsTable();
     }
-
-    window.ttt = this;
   },
 
   loadContentPlacements(config) {
@@ -378,7 +376,7 @@ export default Mn.CompositeView.extend({
     }));
   },
 
-  contentPlacementLoadSuccess(collection, response, options) {
+  contentPlacementLoadSuccess(collection) {
     this.ui.contentPlacementsTableBody.empty();
 
     collection.forEach((placementObj) => {
@@ -389,8 +387,9 @@ export default Mn.CompositeView.extend({
     this.showContentPlacementsTable();
   },
 
-  contentPlacementLoadError(collection, response, options) {
-    console.log('ERROR');
+  contentPlacementLoadError() {
+    console.warn('ERROR: Could not load content placements.');
+    this.showContentPlacementsTable();
   },
 
   formatDateRange(startDate, endDate) {
@@ -426,13 +425,12 @@ export default Mn.CompositeView.extend({
     const startDate = this.moment(runDate[0]);
     const endDate = this.moment(runDate[1]).subtract(1, 'day');
 
-    window.sss = startDate;
-    window.eee = endDate;
-
     const dateRangeFormatted = this.formatDateRange(startDate, endDate);
 
     const formattedValues = {
-      destination: 'TK',
+      destination: this.options.data.printPublications.findWhere({
+        id: placementObj.get('destination'),
+      }).get('name'),
       runDate: dateRangeFormatted,
       externalSlug: placementObj.get('externalSlug'),
       placementTypes: '',
