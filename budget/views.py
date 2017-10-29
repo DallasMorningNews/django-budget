@@ -5,11 +5,26 @@ import json
 # Imports from Django.
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.http import Http404, JsonResponse  # NOQA
+from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import TemplateView, View  # NOQA
+from django.views.generic import TemplateView
+from django.views.generic import View
+
+
+# Imports from other dependencies.
+from django_filters.rest_framework import DjangoFilterBackend
+from djangorestframework_camel_case.parser import CamelCaseJSONParser
+from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework import viewsets
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlunparse
 
 
 # Imports from budget.
@@ -36,19 +51,6 @@ from budget.serializers import (  # NOQA
     PackageSerializer,
     PrintPublicationSerializer
 )
-
-
-# Imports from other dependencies.
-from djangorestframework_camel_case.parser import CamelCaseJSONParser
-from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework.authentication import (  # NOQA
-    SessionAuthentication,
-    TokenAuthentication
-)
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import BrowsableAPIRenderer
-from rest_framework import viewsets
-from six.moves.urllib.parse import urlparse, urlunparse  # NOQA
 
 
 class MainBudgetView(TemplateView):
@@ -260,6 +262,8 @@ class ContentPlacementViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
                               viewsets.ModelViewSet):
     serializer_class = ContentPlacementSerializer
     # filter_class = None
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('package', 'destination')
 
     queryset = ContentPlacement.objects.distinct()
 
