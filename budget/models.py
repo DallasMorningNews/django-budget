@@ -550,7 +550,7 @@ class ContentPlacement(CreationTrailModel):
         help_text='E.G., print page number.'
     )
 
-    run_date = DateRangeField(blank=True, null=True)
+    run_date = DateRangeField()
 
     external_slug = models.CharField(max_length=250, blank=True, null=True)
 
