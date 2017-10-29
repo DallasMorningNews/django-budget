@@ -534,6 +534,16 @@ $radio-margin: $default-font-size / -4 !default;
     }
 
     #publication-placements-table {
+        .list-header {
+            h4 {
+                .hint {
+                    color: rgba(0,0,0,0.38);
+                    font-size: 20px;
+                    font-weight: 400;
+                    letter-spacing: 0;
+                }
+            }
+        }
         .destination {
             width: 150px;
         }
