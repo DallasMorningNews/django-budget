@@ -17,7 +17,7 @@ export default Mn.ItemView.extend({
     this.destinations = this.extraContext.options.data.printPublications;
 
     this.config = {
-      // innerID: 'package-print-info',
+      innerID: 'content-placement-modal',
       contentClassName: 'package-modal',
       escapeButtonCloses: false,
       overlayClosesOnClick: false,
@@ -356,7 +356,7 @@ export default Mn.ItemView.extend({
         if (_.has(this.extraContext.printPublicationSections, newDestination)) {
           $el.show();
 
-          $el.append('<h5>Type(s)</h5>');
+          $el.append('<h5>Placement types</h5>');
 
           _.each(
             this.extraContext.printPublicationSections[newDestination],

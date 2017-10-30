@@ -625,6 +625,31 @@
         }
     }
 
+    #content-placement-modal {
+        #placement_types {
+            background: #F8F8F8;
+            margin: -0.5rem 0.625rem;
+            padding: 0.75rem 0.9375rem;
+            width: calc(100% - 1.25rem);
+
+            h5 {
+                color: rgba(0,0,0,0.38);
+                font-size: 0.8rem;
+                font-weight: 400;
+                line-height: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            label {
+                padding-bottom: 2.125rem;
+
+                input {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
     #subscription-modal {
         background: #EEEEEE;
 
