@@ -562,6 +562,12 @@ $radio-margin: $default-font-size / -4 !default;
                 width: 180px;
             }
 
+            .placement-types {
+                &.empty-val {
+                    color: rgba(0,0,0,0.38);
+                }
+            }
+
             .is-finalized {
                 width: 110px;
             }

@@ -82,6 +82,9 @@ const uiElements = {
   contentPlacementsTableGroup: '#content-placements-table .table-holder',
   contentPlacementsTable: '#content-placements-table table',
   contentPlacementsTableBody: '#content-placements-table table tbody',
+  contentPlacementsPgStart: '#content-placements-table .table-pagination .range-start',
+  contentPlacementsPgEnd: '#content-placements-table .table-pagination .range-end',
+  contentPlacementsPgTotal: '#content-placements-table .table-pagination .total-records',
 };
 
 export default Mn.CompositeView.extend({
@@ -384,6 +387,12 @@ export default Mn.CompositeView.extend({
       this.ui.contentPlacementsTableBody.append(placementRow);
     });
 
+    if (collection.length > 0) {
+      this.ui.contentPlacementsPgStart.text('1');
+      this.ui.contentPlacementsPgEnd.text(collection.length);
+      this.ui.contentPlacementsPgTotal.text(collection.length);
+    }
+
     this.showContentPlacementsTable();
   },
 
@@ -427,13 +436,47 @@ export default Mn.CompositeView.extend({
 
     const dateRangeFormatted = this.formatDateRange(startDate, endDate);
 
+    const rowPublicationDestination = this.options.data.printPublications.findWhere({
+      id: placementObj.get('destination'),
+    });
+
+    const destinationSections = rowPublicationDestination
+                                    .get('sections')
+                                    .map(section => section.slug);
+
+    const filteredSections = placementObj
+                                .get('placementTypes')
+                                .filter(plc => destinationSections.includes(plc));
+
+    const richFilteredSections = _.sortBy(
+      rowPublicationDestination
+        .get('sections')
+        .filter(sectionObj => filteredSections.includes(sectionObj.slug)),
+      'priority'  // eslint-disable-line comma-dangle
+    );
+
+    window.aaa = {
+      rowPublicationDestination,
+      filteredSections,
+      destinationSections,
+      placementObj,
+      richFilteredSections,
+    };
+
     const formattedValues = {
-      destination: this.options.data.printPublications.findWhere({
-        id: placementObj.get('destination'),
-      }).get('name'),
+      destination: rowPublicationDestination.get('name'),
       runDate: dateRangeFormatted,
       externalSlug: placementObj.get('externalSlug'),
-      placementTypes: '',
+      placementTypeClass: (_.isEmpty(richFilteredSections)) ? 'empty-val' : '',
+      placementTypes: (
+        _.isEmpty(richFilteredSections)
+      ) ? (
+        '(None)'
+      ) : (
+        richFilteredSections
+          .map(section => section.name)
+          .reduce((memo, val) => `${memo}, ${val}`)
+      ),
       isFinalizedClass: placementObj.get('isFinalized').toString(),
       isFinalizedIcon: (
         placementObj.get('isFinalized')
@@ -454,7 +497,7 @@ export default Mn.CompositeView.extend({
         <td class="external-slug">
             <span>${formattedValues.externalSlug}</span>
         </td>
-        <td class="placement-types">
+        <td class="placement-types ${formattedValues.placementTypeClass}">
             <span>${formattedValues.placementTypes}</span>
         </td>
         <td class="is-finalized boolean ${formattedValues.isFinalizedClass}">
