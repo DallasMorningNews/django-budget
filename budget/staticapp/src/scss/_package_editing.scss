@@ -554,6 +554,14 @@ $radio-margin: $default-font-size / -4 !default;
         .table-holder {
             display: none;
 
+            tbody tr {
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #EEEEEE;
+                }
+            }
+
             .destination {
                 width: 150px;
             }
