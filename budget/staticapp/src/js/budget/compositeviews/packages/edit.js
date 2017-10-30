@@ -12,6 +12,7 @@ import deline from '../../../vendored/deline';
 import AdditionalContentForm from '../../itemviews/additional-content/additional-form';
 import BaseStructureBindingsView from '../../itemviews/package-edit-bindings/base-structure';
 import ContentPlacementCollection from '../../collections/content-placements';
+import ContentPlacementForm from '../../itemviews/modals/content-placement-form';
 import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/headline-group';
 import MainFormBindingsView from '../../itemviews/package-edit-bindings/main-form';
 import ModalView from '../../itemviews/modals/modal-window';
@@ -405,7 +406,75 @@ export default Mn.CompositeView.extend({
         10  // eslint-disable-line comma-dangle
       ),
     });
-    console.log(placementToEdit.get('externalSlug'));
+    // console.log(placementToEdit.get('externalSlug'));
+    // window.mmm = placementToEdit;
+
+    this.showContentPlacementForm(placementToEdit);
+  },
+
+  showContentPlacementForm(model) {
+    const contentPlacementForm = new ContentPlacementForm({
+      model,
+      extraContext: this,
+      callbacks: {
+        close: () => { this.radio.commands.execute('destroyModal'); },
+      },
+    });
+
+    const formRows = [];
+    formRows.push(
+      {
+        extraClasses: '',
+        fields: [
+          {
+            type: 'input',
+            extraClasses: 'publication-group',
+            widthClasses: 'small-12 medium-12 large-12',
+            labelText: 'Destination',
+            inputID: 'destination',
+            inputName: 'destination',
+            inputType: 'text',
+          },
+        ],
+      }  // eslint-disable-line comma-dangle
+    );
+
+    formRows.push(
+      {
+        id: 'run_date_inputs',
+        extraClasses: '',
+        fields: [
+          {
+            type: 'input',
+            widthClasses: 'small-6 medium-6 large-6',
+            labelText: 'Run date (start)',
+            inputID: 'run_date_start',
+            inputName: 'run_date_start',
+            inputType: 'text',
+          },
+          {
+            type: 'input',
+            widthClasses: 'small-6 medium-6 large-6',
+            labelText: 'Run date (end)',
+            inputID: 'run_date_end',
+            inputName: 'run_date_end',
+            inputType: 'text',
+          },
+        ],
+      }  // eslint-disable-line comma-dangle
+    );
+
+    contentPlacementForm.extendConfig({ formConfig: { rows: formRows } });
+
+    this.modalView = new ModalView({
+      modalConfig: contentPlacementForm.getConfig(),
+      model,
+      renderCallback: () => {
+        this.modalView.stickit(null, contentPlacementForm.getBindings());
+      },
+    });
+
+    this.radio.commands.execute('showModal', this.modalView);
   },
 
   contentPlacementLoadError() {
