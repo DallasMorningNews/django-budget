@@ -626,6 +626,8 @@
     }
 
     #content-placement-modal {
+        overflow: hidden;
+
         #run_date_inputs {
             .form-group {
                 margin-bottom: 0;

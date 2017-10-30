@@ -22,76 +22,78 @@ export default Mn.ItemView.extend({
       escapeButtonCloses: false,
       overlayClosesOnClick: false,
       buttons: [
-        // {
-        //   buttonID: 'package-print-info-save-button',
-        //   buttonClass: 'flat-button save-action ' +
-        //                 'expand-past-button save-trigger',
-        //   innerLabel: 'Save',
-        //   clickCallback: (modalContext) => {
-        //     // First, add animation classes to the modal:
-        //     modalContext.$el.parent()
-        //         .addClass('waiting')
-        //         .addClass('save-waiting');
-        //
-        //     modalContext.$el.append(
-        //       '<div class="loading-animation save-loading-animation">' +
-        //           '<div class="loader">' +
-        //               '<svg class="circular" viewBox="25 25 50 50">' +
-        //                   '<circle class="path" cx="50" cy="50" r="20" ' +
-        //                           'fill="none" stroke-width="2" ' +
-        //                           'stroke-miterlimit="10"/>' +
-        //               '</svg>' +
-        //               '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-        //           '</div>' +
-        //           '<p class="loading-text">Saving content...</p>' +
-        //       '</div>'  // eslint-disable-line comma-dangle
-        //     );
-        //
-        //     setTimeout(() => {
-        //       modalContext.$el.find('.loading-animation')
-        //                           .addClass('active');
-        //     }, 600);
-        //
-        //     setTimeout(() => {
-        //       modalContext.$el.find('.modal-inner')
-        //           .css({ visibility: 'hidden' });
-        //     }, 450);
-        //
-        //     setTimeout(() => {
-        //       modalContext.$el.parent()
-        //           .addClass('waiting')
-        //           .addClass('save-waiting')
-        //           .removeClass('waiting-transition')
-        //           .removeClass('save-waiting-transition');
-        //     }, 500);
-        //
-        //     // Then, execute the remote save:
-        //     const packageSave = this.model.save(undefined, {
-        //       xhrFields: {
-        //         withCredentials: true,
-        //       },
-        //       deepLoad: false,
-        //     });
-        //
-        //     packageSave.done(() => {
-        //       setTimeout(() => {
-        //         // Resume polling.
-        //         this.callbacks.resumePolling();
-        //
-        //         this.callbacks.success();
-        //       }, 1500);
-        //     });
-        //
-        //     packageSave.fail(() => {
-        //       setTimeout(() => {
-        //         // Resume polling.
-        //         this.callbacks.resumePolling();
-        //
-        //         this.callbacks.error();
-        //       }, 1500);
-        //     });
-        //   },
-        // },
+        {
+          buttonID: 'content-placement-save-button',
+          buttonClass: 'flat-button save-action ' +
+                        'expand-past-button save-trigger',
+          innerLabel: 'Save',
+          clickCallback: (modalContext) => {
+            // First, add animation classes to the modal:
+            modalContext.$el.parent()
+                .addClass('waiting')
+                .addClass('save-waiting');
+
+            modalContext.$el.append(
+              '<div class="loading-animation save-loading-animation">' +
+                  '<div class="loader">' +
+                      '<svg class="circular" viewBox="25 25 50 50">' +
+                          '<circle class="path" cx="50" cy="50" r="20" ' +
+                                  'fill="none" stroke-width="2" ' +
+                                  'stroke-miterlimit="10"/>' +
+                      '</svg>' +
+                      '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+                  '</div>' +
+                  '<p class="loading-text">Saving placement...</p>' +
+              '</div>'  // eslint-disable-line comma-dangle
+            );
+
+            setTimeout(() => {
+              modalContext.$el.find('.loading-animation')
+                                  .addClass('active');
+            }, 600);
+
+            setTimeout(() => {
+              modalContext.$el.find('.modal-inner')
+                  .css({ visibility: 'hidden' });
+            }, 450);
+
+            setTimeout(() => {
+              modalContext.$el.parent()
+                  .addClass('waiting')
+                  .addClass('save-waiting')
+                  .removeClass('waiting-transition')
+                  .removeClass('save-waiting-transition');
+            }, 500);
+
+            // this.callbacks.save();
+
+            // // Then, execute the remote save:
+            // const packageSave = this.model.save(undefined, {
+            //   xhrFields: {
+            //     withCredentials: true,
+            //   },
+            //   deepLoad: false,
+            // });
+            //
+            // packageSave.done(() => {
+            //   setTimeout(() => {
+            //     // Resume polling.
+            //     this.callbacks.resumePolling();
+            //
+            //     this.callbacks.success();
+            //   }, 1500);
+            // });
+            //
+            // packageSave.fail(() => {
+            //   setTimeout(() => {
+            //     // Resume polling.
+            //     this.callbacks.resumePolling();
+            //
+            //     this.callbacks.error();
+            //   }, 1500);
+            // });
+          },
+        },
         {
           buttonID: 'package-print-info-cancel-button',
           buttonClass: 'flat-button primary-action cancel-trigger',

@@ -411,11 +411,41 @@ export default Mn.CompositeView.extend({
   },
 
   showContentPlacementForm(model) {
+    // const originalModel = {
+    //   destination
+    //   runDate
+    //   externalSlug
+    //   placementTypes
+    //   placementDetails
+    //   isFinalized
+    // };
+    console.log('T-12');
+
+    const initialValues = _.chain(model.attributes)
+                                .clone()
+                                .pick([
+                                  'destination',
+                                  'externalSlug',
+                                  'placementDetails',
+                                  'isFinalized',
+                                ])
+                                .value();
+
+    initialValues.runDate = _.clone(model.get('runDate'));
+    initialValues.placementTypes = _.clone(model.get('placementTypes'));
+
     const contentPlacementForm = new ContentPlacementForm({
       model,
       extraContext: this,
       callbacks: {
-        close: () => { this.radio.commands.execute('destroyModal'); },
+        save: () => {
+          window.mmm = model;
+          this.radio.commands.execute('destroyModal');
+        },
+        close: () => {
+          this.radio.commands.execute('destroyModal');
+          model.set(initialValues);
+        },
       },
     });
 
