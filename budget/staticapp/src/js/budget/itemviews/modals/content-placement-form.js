@@ -121,69 +121,103 @@ export default Mn.ItemView.extend({
   },
 
   getFormRows() {
-    const formRows = [
-      {
+    const formRows = [];
+
+    formRows.push({
+      extraClasses: '',
+      fields: [
+        {
+          type: 'input',
+          extraClasses: 'publication-group',
+          widthClasses: 'small-12 medium-12 large-12',
+          labelText: 'Destination',
+          inputID: 'destination',
+          inputName: 'destination',
+          inputType: 'text',
+        },
+      ],
+    });
+
+    formRows.push({
+      id: 'run_date_inputs',
+      extraClasses: '',
+      fields: [
+        {
+          type: 'input',
+          widthClasses: 'small-6 medium-6 large-6',
+          labelText: 'Run date (start)',
+          inputID: 'run_date_start',
+          inputName: 'run_date_start',
+          inputType: 'text',
+        },
+        {
+          type: 'input',
+          widthClasses: 'small-6 medium-6 large-6',
+          labelText: 'Run date (end)',
+          inputID: 'run_date_end',
+          inputName: 'run_date_end',
+          inputType: 'text',
+        },
+      ],
+    });
+
+    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
+    if (printSlugName !== null) {
+      formRows.push({
         extraClasses: '',
         fields: [
           {
             type: 'input',
-            extraClasses: 'publication-group',
             widthClasses: 'small-12 medium-12 large-12',
-            labelText: 'Destination',
-            inputID: 'destination',
-            inputName: 'destination',
+            labelText: printSlugName,
+            inputID: 'external_slug',
+            inputName: 'external_slug',
             inputType: 'text',
           },
         ],
-      },
-      {
-        id: 'run_date_inputs',
-        extraClasses: '',
-        fields: [
-          {
-            type: 'input',
-            widthClasses: 'small-6 medium-6 large-6',
-            labelText: 'Run date (start)',
-            inputID: 'run_date_start',
-            inputName: 'run_date_start',
-            inputType: 'text',
-          },
-          {
-            type: 'input',
-            widthClasses: 'small-6 medium-6 large-6',
-            labelText: 'Run date (end)',
-            inputID: 'run_date_end',
-            inputName: 'run_date_end',
-            inputType: 'text',
-          },
-        ],
-      },
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'div',
-            widthClasses: 'small-12 medium-12 large-12',
-            extraClasses: 'checkbox',
-            inputID: 'placement_types',
-          },
-        ],
-      },
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'checkbox',
-            extraClasses: 'additional-checkbox-group',
-            widthClasses: 'small-12 medium-12 large-12',
-            labelText: 'Is placement final?',
-            inputID: 'is_finalized',
-            inputName: 'is_finalized',
-            inputValue: 'finalized',
-          },
-        ],
-      },
-    ];
+      });
+    }
+
+    formRows.push({
+      extraClasses: '',
+      fields: [
+        {
+          type: 'div',
+          widthClasses: 'small-12 medium-12 large-12',
+          extraClasses: 'checkbox',
+          inputID: 'placement_types',
+        },
+      ],
+    });
+
+    formRows.push({
+      extraClasses: '',
+      fields: [
+        {
+          type: 'input',
+          widthClasses: 'small-12 medium-12 large-12',
+          labelText: 'Placement details',
+          inputID: 'placement_details',
+          inputName: 'placement_details',
+          inputType: 'text',
+        },
+      ],
+    });
+
+    formRows.push({
+      extraClasses: '',
+      fields: [
+        {
+          type: 'checkbox',
+          extraClasses: 'additional-checkbox-group',
+          widthClasses: 'small-12 medium-12 large-12',
+          labelText: 'Is placement final?',
+          inputID: 'is_finalized',
+          inputName: 'is_finalized',
+          inputValue: 'finalized',
+        },
+      ],
+    });
 
     return formRows;
   },
@@ -283,13 +317,6 @@ export default Mn.ItemView.extend({
       },
     };
 
-    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
-    if (printSlugName !== null) {
-      bindings['#print_system_slug'] = {
-        observe: 'printSystemSlug',
-      };
-    }
-
     bindings['#destination'] = {
       observe: 'destination',
       initialize: ($el) => {
@@ -328,8 +355,6 @@ export default Mn.ItemView.extend({
         this.activeDestination = value;
       },
       getVal: ($el) => {
-        console.log('T3');
-        window.eee = $el;
         if (!_.isEmpty($el.val())) {
           const newID = this.destinations.findWhere({ slug: $el.val() }).id;
 
@@ -414,6 +439,17 @@ export default Mn.ItemView.extend({
           $el.hide();
         }
       },
+    };
+
+    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
+    if (printSlugName !== null) {
+      bindings['#external_slug'] = {
+        observe: 'externalSlug',
+      };
+    }
+
+    bindings['#placement_details'] = {
+      observe: 'placementDetails',
     };
 
     bindings['#is_finalized'] = {

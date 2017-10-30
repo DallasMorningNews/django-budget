@@ -626,6 +626,12 @@
     }
 
     #content-placement-modal {
+        #run_date_inputs {
+            .form-group {
+                margin-bottom: 0;
+            }
+        }
+
         .date-range-picker {
             left: 26px;
             position: absolute;
