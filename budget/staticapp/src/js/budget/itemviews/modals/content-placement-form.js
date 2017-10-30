@@ -328,14 +328,18 @@ export default Mn.ItemView.extend({
         this.activeDestination = value;
       },
       getVal: ($el) => {
-        const newID = this.destinations.findWhere({ slug: $el.val() }).id;
+        console.log('T3');
+        window.eee = $el;
+        if (!_.isEmpty($el.val())) {
+          const newID = this.destinations.findWhere({ slug: $el.val() }).id;
 
-        this.model.set('destination', newID, { silent: true });
+          this.model.set('destination', newID, { silent: true });
+        }
 
         // Reset placement-types array when destination changes.
         this.model.set('placementTypes', [], { silent: true });
 
-        return $el.val();
+        return ($el.val()) ? $el.val() : null;
       },
       set: (attr, value) => {
         this.activeDestination = value;
@@ -421,7 +425,6 @@ export default Mn.ItemView.extend({
           name: 'checked',
           observe: 'isFinalized',
           onGet: (value) => {
-            console.log(value);
             const hasValue = (_.isBoolean(value)) ? value : false;
             return hasValue;
           },

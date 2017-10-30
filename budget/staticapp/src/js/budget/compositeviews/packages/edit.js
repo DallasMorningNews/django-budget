@@ -422,7 +422,6 @@ export default Mn.CompositeView.extend({
     contentPlacementForm.extendConfig({
       formConfig: { rows: contentPlacementForm.getFormRows() },
     });
-    console.log('T2');
 
     this.modalView = new ModalView({
       modalConfig: contentPlacementForm.getConfig(),

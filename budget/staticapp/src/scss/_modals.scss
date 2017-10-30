@@ -626,6 +626,12 @@
     }
 
     #content-placement-modal {
+        .date-range-picker {
+            left: 26px;
+            position: absolute;
+            top: 147px;
+        }
+
         #placement_types {
             background: #F8F8F8;
             margin: -0.5rem 0.625rem;
