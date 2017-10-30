@@ -120,6 +120,74 @@ export default Mn.ItemView.extend({
     return this.config;
   },
 
+  getFormRows() {
+    const formRows = [
+      {
+        extraClasses: '',
+        fields: [
+          {
+            type: 'input',
+            extraClasses: 'publication-group',
+            widthClasses: 'small-12 medium-12 large-12',
+            labelText: 'Destination',
+            inputID: 'destination',
+            inputName: 'destination',
+            inputType: 'text',
+          },
+        ],
+      },
+      {
+        id: 'run_date_inputs',
+        extraClasses: '',
+        fields: [
+          {
+            type: 'input',
+            widthClasses: 'small-6 medium-6 large-6',
+            labelText: 'Run date (start)',
+            inputID: 'run_date_start',
+            inputName: 'run_date_start',
+            inputType: 'text',
+          },
+          {
+            type: 'input',
+            widthClasses: 'small-6 medium-6 large-6',
+            labelText: 'Run date (end)',
+            inputID: 'run_date_end',
+            inputName: 'run_date_end',
+            inputType: 'text',
+          },
+        ],
+      },
+      {
+        extraClasses: '',
+        fields: [
+          {
+            type: 'div',
+            widthClasses: 'small-12 medium-12 large-12',
+            extraClasses: 'checkbox',
+            inputID: 'placement_types',
+          },
+        ],
+      },
+      {
+        extraClasses: '',
+        fields: [
+          {
+            type: 'checkbox',
+            extraClasses: 'additional-checkbox-group',
+            widthClasses: 'small-12 medium-12 large-12',
+            labelText: 'Is placement final?',
+            inputID: 'is_finalized',
+            inputName: 'is_finalized',
+            inputValue: 'finalized',
+          },
+        ],
+      },
+    ];
+
+    return formRows;
+  },
+
   getBindings() {
     const bindings = {};
 
@@ -249,10 +317,6 @@ export default Mn.ItemView.extend({
         return this.destinations.findWhere({
           id: this.model.get('destination'),
         }).get('slug');
-
-        // return this.extraContext.sectionPublicationMap[
-        //     this.model.get('destination')
-        // ];
       },
       update: ($el, value) => {
         if (_.isUndefined($el[0].selectize)) {
@@ -264,14 +328,14 @@ export default Mn.ItemView.extend({
         this.activeDestination = value;
       },
       getVal: ($el) => {
-        // On select, reset the selected sections to an empty list.
-        // Use 'silent: true' to prevent changing the dropdown to
-        // reflect a null value.
         const newID = this.destinations.findWhere({ slug: $el.val() }).id;
 
         this.model.set('destination', newID, { silent: true });
 
-        return newID;
+        // Reset placement-types array when destination changes.
+        this.model.set('placementTypes', [], { silent: true });
+
+        return $el.val();
       },
       set: (attr, value) => {
         this.activeDestination = value;
@@ -279,88 +343,91 @@ export default Mn.ItemView.extend({
       },
     };
 
-    // bindings['#print_section'] = {
-    //   observe: ['activeDestination', 'printSection'],
-    //   onGet: values => [this.activeDestination, values[1]],
-    //   update: ($el, values) => {
-    //     const newPublication = values[0];
-    //     const selectedValues = this.model.get('printSection');
-    //
-    //     // Clear existing toggles.
-    //     $el.empty();
-    //
-    //     if (_.has(this.extraContext.printPublicationSections, newPublication)) {
-    //       $el.show();
-    //
-    //       $el.append('<h5>Sections</h5>');
-    //
-    //       _.each(
-    //         this.extraContext.printPublicationSections[newPublication],
-    //         (section) => {
-    //           const sectionCheckbox = jQuery(deline`
-    //             <label><input id="placement-"
-    //                           name="print_sections"
-    //                           data-form="package"
-    //                           type="checkbox"
-    //                           value="${
-    //                               section.id
-    //                           }"><i class="helper"></i> ${
-    //                               section.name
-    //                           }</label>`  // eslint-disable-line comma-dangle
-    //           );
-    //
-    //           if (_.contains(selectedValues, section.id)) {
-    //             sectionCheckbox.find('input').prop('checked', true);
-    //           }
-    //
-    //           sectionCheckbox.find('input').change((event) => {
-    //             const thisEl = jQuery(event.currentTarget);
-    //             const sectionID = parseInt(thisEl.val(), 10);
-    //             const newSectionsRaw = _.clone(this.model.get('printSection'));
-    //             const newSections = (
-    //                 thisEl.prop('checked')
-    //             ) ? (
-    //                 _.union(newSectionsRaw, [sectionID])
-    //             ) : (
-    //                 _.difference(newSectionsRaw, [sectionID])
-    //             );
-    //
-    //             // If 'newSections' is empty, apply these
-    //             // changes silently.
-    //             // That way, the selected publication won't
-    //             // also be reset.
-    //             this.model.set(
-    //                 'printSection',
-    //                 newSections,
-    //                 // eslint-disable-next-line comma-dangle
-    //                 (_.isEmpty(newSections)) ? { silent: true } : {}
-    //             );
-    //           });
-    //
-    //           $el.append(sectionCheckbox);
-    //         }  // eslint-disable-line comma-dangle
-    //       );
-    //     } else {
-    //       $el.hide();
-    //     }
-    //   },
-    // };
+    bindings['#placement_types'] = {
+      observe: ['activeDestination', 'placementTypes'],
+      onGet: values => [this.activeDestination, values[1]],
+      update: ($el, values) => {
+        const newDestination = values[0];
+        const selectedValues = this.model.get('placementTypes');
 
-    // bindings['#is_placement_finalized'] = {
-    //   observe: 'isPrintPlacementFinalized',
-    //   update: () => {},
-    //   getVal: $el => $el.is(':checked'),
-    //   attributes: [
-    //     {
-    //       name: 'checked',
-    //       observe: 'isPrintPlacementFinalized',
-    //       onGet: (value) => {
-    //         const hasValue = (_.isBoolean(value)) ? value : false;
-    //         return hasValue;
-    //       },
-    //     },
-    //   ],
-    // };
+        // Clear existing toggles.
+        $el.empty();
+
+        if (_.has(this.extraContext.printPublicationSections, newDestination)) {
+          $el.show();
+
+          $el.append('<h5>Type(s)</h5>');
+
+          _.each(
+            this.extraContext.printPublicationSections[newDestination],
+            (placement) => {
+              const placementCheckbox = jQuery(deline`
+                <label><input id="placement-type_${placement.id}"
+                              name="placement_types"
+                              data-form="package"
+                              type="checkbox"
+                              value="${
+                                  placement.slug
+                              }"><i class="helper"></i> ${
+                                  placement.name
+                              }</label>`  // eslint-disable-line comma-dangle
+              );
+
+              if (_.contains(selectedValues, placement.slug)) {
+                placementCheckbox.find('input').prop('checked', true);
+              }
+
+              placementCheckbox.find('input').change((event) => {
+                const thisEl = jQuery(event.currentTarget);
+                const placementSlug = thisEl.val();
+
+                const newPlacementsRaw = _.clone(this.model.get('placementTypes'));
+
+                const newPlacements = (
+                    thisEl.prop('checked')
+                ) ? (
+                    _.union(newPlacementsRaw, [placementSlug])
+                ) : (
+                    _.difference(newPlacementsRaw, [placementSlug])
+                );
+
+                // If 'placementTypes' is empty, apply these
+                // changes silently.
+                // That way, the selected publication won't
+                // also be reset.
+                this.model.set(
+                    'placementTypes',
+                    newPlacements,
+                    // eslint-disable-next-line comma-dangle
+                    (_.isEmpty(newPlacements)) ? { silent: true } : {}
+                );
+              });
+
+              $el.append(placementCheckbox);
+            }  // eslint-disable-line comma-dangle
+          );
+        } else {
+          $el.hide();
+        }
+      },
+    };
+
+    bindings['#is_finalized'] = {
+      observe: 'isFinalized',
+      update: () => {},
+      getVal: $el => $el.is(':checked'),
+      attributes: [
+        {
+          name: 'checked',
+          observe: 'isFinalized',
+          onGet: (value) => {
+            console.log(value);
+            const hasValue = (_.isBoolean(value)) ? value : false;
+            return hasValue;
+          },
+        },
+      ],
+    };
 
     return bindings;
   },
