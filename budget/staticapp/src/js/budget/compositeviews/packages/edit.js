@@ -383,8 +383,10 @@ export default Mn.CompositeView.extend({
     this.ui.contentPlacementsTableBody.empty();
 
     collection.forEach((placementObj) => {
-      const placementRow = this.formatPlacementRow(placementObj);
-      this.ui.contentPlacementsTableBody.append(placementRow);
+      const placementRow = jQuery(this.formatPlacementRow(placementObj));
+      placementRow.appendTo(this.ui.contentPlacementsTableBody);
+
+      placementRow.on('click', this.editContentPlacement.bind(this));
     });
 
     if (collection.length > 0) {
@@ -394,6 +396,16 @@ export default Mn.CompositeView.extend({
     }
 
     this.showContentPlacementsTable();
+  },
+
+  editContentPlacement(event) {
+    const placementToEdit = this.contentPlacements.findWhere({
+      id: parseInt(
+        event.currentTarget.id.replace('content-placement_', ''),
+        10  // eslint-disable-line comma-dangle
+      ),
+    });
+    console.log(placementToEdit.get('externalSlug'));
   },
 
   contentPlacementLoadError() {
@@ -455,14 +467,6 @@ export default Mn.CompositeView.extend({
       'priority'  // eslint-disable-line comma-dangle
     );
 
-    window.aaa = {
-      rowPublicationDestination,
-      filteredSections,
-      destinationSections,
-      placementObj,
-      richFilteredSections,
-    };
-
     const formattedValues = {
       destination: rowPublicationDestination.get('name'),
       runDate: dateRangeFormatted,
@@ -487,7 +491,7 @@ export default Mn.CompositeView.extend({
       ),
     };
 
-    const placementHTML = deline`<tr>
+    const placementHTML = deline`<tr id="content-placement_${placementObj.id}">
         <td class="destination">
             <span>${formattedValues.destination}</span>
         </td>

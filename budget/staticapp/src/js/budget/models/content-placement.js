@@ -16,9 +16,4 @@ export default CSRFAwareModel.extend({
   initialize() {
     this.radio = Backbone.Wreqr.radio.channel('global');
   },
-
-  defaults: {
-    text: '',
-    winner: false,
-  },
 });
