@@ -3,9 +3,8 @@ import Backbone from 'backbone';
 import CSRFAwareModel from '../../common/csrf-aware-model';
 
 export default CSRFAwareModel.extend({
-  // urlRoot: settings.apiEndpoints.headlineCandidate,
   urlRoot() {
-    return this.radio.reqres.request('getSetting', 'apiEndpoints').headlineCandidate;
+    return this.radio.reqres.request('getSetting', 'apiEndpoints').contentPlacement;
   },
 
   url() {
