@@ -17,7 +17,6 @@ export default Mn.ItemView.extend({
     this.destinations = this.extraContext.options.data.printPublications;
 
     this.config = {
-      modalTitle: 'Edit content placement',
       // innerID: 'package-print-info',
       contentClassName: 'package-modal',
       escapeButtonCloses: false,
@@ -103,6 +102,14 @@ export default Mn.ItemView.extend({
         },
       ],
     };
+
+    this.config.modalTitle = (
+      _.isUndefined(this.model.id)
+    ) ? (
+      'Create content placement'
+    ) : (
+      'Edit content placement'
+    );
   },
 
   extendConfig(configToAdd) {
