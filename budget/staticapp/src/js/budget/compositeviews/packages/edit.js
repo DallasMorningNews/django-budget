@@ -11,6 +11,7 @@ import deline from '../../../vendored/deline';
 
 import AdditionalContentForm from '../../itemviews/additional-content/additional-form';
 import BaseStructureBindingsView from '../../itemviews/package-edit-bindings/base-structure';
+import ContentPlacement from '../../models/content-placement';
 import ContentPlacementCollection from '../../collections/content-placements';
 import ContentPlacementForm from '../../itemviews/modals/content-placement-form';
 import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/headline-group';
@@ -80,6 +81,7 @@ const uiElements = {
         packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-continue-editing-trigger',
         /* eslint-enable indent */
   contentPlacementsPlaceholder: '#content-placements-loading',
+  contentPlacementsAddTrigger: '#content-placements-table .create-placement',
   contentPlacementsTableGroup: '#content-placements-table .table-holder',
   contentPlacementsTable: '#content-placements-table table',
   contentPlacementsTableBody: '#content-placements-table table tbody',
@@ -195,6 +197,8 @@ export default Mn.CompositeView.extend({
     'click @ui.packageSaveTrigger': 'savePackage',
     'click @ui.packageSaveAndContinueEditingTrigger': 'savePackageAndContinueEditing',
     'click @ui.packageDeleteTrigger': 'deleteEntirePackage',
+    'mousedown @ui.contentPlacementsAddTrigger': 'addButtonClickedClass',
+    'click @ui.contentPlacementsAddTrigger': 'createContentPlacement',
   },
 
   modelEvents: {
@@ -410,27 +414,30 @@ export default Mn.CompositeView.extend({
     this.showContentPlacementForm(placementToEdit);
   },
 
+  createContentPlacement() {
+    const newPlacement = new ContentPlacement({
+      package: this.model.id,
+      destination: 1,
+      runDate: [
+        this.moment().add(1, 'days').format('YYYY-MM-DD'),
+        this.moment().add(2, 'days').format('YYYY-MM-DD'),
+      ],
+    });
+
+    window.nnn = newPlacement;
+
+    this.showContentPlacementForm(newPlacement);
+  },
+
   showContentPlacementForm(model) {
-    // const originalModel = {
-    //   destination
-    //   runDate
-    //   externalSlug
-    //   placementTypes
-    //   placementDetails
-    //   isFinalized
-    // };
-    console.log('T-12');
+    const clonedFields = [
+      'destination',
+      'externalSlug',
+      'placementDetails',
+      'isFinalized',
+    ];
 
-    const initialValues = _.chain(model.attributes)
-                                .clone()
-                                .pick([
-                                  'destination',
-                                  'externalSlug',
-                                  'placementDetails',
-                                  'isFinalized',
-                                ])
-                                .value();
-
+    const initialValues = _.chain(model.attributes).clone().pick(clonedFields).value();
     initialValues.runDate = _.clone(model.get('runDate'));
     initialValues.placementTypes = _.clone(model.get('placementTypes'));
 
@@ -439,12 +446,56 @@ export default Mn.CompositeView.extend({
       extraContext: this,
       callbacks: {
         save: () => {
-          window.mmm = model;
-          this.radio.commands.execute('destroyModal');
+          if (this.contentPlacementAddMode === 'immediate-async') {
+            setTimeout(() => {
+              model.save({}, {
+                success: () => {
+                  if (!this.contentPlacements.contains(model)) {
+                    this.contentPlacements.add(model);
+                  }
+
+                  this.contentPlacementLoadSuccess(this.contentPlacements);
+
+                  this.radio.commands.execute('destroyModal');
+
+                  this.radio.commands.execute('showSnackbar', new SnackbarView({
+                    containerClass: 'edit-page',
+                    snackbarClass: 'success',
+                    text: 'Successfully saved content placement.',
+                    action: { promptText: 'Dismiss' },
+                  }));
+                },
+                error: () => {
+                  if (!_.isUndefined(model.id)) {
+                    console.warn(
+                      // eslint-disable-next-line comma-dangle
+                      `Error: Could not save content placement with ID ${model.id}`
+                    );
+                  } else {
+                    console.warn('Error: Could not create new content placement.');
+                  }
+
+                  this.radio.commands.execute('destroyModal');
+
+                  this.radio.commands.execute('showSnackbar', new SnackbarView({
+                    containerClass: 'edit-page',
+                    snackbarClass: 'failure',
+                    text: 'Couldn\'t save content placement. Please try again.',
+                    action: { promptText: 'Dismiss' },
+                  }));
+                },
+              });
+            }, 1500);
+          } else {
+            console.log(this.contentPlacementAddMode);
+            this.radio.commands.execute('destroyModal');
+          }
         },
         close: () => {
           this.radio.commands.execute('destroyModal');
-          model.set(initialValues);
+          if (!_.isUndefined(model.id)) {
+            model.set(initialValues);
+          }
         },
       },
     });

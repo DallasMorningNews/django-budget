@@ -65,33 +65,7 @@ export default Mn.ItemView.extend({
                   .removeClass('save-waiting-transition');
             }, 500);
 
-            // this.callbacks.save();
-
-            // // Then, execute the remote save:
-            // const packageSave = this.model.save(undefined, {
-            //   xhrFields: {
-            //     withCredentials: true,
-            //   },
-            //   deepLoad: false,
-            // });
-            //
-            // packageSave.done(() => {
-            //   setTimeout(() => {
-            //     // Resume polling.
-            //     this.callbacks.resumePolling();
-            //
-            //     this.callbacks.success();
-            //   }, 1500);
-            // });
-            //
-            // packageSave.fail(() => {
-            //   setTimeout(() => {
-            //     // Resume polling.
-            //     this.callbacks.resumePolling();
-            //
-            //     this.callbacks.error();
-            //   }, 1500);
-            // });
+            this.callbacks.save();
           },
         },
         {
@@ -341,7 +315,7 @@ export default Mn.ItemView.extend({
         ));
       },
       onGet: () => {
-        if (_.isUndefined(this.model.id)) { return ''; }
+        // if (_.isUndefined(this.model.id)) { return ''; }
 
         return this.destinations.findWhere({
           id: this.model.get('destination'),
@@ -408,29 +382,18 @@ export default Mn.ItemView.extend({
                 placementCheckbox.find('input').prop('checked', true);
               }
 
-              placementCheckbox.find('input').change((event) => {
-                const thisEl = jQuery(event.currentTarget);
-                const placementSlug = thisEl.val();
+              placementCheckbox.find('input').change(() => {
+                const activePlacements = Array.from($el.find('input:checked'))
+                                                  .map(i => i.value);
 
-                const newPlacementsRaw = _.clone(this.model.get('placementTypes'));
-
-                const newPlacements = (
-                    thisEl.prop('checked')
-                ) ? (
-                    _.union(newPlacementsRaw, [placementSlug])
-                ) : (
-                    _.difference(newPlacementsRaw, [placementSlug])
-                );
-
-                // If 'placementTypes' is empty, apply these
-                // changes silently.
-                // That way, the selected publication won't
-                // also be reset.
+                // If 'activePlacements' is empty, apply these changes silently.
+                // That way, the selected destination won't also be reset.
+                this.model.unset('placementTypes');
                 this.model.set(
                     'placementTypes',
-                    newPlacements,
+                    activePlacements,
                     // eslint-disable-next-line comma-dangle
-                    (_.isEmpty(newPlacements)) ? { silent: true } : {}
+                    (_.isEmpty(activePlacements)) ? { silent: true } : {}
                 );
               });
 
