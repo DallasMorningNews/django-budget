@@ -7,11 +7,12 @@ export default Mn.ItemView.extend({
   template: 'budget/modal-base',
 
   serializeData() {
-    return this.options.modalConfig;
+    return this.modalConfig;
   },
 
   ui: {
     // searchBox: '#package-search-box'
+    modalInner: '.modal-inner',
     button: '.button-holder .material-button',
   },
 
@@ -24,13 +25,14 @@ export default Mn.ItemView.extend({
     if (_.has(options, 'model')) {
       this.model = this.options.model;
     }
-  },
 
-  // className: 'center-content',
-  // regions: {
-  //   filters: "#filters",
-  //   packages: "#packages"
-  // },
+    if (_.has(options, 'view')) {
+      this.view = this.options.view;
+      this.modalConfig = this.view.getConfig();
+    } else if (_.has(options, 'modalConfig')) {
+      this.modalConfig = this.options.modalConfig;
+    }
+  },
 
   addButtonClickedClass(event) {
     const thisEl = jQuery(event.currentTarget);
@@ -51,7 +53,7 @@ export default Mn.ItemView.extend({
     const thisEl = jQuery(event.currentTarget);
 
     const modalConfig = _.findWhere(
-      this.options.modalConfig.buttons,
+      this.modalConfig.buttons,
       { buttonID: thisEl.attr('id') }  // eslint-disable-line comma-dangle
     );
 
@@ -59,13 +61,12 @@ export default Mn.ItemView.extend({
   },
 
   onRender() {
-    if (_.has(this.options, 'renderCallback')) {
+    if (_.has(this, 'view')) {
+      this.view.setElement(this.ui.modalInner);
+      this.stickit(null, this.view.getBindings());
+      this.view.bindUIElements();
+    } else if (_.has(this.options, 'renderCallback')) {
       this.options.renderCallback(this);
     }
   },
-
-  // initialize() {
-  //   this.packageFilterView = new PackageFilterView({});
-  //   this.packageCollectionView = new ({});
-  // },
 });
