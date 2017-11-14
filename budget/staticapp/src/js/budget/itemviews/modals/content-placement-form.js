@@ -6,7 +6,22 @@ import 'daterange-picker-ex';
 
 import deline from '../../../vendored/deline';
 
+
+const uiElements = {
+  destination: '#destination',
+  runDateInputs: '#run_date_inputs',
+  runDateStart: '#run_date_start',
+  runDateEnd: '#run_date_end',
+  externalSlug: '#external_slug',
+  placementTypes: '#placement_types',
+  placementDetails: '#placement_details',
+  isFinalized: '#is_finalized',
+};
+
+
 export default Mn.ItemView.extend({
+  ui: uiElements,
+
   initialize() {
     this.radio = Backbone.Wreqr.radio.channel('global');
 
@@ -28,44 +43,29 @@ export default Mn.ItemView.extend({
                         'expand-past-button save-trigger',
           innerLabel: 'Save',
           clickCallback: (modalContext) => {
-            // First, add animation classes to the modal:
-            modalContext.$el.parent()
-                .addClass('waiting')
-                .addClass('save-waiting');
+            const validation = this.runValidation();
 
-            modalContext.$el.append(
-              '<div class="loading-animation save-loading-animation">' +
-                  '<div class="loader">' +
-                      '<svg class="circular" viewBox="25 25 50 50">' +
-                          '<circle class="path" cx="50" cy="50" r="20" ' +
-                                  'fill="none" stroke-width="2" ' +
-                                  'stroke-miterlimit="10"/>' +
-                      '</svg>' +
-                      '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-                  '</div>' +
-                  '<p class="loading-text">Saving placement...</p>' +
-              '</div>'  // eslint-disable-line comma-dangle
-            );
+            validation.done(() => {
+              this.clearErrorClasses();
+              this.initiateSave(modalContext);
+            });
 
-            setTimeout(() => {
-              modalContext.$el.find('.loading-animation')
-                                  .addClass('active');
-            }, 600);
+            validation.fail((formErrors) => {
+              this.clearErrorClasses();
 
-            setTimeout(() => {
-              modalContext.$el.find('.modal-inner')
-                  .css({ visibility: 'hidden' });
-            }, 450);
+              _.keys(formErrors.errors).forEach((errorField) => {
+                const currentFieldGroup = (
+                  this.ui[errorField].hasClass('.form-element')
+                ) ? (
+                  this.ui[errorField]
+                ) : (
+                  this.ui[errorField].closest('.form-element')
+                );
 
-            setTimeout(() => {
-              modalContext.$el.parent()
-                  .addClass('waiting')
-                  .addClass('save-waiting')
-                  .removeClass('waiting-transition')
-                  .removeClass('save-waiting-transition');
-            }, 500);
-
-            this.callbacks.save();
+                currentFieldGroup.addClass('has-error');
+                currentFieldGroup.find('.form-help').text(formErrors.errors[errorField]);
+              });
+            });
           },
         },
         {
@@ -74,6 +74,14 @@ export default Mn.ItemView.extend({
           innerLabel: 'Cancel',
           clickCallback: () => {
             this.callbacks.close();
+          },
+        },
+        {
+          buttonID: 'package-placement-delete-button',
+          buttonClass: 'flat-button delete-action delete-trigger',
+          innerLabel: 'Delete',
+          clickCallback: () => {
+            this.callbacks.delete();
           },
         },
       ],
@@ -201,7 +209,7 @@ export default Mn.ItemView.extend({
   getBindings() {
     const bindings = {};
 
-    bindings['#run_date_inputs'] = {
+    bindings[uiElements.runDateInputs] = {
       observe: 'runDate',
       events: ['setRunDate'],
       initialize: ($el, mdl, opts) => {
@@ -293,7 +301,7 @@ export default Mn.ItemView.extend({
       },
     };
 
-    bindings['#destination'] = {
+    bindings[uiElements.destination] = {
       observe: 'destination',
       initialize: ($el) => {
         const typeOpts = {
@@ -348,58 +356,59 @@ export default Mn.ItemView.extend({
       },
     };
 
-    bindings['#placement_types'] = {
+    bindings[uiElements.placementTypes] = {
       observe: ['activeDestination', 'placementTypes'],
       onGet: values => [this.activeDestination, values[1]],
       update: ($el, values) => {
         const newDestination = values[0];
         const selectedValues = this.model.get('placementTypes');
 
+        const destinationPlacements = this.extraContext.printPublicationSections;
+
         // Clear existing toggles.
         $el.empty();
 
-        if (_.has(this.extraContext.printPublicationSections, newDestination)) {
+        if (_.has(destinationPlacements, newDestination)) {
           $el.show();
 
           $el.append('<h5>Placement types</h5>');
 
-          _.each(
-            this.extraContext.printPublicationSections[newDestination],
-            (placement) => {
-              const placementCheckbox = jQuery(deline`
-                <label><input id="placement-type_${placement.id}"
-                              name="placement_types"
-                              data-form="package"
-                              type="checkbox"
-                              value="${
-                                  placement.slug
-                              }"><i class="helper"></i> ${
-                                  placement.name
-                              }</label>`  // eslint-disable-line comma-dangle
+          _.each(destinationPlacements[newDestination], (placement) => {
+            const placementCheckbox = jQuery(deline`
+              <label><input id="placement-type_${placement.id}"
+                            name="placement_types"
+                            data-form="package"
+                            type="checkbox"
+                            value="${
+                                placement.slug
+                            }"><i class="helper"></i> ${
+                                placement.name
+                            }</label>`  // eslint-disable-line comma-dangle
+            );
+
+            if (_.contains(selectedValues, placement.slug)) {
+              placementCheckbox.find('input').prop('checked', true);
+            }
+
+            placementCheckbox.find('input').change(() => {
+              const activePlacements = Array.from($el.find('input:checked'))
+                                                .map(i => i.value);
+
+              // If 'activePlacements' is empty, apply these changes silently.
+              // That way, the selected destination won't also be reset.
+              this.model.unset('placementTypes');
+              this.model.set(
+                  'placementTypes',
+                  activePlacements,
+                  // eslint-disable-next-line comma-dangle
+                  (_.isEmpty(activePlacements)) ? { silent: true } : {}
               );
+            });
 
-              if (_.contains(selectedValues, placement.slug)) {
-                placementCheckbox.find('input').prop('checked', true);
-              }
+            $el.append(placementCheckbox);
+          });
 
-              placementCheckbox.find('input').change(() => {
-                const activePlacements = Array.from($el.find('input:checked'))
-                                                  .map(i => i.value);
-
-                // If 'activePlacements' is empty, apply these changes silently.
-                // That way, the selected destination won't also be reset.
-                this.model.unset('placementTypes');
-                this.model.set(
-                    'placementTypes',
-                    activePlacements,
-                    // eslint-disable-next-line comma-dangle
-                    (_.isEmpty(activePlacements)) ? { silent: true } : {}
-                );
-              });
-
-              $el.append(placementCheckbox);
-            }  // eslint-disable-line comma-dangle
-          );
+          $el.append('<div class="form-help"></div>');
         } else {
           $el.hide();
         }
@@ -408,16 +417,16 @@ export default Mn.ItemView.extend({
 
     const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
     if (printSlugName !== null) {
-      bindings['#external_slug'] = {
+      bindings[uiElements.externalSlug] = {
         observe: 'externalSlug',
       };
     }
 
-    bindings['#placement_details'] = {
+    bindings[uiElements.placementDetails] = {
       observe: 'placementDetails',
     };
 
-    bindings['#is_finalized'] = {
+    bindings[uiElements.isFinalized] = {
       observe: 'isFinalized',
       update: () => {},
       getVal: $el => $el.is(':checked'),
@@ -434,5 +443,110 @@ export default Mn.ItemView.extend({
     };
 
     return bindings;
+  },
+
+  runValidation() {  // Originally named validate, which is a reserved name.
+    const validationPromise = new jQuery.Deferred();
+
+    const modelIsValid = this.model.runValidation();
+
+    const formErrors = {};
+
+    modelIsValid.done(() => {
+      if (this.ui.destination.val() === '') {
+        formErrors.destination = 'This field cannot be blank.';
+      }
+
+      if (_.isEmpty(formErrors)) {
+        validationPromise.resolve();
+      } else {
+        validationPromise.reject({ failType: 'form', errors: formErrors });
+      }
+    });
+
+    modelIsValid.fail((modelErrors) => {
+      const blankPlacementMessage = 'Please select at least one placement type.';
+
+      if (
+        _.has(modelErrors, 'placementTypes') &&
+        (modelErrors.placementTypes === blankPlacementMessage)
+      ) {
+        const rawDestination = this.model.get('destination');
+        const destination = this.destinations.get(rawDestination);
+        const destinationSlug = destination.get('slug');
+        const placementsByDestination = this.extraContext.printPublicationSections;
+
+        if (
+          (
+            (_.has(placementsByDestination, destinationSlug)) &&
+            (placementsByDestination[destinationSlug].length === 0)
+          ) || (
+            (!_.has(placementsByDestination, destinationSlug))
+          )
+        ) {
+          validationPromise.reject({
+            failType: 'form',
+            errors: Object.assign({}, _.omit(modelErrors, 'placementTypes'), {
+              destination: 'Please select a destination with at least one placement type.',
+            }),
+          });
+        } else if (this.ui.destination.val() === '') {
+          formErrors.destination = 'This field cannot be blank.';
+          validationPromise.reject({ failType: 'form', errors: formErrors });
+        } else {
+          validationPromise.reject({ failType: 'model', errors: modelErrors });
+        }
+      } else {
+        validationPromise.reject({ failType: 'model', errors: modelErrors });
+      }
+    });
+
+    return validationPromise;
+  },
+
+  initiateSave(modalContext) {
+    // First, add animation classes to the modal:
+    modalContext.$el.parent()
+        .addClass('waiting')
+        .addClass('save-waiting');
+
+    modalContext.$el.append(
+      '<div class="loading-animation save-loading-animation">' +
+          '<div class="loader">' +
+              '<svg class="circular" viewBox="25 25 50 50">' +
+                  '<circle class="path" cx="50" cy="50" r="20" ' +
+                          'fill="none" stroke-width="2" ' +
+                          'stroke-miterlimit="10"/>' +
+              '</svg>' +
+              '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+          '</div>' +
+          '<p class="loading-text">Saving placement...</p>' +
+      '</div>'  // eslint-disable-line comma-dangle
+    );
+
+    setTimeout(() => {
+      modalContext.$el.find('.loading-animation')
+                          .addClass('active');
+    }, 600);
+
+    setTimeout(() => {
+      modalContext.$el.find('.modal-inner')
+          .css({ visibility: 'hidden' });
+    }, 450);
+
+    setTimeout(() => {
+      modalContext.$el.parent()
+          .addClass('waiting')
+          .addClass('save-waiting')
+          .removeClass('waiting-transition')
+          .removeClass('save-waiting-transition');
+    }, 500);
+
+    this.callbacks.save();
+  },
+
+  clearErrorClasses() {
+    this.$el.find('.form-group').removeClass('has-error');
+    this.$el.find('.form-group .form-help').text('');
   },
 });
