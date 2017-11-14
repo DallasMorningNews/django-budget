@@ -16,26 +16,26 @@
 
             {% for field in row.fields %}
                 {% if field.type == 'input' %}
-                <div class="form-group column {{ field.widthClasses }} {{ field.extraClasses }}">
+                <div class="form-element form-group column {{ field.widthClasses }} {{ field.extraClasses }}">
                     <input name="{{ field.inputName }}" type="{{ field.inputType }}" id="{{ field.inputID }}">
                     <label for="{{ field.inputID }}" class="control-label">{{ field.labelText }}</label>
                     <i class="bar"></i>
                     <div class="form-help"></div>
                 </div>
                 {% elif field.type == 'radio' %}
-                    <div class="form-radio">
+                    <div class="form-element form-radio">
                         <label>
                             <input id="{{ field.inputID }}" name="{{ field.groupName }}" type="radio" value="{% if field.inputValue %}{{ field.inputValue }}{% endif %}"{% if field.isChecked %} checked{% endif %}{% if field.isDisabled %} disabled{% endif %} /><i class="helper"></i><span class="radio-label">{{ field.labelText|safe }}</span>
                         </label>
                     </div>
                 {% elif field.type == 'checkbox' %}
-                    <div class="column {{ field.widthClasses }} checkbox {{ field.extraClasses }}">
+                    <div class="form-element column {{ field.widthClasses }} checkbox {{ field.extraClasses }}">
                         <label>
                             <input id="{{ field.inputID }}" name="{{ field.groupName }}" type="checkbox" value="{{ field.inputValue }}"{% if field.isChecked %} checked{% endif %} /><i class="helper"></i>{{ field.labelText|safe }}
                         </label>
                     </div>
                 {% elif field.type == 'div' %}
-                    <div id="{{ field.inputID }}" class="column {{ field.extraClasses }} {{ field.widthClasses }}"></div>
+                    <div id="{{ field.inputID }}" class="form-element column {{ field.extraClasses }} {{ field.widthClasses }}"></div>
                 {% endif %}
             {% endfor %}
 
