@@ -543,6 +543,7 @@ class ContentPlacement(CreationTrailModel):
         blank=True,
         null=True,
     )
+    page_number = models.PositiveSmallIntegerField(blank=True, null=True)
     placement_details = models.CharField(
         blank=True,
         null=True,
