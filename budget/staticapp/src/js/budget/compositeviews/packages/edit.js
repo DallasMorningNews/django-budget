@@ -18,7 +18,6 @@ import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/hea
 import MainFormBindingsView from '../../itemviews/package-edit-bindings/main-form';
 import ModalView from '../../itemviews/modals/modal-window';
 import NotesGroupBindingsView from '../../itemviews/package-edit-bindings/notes-group';
-// import PubGroupBindingsView from '../../itemviews/package-edit-bindings/publishing-group';
 import SnackbarView from '../../itemviews/snackbars/snackbar';
 import urlConfig from '../../misc/urls';
 
@@ -64,13 +63,7 @@ const uiElements = {
   headlineVoteSubmissionToggleInput: '#package-form #vote-submission-toggle input',
   notesField: '#package-form #notes-quill .text-holder',
   notesToolbar: '#package-form #notes-quill .toolbar-holder',
-  // publishingGroup: '#package-form #publishing-fields',
   urlField: '#package-form #url',
-  // printRunDatesGroup: '#package-form #publishing-fields #print-run-dates',
-  // printPublicationDropdown: '#package-form #print-publication',
-  // printSystemSlugField: '#package-form #print-system-slug',
-  // printSectionCheckboxes: '#package-form #print-sections',
-  // printFinalized: '#package-form #is_placement_finalized',
         /* eslint-disable indent */
         addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
         bottomButtonHolder: '.single-page .bottom-button-holder',
@@ -158,27 +151,12 @@ export default Mn.CompositeView.extend({
       extraContext: {},
     });
 
-    // const pubGroupBindings = new PubGroupBindingsView({
-    //   model: this.model,
-    //   parentUI: this.ui,
-    //   uiElements,
-    //
-    //   extraContext: {
-    //     getActivePublication: () => this.activePublication,
-    //     printPlacementChoices: this.printPlacementChoices,
-    //     printPublicationSections: this.printPublicationSections,
-    //     sectionPublicationMap: this.sectionPublicationMap,
-    //     setActivePublication: (newPub) => { this.activePublication = newPub; },
-    //   },
-    // });
-
     if (showHeadlines === true) {
       return Object.assign(
         baseStructureBindings.getBindings(),
         mainFormBindings.getBindings(),
         headlineGroupBindings.getBindings(),
         notesGroupBindings.getBindings(),
-        // pubGroupBindings.getBindings(),
       );
     }
 
@@ -186,7 +164,6 @@ export default Mn.CompositeView.extend({
       baseStructureBindings.getBindings(),
       mainFormBindings.getBindings(),
       notesGroupBindings.getBindings(),
-      // pubGroupBindings.getBindings(),
     );
   },
 
@@ -243,11 +220,7 @@ export default Mn.CompositeView.extend({
 
     /* Prior-path capturing. */
 
-    this.priorViewName = this.radio.reqres.request(
-      'getState',
-      'meta',
-      'listViewType'  // eslint-disable-line comma-dangle
-    );
+    this.priorViewName = this.radio.reqres.request('getState', 'meta', 'listViewType');
 
     this.priorPath = urlConfig.listPage.reversePattern;
     if (
@@ -294,8 +267,7 @@ export default Mn.CompositeView.extend({
     jQuery.TDExLang.en.pm = 'p.m.';
   },
 
-  // eslint-disable-next-line no-unused-vars
-  filter(child, index, collection) {
+  filter(child) {  // args: child, index, collection
     // Only show child views for items in 'this.collection' that
     // represent additional content (and not primary items).
     return (
@@ -305,6 +277,7 @@ export default Mn.CompositeView.extend({
   },
 
   serializeData() {
+    //  TODO: Reflect this setting in the new-type placement edit form.
     const context = {
       // hasPrintSystemSlug: false,
       showHeadlines: this.radio.reqres.request('getSetting', 'showHeadlines'),
@@ -393,21 +366,18 @@ export default Mn.CompositeView.extend({
       const placementRow = jQuery(this.formatPlacementRow(placementObj));
       placementRow.appendTo(this.ui.contentPlacementsTableBody);
 
-      placementRow.find('td').hover(
-        (event) => {
-          if (
-            (!event.currentTarget.classList.contains('delete-trigger')) &&
-            (!placementRow.hasClass('being-deleted'))
-          ) {
-            placementRow.addClass('hovering');
-          }
-        },
-        (event) => {
-          if (!event.currentTarget.classList.contains('delete-trigger')) {
-            placementRow.removeClass('hovering');
-          }
-        }  // eslint-disable-line comma-dangle
-      );
+      placementRow.find('td').hover((event) => {
+        if (
+          (!event.currentTarget.classList.contains('delete-trigger')) &&
+          (!placementRow.hasClass('being-deleted'))
+        ) {
+          placementRow.addClass('hovering');
+        }
+      }, (event) => {
+        if (!event.currentTarget.classList.contains('delete-trigger')) {
+          placementRow.removeClass('hovering');
+        }
+      });
 
       const handleClick = event => this.handlePlacementClick(event, placementObj);
 
@@ -442,10 +412,7 @@ export default Mn.CompositeView.extend({
 
   editContentPlacement(event) {
     const placementToEdit = this.contentPlacements.findWhere({
-      id: parseInt(
-        event.currentTarget.id.replace('content-placement_', ''),
-        10  // eslint-disable-line comma-dangle
-      ),
+      id: parseInt(event.currentTarget.id.replace('content-placement_', ''), 10),
     });
 
     this.showContentPlacementForm(placementToEdit);
@@ -514,16 +481,15 @@ export default Mn.CompositeView.extend({
                   }));
                 },
                 error: () => {
+                  /* eslint-disable no-console */
                   if (!_.isUndefined(model.id)) {
-                    // eslint-disable-next-line no-console
-                    console.warn(
-                      // eslint-disable-next-line comma-dangle
-                      `Error: Could not save content placement with ID ${model.id}`
-                    );
+                    console.warn(`Error: Could not save content placement with ID ${
+                      model.id
+                    }`);
                   } else {
-                    // eslint-disable-next-line no-console
                     console.warn('Error: Could not create new content placement.');
                   }
+                  /* eslint-enable no-console */
 
                   this.radio.commands.execute('destroyModal');
 
@@ -537,6 +503,9 @@ export default Mn.CompositeView.extend({
               });
             }, 1500);
           } else {
+            // TODO: Handle add (and also delete) placement when done before
+            // parent Package is saved for the first time.
+            // eslint-disable-next-line no-console
             console.log(this.contentPlacementAddMode);
             this.radio.commands.execute('destroyModal');
           }
@@ -696,12 +665,11 @@ export default Mn.CompositeView.extend({
                                 .get('placementTypes')
                                 .filter(plc => destinationSections.includes(plc));
 
-    const richFilteredSections = _.sortBy(
-      rowPublicationDestination
-        .get('sections')
-        .filter(sectionObj => filteredSections.includes(sectionObj.slug)),
-      'priority'  // eslint-disable-line comma-dangle
-    );
+    const matches = rowPublicationDestination
+                        .get('sections')
+                        .filter(sectionObj => filteredSections.includes(sectionObj.slug));
+
+    const richFilteredSections = _.sortBy(matches, 'priority');
 
     const formattedValues = {
       destination: rowPublicationDestination.get('name'),
@@ -791,35 +759,26 @@ export default Mn.CompositeView.extend({
 
     return {
       options: choices,
-      optgroups: _.map(
-        _.sortBy(hubGroupsRaw, 'value'),
-        (obj, index) => {
-          const newObj = _.clone(obj);
-          newObj.$order = index + 1;
-          return newObj;
-        }  // eslint-disable-line comma-dangle
-      ),
+      optgroups: _.map(_.sortBy(hubGroupsRaw, 'value'), (obj, index) => {
+        const newObj = _.clone(obj);
+        newObj.$order = index + 1;
+        return newObj;
+      }),
     };
   },
 
   enumerateTypeChoices() {
     const choices = [];
 
-    _.each(
-      this.radio.reqres.request('getSetting', 'contentTypes'),
-      (v, k) => {
-        choices.push({
-          name: v.verboseName,
-          order: v.order,
-          value: k,
-        });
-      }  // eslint-disable-line comma-dangle
-    );
+    _.each(this.radio.reqres.request('getSetting', 'contentTypes'), (v, k) => {
+      choices.push({
+        name: v.verboseName,
+        order: v.order,
+        value: k,
+      });
+    });
 
-    return _.map(
-      _.sortBy(choices, 'order'),
-      choice => _.omit(choice, 'order')  // eslint-disable-line comma-dangle
-    );
+    return _.map(_.sortBy(choices, 'order'), choice => _.omit(choice, 'order'));
   },
 
   enumerateStafferChoices() {
@@ -838,39 +797,31 @@ export default Mn.CompositeView.extend({
   enumeratePrintPlacementChoices() {
     const sectionPublicationValues = [];
     const publicationSections = [];
-    const placementChoices = _.compact(
-      this.options.data.printPublications.map(
-        (publication) => {
-          if (publication.get('isActive') === true) {
-            // Generate a second map with this
-            // publications' section IDs and the
-            //  publication's slug. This gets used on the
-            // selectize 'select' event.
-            sectionPublicationValues.push(
-              _.map(
-                publication.get('sections'),
-                section => [
-                  section.id,
-                  publication.get('slug'),
-                ]  // eslint-disable-line comma-dangle
-              )  // eslint-disable-line comma-dangle
-            );
+    const destinations = this.options.data.printPublications;
+    const placementChoices = _.compact(destinations.map((publication) => {
+      if (publication.get('isActive') === true) {
+        // Generate a second map with this
+        // publications' section IDs and the
+        // publication's slug. This gets used on the
+        // selectize 'select' event.
+        sectionPublicationValues.push(_.map(publication.get('sections'), section => [
+          section.id,
+          publication.get('slug'),
+        ]));
 
-            publicationSections.push([
-              publication.get('slug'),
-              publication.get('sections'),
-            ]);
+        publicationSections.push([
+          publication.get('slug'),
+          publication.get('sections'),
+        ]);
 
-            return {
-              name: publication.get('name'),
-              value: publication.get('slug'),
-            };
-          }
+        return {
+          name: publication.get('name'),
+          value: publication.get('slug'),
+        };
+      }
 
-          return null;
-        }  // eslint-disable-line comma-dangle
-      )  // eslint-disable-line comma-dangle
-    );
+      return null;
+    }));
 
     this.printPublicationSections = _.chain(publicationSections)
           .compact()
@@ -928,10 +879,9 @@ export default Mn.CompositeView.extend({
     thisEl.addClass('active-state');
     thisEl.removeClass('click-init');
 
-    setTimeout(
-      () => { thisEl.removeClass('hover').removeClass('active-state'); },
-      1000  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => {
+      thisEl.removeClass('hover').removeClass('active-state');
+    }, 1000);
 
     setTimeout(() => { thisEl.addClass('click-init'); }, 2000);
   },
@@ -949,10 +899,9 @@ export default Mn.CompositeView.extend({
   toggleCollapsibleRow(event) {
     const toggleTarget = jQuery(event.currentTarget);
     const toggleSlug = toggleTarget.data('expand-target');
-    const toggleReceiver = this.ui.collapsibleRows.filter(
-        // eslint-disable-next-line comma-dangle
-        `[data-expand-receiver="${toggleSlug}"]`
-    ).first();
+    const toggleReceiver = this.ui.collapsibleRows.filter(`[data-expand-receiver="${
+      toggleSlug
+    }"]`).first();
 
     if (toggleReceiver.height() === 0) {
       toggleTarget.find('h4').addClass('section-expanded');
@@ -981,150 +930,102 @@ export default Mn.CompositeView.extend({
 
   saveAllComponents(successCallback, errorCallback) {
     const savePromise = new jQuery.Deferred();
-    // const cachedPrintSections = _.clone(this.model.get('printSection'));
 
-    const packageSave = this.model.save(
-      undefined,
-      {
-        xhrFields: {
-          withCredentials: true,
-        },
-        deepLoad: false,
-      }  // eslint-disable-line comma-dangle
-    );
+    const packageSave = this.model.save(undefined, {
+      xhrFields: {
+        withCredentials: true,
+      },
+      deepLoad: false,
+    });
 
     packageSave.done((mdl, resp, opts) => {
       const packageID = mdl.id;
       const wasCreated = (opts.statusText.toLowerCase() === 'created');
 
-      // // Restore the print sections that were cached on save -- for
-      // // some reason, they revert to their old values in the
-      // // re-hydration at the end of 'save()'.
-      // // That glitch is momentary, though: the correct updates still
-      // // get applied to the remote version. This is just a shim for
-      // // local rendering.
-      // this.model.set('printSection', cachedPrintSections);
+      this.model.primaryContentItem.set('primaryForPackage', packageID);
 
-      this.model.primaryContentItem.set(
-        'primaryForPackage',
-        packageID  // eslint-disable-line comma-dangle
-      );
+      const primaryContentSave = this.model.primaryContentItem.save(undefined, {
+        xhrFields: {
+          withCredentials: true,
+        },
+      });
 
-      const primaryContentSave = this.model.primaryContentItem.save(
-        undefined,
-        {
-          xhrFields: {
-            withCredentials: true,
-          },
-        } // eslint-disable-line comma-dangle
-      );
-
-      // eslint-disable-next-line no-unused-vars
-      primaryContentSave.done((model, response, options) => {
+      primaryContentSave.done(() => {  // args: model, response, options
         const additionalSaveRequests = [];
 
-        this.model.additionalContentCollection.each(
-          (item) => {
-            const additionalItemDeferred = new jQuery.Deferred();
+        this.model.additionalContentCollection.each((item) => {
+          const additionalItemDeferred = new jQuery.Deferred();
 
-            item.set('additionalForPackage', packageID);
+          item.set('additionalForPackage', packageID);
 
-            if (
-                (!item.isNew()) ||
-                (!_.isNull(item.get('type'))) ||
-                (!_.isEmpty(item.get('slugKey'))) ||
-                (!_.isEmpty(item.get('authors'))) ||
-                (!_.isEmpty(item.get('budgetLine')))
-            ) {
-              additionalSaveRequests.push(additionalItemDeferred);
+          if (
+              (!item.isNew()) ||
+              (!_.isNull(item.get('type'))) ||
+              (!_.isEmpty(item.get('slugKey'))) ||
+              (!_.isEmpty(item.get('authors'))) ||
+              (!_.isEmpty(item.get('budgetLine')))
+          ) {
+            additionalSaveRequests.push(additionalItemDeferred);
 
-              const additionalItemSave = item.save(
-                undefined,
-                {
-                  xhrFields: {
-                    withCredentials: true,
-                  },
-                }  // eslint-disable-line comma-dangle
+            const additionalItemSave = item.save(undefined, {
+              xhrFields: {
+                withCredentials: true,
+              },
+            });
+
+            /* eslint-disable no-unused-vars */
+            additionalItemSave.done((modelObj, responseObj, optionsObj) => {
+              if (optionsObj.status === 201) {  // If initial create.
+                this.appendAdditionalItem(modelObj);
+              }
+
+              additionalItemDeferred.resolve();
+            });
+            /* eslint-enable no-unused-vars */
+
+            additionalItemSave.fail((responseObj, textStatus, errorThrown) => {
+              additionalItemDeferred.reject(
+                responseObj,
+                textStatus,
+                errorThrown,
+                'additional-item',
+                item  // eslint-disable-line comma-dangle
               );
-
-              /* eslint-disable no-unused-vars */
-              additionalItemSave.done(
-                (modelObj, responseObj, optionsObj) => {
-                  if (optionsObj.status === 201) {  // If initial create.
-                    this.appendAdditionalItem(modelObj);
-                  }
-
-                  additionalItemDeferred.resolve();
-                }  // eslint-disable-line comma-dangle
-              );
-              /* eslint-enable no-unused-vars */
-
-              additionalItemSave.fail(
-                (responseObj, textStatus, errorThrown) => {
-                  additionalItemDeferred.reject(
-                    responseObj,
-                    textStatus,
-                    errorThrown,
-                    'additional-item',
-                    item  // eslint-disable-line comma-dangle
-                  );
-                }  // eslint-disable-line comma-dangle
-              );
-            } else {
-              // If all four empty-by-default fields are
-              // still empty on this model (and it has no
-              // ID), the model should get removed from the
-              // collection rather than being saved across
-              // the API.
-              item.destroy();
-            }
-          }  // eslint-disable-line comma-dangle
-        );
+            });
+          } else {
+            // If all four empty-by-default fields are
+            // still empty on this model (and it has no
+            // ID), the model should get removed from the
+            // collection rather than being saved across
+            // the API.
+            item.destroy();
+          }
+        });
 
         jQuery.when(...additionalSaveRequests).done(() => {
           savePromise.resolve(wasCreated);
         });
 
-        jQuery.when(...additionalSaveRequests).fail(
-          (responseObj, textStatus, errorThrown, itemType, item) => {
+        jQuery
+          .when(...additionalSaveRequests)
+          .fail((responseObj, textStatus, errorThrown, itemType, item) => {
             /* eslint-disable no-underscore-dangle */
             const itemView = this.children._views[
                 this.children._indexByModel[item.cid]
             ];
             /* eslint-enable no-underscore-dangle */
 
-            savePromise.reject(
-              responseObj,
-              textStatus,
-              errorThrown,
-              itemType,
-              itemView  // eslint-disable-line comma-dangle
-            );
-          }  // eslint-disable-line comma-dangle
-        );
+            savePromise.reject(responseObj, textStatus, errorThrown, itemType, itemView);
+          });
       });
 
-      primaryContentSave.fail(
-        (response, textStatus, errorThrown) => {
-          savePromise.reject(
-            response,
-            textStatus,
-            errorThrown,
-            'primary-item',
-            this  // eslint-disable-line comma-dangle
-          );
-        }  // eslint-disable-line comma-dangle
-      );
+      primaryContentSave.fail((response, textStatus, errorThrown) => {
+        savePromise.reject(response, textStatus, errorThrown, 'primary-item', this);
+      });
     });
 
     packageSave.fail((response, textStatus, errorThrown) => {
-      savePromise.reject(
-        response,
-        textStatus,
-        errorThrown,
-        'package',
-        this  // eslint-disable-line comma-dangle
-      );
+      savePromise.reject(response, textStatus, errorThrown, 'package', this);
     });
 
     savePromise.done((wasCreated) => {
@@ -1133,156 +1034,119 @@ export default Mn.CompositeView.extend({
       }
     });
 
-    // eslint-disable-next-line no-unused-vars
-    savePromise.fail(
-      (response, textStatus, errorThrown, errorType, errorView) => {
-        const packageErrorHolder = this.ui.packageErrors;
-        const boundErrors = {
-          raw: _.chain(errorView.bindings())
-                  .mapObject((val, key) => {
-                    const newVal = _.clone(val);
-                    newVal.selector = key;
-                    return newVal;
-                  })
-                  .values()
-                  .filter(binding => _.has(binding, 'observeErrors'))
-                  .value(),
-        };
-
-        if (response.status === 400) {
-          if (errorType === 'package') {
-            // For package errors, check if we also need to raise
-            // errors on required primary content item fields (when
-            // they haven't been filled out either).
-
-            // First check for type.
-            if (_.isNull(this.model.primaryContentItem.get('type'))) {
-              // eslint-disable-next-line no-param-reassign
-              response.responseJSON.type = [
-                'This field may not be null.',
-              ];
-            }
-
-            // Next check for slug keyword.
-            if (_.isEmpty(this.model.get('slugKey'))) {
-              // eslint-disable-next-line no-param-reassign
-              response.responseJSON.slugKey = [
-                'This field may not be blank.',
-              ];
-            }
-
-            // Then check for budget line.
-            if (_.isEmpty(this.model.primaryContentItem.get('budgetLine'))) {
-              // eslint-disable-next-line no-param-reassign
-              response.responseJSON.budgetLine = [
-                'This field may not be blank.',
-              ];
-            }
-
-            // Finally, check for author.
-            if (_.isEmpty(this.model.primaryContentItem.get('authors'))) {
-              // eslint-disable-next-line no-param-reassign
-              response.responseJSON.authors = [
-                'This field may not be empty.',
-              ];
-            }
-          }
-
-          if (_.keys(response.responseJSON).length) {
-            packageErrorHolder.html(
-              // eslint-disable-next-line comma-dangle
-              '<span class="inner">Please fix the errors below.</span>'
-            );
-            packageErrorHolder.show();
-          } else {
-            packageErrorHolder.html('');
-            packageErrorHolder.hide();
-          }
-
-          if (errorType !== 'additional-item') {
-            boundErrors.package = _.chain(boundErrors.raw)
-                .reject(binding => _.contains(
-                  ['primaryContent', 'additionalContent'],
-                  // eslint-disable-next-line comma-dangle
-                  _string_.strLeft(binding.observeErrors, '.')
-                ))
-                .value();
-
-            // Bind package errors.
-            _.each(
-              boundErrors.package,
-              (errorBinding) => {
-                this.bindError(
-                  response,
-                  errorBinding,
-                  errorBinding.observeErrors,
-                  errorView  // eslint-disable-line comma-dangle
-                );
-              }  // eslint-disable-line comma-dangle
-            );
-
-            boundErrors.primary = _.chain(boundErrors.raw)
-                .filter((binding) => {
-                  const errorBase = _string_.strLeft(
-                    binding.observeErrors,
-                    '.'  // eslint-disable-line comma-dangle
-                  );
-
-                  return errorBase === 'primaryContent';
+    savePromise.fail((response, textStatus, errorThrown, errorType, errorView) => {
+      const packageErrorHolder = this.ui.packageErrors;
+      const boundErrors = {
+        raw: _.chain(errorView.bindings())
+                .mapObject((val, key) => {
+                  const newVal = _.clone(val);
+                  newVal.selector = key;
+                  return newVal;
                 })
-                .value();
+                .values()
+                .filter(binding => _.has(binding, 'observeErrors'))
+                .value(),
+      };
 
-            // Bind primary-content-item errors.
-            _.each(
-                boundErrors.primary,
-                (errorBinding) => {
-                  this.bindError(
-                      response,
-                      errorBinding,
-                      _string_.strRight(
-                        errorBinding.observeErrors,
-                        '.'  // eslint-disable-line comma-dangle
-                      ),
-                      errorView  // eslint-disable-line comma-dangle
-                  );
-                }  // eslint-disable-line comma-dangle
-            );
-          } else {
-            boundErrors.additionals = _.chain(boundErrors.raw)
-                .filter(
-                  (binding) => {
-                    const errorBase = _string_.strLeft(
-                      binding.observeErrors,
-                      '.'  // eslint-disable-line comma-dangle
-                    );
-                    return errorBase === 'additionalContent';
-                  }  // eslint-disable-line comma-dangle
-                )
-                .value();
+      if (response.status === 400) {
+        if (errorType === 'package') {
+          // For package errors, check if we also need to raise
+          // errors on required primary content item fields (when
+          // they haven't been filled out either).
 
-            // Bind additional-content-item errors.
-            _.each(
-              boundErrors.additionals,
-              (errorBinding) => {
-                this.bindError(
-                  response,
-                  errorBinding,
-                  _string_.strRight(
-                    errorBinding.observeErrors,
-                    '.'  // eslint-disable-line comma-dangle
-                  ),
-                  errorView  // eslint-disable-line comma-dangle
-                );
-              }  // eslint-disable-line comma-dangle
-            );
+          // First check for type.
+          if (_.isNull(this.model.primaryContentItem.get('type'))) {
+            // eslint-disable-next-line no-param-reassign
+            response.responseJSON.type = [
+              'This field may not be null.',
+            ];
+          }
+
+          // Next check for slug keyword.
+          if (_.isEmpty(this.model.get('slugKey'))) {
+            // eslint-disable-next-line no-param-reassign
+            response.responseJSON.slugKey = [
+              'This field may not be blank.',
+            ];
+          }
+
+          // Then check for budget line.
+          if (_.isEmpty(this.model.primaryContentItem.get('budgetLine'))) {
+            // eslint-disable-next-line no-param-reassign
+            response.responseJSON.budgetLine = [
+              'This field may not be blank.',
+            ];
+          }
+
+          // Finally, check for author.
+          if (_.isEmpty(this.model.primaryContentItem.get('authors'))) {
+            // eslint-disable-next-line no-param-reassign
+            response.responseJSON.authors = [
+              'This field may not be empty.',
+            ];
           }
         }
 
-        if (_.isFunction(errorCallback)) {
-          errorCallback(response, textStatus, errorThrown, errorType);
+        if (_.keys(response.responseJSON).length) {
+          packageErrorHolder.html('' +
+            '<span class="inner">' +
+              'Please fix the errors below.' +
+            '</span>');
+          packageErrorHolder.show();
+        } else {
+          packageErrorHolder.html('');
+          packageErrorHolder.hide();
         }
-      }  // eslint-disable-line comma-dangle
-    );
+
+        if (errorType !== 'additional-item') {
+          boundErrors.package = _.chain(boundErrors.raw)
+              .reject(binding => _.contains([
+                'primaryContent',
+                'additionalContent',
+              ], _string_.strLeft(binding.observeErrors, '.')))
+              .value();
+
+          // Bind package errors.
+          _.each(boundErrors.package, (errorBinding) => {
+            const observeErrors = errorBinding.observeErrors;
+            this.bindError(response, errorBinding, observeErrors, errorView);
+          });
+
+          boundErrors.primary = _.chain(boundErrors.raw)
+              .filter((binding) => {
+                const errorBase = _string_.strLeft(binding.observeErrors, '.');
+
+                return errorBase === 'primaryContent';
+              })
+              .value();
+
+          // Bind primary-content-item errors.
+          _.each(boundErrors.primary, (errorBinding) => {
+            const observeErrors = errorBinding.observeErrors;
+            const observeErrorsRight = _string_.strRight(observeErrors, '.');
+            this.bindError(response, errorBinding, observeErrorsRight, errorView);
+          });
+        } else {
+          boundErrors.additionals = _.chain(boundErrors.raw)
+              .filter((binding) => {
+                const errorBase = _string_.strLeft(binding.observeErrors, '.');
+                return errorBase === 'additionalContent';
+              })
+              .value();
+
+          // Bind additional-content-item errors.
+          _.each(boundErrors.additionals, (errorBinding) => {
+            const observeErrors = errorBinding.observeErrors;
+            const observeErrorsRight = _string_.strRight(observeErrors, '.');
+            this.bindError(response, errorBinding, observeErrorsRight, errorView);
+          });
+        }
+      }
+
+      if (_.isFunction(errorCallback)) {
+        errorCallback(response, textStatus, errorThrown, errorType);
+      }
+    });
 
     return savePromise;
   },
@@ -1291,10 +1155,7 @@ export default Mn.CompositeView.extend({
     const assignedErrorClass = (
         _.has(errorBinding, 'getErrorClass')
     ) ? (
-      errorBinding.getErrorClass(
-        // eslint-disable-next-line comma-dangle
-        errorView.$el.find(errorBinding.selector)
-      )
+      errorBinding.getErrorClass(errorView.$el.find(errorBinding.selector))
     ) : (
       errorView.$el.find(errorBinding.selector)
           .closest('.form-group')
@@ -1302,10 +1163,7 @@ export default Mn.CompositeView.extend({
     const errorTextHolder = (
       _.has(errorBinding, 'getErrorTextHolder')
     ) ? (
-      errorBinding.getErrorTextHolder(
-        // eslint-disable-next-line comma-dangle
-        errorView.$el.find(errorBinding.selector)
-      )
+      errorBinding.getErrorTextHolder(errorView.$el.find(errorBinding.selector))
     ) : (
       errorView.$el.find(errorBinding.selector)
           .closest('.form-group')
@@ -1320,21 +1178,16 @@ export default Mn.CompositeView.extend({
         assignedErrorClass.addClass('has-error');
       }
 
-      errorTextHolder.html(
-        _.map(
-          response.responseJSON[fieldKey],
-          (message) => {
-            const errorTranslation = (
-              _.has(errorBinding.errorTranslations, message)
-            ) ? (
-              errorBinding.errorTranslations[message]
-            ) : (
-              message
-            );
-            return errorTranslation;
-          }  // eslint-disable-line comma-dangle
-        ).join(' | ')  // eslint-disable-line comma-dangle
-      );
+      errorTextHolder.html(_.map(response.responseJSON[fieldKey], (message) => {
+        const errorTranslation = (
+          _.has(errorBinding.errorTranslations, message)
+        ) ? (
+          errorBinding.errorTranslations[message]
+        ) : (
+          message
+        );
+        return errorTranslation;
+      }).join(' | '));
     } else {
       // This field has no errors. Remove 'has-error'
       // class (if attached), empty and hide any
@@ -1362,34 +1215,30 @@ export default Mn.CompositeView.extend({
 
     this.modalView = new ModalView({ modalConfig: saveProgressModal });
 
-    setTimeout(
-      () => {
-        this.radio.commands.execute('showModal', this.modalView);
+    setTimeout(() => {
+      this.radio.commands.execute('showModal', this.modalView);
 
-        this.modalView.$el.parent()
-                        .addClass('waiting')
-                        .addClass('save-waiting');
+      this.modalView.$el.parent()
+                      .addClass('waiting')
+                      .addClass('save-waiting');
 
-        this.modalView.$el.append(
-          '<div class="loading-animation save-loading-animation">' +
-              '<div class="loader">' +
-                  '<svg class="circular" viewBox="25 25 50 50">' +
-                      '<circle class="path" cx="50" cy="50" r="20" ' +
-                              'fill="none" stroke-width="2" ' +
-                              'stroke-miterlimit="10"/>' +
-                  '</svg>' +
-                  '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-              '</div>' +
-              '<p class="loading-text">Saving content...</p>' +
-          '</div>'  // eslint-disable-line comma-dangle
-        );
+      this.modalView.$el.append('' +
+      '<div class="loading-animation save-loading-animation">' +
+          '<div class="loader">' +
+              '<svg class="circular" viewBox="25 25 50 50">' +
+                  '<circle class="path" cx="50" cy="50" r="20" ' +
+                          'fill="none" stroke-width="2" ' +
+                          'stroke-miterlimit="10"/>' +
+              '</svg>' +
+              '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+          '</div>' +
+          '<p class="loading-text">Saving content...</p>' +
+      '</div>');
 
-        setTimeout(() => {
-          this.modalView.$el.find('.loading-animation').addClass('active');
-        }, 270);
-      },
-      200  // eslint-disable-line comma-dangle
-    );
+      setTimeout(() => {
+        this.modalView.$el.find('.loading-animation').addClass('active');
+      }, 270);
+    }, 200);
 
     const allComponentsSave = this.saveAllComponents();
 
@@ -1402,15 +1251,11 @@ export default Mn.CompositeView.extend({
     });
 
     allComponentsSave.fail((response, textStatus, errorThrown) => {
-      this.saveErrorCallback(
-        'saveOnly',
-        'hardError',
-        [
-          response,
-          textStatus,
-          errorThrown,
-        ]  // eslint-disable-line comma-dangle
-      );
+      this.saveErrorCallback('saveOnly', 'hardError', [
+        response,
+        textStatus,
+        errorThrown,
+      ]);
     });
   },
 
@@ -1427,34 +1272,30 @@ export default Mn.CompositeView.extend({
 
     this.modalView = new ModalView({ modalConfig: saveProgressModal });
 
-    setTimeout(
-      () => {
-        this.radio.commands.execute('showModal', this.modalView);
+    setTimeout(() => {
+      this.radio.commands.execute('showModal', this.modalView);
 
-        this.modalView.$el.parent()
-                        .addClass('waiting')
-                        .addClass('save-waiting');
+      this.modalView.$el.parent()
+                      .addClass('waiting')
+                      .addClass('save-waiting');
 
-        this.modalView.$el.append(
-          '<div class="loading-animation save-loading-animation">' +
-              '<div class="loader">' +
-                  '<svg class="circular" viewBox="25 25 50 50">' +
-                      '<circle class="path" cx="50" cy="50" r="20" ' +
-                              'fill="none" stroke-width="2" ' +
-                              'stroke-miterlimit="10"/>' +
-                  '</svg>' +
-                  '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-              '</div>' +
-              '<p class="loading-text">Saving content...</p>' +
-          '</div>'  // eslint-disable-line comma-dangle
-        );
+      this.modalView.$el.append('' +
+      '<div class="loading-animation save-loading-animation">' +
+          '<div class="loader">' +
+              '<svg class="circular" viewBox="25 25 50 50">' +
+                  '<circle class="path" cx="50" cy="50" r="20" ' +
+                          'fill="none" stroke-width="2" ' +
+                          'stroke-miterlimit="10"/>' +
+              '</svg>' +
+              '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+          '</div>' +
+          '<p class="loading-text">Saving content...</p>' +
+      '</div>');
 
-        setTimeout(() => {
-          this.modalView.$el.find('.loading-animation').addClass('active');
-        }, 270);
-      },
-      200  // eslint-disable-line comma-dangle
-    );
+      setTimeout(() => {
+        this.modalView.$el.find('.loading-animation').addClass('active');
+      }, 270);
+    }, 200);
 
     const allComponentsSave = this.saveAllComponents();
 
@@ -1465,16 +1306,12 @@ export default Mn.CompositeView.extend({
     });
 
     allComponentsSave.fail((response, textStatus, errorThrown, errorType) => {
-      this.saveErrorCallback(
-        'saveAndContinue',
-        'hardError',
-        [
-          response,
-          textStatus,
-          errorThrown,
-          errorType,
-        ]  // eslint-disable-line comma-dangle
-      );
+      this.saveErrorCallback('saveAndContinue', 'hardError', [
+        response,
+        textStatus,
+        errorThrown,
+        errorType,
+      ]);
     });
   },
 
@@ -1498,28 +1335,25 @@ export default Mn.CompositeView.extend({
                 .addClass('waiting-transition')
                 .addClass('delete-waiting-transition');
 
-            $el.append(
-              '<div class="loading-animation deletion-loading-animation">' +
-                  '<div class="loader">' +
-                      '<svg class="circular" viewBox="25 25 50 50">' +
-                          '<circle class="path" cx="50" cy="50" r="20" ' +
-                                  'fill="none" stroke-width="2" ' +
-                                  'stroke-miterlimit="10"/>' +
-                      '</svg>' +
-                      '<i class="fa fa-trash fa-2x fa-fw"></i>' +
-                  '</div>' +
-                  '<p class="loading-text">Deleting content...</p>' +
-              '</div>'  // eslint-disable-line comma-dangle
-            );
+            $el.append('' +
+            '<div class="loading-animation deletion-loading-animation">' +
+                '<div class="loader">' +
+                    '<svg class="circular" viewBox="25 25 50 50">' +
+                        '<circle class="path" cx="50" cy="50" r="20" ' +
+                                'fill="none" stroke-width="2" ' +
+                                'stroke-miterlimit="10"/>' +
+                    '</svg>' +
+                    '<i class="fa fa-trash fa-2x fa-fw"></i>' +
+                '</div>' +
+                '<p class="loading-text">Deleting content...</p>' +
+            '</div>');
 
             setTimeout(() => {
               $el.find('.loading-animation').addClass('active');
             }, 600);
 
             setTimeout(() => {
-              $el.find('.modal-inner').css(
-                { visibility: 'hidden' }  // eslint-disable-line comma-dangle
-              );
+              $el.find('.modal-inner').css({ visibility: 'hidden' });
             }, 450);
 
             setTimeout(() => {
@@ -1540,16 +1374,13 @@ export default Mn.CompositeView.extend({
               }, 1500);
             });
 
-            // eslint-disable-next-line no-unused-vars
-            deleteRequest.fail(
-              (response, textStatus, errorThrown) => {
-                this.deleteErrorCallback(
-                  'hardError',
-                  // eslint-disable-next-line comma-dangle
-                  [response, textStatus, errorThrown]
-                );
-              }  // eslint-disable-line comma-dangle
-            );
+            deleteRequest.fail((response, textStatus, errorThrown) => {
+              this.deleteErrorCallback('hardError', [
+                response,
+                textStatus,
+                errorThrown,
+              ]);
+            });
           },
         },
         {
@@ -1565,10 +1396,8 @@ export default Mn.CompositeView.extend({
 
     // const dbPrimarySlug = this.model.get('slug');
     const currentPrimarySlug = this.ui.packageTitle.text();
-    const itemSlugEndings = this.model.additionalContentCollection.map(
-      // eslint-disable-next-line comma-dangle
-      additionalItem => additionalItem.get('slugKey')
-    );
+    const itemSlugEndings = this.model.additionalContentCollection
+                  .map(additionalItem => additionalItem.get('slugKey'));
 
     // Add blank additional key to begining of slugs list (which will represent
     // the primary content item/parent package).
@@ -1576,15 +1405,12 @@ export default Mn.CompositeView.extend({
 
     const itemsToDelete = deline`
         <ul class="to-be-deleted-list">${
-            _.chain(
-              _.map(itemSlugEndings, (slugEnd) => {
-                const slugSuffix = (slugEnd !== '') ? `.${slugEnd}` : '';
-                return `${currentPrimarySlug}${slugSuffix}`;
-              })  // eslint-disable-line comma-dangle
-            ).map(additionalSlug => deline`
-                <li class="to-be-deleted-item">${additionalSlug}
-                </li>`  // eslint-disable-line comma-dangle
-            ).reduce((memo, num) => memo + num, '')
+            _.chain(_.map(itemSlugEndings, (slugEnd) => {
+              const slugSuffix = (slugEnd !== '') ? `.${slugEnd}` : '';
+              return `${currentPrimarySlug}${slugSuffix}`;
+            })).map(additionalSlug => deline`
+            <li class="to-be-deleted-item">${additionalSlug}
+            </li>`).reduce((memo, num) => memo + num, '')
             .value()
         }</ul>`;
 
@@ -1604,10 +1430,9 @@ export default Mn.CompositeView.extend({
 
     this.modalView = new ModalView({ modalConfig: deleteConfirmationModal });
 
-    setTimeout(
-      () => { this.radio.commands.execute('showModal', this.modalView); },
-      200  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => {
+      this.radio.commands.execute('showModal', this.modalView);
+    }, 200);
   },
 
 
@@ -1623,26 +1448,23 @@ export default Mn.CompositeView.extend({
 
     // Loop through each required field, adding help text and the
     // 'has-error' class to any one that has no value.
-    _.each(
-      this.ui.packageForm.find("[data-form][isRequired='true']"),
-      (field) => {
-        const fieldEl = jQuery(field);
-        const formGroup = fieldEl.closest('.form-group');
+    _.each(this.ui.packageForm.find("[data-form][isRequired='true']"), (field) => {
+      const fieldEl = jQuery(field);
+      const formGroup = fieldEl.closest('.form-group');
 
-        if (_.isEmpty(field.value)) {
-          formGroup.addClass('has-error');
-          formGroup.find('.form-help').text('This value is required.');
+      if (_.isEmpty(field.value)) {
+        formGroup.addClass('has-error');
+        formGroup.find('.form-help').text('This value is required.');
 
-          fieldEl.on('change changeData', () => {
-            const thisEl = jQuery(this);
-            if (this.value !== '') {
-              thisEl.closest('.form-group').removeClass('has-error');
-              thisEl.closest('.form-group').find('.form-help').text('');
-            }
-          });
-        }
-      }  // eslint-disable-line comma-dangle
-    );
+        fieldEl.on('change changeData', () => {
+          const thisEl = jQuery(this);
+          if (this.value !== '') {
+            thisEl.closest('.form-group').removeClass('has-error');
+            thisEl.closest('.form-group').find('.form-help').text('');
+          }
+        });
+      }
+    });
   },
 
 
@@ -1650,43 +1472,31 @@ export default Mn.CompositeView.extend({
      *   Save & delete callbacks.
      */
 
-  deleteSuccessCallback(response) {  // eslint-disable-line no-unused-vars
+  deleteSuccessCallback() {  // args: response
     // Close this popup and destroy it.
-    setTimeout(
-      () => { this.radio.commands.execute('destroyModal'); },
-      500  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => { this.radio.commands.execute('destroyModal'); }, 500);
 
     // Navigate to the index view
     this.radio.commands.execute('navigate', this.priorPath, { trigger: true });
 
     // Display snackbar:
-    this.radio.commands.execute(
-      'showSnackbar',
-      new SnackbarView({
-        snackbarClass: 'success',
-        text: 'Item has been successfully deleted.',
-        action: { promptText: 'Dismiss' },
-      })  // eslint-disable-line comma-dangle
-    );
+    this.radio.commands.execute('showSnackbar', new SnackbarView({
+      snackbarClass: 'success',
+      text: 'Item has been successfully deleted.',
+      action: { promptText: 'Dismiss' },
+    }));
   },
 
   deleteErrorCallback() {
     // Close this popup and destroy it:
-    setTimeout(
-      () => { this.radio.commands.execute('destroyModal'); },
-      500  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => { this.radio.commands.execute('destroyModal'); }, 500);
 
     // Display snackbar:
-    this.radio.commands.execute(
-        'showSnackbar',
-      new SnackbarView({
-        containerClass: 'edit-page',
-        snackbarClass: 'failure',
-        text: 'Item could not be deleted. Try again later.',
-      })  // eslint-disable-line comma-dangle
-    );
+    this.radio.commands.execute('showSnackbar', new SnackbarView({
+      containerClass: 'edit-page',
+      snackbarClass: 'failure',
+      text: 'Item could not be deleted. Try again later.',
+    }));
   },
 
   saveSuccessCallback(mode) {
@@ -1698,47 +1508,34 @@ export default Mn.CompositeView.extend({
     };
 
     // Close this popup and destroy it.
-    setTimeout(
-      () => { this.radio.commands.execute('destroyModal'); },
-      500  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => {
+      this.radio.commands.execute('destroyModal');
+    }, 500);
 
     // Navigate to the index view (or to the same page if save and continue)
     if (mode === 'saveOnly') {
       this.radio.commands.execute('navigate', this.priorPath, { trigger: true });
     } else if (mode === 'saveAndContinue') {
-      this.radio.commands.execute(
-        'navigate',
-        `${urlConfig.editPage.reversePattern}${this.model.id}/`,
-        { trigger: true }  // eslint-disable-line comma-dangle
-      );
+      const redirectURL = `${urlConfig.editPage.reversePattern}${this.model.id}/`;
+      this.radio.commands.execute('navigate', redirectURL, { trigger: true });
 
       successSnackbarOpts.containerClass = 'edit-page';
     }
 
     // Display snackbar:
-    this.radio.commands.execute(
-      'showSnackbar',
-      new SnackbarView(successSnackbarOpts)  // eslint-disable-line comma-dangle
-    );
+    this.radio.commands.execute('showSnackbar', new SnackbarView(successSnackbarOpts));
   },
 
   saveErrorCallback() {
     // Close this popup and destroy it.
-    setTimeout(
-      () => { this.radio.commands.execute('destroyModal'); },
-      500  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => { this.radio.commands.execute('destroyModal'); }, 500);
 
     // Display snackbar:
-    this.radio.commands.execute(
-      'showSnackbar',
-      new SnackbarView({
-        containerClass: 'edit-page',
-        snackbarClass: 'failure',
-        text: 'Item could not be saved. Try again later.',
-      })  // eslint-disable-line comma-dangle
-    );
+    this.radio.commands.execute('showSnackbar', new SnackbarView({
+      containerClass: 'edit-page',
+      snackbarClass: 'failure',
+      text: 'Item could not be saved. Try again later.',
+    }));
   },
 
 
