@@ -1,3 +1,4 @@
+
 // @include keyframes-vex-flyin
 // @include keyframes-vex-flyout
 @include keyframes-vex-fadein
@@ -165,11 +166,11 @@
 
     .modal-inner {
         form {
-            padding: 1rem 0 0;
+            padding: 0;
             position: relative;
 
             .row {
-                padding: 0.5rem 1rem;
+                padding: 0.5rem 1rem 1rem;
             }
         }
 
@@ -224,7 +225,7 @@
         font-weight: 400;
         height: auto;
         line-height: 44px;
-        margin: 0;
+        margin: 0 0 20px;
         padding: 6px 18px;
     }
 
@@ -402,6 +403,7 @@
     form {
         .button-holder {
             margin-top: 30px;
+            position: relative;
         }
     }
 
@@ -646,8 +648,11 @@
             padding: 0.75rem 0.9375rem;
             width: calc(100% - 1.25rem);
 
+            &.has-error {
+                background: lighten($error-color, 38%);
+            }
+
             h5 {
-                color: rgba(0,0,0,0.38);
                 font-size: 0.8rem;
                 font-weight: 400;
                 line-height: 1rem;
@@ -660,6 +665,14 @@
                 input {
                     cursor: pointer;
                 }
+            }
+        }
+
+        .button-holder {
+            .delete-trigger {
+                left: 16px;
+                margin: 0;
+                position: absolute;
             }
         }
     }
