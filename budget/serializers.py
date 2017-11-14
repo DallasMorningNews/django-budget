@@ -144,6 +144,7 @@ class ContentPlacementSerializer(UserMetadataMixin, ModelSerializer):
             'package',  # ForeignKey.
             'destination',  # ForeignKey.
             'placement_types',  # ArrayField.
+            'page_number',  # PositiveSmallIntegerField.
             'placement_details',  # CharField.
             'run_date',  # Date range.
             'external_slug',  # CharField.
