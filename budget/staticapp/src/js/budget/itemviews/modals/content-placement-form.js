@@ -256,10 +256,7 @@ export default Mn.ItemView.extend({
 
         if (
           (!_.isNull(mdl.get('runDate'))) &&
-          (mdl.get('runDate').every(
-            // eslint-disable-next-line comma-dangle
-            dateStr => typeof dateStr === 'string'
-          ))
+          (mdl.get('runDate').every(dateStr => typeof dateStr === 'string'))
         ) {
           startDateVal = moment(mdl.get('runDate')[0], 'YYYY-MM-DD')
               .clone()
@@ -279,10 +276,10 @@ export default Mn.ItemView.extend({
       ) && (
         val.every(dateStr => typeof dateStr === 'string')
       ) && (
-        val.every(dateStr => this.radio.reqres.request('getSetting', 'moment')(
-            dateStr,
-            'YYYY-MM-DD'  // eslint-disable-line comma-dangle
-        ).isValid())
+        val.every((dateStr) => {
+          const dateFormats = this.radio.reqres.request('getSetting', 'moment');
+          return dateFormats(dateStr, 'YYYY-MM-DD').isValid();
+        })
       ),
       getVal: ($el) => {
         const startDateEl = $el.find('#run_date_start');
@@ -316,18 +313,18 @@ export default Mn.ItemView.extend({
           },
         };
 
-        $el.selectize(_.defaults(
-          typeOpts,
-          // eslint-disable-next-line comma-dangle
-          this.radio.reqres.request('getSetting', 'editDropdownOptions')
-        ));
+        const dropdownOptions = this.radio.reqres
+                .request('getSetting', 'editDropdownOptions');
+        $el.selectize(_.defaults(typeOpts, dropdownOptions));
       },
       onGet: () => {
         // if (_.isUndefined(this.model.id)) { return ''; }
 
-        return this.destinations.findWhere({
+        const match = this.destinations.findWhere({
           id: this.model.get('destination'),
         }).get('slug');
+
+        return match;
       },
       update: ($el, value) => {
         if (_.isUndefined($el[0].selectize)) {
@@ -397,12 +394,15 @@ export default Mn.ItemView.extend({
               // If 'activePlacements' is empty, apply these changes silently.
               // That way, the selected destination won't also be reset.
               this.model.unset('placementTypes');
-              this.model.set(
-                  'placementTypes',
-                  activePlacements,
-                  // eslint-disable-next-line comma-dangle
-                  (_.isEmpty(activePlacements)) ? { silent: true } : {}
+
+              const placementTypeOpts = (
+                _.isEmpty(activePlacements)
+              ) ? (
+                { silent: true }
+              ) : (
+                {}
               );
+              this.model.set('placementTypes', activePlacements, placementTypeOpts);
             });
 
             $el.append(placementCheckbox);
@@ -510,19 +510,18 @@ export default Mn.ItemView.extend({
         .addClass('waiting')
         .addClass('save-waiting');
 
-    modalContext.$el.append(
-      '<div class="loading-animation save-loading-animation">' +
-          '<div class="loader">' +
-              '<svg class="circular" viewBox="25 25 50 50">' +
-                  '<circle class="path" cx="50" cy="50" r="20" ' +
-                          'fill="none" stroke-width="2" ' +
-                          'stroke-miterlimit="10"/>' +
-              '</svg>' +
-              '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
-          '</div>' +
-          '<p class="loading-text">Saving placement...</p>' +
-      '</div>'  // eslint-disable-line comma-dangle
-    );
+    modalContext.$el.append('' +
+    '<div class="loading-animation save-loading-animation">' +
+        '<div class="loader">' +
+            '<svg class="circular" viewBox="25 25 50 50">' +
+                '<circle class="path" cx="50" cy="50" r="20" ' +
+                        'fill="none" stroke-width="2" ' +
+                        'stroke-miterlimit="10"/>' +
+            '</svg>' +
+            '<i class="fa fa-cloud-upload fa-2x fa-fw"></i>' +
+        '</div>' +
+        '<p class="loading-text">Saving placement...</p>' +
+    '</div>');
 
     setTimeout(() => {
       modalContext.$el.find('.loading-animation')
