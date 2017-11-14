@@ -85,9 +85,11 @@ const uiElements = {
   contentPlacementsTableGroup: '#content-placements-table .table-holder',
   contentPlacementsTable: '#content-placements-table table',
   contentPlacementsTableBody: '#content-placements-table table tbody',
+  contentPlacementsTableRows: '#content-placements-table table tbody tr',
   contentPlacementsPgStart: '#content-placements-table .table-pagination .range-start',
   contentPlacementsPgEnd: '#content-placements-table .table-pagination .range-end',
   contentPlacementsPgTotal: '#content-placements-table .table-pagination .total-records',
+  contentPlacementsDeleteTriggers: '#content-placements-table table tbody .delete-trigger .material-button',
 };
 
 export default Mn.CompositeView.extend({
@@ -199,6 +201,7 @@ export default Mn.CompositeView.extend({
     'click @ui.packageDeleteTrigger': 'deleteEntirePackage',
     'mousedown @ui.contentPlacementsAddTrigger': 'addButtonClickedClass',
     'click @ui.contentPlacementsAddTrigger': 'createContentPlacement',
+    'mousedown @ui.contentPlacementsDeleteTriggers': 'addButtonClickedClass',
   },
 
   modelEvents: {
@@ -377,7 +380,6 @@ export default Mn.CompositeView.extend({
   },
 
   loadContentPlacements(config) {
-    // this.model.id
     this.contentPlacements = new ContentPlacementCollection();
     this.contentPlacements.fetch(Object.assign({}, config, {
       data: { package: this.model.id },
@@ -391,7 +393,25 @@ export default Mn.CompositeView.extend({
       const placementRow = jQuery(this.formatPlacementRow(placementObj));
       placementRow.appendTo(this.ui.contentPlacementsTableBody);
 
-      placementRow.on('click', this.editContentPlacement.bind(this));
+      placementRow.find('td').hover(
+        (event) => {
+          if (
+            (!event.currentTarget.classList.contains('delete-trigger')) &&
+            (!placementRow.hasClass('being-deleted'))
+          ) {
+            placementRow.addClass('hovering');
+          }
+        },
+        (event) => {
+          if (!event.currentTarget.classList.contains('delete-trigger')) {
+            placementRow.removeClass('hovering');
+          }
+        }  // eslint-disable-line comma-dangle
+      );
+
+      const handleClick = event => this.handlePlacementClick(event, placementObj);
+
+      placementRow.on('click', handleClick);
     });
 
     if (collection.length > 0) {
@@ -401,6 +421,23 @@ export default Mn.CompositeView.extend({
     }
 
     this.showContentPlacementsTable();
+  },
+
+  handlePlacementClick(event, placement) {
+    // Dispatch differently depending on whether delete trigger or rest of body
+    // was clicked.
+    const target = event.currentTarget;
+    const $targetEl = jQuery(target);
+
+    if (!$targetEl.hasClass('being-deleted')) {
+      if (event.target === $targetEl.find('.delete-action')[0]) {
+        this.deleteContentPlacement(target, placement, true, event);
+      } else if (event.target === $targetEl.find('.delete-trigger')[0]) {
+        // Pass.
+      } else {
+        this.editContentPlacement(event);
+      }
+    }
   },
 
   editContentPlacement(event) {
@@ -424,8 +461,6 @@ export default Mn.CompositeView.extend({
       ],
     });
 
-    window.nnn = newPlacement;
-
     this.showContentPlacementForm(newPlacement);
   },
 
@@ -445,6 +480,19 @@ export default Mn.CompositeView.extend({
       model,
       extraContext: this,
       callbacks: {
+        delete: () => {
+          this.radio.commands.execute('destroyModal');
+          const targetsTable = this.ui.contentPlacementsTableBody;
+          const targetEl = jQuery(targetsTable).find(`#content-placement_${
+            model.id
+          }`);
+
+          setTimeout(() => { targetEl.addClass('being-deleted'); }, 300);
+
+          setTimeout(() => {
+            this.proceedWithPlacementDelete(targetEl, model);
+          }, 1400);
+        },
         save: () => {
           if (this.contentPlacementAddMode === 'immediate-async') {
             setTimeout(() => {
@@ -467,11 +515,13 @@ export default Mn.CompositeView.extend({
                 },
                 error: () => {
                   if (!_.isUndefined(model.id)) {
+                    // eslint-disable-next-line no-console
                     console.warn(
                       // eslint-disable-next-line comma-dangle
                       `Error: Could not save content placement with ID ${model.id}`
                     );
                   } else {
+                    // eslint-disable-next-line no-console
                     console.warn('Error: Could not create new content placement.');
                   }
 
@@ -504,20 +554,99 @@ export default Mn.CompositeView.extend({
       formConfig: { rows: contentPlacementForm.getFormRows() },
     });
 
-    this.modalView = new ModalView({
-      modalConfig: contentPlacementForm.getConfig(),
-      model,
-      renderCallback: () => {
-        this.modalView.stickit(null, contentPlacementForm.getBindings());
-      },
-    });
+    this.modalView = new ModalView({ model, view: contentPlacementForm });
 
     this.radio.commands.execute('showModal', this.modalView);
   },
 
   contentPlacementLoadError() {
+    // eslint-disable-next-line no-console
     console.warn('ERROR: Could not load content placements.');
     this.showContentPlacementsTable();
+  },
+
+  deleteContentPlacement(target, placement, needsModal) {
+    const $targetEl = jQuery(target);
+    const $targetRow = $targetEl.closest('tr');
+
+    $targetRow.addClass('being-deleted');
+
+    if (needsModal) {  // Prompt to delete with a modal.
+      const confirmationModal = {
+        modalTitle: 'Are you sure?',
+        innerID: 'placement-delete-confirmation-modal',
+        contentClassName: 'package-modal deletion-modal',
+        escapeButtonCloses: false,
+        overlayClosesOnClick: false,
+        buttons: [
+          {
+            buttonID: 'delete-package-delete-button',
+            buttonClass: 'flat-button delete-action delete-trigger',
+            innerLabel: 'Delete',
+            clickCallback: () => {
+              this.radio.commands.execute('destroyModal');
+
+              setTimeout(() => {
+                this.proceedWithPlacementDelete(target, placement);
+              }, 700);
+            },
+          },
+          {
+            buttonID: 'delete-package-cancel-button',
+            buttonClass: 'flat-button primary-action cancel-trigger',
+            innerLabel: 'Cancel',
+            clickCallback: () => {
+              target.classList.remove('being-deleted');
+              this.radio.commands.execute('destroyModal');
+            },
+          },
+        ],
+      };
+
+      const destinations = this.options.data.printPublications;
+
+      const placementDestinationName = destinations.findWhere({
+        id: placement.get('destination'),
+      }).get('name');
+
+      confirmationModal.extraHTML = '' +
+          '<p class="delete-confirmation-text">' +
+            `Do you want to remove this placement in <strong>${
+              placementDestinationName
+            }</strong>?` +
+          '</p>';
+
+      this.modalView = new ModalView({ modalConfig: confirmationModal });
+
+      setTimeout(() => {
+        this.radio.commands.execute('showModal', this.modalView);
+      }, 700);
+    } else {
+      this.proceedWithPlacementDelete(target, placement);
+    }
+  },
+
+  proceedWithPlacementDelete(target, placement) {
+    placement.destroy({
+      success: () => {
+        target.remove();
+
+        this.radio.commands.execute('showSnackbar', new SnackbarView({
+          containerClass: 'edit-page',
+          snackbarClass: 'success',
+          text: 'Successfully deleted content placement.',
+          action: { promptText: 'Dismiss' },
+        }));
+      },
+      error: (model, response) => {
+        /* eslint-disable no-console */
+        console.warn(`Could not remove placement with ID '${model.id}'.`);
+        console.warn('Response was:');
+        console.warn(response);
+        /* eslint-enable no-console */
+        target.classList.remove('being-deleted');
+      },
+    });
   },
 
   formatDateRange(startDate, endDate) {
@@ -598,8 +727,9 @@ export default Mn.CompositeView.extend({
       ),
     };
 
-    const placementHTML = deline`<tr id="content-placement_${placementObj.id}">
+    const placementHTML = deline`<tr id="content-placement_${placementObj.id}" class="">
         <td class="destination">
+            <div class="background-shim"><div class="delete-expansion"></div><div class="deleting-message">Removing this placement...</div></div>
             <span>${formattedValues.destination}</span>
         </td>
         <td class="run-date">
@@ -617,6 +747,9 @@ export default Mn.CompositeView.extend({
                     formattedValues.isFinalizedIcon
                 }</i>
             </span>
+        </td>
+        <td class="delete-trigger">
+            <div class="material-button flat-button delete-action click-init"><i class="material-icons">delete</i></div>
         </td>
     </tr>`;
 
