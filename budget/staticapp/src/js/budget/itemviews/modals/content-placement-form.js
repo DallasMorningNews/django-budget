@@ -14,6 +14,7 @@ const uiElements = {
   runDateEnd: '#run_date_end',
   externalSlug: '#external_slug',
   placementTypes: '#placement_types',
+  pageNumber: '#page_number',
   placementDetails: '#placement_details',
   isFinalized: '#is_finalized',
 };
@@ -175,11 +176,20 @@ export default Mn.ItemView.extend({
     });
 
     formRows.push({
+      id: 'placement_info',
       extraClasses: '',
       fields: [
         {
           type: 'input',
-          widthClasses: 'small-12 medium-12 large-12',
+          widthClasses: 'small-6 medium-6 large-6',
+          labelText: 'Page number',
+          inputID: 'page_number',
+          inputName: 'page_number',
+          inputType: 'number',
+        },
+        {
+          type: 'input',
+          widthClasses: 'small-6 medium-6 large-6',
           labelText: 'Placement details',
           inputID: 'placement_details',
           inputName: 'placement_details',
@@ -421,6 +431,10 @@ export default Mn.ItemView.extend({
         observe: 'externalSlug',
       };
     }
+
+    bindings[uiElements.pageNumber] = {
+      observe: 'pageNumber',
+    };
 
     bindings[uiElements.placementDetails] = {
       observe: 'placementDetails',
