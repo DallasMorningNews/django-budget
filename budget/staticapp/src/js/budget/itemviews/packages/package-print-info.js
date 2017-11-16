@@ -3,6 +3,7 @@ import _ from 'underscore';
 
 // import deline from '../../../vendored/deline';
 
+import formatDateRange from '../../../common/date-range-formatter';
 import PackageItemView from './package-base';
 
 export default PackageItemView.extend({
@@ -36,8 +37,18 @@ export default PackageItemView.extend({
   initEnd() {
     this.primaryIsExpanded = false;
 
-    const moment = this.radio.reqres.request('getSetting', 'moment');
-    moment.locale('en-us-apstyle');
+    if (_.has(this.options, 'currentSection')) {
+      const destinationID = parseInt(this.options.currentSection.publication, 10);
+      this.availableSections = this.options.allSections
+              .filter(i => i.publication === destinationID);
+    }
+
+    this.moment = this.radio.reqres.request('getSetting', 'moment');
+    this.moment.locale('en-us-apstyle');
+    this.defaultTimezone = this.radio.reqres.request(
+      'getSetting',
+      'defaultTimezone'  // eslint-disable-line comma-dangle
+    );
   },
 
   serializeData() {
@@ -45,16 +56,6 @@ export default PackageItemView.extend({
     const packageObj = this.model.toJSON();
     const packageHub = this.options.hubConfigs.findWhere({ slug: packageObj.hub });
     const additionals = this.model.additionalContentCollection;
-    // const moment = this.radio.reqres.request('getSetting', 'moment');
-    // const defaultTimezone = this.radio.reqres.request(
-    //   'getSetting',
-    //   'defaultTimezone'  // eslint-disable-line comma-dangle
-    // );
-
-    // const printDateStart = moment(this.model.get('printRunDate')[0], 'YYYY-MM-DD')
-    //         .tz(defaultTimezone);
-    // const printDateEnd = moment(this.model.get('printRunDate')[1], 'YYYY-MM-DD')
-    //         .tz(defaultTimezone).subtract({ days: 1 });
 
     // Template context, in order of appearance:
 
@@ -89,57 +90,6 @@ export default PackageItemView.extend({
       templateContext.hubName = packageHub.get('name');
       templateContext.verticalName = packageHub.get('vertical').name;
     }
-
-    // // Print placement lists.
-    // templateContext.formattedPrintPlacements = _.chain(this.model.get('printSection'))
-    //     .map((sectionID) => {
-    //       const matchingSection = _.findWhere(
-    //         this.options.allSections,
-    //         { id: sectionID }  // eslint-disable-line comma-dangle
-    //       );
-    //
-    //       if (!_.isUndefined(matchingSection)) {
-    //         return {
-    //           name: matchingSection.name,
-    //           priority: matchingSection.priority,
-    //         };
-    //       }
-    //
-    //       return null;
-    //     })
-    //     .compact()
-    //     .sortBy('priority')
-    //     .pluck('name')
-    //     .value();
-    //
-    // // Formatted print run date.
-    // if (printDateStart.year() === printDateEnd.year()) {
-    //   if (printDateStart.month() === printDateEnd.month()) {
-    //     if (printDateStart.date() === printDateEnd.date()) {
-    //       templateContext.formattedPrintRunDate = printDateStart.format(
-    //         'MMM D, YYYY'  // eslint-disable-line comma-dangle
-    //       );
-    //     } else {
-    //       templateContext.formattedPrintRunDate = deline`${
-    //         printDateStart.format('MMM D')
-    //       } - ${
-    //         printDateEnd.format('D, YYYY')
-    //       }`;
-    //     }
-    //   } else {
-    //     templateContext.formattedPrintRunDate = deline`${
-    //       printDateStart.format('MMM D')
-    //     } - ${
-    //       printDateEnd.format('MMM D, YYYY')
-    //     }`;
-    //   }
-    // } else {
-    //   templateContext.formattedPrintRunDate = deline`${
-    //     printDateStart.format('MMM D, YYYY')
-    //   } - ${
-    //     printDateEnd.format('MMM D, YYYY')
-    //   }`;
-    // }
 
     // Editor and author lists.
     templateContext.allPeople = _.union(
@@ -195,6 +145,50 @@ export default PackageItemView.extend({
 
       return additionalConfig;
     });
+
+    /*                                             */
+    /* Content placement information for template. */
+    /*                                             */
+
+    if (
+      _.has(this.options, 'placementList')
+    ) {
+      // Only grab the first matching print placement.
+      // That'll mean the same content won't be budgetable twice in the
+      // same publication, which we'll have to add validation for.
+      templateContext.contentPlacements = this.options.placementList;
+
+      const allCurrentPlacements = this.options.placementList.map(i => i.placementTypes);
+      const currentPlacementList = _.flatten(allCurrentPlacements);
+
+      const availablePlacements = this.availableSections.map(i => i.slug);
+
+      const activePlacements = _.intersection(availablePlacements, currentPlacementList);
+
+      templateContext.placementTypes = _.chain(activePlacements)
+          .uniq()
+          .map((placementSlug) => {
+            const match = _.findWhere(this.availableSections, {
+              slug: placementSlug,
+            });
+            return {
+              name: match.name,
+              priority: match.priority,
+            };
+          })
+          .sortBy('priority')
+          .pluck('name')
+          .value();
+
+      const rawRunDate = this.options.placementList[0].runDate;
+
+      const runDate = {
+        start: this.moment(rawRunDate[0], 'YYYY-MM-DD'),
+        end: this.moment(rawRunDate[1], 'YYYY-MM-DD').subtract({ days: 1 }),
+      };
+
+      templateContext.formattedRunDateRange = formatDateRange(runDate.start, runDate.end);
+    }
 
     return templateContext;
   },
