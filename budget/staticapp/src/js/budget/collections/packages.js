@@ -91,6 +91,17 @@ export default Backbone.Collection.extend({
     this.trigger('updateQuery', this.queryFiltered);
   },
 
+  linkPlacements(placementsCollection) {
+    this.forEach((packageObj) => {
+      // eslint-disable-next-line no-param-reassign
+      packageObj.placements = placementsCollection.where({
+        package: packageObj.id,
+      }).map(placementObj => placementObj.toJSON());
+    });
+
+    return this;
+  },
+
   /**
    * Sort the collection by pinned status first (pinned on top) then by
    * created timestamp in reverse chronological order
