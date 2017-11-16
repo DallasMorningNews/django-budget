@@ -15,7 +15,6 @@ from django.views.generic import View
 
 
 # Imports from other dependencies.
-from django_filters.rest_framework import DjangoFilterBackend
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework.authentication import SessionAuthentication
@@ -37,9 +36,10 @@ from budget.models import (  # NOQA
     PrintPublication
 )
 from budget.filters import (  # NOQA
+    ContentPlacementFilter,
+    HeadlineViewFilter,
     ItemViewFilter,
     PackageViewFilter,
-    HeadlineViewFilter,
     PrintPublicationViewFilter
 )
 from budget.paginators import ItemViewPagination
@@ -261,9 +261,7 @@ class ItemViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
 class ContentPlacementViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
                               viewsets.ModelViewSet):
     serializer_class = ContentPlacementSerializer
-    # filter_class = None
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('package', 'destination')
+    filter_class = ContentPlacementFilter
 
     queryset = ContentPlacement.objects.distinct()
 
