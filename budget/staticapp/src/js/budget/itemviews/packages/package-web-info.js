@@ -1,6 +1,10 @@
 import 'underscore.string';
 import _ from 'underscore';
+import jQuery from 'jquery';
 
+import ContentPlacementCollection from '../../collections/content-placements';
+import ContentPlacementChoicesModal from '../modals/content-placement-choices';
+import ModalView from '../../itemviews/modals/modal-window';
 import PackageItemView from './package-base';
 
 export default PackageItemView.extend({
@@ -34,8 +38,8 @@ export default PackageItemView.extend({
   initEnd() {
     this.primaryIsExpanded = false;
 
-    const moment = this.radio.reqres.request('getSetting', 'moment');
-    moment.locale('en-us-apstyle');
+    this.moment = this.radio.reqres.request('getSetting', 'moment');
+    this.moment.locale('en-us-apstyle');
   },
 
   serializeData() {
@@ -138,6 +142,96 @@ export default PackageItemView.extend({
     });
 
     return templateContext;
+  },
+
+  showPrintInfoModal(event) {
+    // Override to grab all placements and show them in a list.
+    event.stopPropagation();
+
+    // Halt polling (so subsequent fetches from the server don't
+    // overwrite what a user is setting).
+      // eslint-disable-next-line no-underscore-dangle
+    this._parent.poller.pause();
+
+    this.placementsCollection = new ContentPlacementCollection();
+
+    const placementQueryParams = { data: { package: this.model.id } };
+
+    this.placementsCollection.fetch(Object.assign({}, placementQueryParams, {
+      success: (collection) => {  // Args: collection, response, options
+        this.renderMultiplePlacementsModule(collection);
+      },
+      error: (collection, response) => {  // Args: collection, response, options
+        /* eslint-disable no-console */
+        console.warn('ERROR: Could not fetch content placements using these params:');
+        console.warn(placementQueryParams);
+        window.httpError = response;
+        console.warn('HTTP request details have been saved in "window.httpError".');
+        /* eslint-enable no-console */
+      },
+    }));
+  },
+
+  renderMultiplePlacementsModule(collection) {
+    if (collection.length > 0) {
+      const placementChoiceModal = new ContentPlacementChoicesModal({
+        model: this.model,
+        extraContext: this,
+        placements: collection,
+        moment: this.moment,
+        destinations: this.options.printPublications,
+        callbacks: {
+          cancel: () => {
+            this.radio.commands.execute('destroyModal');
+          },
+        },
+      });
+
+      this.modalView = new ModalView({
+        model: this.model,
+        view: placementChoiceModal,
+        renderCallback: (modalView) => {
+          const $modalInner = modalView.view.$el;
+          const $modalSelects = $modalInner.find('.select-trigger .checkbox input');
+          const $allRows = $modalInner.find('.table-card tbody tr');
+
+          $allRows.on('click', (event) => {
+            const $rowTarget = jQuery(event.currentTarget);
+            const $exactTarget = jQuery(event.target);
+            const $selectTrigger = $rowTarget.find('.select-trigger');
+
+            if (!jQuery.contains($selectTrigger[0], $exactTarget[0])) {
+              // Only capture clicks that don't already trigger the checkbox.
+              $selectTrigger.find('input').click();
+            }
+          });
+
+          $modalSelects.on('change', (event) => {
+            const $target = jQuery(event.currentTarget);
+            const isChecked = $target.is(':checked');
+            const $parentRow = $target.closest('tr');
+            const thisID = $target.attr('id').replace('is_selected_', '');
+
+            if (isChecked) {
+              // Set class "selected" on parent TR.
+              const $otherRows = $allRows.filter(`:not(#content-placement_${thisID})`);
+
+              $otherRows.removeClass('selected');
+              $parentRow.addClass('selected');
+
+              $otherRows.find('.select-trigger .checkbox input').prop('checked', false);
+            } else {
+              // Unset class "selected" on parent TR.
+              $parentRow.removeClass('selected');
+            }
+          });
+        },
+      });
+
+      this.radio.commands.execute('showModal', this.modalView);
+    } else {
+      // No placements exist. Go right into create view.
+    }
   },
 
   onRenderCallback() {
