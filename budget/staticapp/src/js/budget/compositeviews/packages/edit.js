@@ -14,6 +14,7 @@ import BaseStructureBindingsView from '../../itemviews/package-edit-bindings/bas
 import ContentPlacement from '../../models/content-placement';
 import ContentPlacementCollection from '../../collections/content-placements';
 import ContentPlacementForm from '../../itemviews/modals/content-placement-form';
+import formatDateRange from '../../../common/date-range-formatter';
 import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/headline-group';
 import MainFormBindingsView from '../../itemviews/package-edit-bindings/main-form';
 import ModalView from '../../itemviews/modals/modal-window';
@@ -618,40 +619,13 @@ export default Mn.CompositeView.extend({
     });
   },
 
-  formatDateRange(startDate, endDate) {
-    const startISO = startDate.toISOString();
-    const endISO = endDate.toISOString();
-
-    if (startISO.substr(0, 10) === endISO.substr(0, 10)) {  // 'YYYY-MM-DD' matches
-      return startDate.format('MMM D, YYYY');
-    } else if (startISO.substr(0, 7) === endISO.substr(0, 7)) {  // 'YYYY-MM' matches
-      return `${
-        startDate.format('MMM D')
-      }&thinsp;&ndash;&thinsp;${
-        endDate.format('D, YYYY')
-      }`;
-    } else if (startISO.substr(0, 4) === endISO.substr(0, 4)) {  // 'YYYY' matches
-      return `${
-        startDate.format('MMM D')
-      }&thinsp;&ndash;&thinsp;${
-        endDate.format('MMM D, YYYY')
-      }`;
-    }
-
-    return `${
-      startDate.format('MMM D, YYYY')
-    }&thinsp;&ndash;&thinsp;${
-      endDate.format('MMM D, YYYY')
-    }`;
-  },
-
   formatPlacementRow(placementObj) {
     const runDate = placementObj.get('runDate');
 
     const startDate = this.moment(runDate[0]);
     const endDate = this.moment(runDate[1]).subtract(1, 'day');
 
-    const dateRangeFormatted = this.formatDateRange(startDate, endDate);
+    const dateRangeFormatted = formatDateRange(startDate, endDate);
 
     const rowPublicationDestination = this.options.data.printPublications.findWhere({
       id: placementObj.get('destination'),
