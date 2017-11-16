@@ -65,7 +65,9 @@ export default Mn.ItemView.extend({
       this.view.setElement(this.ui.modalInner);
       this.stickit(null, this.view.getBindings());
       this.view.bindUIElements();
-    } else if (_.has(this.options, 'renderCallback')) {
+    }
+
+    if (_.has(this.options, 'renderCallback')) {
       this.options.renderCallback(this);
     }
   },
