@@ -29,39 +29,37 @@ export default Mn.ItemView.extend({
         'printSearchList',
         'queryTerms'  // eslint-disable-line comma-dangle
       // eslint-disable-next-line comma-dangle
-      ).findWhere({ type: 'printPublication' })
+      ).findWhere({ type: 'destination' })
     );
   },
 
   enumeratePrintPlacementChoices() {
     const sectionPublicationValues = [];
     const publicationSections = [];
-    const placementChoices = _.compact(
-      this.options.data.printPublications.map((publication) => {
-        if (publication.get('isActive') === true) {
-          // Generate a second map with this publications'
-          // section IDs and the publication's slug.
-          // This gets used on the selectize 'select' event.
-          sectionPublicationValues.push(_.map(
-            publication.get('sections'),
-            // eslint-disable-next-line comma-dangle
-            section => [section.id, publication.get('slug')]
-          ));
+    const placementChoices = _.compact(this.options.data.printPublications.map((publication) => {
+      if (publication.get('isActive') === true) {
+        // Generate a second map with this publications'
+        // section IDs and the publication's slug.
+        // This gets used on the selectize 'select' event.
+        sectionPublicationValues.push(_.map(
+          publication.get('sections'),
+          // eslint-disable-next-line comma-dangle
+          section => [section.id, publication.get('slug')]
+        ));
 
-          publicationSections.push([
-            publication.get('slug'),
-            publication.get('sections'),
-          ]);
+        publicationSections.push([
+          publication.get('slug'),
+          publication.get('sections'),
+        ]);
 
-          return {
-            name: publication.get('name'),
-            value: `${publication.get('slug')}.pub`,
-          };
-        }
+        return {
+          name: publication.get('name'),
+          value: `${publication.get('slug')}.dest`,
+        };
+      }
 
-        return null;
-      })  // eslint-disable-line comma-dangle
-    );
+      return null;
+    }));
 
     this.printPublicationSections = _.chain(publicationSections)
             .compact()
@@ -84,7 +82,7 @@ export default Mn.ItemView.extend({
       'getState',
       'printSearchList',
       'queryTerms'  // eslint-disable-line comma-dangle
-    ).findWhere({ type: 'printPublication' });
+    ).findWhere({ type: 'destination' });
 
     if (!this.initialRender) {
       if (this.noInitialPublication) {
@@ -92,7 +90,7 @@ export default Mn.ItemView.extend({
           'pushQueryTerm',
           this.options.stateKey,
           {
-            type: 'printPublication',
+            type: 'destination',
             value: this.printPlacementChoices[0].value,
           }  // eslint-disable-line comma-dangle
         );
@@ -101,7 +99,7 @@ export default Mn.ItemView.extend({
           'getState',
           'printSearchList',
           'queryTerms'  // eslint-disable-line comma-dangle
-        ).findWhere({ type: 'printPublication' });
+        ).findWhere({ type: 'destination' });
       }
 
       this.initialRender = true;
@@ -139,7 +137,7 @@ export default Mn.ItemView.extend({
           'getState',
           'printSearchList',
           'queryTerms'  // eslint-disable-line comma-dangle
-        ).findWhere({ type: 'printPublication' });
+        ).findWhere({ type: 'destination' });
 
         if (!_.isUndefined(currentPublication)) {
           this.radio.commands.execute(
@@ -154,8 +152,14 @@ export default Mn.ItemView.extend({
           'pushQueryTerm',
           this.options.stateKey,
           // eslint-disable-next-line comma-dangle
-          { type: 'printPublication', value }
+          { type: 'destination', value }
         );
+
+        const selectizeObj = this.ui.searchBox[0].selectize;
+
+        selectizeObj.$dropdown.find(`.selected:not([data-value="${
+          selectizeObj.items[0]
+        }"])`).removeClass('selected');
       },
       onItemRemove() {},
     });
