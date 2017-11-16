@@ -4,6 +4,7 @@ import _ from 'underscore';
 import deline from '../../../vendored/deline';
 
 import BaseSearchList from './base';
+import ContentPlacementCollection from '../../collections/content-placements';
 import DailyTitleView from '../../itemviews/list-components/daily-title';
 import DateFilterView from '../../itemviews/list-components/date-filter';
 import PackageItemPrintView from '../../itemviews/packages/package-print-info';
@@ -65,9 +66,9 @@ export default BaseSearchList.extend({
       urlSlug: 'contentType',
     },
     {
-      apiQuery: 'publication',
-      formatQueryValue: initialValue => initialValue.split('.pub')[0],
-      urlSlug: 'printPublication',
+      apiQuery: 'destination',
+      formatQueryValue: initialValue => initialValue.split('.dest')[0],
+      urlSlug: 'destination',
     },
   ],
 
@@ -85,7 +86,9 @@ export default BaseSearchList.extend({
       'getState',
       'printSearchList',
       'queryTerms'  // eslint-disable-line comma-dangle
-    ).findWhere({ type: 'printPublication' });
+    ).findWhere({ type: 'destination' });
+
+    const placementLinkedCollection = collection.linkPlacements(this.placements);
 
     const pubs = this.options.data.printPublications;
 
@@ -94,15 +97,20 @@ export default BaseSearchList.extend({
     const currentSlugConfig = (
       _.isUndefined(thisPub)
     ) ? pubs.at(0) : pubs.findWhere({
-      slug: thisPub.get('value').split('.pub')[0],
+      slug: thisPub.get('value').split('.dest')[0],
     });
-    const publicationSectionIDs = _.pluck(currentSlugConfig.get('sections'), 'id');
-    const collectionIsEmpty = _.chain(collection.pluck('printSection'))
-                            .flatten()
-                            .uniq()
-                            .intersection(publicationSectionIDs)
-                            .isEmpty()
-                            .value();
+
+    const publicationSectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
+
+    const placementsByCollection = _.flatten(placementLinkedCollection
+                                                    .map(i => i.placements))
+                                                .map(i => i.placementTypes);
+    const collectionIsEmpty = _.chain(placementsByCollection)
+        .flatten()
+        .uniq()
+        .intersection(publicationSectionSlugs)
+        .isEmpty()
+        .value();
 
     if (collectionIsEmpty) {
       if (!this.$el.hasClass('empty-collection')) {
@@ -115,32 +123,10 @@ export default BaseSearchList.extend({
     return collectionIsEmpty;
   },
 
-  generateCollectionFetchOptions() {
-    const dateRange = this.radio.reqres.request('getState', this.stateKey, 'dateRange');
+  serializeQueryTerms() {
+    const terms = {};
+
     const currentTerms = this.radio.reqres.request('getState', this.stateKey, 'queryTerms');
-
-    // The API's results are exclusive of the end date.
-    // In order to continue using an inclusive range in this interface
-    // (for a more user-friendly experience), we add a day to the end
-    // of the stored date range before querying.
-    const moment = this.radio.reqres.request('getSetting', 'moment');
-    const newEnd = moment(
-        dateRange.end,
-        'YYYY-MM-DD'  // eslint-disable-line comma-dangle
-    ).add({ days: 1 }).format('YYYY-MM-DD');
-
-    const queryOptions = {
-      data: {
-        has_primary: 1,
-        ordering: 'print_run_date',
-        print_run_date: [dateRange.start, newEnd].join(','),
-      },
-      deepLoad: false,
-      muteConsole: true,
-      xhrFields: {
-        withCredentials: true,
-      },
-    };
 
     currentTerms.each((filter) => {
       let filterConfig;
@@ -158,8 +144,94 @@ export default BaseSearchList.extend({
           returnValue = filterConfig.formatQueryValue(filter.get('value'));
         }
 
-        queryOptions.data[returnKey] = returnValue;
+        terms[returnKey] = returnValue;
       }
+    });
+
+    return terms;
+  },
+
+  generateCollectionURL() {
+    // Override this method to initialize the content-placements collection
+    // before it's first needed.
+    if (!_.has(this, 'placements')) this.placements = new ContentPlacementCollection();
+
+    return this.radio.reqres.request('getSetting', 'apiEndpoints').package;
+  },
+
+  updatePackages() {
+    // First, load placements based on currently-set options.
+    const fetchOptions = this.generatePlacementFetchOptions();
+    this.placements.fetch(Object.assign({}, fetchOptions, {
+      success: (placementCollection) => {  // args: collection, response, options
+        // Update poller config with appropriate IDs.
+        this.poller.requestConfig = this.generateCollectionFetchOptions(placementCollection);
+
+        // Retrieve collection from the server.
+        this.poller.get(this.polledData, this.poller.requestConfig);
+      },
+      error: () => {  // args: collection, response, options
+        console.warn('ERROR: Could not load placements given the following options:');
+        console.warn(fetchOptions);
+      },
+    }));
+  },
+
+  generateCollectionFetchOptions(placements) {
+    const packageIDs = placements.pluck('package');
+
+    const queryOptions = {
+      deepLoad: false,
+      muteConsole: true,
+      xhrFields: {
+        withCredentials: true,
+      },
+      success: (collection) => {
+        collection.linkPlacements(this.placements);
+      },
+    };
+
+    const filterTerms = this.serializeQueryTerms();
+
+    const uniqueIDs = _.uniq(packageIDs);
+
+    // Search for an impossible ID if no packages exist for the
+    // currently-specified conditions.
+    const idList = (uniqueIDs.length === 0) ? '-1' : uniqueIDs.join();
+
+    queryOptions.data = Object.assign({}, _.omit(filterTerms, 'destination'), {
+      id__in: idList,
+    });
+
+    return queryOptions;
+  },
+
+  generatePlacementFetchOptions() {
+    const dateRange = this.radio.reqres.request('getState', this.stateKey, 'dateRange');
+
+    // The API's results are exclusive of the end date.
+    // In order to continue using an inclusive range in this interface
+    // (for a more user-friendly experience), we add a day to the end
+    // of the stored date range before querying.
+    const moment = this.radio.reqres.request('getSetting', 'moment');
+    const newEnd = moment(
+        dateRange.end,
+        'YYYY-MM-DD'  // eslint-disable-line comma-dangle
+    ).add({ days: 1 }).format('YYYY-MM-DD');
+
+    const queryOptions = {
+      deepLoad: false,
+      muteConsole: true,
+      xhrFields: {
+        withCredentials: true,
+      },
+    };
+
+    const filterTerms = this.serializeQueryTerms();
+
+    queryOptions.data = Object.assign({}, _.pick(filterTerms, 'destination'), {
+      ordering: 'run_date',
+      run_date: [dateRange.start, newEnd].join(','),
     });
 
     return queryOptions;
@@ -182,45 +254,47 @@ export default BaseSearchList.extend({
       'getState',
       'printSearchList',
       'queryTerms'  // eslint-disable-line comma-dangle
-    ).findWhere({ type: 'printPublication' });
+    ).findWhere({ type: 'destination' });
+
     const pubs = this.options.data.printPublications;
+
     const currentSlugConfig = (
         _.isUndefined(thisPub)
     ) ? pubs.at(0) : pubs.findWhere({
-      slug: thisPub.get('value').split('.pub')[0],
+      slug: thisPub.get('value').split('.dest')[0],
     });
+
     const allSections = _.flatten(pubs.pluck('sections'));
-    const sectionViews = _.chain(currentSlugConfig.get('sections')).map(
-      (section) => {
-        const sectionIDs = _.chain(
-          currentSlugConfig.get('sections')  // eslint-disable-line comma-dangle
-        ).pluck('id').value();
 
-        const facetOuterEl = jQuery(deline`
-          <div class="facet-holder">
+    const sectionViews = _.chain(currentSlugConfig.get('sections')).map((section) => {
+      const sectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
 
-              <h4 class="facet-label">${section.name}</h4>
+      const facetOuterEl = jQuery(deline`
+        <div class="facet-holder">
 
-          </div>`  // eslint-disable-line comma-dangle
-        ).appendTo(this.ui.facetedCollectionHolder);
+            <h4 class="facet-label">${section.name}</h4>
 
-        const facetEl = jQuery(
-          // eslint-disable-next-line comma-dangle
-          `<div class="packages ${section.slug}"></div>`
-        ).appendTo(facetOuterEl);
+        </div>`  // eslint-disable-line comma-dangle
+      ).appendTo(this.ui.facetedCollectionHolder);
 
-        return new SectionPackagesCollection({
-          allSections,
-          collection: this.collection,
-          el: facetEl,
-          hubConfigs: this.options.data.hubs,
-          ignoredIDs: _.first(sectionIDs, _.indexOf(sectionIDs, section.id)),
-          sectionConfig: section,
-          printPublications: this.options.data.printPublications,
-          poller: this.poller,
-        });
-      }  // eslint-disable-line comma-dangle
-    ).value();
+      const facetEl = jQuery(`<div class="packages ${
+        section.slug
+      }"></div>`).appendTo(facetOuterEl);
+
+      const sectionPackagesCollection = new SectionPackagesCollection({
+        allSections,
+        collection: this.collection,
+        el: facetEl,
+        hubConfigs: this.options.data.hubs,
+        ignoredSlugs: _.first(sectionSlugs, _.indexOf(sectionSlugs, section.slug)),
+        sectionConfig: section,
+        placements: this.placements,
+        printPublications: this.options.data.printPublications,
+        poller: this.poller,
+      });
+
+      return sectionPackagesCollection;
+    }).value();
 
     return sectionViews;
   },
