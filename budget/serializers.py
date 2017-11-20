@@ -1,20 +1,19 @@
-# Imports from budget.  # NOQA
-from budget.models import (  # NOQA
-    Package,
-    Item,
-    Headline,
-    HeadlineVote,
-    PrintPublication,
-    PrintSection,
-    Change,
-    ContentPlacement,
-)
-
-
-# Imports from other dependencies.
-from psycopg2.extras import DateTimeTZRange, DateRange  # NOQA
+# Imports from other dependencies.  # NOQA
+from psycopg2.extras import DateRange
+from psycopg2.extras import DateTimeTZRange
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+
+
+# Imports from budget.
+from budget.models import Change
+from budget.models import ContentPlacement
+from budget.models import Headline
+from budget.models import HeadlineVote
+from budget.models import Item
+from budget.models import Package
+from budget.models import PrintPublication
+# from budget.models import PrintSection
 
 
 class UserMetadataMixin(object):

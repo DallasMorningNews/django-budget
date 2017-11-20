@@ -1,11 +1,20 @@
-from datetime import datetime, timedelta
+# Imports from python.  # NOQA
+from datetime import datetime
+from datetime import timedelta
 import os
 
-from django.core.management.base import BaseCommand
-from django.db.models import Func, F
 
+# Imports from Django.
+from django.core.management.base import BaseCommand
+from django.db.models import F
+from django.db.models import Func
+
+
+# Imports from other dependencies.
 import requests
 
+
+# Imports from budget.
 from budget.models import Package
 
 

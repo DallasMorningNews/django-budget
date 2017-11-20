@@ -3,9 +3,12 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 
-# Imports from deployed newsroom apps.
-from budget.models import Package
+# Imports from other dependencies.
 from editorial_staff.models import Hub
+
+
+# Imports from budget.
+from budget.models import Package
 
 
 @receiver(pre_save, dispatch_uid='budget_package_save', sender=Package)

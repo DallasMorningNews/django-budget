@@ -27,30 +27,24 @@ from six.moves.urllib.parse import urlunparse
 
 
 # Imports from budget.
-from budget.models import (  # NOQA
-    ContentPlacement,
-    Item,
-    Headline,
-    HeadlineVote,
-    Package,
-    PrintPublication
-)
-from budget.filters import (  # NOQA
-    ContentPlacementFilter,
-    HeadlineViewFilter,
-    ItemViewFilter,
-    PackageViewFilter,
-    PrintPublicationViewFilter
-)
+from budget.filters import ContentPlacementFilter
+from budget.filters import HeadlineViewFilter
+from budget.filters import ItemViewFilter
+from budget.filters import PackageViewFilter
+from budget.filters import PrintPublicationViewFilter
+from budget.models import ContentPlacement
+from budget.models import Headline
+from budget.models import HeadlineVote
+from budget.models import Item
+from budget.models import Package
+from budget.models import PrintPublication
 from budget.paginators import ItemViewPagination
-from budget.serializers import (  # NOQA
-    ContentPlacementSerializer,
-    HeadlineSerializer,
-    HeadlineVoteSerializer,
-    ItemSerializer,
-    PackageSerializer,
-    PrintPublicationSerializer
-)
+from budget.serializers import ContentPlacementSerializer
+from budget.serializers import HeadlineSerializer
+from budget.serializers import HeadlineVoteSerializer
+from budget.serializers import ItemSerializer
+from budget.serializers import PackageSerializer
+from budget.serializers import PrintPublicationSerializer
 
 
 class MainBudgetView(TemplateView):

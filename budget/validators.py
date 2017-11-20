@@ -2,7 +2,7 @@
 from django.core.exceptions import ValidationError
 
 
-# Imports from deployed newsroom apps.
+# Imports from other dependencies.
 from editorial_staff.models import Hub
 
 

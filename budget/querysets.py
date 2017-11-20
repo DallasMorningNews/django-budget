@@ -5,7 +5,8 @@ from django.db import models
 
 
 # Imports from budget.
-from budget.utils import alphacode, slug_date_to_range  # NOQA
+# from budget.utils import alphacode
+from budget.utils import slug_date_to_range
 
 
 class ChangeQuerySet(models.QuerySet):

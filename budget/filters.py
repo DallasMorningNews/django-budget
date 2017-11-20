@@ -1,36 +1,32 @@
 # Imports from python.  # NOQA
 from datetime import datetime
 
+
 # Imports from django.
 from django.conf import settings
-from django.contrib.postgres.search import (  # NOQA
-    SearchVector,
-    SearchQuery,
-    SearchRank,
-)
+from django.contrib.postgres.search import SearchQuery
+from django.contrib.postgres.search import SearchRank
+from django.contrib.postgres.search import SearchVector
 from django.db.models import F, Func, Q  # NOQA
 
 
 # Imports from other dependencies.
-from django_filters import (  # NOQA
-    BaseInFilter,
-    CharFilter,
-    NumberFilter,
-    OrderingFilter,
-)
-from psycopg2.extras import DateRange, DateTimeTZRange  # NOQA
+from django_filters import BaseInFilter
+from django_filters import CharFilter
+from django_filters import NumberFilter
+from django_filters import OrderingFilter
+from psycopg2.extras import DateRange
+from psycopg2.extras import DateTimeTZRange
 import pytz
 from rest_framework import filters
 
 
 # Imports from budget.
-from budget.models import (  # NOQA
-    ContentPlacement,
-    Headline,
-    Item,
-    Package,
-    PrintPublication
-)
+from budget.models import ContentPlacement
+from budget.models import Headline
+from budget.models import Item
+from budget.models import Package
+from budget.models import PrintPublication
 from budget.utils import SLUG_MATCH_RE
 
 

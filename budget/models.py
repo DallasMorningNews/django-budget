@@ -7,26 +7,25 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.postgres.fields import (  # NOQA
-    ArrayField,
-    DateRangeField,
-    DateTimeRangeField,
-    JSONField,
-)
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import DateRangeField
+from django.contrib.postgres.fields import DateTimeRangeField
+from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, Func  # NOQA
-# from django.utils.text import slugify
+from django.db.models import F
+from django.db.models import Func
 from django.utils.timezone import get_current_timezone
-
-
-# Imports from budget.
-from budget.querysets import ChangeQuerySet, PackageQuerySet  # NOQA
-from budget.validators import hub_exists
 
 
 # Imports from other dependencies.
 import pytz
+
+
+# Imports from budget.
+from budget.querysets import ChangeQuerySet
+from budget.querysets import PackageQuerySet
+from budget.validators import hub_exists
 
 
 TZ = pytz.timezone(settings.TIME_ZONE)

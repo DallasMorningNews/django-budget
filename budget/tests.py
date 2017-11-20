@@ -1,5 +1,5 @@
 # Imports from python.  # NOQA
-from datetime import date
+# from datetime import date
 from datetime import datetime
 from datetime import timedelta
 import json
@@ -19,6 +19,15 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 
 
+# Imports from other dependencies.
+from editorial_staff.models import Hub
+from editorial_staff.models import Vertical
+# from psycopg2.extras import DateRange
+from psycopg2.extras import DateTimeTZRange
+from rest_framework.test import APIClient
+import six
+
+
 # Imports from budget.
 from budget.models import Change
 from budget.models import Headline
@@ -30,18 +39,6 @@ from budget.models import PrintSection
 from budget.utils import alphacode
 from budget.utils import slug_date_to_range
 from budget.validators import hub_exists
-
-
-# Imports from deployed newsroom apps.
-from editorial_staff.models import Hub
-from editorial_staff.models import Vertical
-
-
-# Imports from other dependencies.
-from psycopg2.extras import DateRange
-from psycopg2.extras import DateTimeTZRange
-from rest_framework.test import APIClient
-import six
 
 
 tz = timezone.get_default_timezone()

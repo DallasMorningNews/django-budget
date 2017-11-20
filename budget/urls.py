@@ -1,23 +1,22 @@
 # Imports from Django.  # NOQA
-from django.conf.urls import url, include  # NOQA
-
-
-# Imports from budget.
-from budget.views import (  # NOQA
-    ConfigView,
-    ContentPlacementViewSet,
-    ExceptionView,
-    HeadlineViewSet,
-    HeadlineVoteViewSet,
-    ItemViewSet,
-    MainBudgetView,
-    PackageViewSet,
-    PrintPublicationViewSet
-)
+from django.conf.urls import include
+from django.conf.urls import url
 
 
 # Imports from other dependencies.
 from rest_framework import routers
+
+
+# Imports from budget.
+from budget.views import ConfigView
+from budget.views import ContentPlacementViewSet
+from budget.views import ExceptionView
+from budget.views import HeadlineViewSet
+from budget.views import HeadlineVoteViewSet
+from budget.views import ItemViewSet
+from budget.views import MainBudgetView
+from budget.views import PackageViewSet
+from budget.views import PrintPublicationViewSet
 
 
 app_name = 'budget'
