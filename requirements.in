@@ -23,6 +23,7 @@ python-dateutil~=2.6.1
 pytz==2017.2
 raven>=3
 slacker~=0.9.0  # foiatracker, staff
+six~=1.11.0
 social-auth-app-django~=1.2.0
 whitenoise~=3.3.0
 
