@@ -2,8 +2,8 @@
 from django.core.exceptions import ValidationError
 
 
-# Imports from staff.
-from staff.models import Hub
+# Imports from deployed newsroom apps.
+from editorial_staff.models import Hub
 
 
 def hub_exists(value):
