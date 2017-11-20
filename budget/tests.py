@@ -41,6 +41,7 @@ from editorial_staff.models import Vertical
 from psycopg2.extras import DateRange
 from psycopg2.extras import DateTimeTZRange
 from rest_framework.test import APIClient
+import six
 
 
 tz = timezone.get_default_timezone()
@@ -337,18 +338,22 @@ class ItemTestCase(TestCase):
 
     def test_primary_or_additional_required(self):
         """Raise a ValidationError if primary or additional aren't set"""
-        with self.assertRaisesRegex(
-                ValidationError,
-                "Items must be connected to a package"):
+        with six.assertRaisesRegex(
+            self,
+            ValidationError,
+            "Items must be connected to a package"
+        ):
             item = Item(slug_key='sluggy-slug', type='text',
                         budget_line='Budget line')
             item.clean()
 
     def test_primary_and_additional_raise_error(self):
         """Raise a ValidationError if primary and additional are both set"""
-        with self.assertRaisesRegex(
-                ValidationError,
-                "Items cannot be connected to a package as both"):
+        with six.assertRaisesRegex(
+            self,
+            ValidationError,
+            "Items cannot be connected to a package as both"
+        ):
             package_one = package_factory(slug_key='test-item-tpaare1')
             package_two = package_factory(slug_key='test-item-tpaare2')
             item = Item(slug_key='sluggy-slug', type='text',

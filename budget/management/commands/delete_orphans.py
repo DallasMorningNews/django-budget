@@ -1,6 +1,13 @@
+# Imports from django.  # NOQA
 from django.core.management.base import BaseCommand
 
+
+# Imports from budget.
 from budget.models import Package
+
+
+# Imports from other dependencies.
+from six.moves import input
 
 
 class Command(BaseCommand):
