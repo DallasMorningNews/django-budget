@@ -5,6 +5,7 @@ from django.conf.urls import url, include  # NOQA
 # Imports from budget.
 from budget.views import (  # NOQA
     ConfigView,
+    ContentPlacementViewSet,
     ExceptionView,
     HeadlineViewSet,
     HeadlineVoteViewSet,
@@ -28,6 +29,7 @@ router.register(r'items', ItemViewSet)
 router.register(r'headlines', HeadlineViewSet)
 router.register(r'print-publications', PrintPublicationViewSet)
 router.register(r'headline-votes', HeadlineVoteViewSet)
+router.register(r'content-placements', ContentPlacementViewSet)
 
 
 urlpatterns = [

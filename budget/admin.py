@@ -2,20 +2,34 @@
 from django.contrib import admin
 
 
+# Imports from other dependencies.
+from adminsortable2.admin import SortableInlineAdminMixin
+
+
 # Imports from budget.
-from budget.models import (  # NOQA
-    PrintPublication,
-    PrintSection,
-    Headline,
-    HeadlineVote,
-    Item,
-    Package,
-    Change,
-)
+from budget.models import Change
+from budget.models import ContentPlacement
+from budget.models import Headline
+from budget.models import HeadlineVote
+from budget.models import Item
+from budget.models import Package
+from budget.models import PrintPublication
+from budget.models import PrintSection
 
 
 admin.site.register(Headline)
 admin.site.register(HeadlineVote)
+
+
+class ContentPlacementInline(admin.StackedInline):
+    model = ContentPlacement
+    extra = 0
+    fields = (
+        'destination',
+        ('run_date', 'external_slug',),
+        ('placement_types', 'placement_details',),
+        'is_finalized',
+    )
 
 
 @admin.register(Package)
@@ -31,15 +45,15 @@ class PackageAdmin(admin.ModelAdmin):
         ('Digital publishing info', {
             'fields': ('publish_date', 'published_url', 'notes')
         }),
-        ('Print publishing info', {
-            'fields': (
-                'print_section',
-                'print_system_slug',
-                'print_run_date',
-                'print_placements',
-                'is_print_placement_finalized'
-            )
-        }),
+        # ('Print publishing info', {
+        #     'fields': (
+        #         'print_section',
+        #         'print_system_slug',
+        #         'print_run_date',
+        #         'print_placements',
+        #         'is_print_placement_finalized'
+        #     )
+        # }),
         ('Headlines', {
             'fields': ('headline_status',)
         }),
@@ -47,6 +61,9 @@ class PackageAdmin(admin.ModelAdmin):
             'fields': ('created_by', 'last_changed_by_old',)
         })
     )
+    inlines = [
+        ContentPlacementInline
+    ]
 
     def scheduled_publish_date(self, obj):
         return '%s (%s)' % (
@@ -90,6 +107,11 @@ class ItemAdmin(admin.ModelAdmin):
     is_primary.boolean = True
 
 
+class PrintSectionInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = PrintSection
+    extra = 0
+
+
 @admin.register(PrintPublication)
 class PrintPublicationAdmin(admin.ModelAdmin):
     """Admin config for print publications."""
@@ -106,15 +128,10 @@ class PrintPublicationAdmin(admin.ModelAdmin):
             'fields': ('slug',),
         }),
     )
+    inlines = [PrintSectionInline]
     prepopulated_fields = {
         'slug': ('name',)
     }
-
-
-@admin.register(PrintSection)
-class PrintSectionAdmin(admin.ModelAdmin):
-    """(Un-tailored) admin config for print sections."""
-    pass
 
 
 @admin.register(Change)

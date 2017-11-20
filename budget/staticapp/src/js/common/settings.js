@@ -4,6 +4,7 @@ import moment from 'moment';
 import 'moment-timezone';
 
 const generateEndpointsFromBases = bases => ({
+  contentPlacement: `${bases.budget}content-placements/`,
   headlineCandidate: `${bases.budget}headlines/`,
   hub: `${bases.staff}hub/`,
   item: `${bases.budget}items/`,

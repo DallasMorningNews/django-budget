@@ -56,7 +56,7 @@ export default Mn.LayoutView.extend({
     }, this);
 
     this.radio.commands.setHandler('showModal', (modalView) => {
-      const viewConfig = modalView.options.modalConfig;
+      const viewConfig = modalView.modalConfig;
 
       const vexConfig = {
         appendLocation: `#${this.ui.modalHolder.attr('id')}`,

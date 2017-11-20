@@ -5,15 +5,30 @@ import json
 # Imports from Django.
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.http import Http404, JsonResponse  # NOQA
+from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import TemplateView, View  # NOQA
+from django.views.generic import TemplateView
+from django.views.generic import View
+
+
+# Imports from other dependencies.
+from djangorestframework_camel_case.parser import CamelCaseJSONParser
+from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework import viewsets
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlunparse
 
 
 # Imports from budget.
 from budget.models import (  # NOQA
+    ContentPlacement,
     Item,
     Headline,
     HeadlineVote,
@@ -21,32 +36,21 @@ from budget.models import (  # NOQA
     PrintPublication
 )
 from budget.filters import (  # NOQA
+    ContentPlacementFilter,
+    HeadlineViewFilter,
     ItemViewFilter,
     PackageViewFilter,
-    HeadlineViewFilter,
     PrintPublicationViewFilter
 )
 from budget.paginators import ItemViewPagination
 from budget.serializers import (  # NOQA
+    ContentPlacementSerializer,
     HeadlineSerializer,
     HeadlineVoteSerializer,
     ItemSerializer,
     PackageSerializer,
     PrintPublicationSerializer
 )
-
-
-# Imports from other dependencies.
-from djangorestframework_camel_case.parser import CamelCaseJSONParser
-from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework.authentication import (  # NOQA
-    SessionAuthentication,
-    TokenAuthentication
-)
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import BrowsableAPIRenderer
-from rest_framework import viewsets
-from six.moves.urllib.parse import urlparse, urlunparse  # NOQA
 
 
 class MainBudgetView(TemplateView):
@@ -212,13 +216,17 @@ class CamelCasedViewSet(object):
 # Viewsets #
 ############
 
+
 class PackageViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
                      viewsets.ModelViewSet):
     serializer_class = PackageSerializer
     filter_class = PackageViewFilter
 
     queryset = Package.objects.distinct().prefetch_related(
-        'additional_content', 'headline_candidates', 'print_section',)
+        'additional_content',
+        'headline_candidates',
+        # 'print_section',
+    )
 
     def get_object(self):
         """Attempt to retrieve the package by multiple means.
@@ -248,6 +256,14 @@ class ItemViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
     serializer_class = ItemSerializer
     filter_class = ItemViewFilter
     pagination_class = ItemViewPagination
+
+
+class ContentPlacementViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
+                              viewsets.ModelViewSet):
+    serializer_class = ContentPlacementSerializer
+    filter_class = ContentPlacementFilter
+
+    queryset = ContentPlacement.objects.distinct()
 
 
 class HeadlineViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,

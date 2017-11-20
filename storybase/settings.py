@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_filters',
     'debug_toolbar',
+    'adminsortable2',
 
     'apiauth',
     'staff',

@@ -1,3 +1,4 @@
+
 // @include keyframes-vex-flyin
 // @include keyframes-vex-flyout
 @include keyframes-vex-fadein
@@ -16,6 +17,10 @@
 
     &.deletion-modal {
         overflow: hidden;
+    }
+
+    &.placement-choice-modal {
+        width: 800px;
     }
 
     .loading-animation {
@@ -165,11 +170,11 @@
 
     .modal-inner {
         form {
-            padding: 1rem 0 0;
+            padding: 0;
             position: relative;
 
             .row {
-                padding: 0.5rem 1rem;
+                padding: 0.5rem 1rem 1rem;
             }
         }
 
@@ -224,7 +229,7 @@
         font-weight: 400;
         height: auto;
         line-height: 44px;
-        margin: 0;
+        margin: 0 0 20px;
         padding: 6px 18px;
     }
 
@@ -402,6 +407,7 @@
     form {
         .button-holder {
             margin-top: 30px;
+            position: relative;
         }
     }
 
@@ -625,8 +631,139 @@
         }
     }
 
+    #content-placement-modal {
+        overflow: hidden;
+
+        #run_date_inputs {
+            .form-group {
+                margin-bottom: 0;
+            }
+        }
+
+        .date-range-picker {
+            left: 26px;
+            position: absolute;
+            top: 147px;
+        }
+
+        #placement_types {
+            background: #F8F8F8;
+            margin: -0.5rem 0.625rem;
+            padding: 0.75rem 0.9375rem;
+            width: calc(100% - 1.25rem);
+
+            &.has-error {
+                background: lighten($error-color, 38%);
+            }
+
+            h5 {
+                font-size: 0.8rem;
+                font-weight: 400;
+                line-height: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            label {
+                padding-bottom: 2.125rem;
+
+                input {
+                    cursor: pointer;
+                }
+            }
+        }
+
+        .button-holder {
+            .delete-trigger {
+                left: 16px;
+                margin: 0;
+                position: absolute;
+            }
+        }
+    }
+
+    #subscription-modal,
+    #content-placement-choice-modal {
+      p {
+          color: #424242;
+          display: block;
+          font-size: 14px;
+          font-weight: normal;
+          line-height: 24px;
+          margin: 0;
+          padding: 0 3.25rem 14px;
+      }
+    }
+
+    #content-placement-choice-modal {
+        p {
+            padding-left: 2.25rem;
+            padding-right: 2.25rem;
+        }
+
+        .table-card {
+            border: 1px solid #E0E0E0;
+            border-radius: 2px;
+            margin: 0.5rem 2.25rem 2.25rem;
+
+            table {
+                th,
+                td {
+                    &.select-action-holder,
+                    &.select-trigger {
+                      padding-left: 16px;
+                      width: 50px;
+                    }
+
+                    &.destination {
+                        box-sizing: border-box;
+                        padding-left: 6px;
+                        width: 110px;
+
+                        & > span {
+                            width: calc(100% - 6px);
+                        }
+                    }
+
+                    &.run-date {
+                        width: 180px;
+                    }
+
+                    &.is-finalized {
+                        width: 110px;
+                    }
+                }
+
+                thead {
+                    tr {
+                        background: #F8F8F8;
+                    }
+                }
+                tbody {
+                    tr {
+                        &:hover {
+                            background-color: rgba($budget-blue, 0.08);
+                        }
+
+                        &.selected {
+                            background-color: rgba($budget-blue, 0.25);
+                        }
+
+                        td {
+                            .checkbox {
+                                height: 16px;
+                                margin: 1px 0 0;
+                                padding: 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     #subscription-modal {
         background: #EEEEEE;
+        margin-top: -20px;
 
         .image-holder {
             background: #4FC3F7;
@@ -642,16 +779,6 @@
                 max-width: 500px;
                 width: 90%;
             }
-        }
-
-        p {
-            color: #424242;
-            display: block;
-            font-size: 14px;
-            font-weight: normal;
-            line-height: 24px;
-            margin: 0;
-            padding: 0 3.25rem 14px;
         }
 
         .button-holder {

@@ -25,9 +25,10 @@ from rest_framework import filters
 
 # Imports from budget.
 from budget.models import (  # NOQA
+    ContentPlacement,
+    Headline,
     Item,
     Package,
-    Headline,
     PrintPublication
 )
 from budget.utils import SLUG_MATCH_RE
@@ -77,20 +78,7 @@ class PackageOrderingFilter(OrderingFilter):
     def filter(self, qs, ordering_list):
         ordering = ordering_list[0]
 
-        if ordering == 'print_run_date':
-            qs = qs.annotate(
-                print_run_date_upper=Func(
-                    F('print_run_date'), function='UPPER'),
-                print_run_date_lower=Func(
-                    F('print_run_date'), function='LOWER')
-            )
-            qs = qs.annotate(
-                print_run_date_len=(
-                    F('print_run_date_upper') - F('print_run_date_lower'))
-            )
-            qs = qs.order_by('-print_run_date_upper', 'print_run_date_len')
-
-        elif ordering == 'slug':
+        if ordering == 'slug':
             qs = qs.annotate(
                 publish_date_upper=Func(
                     F('publish_date'), function='UPPER'),
@@ -113,21 +101,16 @@ class PackageOrderingFilter(OrderingFilter):
 
 
 class PackageViewFilter(filters.FilterSet):
+    id__in = NumberInFilter(name='pk', lookup_expr='in')
     publish_date = CharFilter(method='publish_date_filter')
-    print_run_date = CharFilter(method='print_run_date_filter')
     content_type = CharFilter(method='content_type_filter')
     person = CharFilter(method='person_filter')
     has_primary = CharFilter(method='has_primary_filter')
     hub = CharFilter(name='hub', lookup_expr='iexact')
     vertical = CharFilter(name='vertical', lookup_expr='iexact')
     search = CharFilter(method='search_filter')
-    publication = CharFilter(
-        name='print_section__publication__slug',
-        lookup_expr='iexact'
-    )
     ordering = PackageOrderingFilter(
         choices=(
-            ('print_run_date', 'Print run date',),
             ('slug', 'Slug',),
             # We've retained publish_date as an option for backward
             # compatibility, even though it's now the model manager's default
@@ -221,19 +204,13 @@ class PackageViewFilter(filters.FilterSet):
             )
         )
 
-    @daterange_filter_decorator(time=False)
-    def print_run_date_filter(self, queryset, lower, upper):
-        return queryset.filter(
-            print_run_date__overlap=DateRange(
-                lower=lower,
-                upper=upper
-            )
-        )
-
     class Meta:  # NOQA
         model = Package
         fields = []
-        order_by = ('publish_date', 'print_run_date', 'slug',)
+        order_by = (
+            'publish_date',
+            'slug',
+        )
 
 
 class ItemViewFilter(filters.FilterSet):
@@ -313,3 +290,60 @@ class PrintPublicationViewFilter(filters.FilterSet):
 
         filter_val = True if on_or_off == '1' else False
         return queryset.filter(is_active=filter_val)
+
+
+class ContentPlacementOrderingFilter(OrderingFilter):
+    def filter(self, qs, ordering_list):
+        ordering = ordering_list[0]
+
+        if ordering == 'run_date':
+            qs = qs.annotate(
+                run_date_upper=Func(F('run_date'), function='UPPER'),
+                run_date_lower=Func(F('run_date'), function='LOWER')
+            )
+            qs = qs.annotate(
+                run_date_len=(F('run_date_upper') - F('run_date_lower'))
+            )
+            qs = qs.order_by('-run_date_upper', 'run_date_len')
+
+        # elif ordering == 'slug':
+        #     qs = qs.annotate(
+        #         run_date_upper=Func(F('run_date'), function='UPPER'),
+        #         run_date_lower=Func(F('run_date'), function='LOWER')
+        #     )
+        #     qs = qs.annotate(
+        #         run_date_len=(F('run_date_upper') - F('run_date_lower'))
+        #     )
+        #
+        #     qs = qs.order_by(
+        #         '-run_date_upper',
+        #         'run_date_len',
+        #         'package__hub__name',
+        #         'package__slug_key'
+        #     )
+
+        return qs
+
+
+class ContentPlacementFilter(filters.FilterSet):
+    destination = CharFilter(name='destination__slug', lookup_expr='iexact')
+    run_date = CharFilter(method='placement_run_date_filter')
+    ordering = ContentPlacementOrderingFilter(
+        choices=(
+            ('run_date', 'Print run date',),
+            ('slug', 'Slug',),
+        )
+    )
+
+    @daterange_filter_decorator(time=False)
+    def placement_run_date_filter(self, queryset, lower, upper):
+        return queryset.filter(
+            run_date__overlap=DateRange(
+                lower=lower,
+                upper=upper
+            )
+        )
+
+    class Meta:  # NOQA
+        model = ContentPlacement
+        fields = ('package', 'destination',)

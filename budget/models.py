@@ -142,6 +142,7 @@ class PrintPublication(models.Model):
 
     class Meta:  # NOQA
         ordering = ['priority', 'is_active', 'slug']
+        verbose_name = "publishing destination"
 
     def __str__(self):
         """String formatting."""
@@ -171,7 +172,7 @@ class PrintSection(models.Model):
         on_delete=models.CASCADE,
     )
     priority = models.PositiveSmallIntegerField(
-        default=10,
+        default=0,
         help_text=' '.join([
             'In the list of all active print publications,',
             'how high should this entry show up?'
@@ -192,13 +193,11 @@ class PrintSection(models.Model):
 
     class Meta:  # NOQA
         ordering = [
-            'publication__priority',
-            'publication__is_active',
-            'publication__slug',
             'priority',
             'is_active',
             'slug',
         ]
+        verbose_name = "placement type"
 
     def __str__(self):
         """String formatting."""
@@ -283,9 +282,9 @@ class Package(CreationTrailModel):
 
     # Placement
     published_url = models.URLField(blank=True, null=True)
-    print_section = models.ManyToManyField(PrintSection, blank=True)
-    print_run_date_old = models.DateField(blank=True, null=True)
-    print_run_date = DateRangeField(blank=True, null=True)
+    # print_section = models.ManyToManyField(PrintSection, blank=True)
+    # print_run_date_old = models.DateField(blank=True, null=True)
+    # print_run_date = DateRangeField(blank=True, null=True)
 
     slug_key = models.CharField(
         # Package slug keys can be longer than Item slug keys, to allow for
@@ -299,13 +298,17 @@ class Package(CreationTrailModel):
         # once we've migrated primary content items' slugs to this field.
     )
 
-    print_placements = ArrayField(
-        models.CharField(max_length=15, blank=True, null=True),
-        blank=True,
-        null=True,
-    )
-    print_system_slug = models.CharField(max_length=250, blank=True, null=True)
-    is_print_placement_finalized = models.BooleanField(default=False)
+    # print_placements = ArrayField(
+    #     models.CharField(max_length=15, blank=True, null=True),
+    #     blank=True,
+    #     null=True,
+    # )
+    # print_system_slug = models.CharField(
+    #     max_length=250,
+    #     blank=True,
+    #     null=True
+    # )
+    # is_print_placement_finalized = models.BooleanField(default=False)
 
     # TODO(ajv/achavez): Deprecate this in favor of using publish_date
     pub_date = models.DateTimeField(blank=True, null=True, editable=False)
@@ -520,6 +523,46 @@ class Item(CreationTrailModel):
                     raise ValidationError({
                         'slug_key': ValidationError(error_msg),
                     })
+
+
+class ContentPlacement(CreationTrailModel):
+    """"""
+    package = models.ForeignKey(
+        Package,
+        related_name='placements',
+        on_delete=models.CASCADE
+    )
+
+    destination = models.ForeignKey(
+        PrintPublication,
+        related_name='placed_content',
+        on_delete=models.CASCADE
+    )
+    placement_types = ArrayField(
+        models.CharField(max_length=100, blank=True, null=True),
+        blank=True,
+        null=True,
+    )
+    page_number = models.PositiveSmallIntegerField(blank=True, null=True)
+    placement_details = models.CharField(
+        blank=True,
+        null=True,
+        max_length=25,
+        help_text='E.G., print page number.'
+    )
+
+    run_date = DateRangeField()
+
+    external_slug = models.CharField(max_length=250, blank=True, null=True)
+
+    is_finalized = models.BooleanField(default=False)
+
+    def __str__(self):
+        """String formatting."""
+        return '{} in {}'.format(
+            self.package.full_slug,
+            self.destination.name
+        )
 
 
 class Headline(models.Model):

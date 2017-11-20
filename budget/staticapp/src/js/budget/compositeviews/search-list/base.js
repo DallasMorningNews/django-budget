@@ -491,7 +491,6 @@ export default Mn.CompositeView.extend({
         }
 
         additionalsQuery.done((additionalData) => {
-          console.log(additionalData);
           this.collection.each((pkg) => {
             const additionalDetails = _.filter(
               additionalData.results,

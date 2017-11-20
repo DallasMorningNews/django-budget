@@ -410,7 +410,7 @@ $radio-margin: $default-font-size / -4 !default;
                     border-bottom: 0;
                     box-sizing: border-box;
                     font-size: 1.375rem;
-                    font-weight: 700;
+                    font-weight: 500;
                     height: 2.125rem;
                     line-height: 2.125rem;
                     margin: 0 0.75rem 0;
@@ -528,6 +528,154 @@ $radio-margin: $default-font-size / -4 !default;
             top: -1.3rem;
         }
     }
+
+    .table-card {
+        padding: 0;
+    }
+
+    #content-placements-table {
+        .list-header {
+            h4 {
+                .hint {
+                    color: rgba(0,0,0,0.38);
+                    font-size: 20px;
+                    font-weight: 400;
+                    letter-spacing: 0;
+                }
+            }
+        }
+
+        #content-placements-loading {
+            color: rgba(0,0,0,0.25);
+            font-size: 18px;
+            padding: 8px 22px 28px;
+        }
+
+        .table-holder {
+            display: none;
+
+            tbody tr {
+                cursor: pointer;
+                overflow: hidden;
+
+                &.hovering {
+                    background-color: #EEEEEE;
+                }
+
+                &.being-deleted {
+                    .destination {
+                        .background-shim {
+                            .delete-expansion {
+                                opacity: 1;
+                                transform: scale(51);
+                            }
+
+                            .deleting-message {
+                                opacity: 1;
+                                transition: opacity 200ms 480ms cubic-bezier(.4, 0, 1, 1);
+                            }
+                        }
+                    }
+
+                    .destination,
+                    .run-date,
+                    .external-slug,
+                    .placement-types,
+                    .is-finalized {
+                        color: rgba(0,0,0,0);
+                    }
+                }
+
+                td {
+                    transition: color 280ms cubic-bezier(.4, 0, 1, 1);
+                }
+            }
+
+            .destination {
+                position: relative;
+                width: 150px;
+
+                .background-shim {
+                    bottom: 0px;
+                    left: -1px;
+                    overflow: hidden;
+                    position: absolute;
+                    top: 0px;
+                    width: calc(800px - 20px);
+
+                    .delete-expansion {
+                        background: rgba($budget-red, 0.25);
+                        border-radius: 15px;
+                        height: 30px;
+                        opacity: 0;
+                        position: absolute;
+                        right: 25px;
+                        transform: scale(0);
+                        transition: transform 480ms cubic-bezier(.4, 0, 1, 1);
+                        top: 8px;
+                        width: 30px;
+                    }
+
+                    .deleting-message {
+                        color: $budget-red;
+                        font-size: 16px;
+                        font-weight: bold;
+                        line-height: 47px;
+                        opacity: 0;
+                        position: relative;
+                        text-align: center;
+                        transition: opacity 0ms;
+                    }
+                }
+            }
+
+            .run-date {
+                width: 180px;
+            }
+
+            .placement-types {
+                &.empty-val {
+                    color: rgba(0,0,0,0.38);
+                }
+            }
+
+            .is-finalized {
+                width: 110px;
+            }
+
+            .delete-action-holder {
+                width: 115px;
+            }
+
+            .delete-trigger {
+                padding-bottom: 9px;
+                padding-top: 8px;
+                text-align: center;
+                user-select: none;
+
+                .delete-action {
+                    border-radius: 15px;
+                    height: 30px;
+                    line-height: 30px;
+                    margin: 0;
+                    min-width: 30px;
+                    overflow: hidden;
+                    padding: 0;
+                    width: 30px;
+
+                    &::after {
+                        content: '';
+                    }
+
+                    .material-icons {
+                        color: $error-color;
+                        font-size: 20px;
+                        line-height: 30px;
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -605,13 +753,6 @@ fieldset {
     font-size: $default-active-font-size;
     margin-left: $default-spacer;
     margin-top: $default-spacer;
-
-    .checkbox &,
-    .form-radio &,
-    .form-group & {
-        position: absolute;
-        width: 100%;
-    }
 
     .checkbox & {
         margin-bottom: $default-font-size;
@@ -1051,32 +1192,6 @@ fieldset {
     margin: 0;
 }
 
-.has-error {
-    .legend.legend,
-    &.form-group .control-label.control-label {
-        // Prevent !importantRule
-        color: $error-color;
-    }
-
-    &.form-group,
-    &.checkbox,
-    &.radio,
-    &.form-radio {
-        .form-help,
-        .helper {
-            color: $error-color;
-        }
-    }
-
-    .bar {
-        &::before {
-            background: $error-color;
-            left: 0;
-            width: 100%;
-        }
-    }
-}
-
 .form-group {
     input:read-only {
         color: $default-label-color;
@@ -1224,6 +1339,73 @@ fieldset {
 
 #modal-holder {
     .modal-inner {
+        .checkbox {
+            h5 {
+                color: rgba(0,0,0,0.38);
+            }
+        }
+
+        .has-error {
+            label {
+                color: $error-color;
+            }
+
+            .legend.legend,
+            &.form-group .control-label.control-label {
+                // Prevent !importantRule
+                color: $error-color;
+            }
+
+            &.form-group,
+            &.checkbox,
+            &.radio,
+            &.form-radio {
+                h5 {
+                    color: rgba($error-color, 0.72);
+                }
+
+                .form-help {
+                    box-sizing: border-box;
+                    color: $error-color;
+                    font-size: 12px;
+                    height: 20px;
+                    line-height: 12px;
+                    padding-top: 8px;
+                    position: relative;
+                }
+            }
+
+            &.form-group,
+            &.checkbox,
+            &.radio {
+                .form-help {
+                    margin: 0 0 10px;
+                }
+            }
+
+            &.checkbox,
+            &.radio,
+            &.form-radio {
+                .helper {
+                    box-sizing: border-box;
+                    color: $error-color;
+
+                    &::before,
+                    &::after {
+                        background-color: darken($error-color, 15%);
+                    }
+                }
+            }
+
+            .bar {
+                &::before {
+                    background: $error-color;
+                    left: 0;
+                    width: 100%;
+                }
+            }
+        }
+
         .delete-confirmation-text {
             color: #616161;
             font-size: 1rem;

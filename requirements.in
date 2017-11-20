@@ -4,6 +4,7 @@
 #
 Django~=1.11.0
 dj-database-url==0.4.2
+django-admin-sortable2==0.6.16  # budget
 django-bootstrap3~=9.0.0
 django-colorfield==0.1.10  # staff
 django-cors-headers==2.1.0  # budget, staff
