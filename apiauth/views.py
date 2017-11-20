@@ -1,8 +1,4 @@
-# Imports from python.  # NOQA
-import urllib
-
-
-# Imports from Django.
+# Imports from Django.  # NOQA
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
@@ -31,6 +27,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 from rest_framework import viewsets
+from six.moves import urllib
 
 
 class CamelCasedAPIViewMixin(object):
