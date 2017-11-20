@@ -1,45 +1,45 @@
 # Imports from python.  # NOQA
-from datetime import date, datetime, timedelta  # NOQA
+from datetime import date
+from datetime import datetime
+from datetime import timedelta
 import json
 from unittest import skipUnless
 
 
 # Imports from Django.
-from django.contrib.auth.models import (  # NOQA
-    AnonymousUser,
-    User
-)
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import connections
 from django.db.utils import ConnectionDoesNotExist
-from django.test import SimpleTestCase, TestCase, override_settings  # NOQA
+from django.test import override_settings
+from django.test import SimpleTestCase
+from django.test import TestCase
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
 
 # Imports from budget.
-from budget.models import (  # NOQA
-    Change,
-    Headline,
-    HeadlineVote,
-    Item,
-    Package,
-    PrintPublication,
-    PrintSection
-)
-from budget.utils import alphacode, slug_date_to_range  # NOQA
+from budget.models import Change
+from budget.models import Headline
+from budget.models import HeadlineVote
+from budget.models import Item
+from budget.models import Package
+from budget.models import PrintPublication
+from budget.models import PrintSection
+from budget.utils import alphacode
+from budget.utils import slug_date_to_range
 from budget.validators import hub_exists
 
 
-# Imports from staff.
-from staff.models import Hub, Vertical  # NOQA
+# Imports from deployed newsroom apps.
+from editorial_staff.models import Hub
+from editorial_staff.models import Vertical
 
 
 # Imports from other dependencies.
-from psycopg2.extras import (  # NOQA
-    DateRange,
-    DateTimeTZRange
-)
+from psycopg2.extras import DateRange
+from psycopg2.extras import DateTimeTZRange
 from rest_framework.test import APIClient
 
 

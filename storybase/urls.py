@@ -33,13 +33,14 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # App includes.
-    url(r'^staff/', include('staff.urls')),
     url(r'^budget/', include('budget.urls')),
     url(r'^docs/api/', budget_apidocs_view),
     url(r'^auth/', include('apiauth.urls')),
     # url(r'^core/', include('core.urls')),
     # social
     url('', include('social_django.urls', namespace='social')),
+
+    url(r'^staff/', include('editorial_staff.urls')),
 ] + static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT

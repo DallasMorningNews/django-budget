@@ -77,8 +77,9 @@ INSTALLED_APPS = [
     'adminsortable2',
 
     'apiauth',
-    'staff',
     'budget',
+
+    'editorial_staff',
 ]
 
 if 'SENTRY_DSN' in os.environ:
@@ -439,7 +440,7 @@ def get_budget_api_url(reverse):
 def get_staff_api_url(reverse):
     return '{}{}'.format(
         BUDGET_API_ROOT_URL,
-        reverse('staff:api:root')
+        reverse('editorial_staff:api:root')
     )
 
 
@@ -462,7 +463,7 @@ BUDGET_TOOL_LOGO_PATH = 'budget/images/storybase-wordmark.svg'
 
 # Staff app configuration
 # See `staff.views.api_views` (docs TK).
-STAFF_DATA_PROVIDER = 'staff.data_providers.SlackProvider'
+STAFF_DATA_PROVIDER = 'editorial_staff.data_providers.SlackProvider'
 
 STAFF_EMAIL_DOMAIN = 'bayareanewsgroup.com'
 
@@ -487,11 +488,14 @@ STAFF_EMAIL_DOMAIN = 'bayareanewsgroup.com'
 #
 #     CELERY_TASK_EAGER_PROPAGATES = True
 
-
 BOOTSTRAP3 = {
     'field_renderers': {
         'default': 'bootstrap3.renderers.FieldRenderer',
         'inline': 'bootstrap3.renderers.InlineFieldRenderer',
-        'immaterial': 'staff.field_renderers.ImmaterialFieldRenderer',
+        'immaterial': '.'.join([
+            'editorial_staff',
+            'field_renderers',
+            'ImmaterialFieldRenderer',
+        ]),
     },
 }

@@ -112,7 +112,7 @@ class ConfigView(View):
         api_bases = {
             'auth': reverse('apiauth:api-root'),
             'budget': reverse('budget:api-root'),
-            'staff': reverse('staff:api:root'),
+            'staff': reverse('editorial_staff:api:root'),
         }
 
         explicit_api_bases = getattr(settings, 'BUDGET_API_CONFIGS', {})
