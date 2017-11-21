@@ -15,6 +15,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
 from django.db.models import Func
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import get_current_timezone
 
 
@@ -54,6 +55,7 @@ class CreationTrailModel(models.Model):
         abstract = True
 
 
+@python_2_unicode_compatible
 class Change(models.Model):
     """Model representing a change to any of our budget models.
 
@@ -115,6 +117,7 @@ class Change(models.Model):
         ordering = ['-at']
 
 
+@python_2_unicode_compatible
 class PrintPublication(models.Model):
     """Print publication model."""
 
@@ -160,6 +163,7 @@ class PrintSectionManager(models.Manager):
         ).get_queryset().select_related('publication')
 
 
+@python_2_unicode_compatible
 class PrintSection(models.Model):
     """Print publication model."""
 
@@ -564,6 +568,7 @@ class ContentPlacement(CreationTrailModel):
         )
 
 
+@python_2_unicode_compatible
 class Headline(models.Model):
     """Headline model."""
 
@@ -584,6 +589,7 @@ class Headline(models.Model):
         return self.text
 
 
+@python_2_unicode_compatible
 class HeadlineVote(models.Model):
     """Headline vote model."""
 
