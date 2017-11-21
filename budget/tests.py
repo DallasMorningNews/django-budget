@@ -116,8 +116,11 @@ def get_timestamp_for_date(raw_iso_date):
 
 
 class AuthedApiTestMixin(TestCase):
-    """Store an authed API request client on the instance we can use to test
-    our API"""
+    """Mixin to simulate API request client.
+
+    Store an authed API request client on the instance, which we can
+    later use to test our API.
+    """
     def setUp(self):
         super(AuthedApiTestMixin, self).setUp()
         user = User.objects.create_user('user')
@@ -132,8 +135,11 @@ class AuthedApiTestMixin(TestCase):
 
 class PrintPublicationTestCase(SimpleTestCase):
     def test_str(self):
-        """Should return publication name with (inactive) appended if the pub
-        is not active"""
+        """Verify inactive suffix on publication name.
+
+        Should return publication name with (inactive) appended when the]
+        publication is not active.
+        """
         pub = PrintPublication(name='TDMN', slug='tdmn', priority=1)
         self.assertEqual(str(pub), 'TDMN')
 
@@ -382,7 +388,7 @@ class ChangeTestCase(TestCase):
             str(self.change),
             'User {} changed {} at {}.'.format(
                 self.user.pk,
-                str(self.item),
+                str(self.item.primary_for_package),
                 self.change.at
             )
         )
