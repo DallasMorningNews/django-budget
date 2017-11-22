@@ -53,8 +53,16 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=[
-        'Django==1.11',
-        'djangorestframework==3.6.0',
-        'psycopg2==2.6.1'
+        'Django>=1.9.0,<2.0',
+        'django-admin-sortable2~=0.6.16',
+        'django-editorial-staff>=0.5.2',
+        'django-filter~=1.0.0',
+        'djangorestframework~=3.6.0',
+        'djangorestframework-camel-case~=0.2.0',
+        'psycopg2~=2.6.1',
+        'python-dateutil~=2.6.1',
+        'pytz~=2017.2',
+        'requests~=2.18.4',
+        'six~=1.11.0',
     ],
 )
