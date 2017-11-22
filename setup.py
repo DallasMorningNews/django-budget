@@ -65,4 +65,9 @@ setup(
         'requests~=2.18.4',
         'six~=1.11.0',
     ],
+    test_suite='runtests.runtests',
+    tests_require=[
+        'python-dotenv~=0.7.1',
+        'dj-database-url~=0.4.2',
+    ],
 )
