@@ -6,4 +6,6 @@ freezegun
 flake8
 ipython==6.2.0
 pip-tools
+python-dotenv~=0.7.1
+dj-database-url~=0.4.2
 -r requirements.txt
