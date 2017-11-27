@@ -15,15 +15,11 @@ from dotenv import load_dotenv
 
 
 def runtests():
-    print('mk5.3')
     load_dotenv(find_dotenv())
     django.setup()
 
     test_runner = DiscoverRunner(verbosity=1)
-    failures = test_runner.run_tests([
-        # 'budget.tests.models',
-        # 'budget.tests.misc',
-    ])
+    failures = test_runner.run_tests([])
     if failures:
         sys.exit(failures)
 
