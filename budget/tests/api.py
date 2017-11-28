@@ -8,6 +8,7 @@ import json
 from django.contrib.auth.models import User
 # from django.test import override_settings
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.timezone import make_aware
 
 
@@ -43,7 +44,7 @@ __all__ = [
 
 PACKAGES_API_ENDPOINT = '/api/packages/'
 PUBLICATION_API_ENDPOINT = '/api/print-publications/'
-ITEMS_API_ENDPOINT = '/api/items/'
+ITEMS_API_ENDPOINT = reverse('budget:item-list')
 
 
 class AuthedApiTestMixin(TestCase):
@@ -306,10 +307,12 @@ class ItemsAPITestCase(AuthedApiTestMixin, TestCase):
             editor='an-editor@b.com',
             primary_for=package_factory(slug_key='test-items-api-p4')
         )
+
         response = self.client.get(ITEMS_API_ENDPOINT, data={
             'format': 'json',
             'editor': 'an-editor@b.com'
         })
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['count'], 1)
 
