@@ -155,7 +155,10 @@ export default PackageItemView.extend({
 
     this.placementsCollection = new ContentPlacementCollection();
 
-    const placementQueryParams = { data: { package: this.model.id } };
+    const placementQueryParams = {
+      data: { package: this.model.id },
+      xhrFields: { withCredentials: true },
+    };
 
     this.placementsCollection.fetch(Object.assign({}, placementQueryParams, {
       success: (collection) => {  // Args: collection, response, options

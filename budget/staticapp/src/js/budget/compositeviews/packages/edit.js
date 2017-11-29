@@ -357,6 +357,7 @@ export default Mn.CompositeView.extend({
     this.contentPlacements = new ContentPlacementCollection();
     this.contentPlacements.fetch(Object.assign({}, config, {
       data: { package: this.model.id },
+      xhrFields: { withCredentials: true },
     }));
   },
 

@@ -224,7 +224,7 @@ export default Mn.Application.extend({
 
     // When all initial data has loaded, resolve the overall deferred object.
     jQuery.when(
-      this.data.hubs.fetch(),
+      this.data.hubs.fetch({ xhrFields: { withCredentials: true } }),
       this.data.printPublications.fetch({
         data: {
           publication_active: 1,
@@ -233,7 +233,8 @@ export default Mn.Application.extend({
           withCredentials: true,
         },
       }),
-      this.data.staffers.fetch()  // eslint-disable-line comma-dangle
+      // eslint-disable-next-line comma-dangle
+      this.data.staffers.fetch({ xhrFields: { withCredentials: true } })
     ).done(() => {
       initialDataLoaded.resolve();
     });
