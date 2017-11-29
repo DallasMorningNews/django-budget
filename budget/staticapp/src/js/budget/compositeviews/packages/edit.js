@@ -424,7 +424,6 @@ export default Mn.CompositeView.extend({
   createContentPlacement() {
     const newPlacement = new ContentPlacement({
       package: this.model.id,
-      destination: 1,
       runDate: [
         this.moment().add(1, 'days').format('YYYY-MM-DD'),
         this.moment().add(2, 'days').format('YYYY-MM-DD'),

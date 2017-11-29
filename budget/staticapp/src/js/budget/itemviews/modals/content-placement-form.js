@@ -330,6 +330,26 @@ export default Mn.ItemView.extend({
       onGet: () => {
         // if (_.isUndefined(this.model.id)) { return ''; }
 
+        if (!this.model.has('destination')) {
+          const sortedDestinations = this.destinations.sortBy('priority');
+
+          // If no destination has been specified on the bound model, choose
+          // one (in a deterministic manner) and apply it.
+          const defaultDestination = (
+            sortedDestinations.length > 0
+          ) ? (
+            sortedDestinations[0].id
+          ) : (
+            0
+          );
+
+          if (defaultDestination === 0) {
+            console.error('ERROR: Please create a destination to save placements.');
+          } else {
+            this.model.set('destination', defaultDestination);
+          }
+        }
+
         const match = this.destinations.findWhere({
           id: this.model.get('destination'),
         }).get('slug');
