@@ -4,6 +4,7 @@ include README.rst
 recursive-include budget/static *
 recursive-include budget/templates *
 recursive-include budget/fixtures *
+recursive-include budget/migrations *
 recursive-include budget/staticapp/gulp *
 recursive-include budget/staticapp/src *
 recursive-include budget/staticapp/vendored *
