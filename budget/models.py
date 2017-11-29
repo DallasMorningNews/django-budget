@@ -486,7 +486,7 @@ class Item(CreationTrailModel):
             })
 
     def save(self, *args, **kwargs):
-        if not self.id and self.primary_for_package:
+        if self._state.adding and self.primary_for_package:
             self.slug_key = None
 
         super(Item, self).save(*args, **kwargs)
@@ -505,7 +505,7 @@ class Item(CreationTrailModel):
     def validate_unique(self, *args, **kwargs):
         super(Item, self).validate_unique(*args, **kwargs)
 
-        if not self.id:
+        if self._state.adding:
             addl = self.additional_for_package
             if addl:
                 existing_slug_keys = list(
