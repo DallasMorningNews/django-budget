@@ -258,16 +258,11 @@ export default BaseSearchList.extend({
 
     const pubs = this.options.data.printPublications;
 
-    console.log('D1');
-    this.debug = { thisPub, pubs };
-
     const currentSlugConfig = (
         _.isUndefined(thisPub)
     ) ? pubs.at(0) : pubs.findWhere({
       slug: thisPub.get('value').split('.dest')[0],
     });
-
-    this.debug.currentSlugConfig = currentSlugConfig;
 
     const allSections = _.flatten(pubs.pluck('sections'));
 

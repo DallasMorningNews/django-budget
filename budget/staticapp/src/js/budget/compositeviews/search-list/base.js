@@ -493,7 +493,7 @@ export default Mn.CompositeView.extend({
           });
         } else {
           additionalsQuery = new jQuery.Deferred();
-          additionalsQuery.resolve();
+          additionalsQuery.resolve({ additionalData: [] });
         }
 
         additionalsQuery.done((additionalData) => {
