@@ -534,6 +534,12 @@ $radio-margin: $default-font-size / -4 !default;
     }
 
     #content-placements-table {
+        display: none;
+
+        &[data-visible="true"] {
+            display: block;
+        }
+
         .list-header {
             h4 {
                 .hint {

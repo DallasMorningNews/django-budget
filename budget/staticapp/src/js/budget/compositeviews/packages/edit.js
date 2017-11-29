@@ -74,6 +74,7 @@ const uiElements = {
         packageSaveTrigger: '.edit-bar .button-holder .material-button.save-trigger',
         packageSaveAndContinueEditingTrigger: '.edit-bar .button-holder .save-and-continue-editing-trigger',
         /* eslint-enable indent */
+  contentPlacements: '#content-placements-table',
   contentPlacementsPlaceholder: '#content-placements-loading',
   contentPlacementsAddTrigger: '#content-placements-table .create-placement',
   contentPlacementsTableGroup: '#content-placements-table .table-holder',

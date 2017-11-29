@@ -69,6 +69,21 @@ export default Mn.ItemView.extend({
       },
     };
 
+    bindings[uiElements.contentPlacements] = {
+      observe: 'id',
+      update() {},
+      getVal() {},
+      attributes: [
+        {
+          name: 'data-visible',
+          observe: 'id',
+          onGet(value) {
+            return (_.isUndefined(value)) ? 'false' : 'true';
+          },
+        },
+      ],
+    };
+
     bindings[uiElements.packageDeleteTrigger] = {
       observe: 'id',
       update() {},
