@@ -466,6 +466,9 @@ export default Mn.CompositeView.extend({
           if (this.contentPlacementAddMode === 'immediate-async') {
             setTimeout(() => {
               model.save({}, {
+                xhrFields: {
+                  withCredentials: true,
+                },
                 success: () => {
                   if (!this.contentPlacements.contains(model)) {
                     this.contentPlacements.add(model);
