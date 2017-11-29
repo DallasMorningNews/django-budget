@@ -78,7 +78,6 @@ class MainBudgetView(TemplateView):
 
         context.update({
             'config_url': config_url,
-            'host_url': hostURL,
         })
 
         return context
