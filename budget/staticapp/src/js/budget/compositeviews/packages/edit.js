@@ -602,6 +602,9 @@ export default Mn.CompositeView.extend({
 
   proceedWithPlacementDelete(target, placement) {
     placement.destroy({
+      xhrFields: {
+        withCredentials: true,
+      },
       success: () => {
         target.remove();
 
