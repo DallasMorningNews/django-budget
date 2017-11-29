@@ -37,6 +37,65 @@ Detailed documentation (including a user guide) will be added at a later date.
 5.  Visit <http://127.0.0.1:8000/budget/api/> to explore the app's REST API.
 
 
+## Configuration settings
+
+`django-budget` provides sane defaults for many install use cases, but can be customized further via Django's `settings.py` convention.
+
+There are several categories of settings you can override, one by one or all together. Here's a list of what you can change easily.
+
+#### API options
+
+| Setting | Description |
+| :-- | :-- |
+| BUDGET_API_MAX_ITEMS | **Optional.** The maximum number of results that can be returned by one query to the API. Defaults to 500. |
+| BUDGET_API_CONFIGS | **Optional.** Can be used to specify different root URLs for the Budget or Staff APIs. Read more about how to set this option below. Defaults to the reversed URLs for `budget:api-root` and `editorial_staff:api:root`, respectively. |
+
+###### Overriding `BUDGET_API_CONFIGS`
+
+If needed, the `BUDGET_API_CONFIGS` setting is configured as a dictionary. This dictionary can have any of the following keys:
+
+```python
+BUDGET_API_CONFIGS = {
+  'budget': '',  # The root URL of the budget API.
+  'staff': '',  # The root URL of the editorial-staff API.
+  'auth': '',  # The root URL of the user-authentication API (pending deprecation).
+}
+```
+
+Each of these keys can have a hard-coded path string value (expressed as a relative or absolute URL), or can reference a function for URL reversing. In order to avoid registry-timing errors, API configs that are callable functions are passed Django's `django.urls.reverse()` method as their only parameter.
+
+
+#### Branding options
+
+| Setting | Description |
+| :-- | :-- |
+| BUDGET_ORGANIZATION_NAME | **Optional, but customization recommended.** The name of the organization using this Budget installation. For now, only used as alt-text for the organizational logo. Defaults to the text "Your organization here". |
+| BUDGET_ORGANIZATION_LOGO_PATH | **Optional, but customization recommended.** The logo for the organization running this Budget installation, to be surfaced at the top-left of every budget view. Defaults to a stylized "Your organization here" image. |
+| BUDGET_TOOL_NAME | **Optional.** The public-facing name for this budget installation, to be used in the front-end's HTML `<title>` element and in the alt-text for its logo. Defaults to "Budget". Able to be customized in case organizations want to call their iteration of this tool something more individualized than "Budget." |
+| BUDGET_TOOL_LOGO_PATH | **Optional.** The wordmark for this budget installation, to be surfaced at the top-left of every budget view. Defaults to the standard "Budget" wordmark. Able to be customized in case organizations want to call their iteration of this tool something more individualized than "Budget." |
+
+
+#### Per-install functional options
+
+| Setting | Description |
+| :-- | :-- |
+| BUDGET_ADMIN_EMAIL | **Optional.** The email address of the primary technical contact for this budget installation. Used in various error-reporting devices throughout the app's front-end UI. Defaults to the email address of the first entry in Django's built-in `ADMINS` setting. |
+| BUDGET_EXTERNAL_URLS | **Optional.** A dictionary of functionality-enhancing URLs that can be passed from Django to the front-end UI. For now, the only external URL that is specifically supported in the UI is `addVisualsRequest` — if set it will render a "Request visuals" button on budgeted graphics, photos and videos. More custom external URLs may be added at a later date. Defaults to an empty dict. |
+| BUDGET_PRINT_SLUG_NAME | **Optional.** What to label the `external_slug` field when it's rendered in the front-end UI. Defaults to `None`, which also keeps the front-end from rendering this field. |
+| BUDGET_SHOW_HEADLINES | **Optional.** Whether or not to show the still-under-development headline planning features. Defaults to False. |
+
+
+
+#### Cross-domain options
+
+These options should only be set when setting up `django-budget`'s frontend to be served from a different domain/subdomain from the APIs it consumes.
+
+| Setting | Description |
+| :-- | :-- |
+| BUDGET_ALIASED_ORIGINS | **Optional.** A list of subdomains and domains where the budget app will be served from the URL root, rather than a subdomain (such as the recommended-by-default `/budget/`). Such domains typically require extra server-side setup. Defaults to an empty list. |
+| BUDGET_ALIASED_API_URL | **Optional.** A common root URL that will be prepended onto the root API URLs for the budget and staff APIs (as set by `BUDGET_API_CONFIGS`). Defaults to '', which does not change the `BUDGET_API_CONFIGS` values at all. |
+
+
 ## Requirements
 
 `django-budget` is designed to work with Django 1.11 and 2.0, and is compatible with Python 2.7 and Python 3.6+.
