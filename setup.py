@@ -6,7 +6,7 @@ from setuptools import setup
 
 REPO_URL = 'https://github.com/DallasMorningNews/django-budget/'
 
-PYPI_VERSION = '0.7.10'
+PYPI_VERSION = '0.7.11'
 
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
