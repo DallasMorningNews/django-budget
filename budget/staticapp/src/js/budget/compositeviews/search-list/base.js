@@ -448,6 +448,9 @@ export default Mn.CompositeView.extend({
         url: this.collection.at(0).additionalContentCollection.url(),
         data: { id__in: primaryIDs.join(',') },
         type: 'GET',
+        xhrFields: {
+          withCredentials: true,
+        },
         beforeSend: (xhr) => {
           xhr.withCredentials = true;  // eslint-disable-line no-param-reassign
         },
@@ -481,6 +484,9 @@ export default Mn.CompositeView.extend({
             url: this.collection.at(0).additionalContentCollection.url(),
             data: { id__in: additionalIDs.join(',') },
             type: 'GET',
+            xhrFields: {
+              withCredentials: true,
+            },
             beforeSend: (xhr) => {
               xhr.withCredentials = true;  // eslint-disable-line no-param-reassign
             },
