@@ -88,7 +88,7 @@ export default BaseSearchList.extend({
       'queryTerms'  // eslint-disable-line comma-dangle
     ).findWhere({ type: 'destination' });
 
-    const placementLinkedCollection = collection.linkPlacements(this.placements);
+    const placementLinkedCollection = collection.linkPlacements(this.matchingPlacements);
 
     const pubs = this.options.data.printPublications;
 
@@ -154,7 +154,9 @@ export default BaseSearchList.extend({
   generateCollectionURL() {
     // Override this method to initialize the content-placements collection
     // before it's first needed.
-    if (!_.has(this, 'placements')) this.placements = new ContentPlacementCollection();
+    if (!_.has(this, 'placements')) {
+      this.matchingPlacements = new ContentPlacementCollection();
+    }
 
     return this.radio.reqres.request('getSetting', 'apiEndpoints').package;
   },
@@ -162,7 +164,7 @@ export default BaseSearchList.extend({
   updatePackages() {
     // First, load placements based on currently-set options.
     const fetchOptions = this.generatePlacementFetchOptions();
-    this.placements.fetch(Object.assign({}, fetchOptions, {
+    this.matchingPlacements.fetch(Object.assign({}, fetchOptions, {
       success: (placementCollection) => {  // args: collection, response, options
         // Update poller config with appropriate IDs.
         this.poller.requestConfig = this.generateCollectionFetchOptions(placementCollection);
@@ -187,7 +189,7 @@ export default BaseSearchList.extend({
         withCredentials: true,
       },
       success: (collection) => {
-        collection.linkPlacements(this.placements);
+        collection.linkPlacements(this.matchingPlacements);
       },
     };
 
@@ -288,7 +290,7 @@ export default BaseSearchList.extend({
         hubConfigs: this.options.data.hubs,
         ignoredSlugs: _.first(sectionSlugs, _.indexOf(sectionSlugs, section.slug)),
         sectionConfig: section,
-        placements: this.placements,
+        placements: this.matchingPlacements,
         printPublications: this.options.data.printPublications,
         poller: this.poller,
       });
