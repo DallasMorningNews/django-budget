@@ -7,8 +7,9 @@ import _string_ from 'underscore.string';
 import deline from '../../../vendored/deline';
 import urlConfig from '../../misc/urls';
 
+import ContentPlacementCollection from '../../collections/content-placements';
+import ContentPlacementChoicesModal from '../modals/content-placement-choices';
 import ModalView from '../modals/modal-window';
-import PrintPublishingModalView from '../list-modals/print-publishing';
 import SnackbarView from '../snackbars/snackbar';
 import WebPublishingModalView from '../list-modals/web-publishing';
 
@@ -185,6 +186,7 @@ export default Mn.ItemView.extend({
   },
 
   showPrintInfoModal(event) {
+    // Override to grab all placements and show them in a list.
     event.stopPropagation();
 
     // Halt polling (so subsequent fetches from the server don't
@@ -192,126 +194,88 @@ export default Mn.ItemView.extend({
       // eslint-disable-next-line no-underscore-dangle
     this._parent.poller.pause();
 
-    const printInfoModal = new PrintPublishingModalView({
-      model: this.model,
-      callbacks: {
-        // eslint-disable-next-line no-underscore-dangle
-        resumePolling: () => { this._parent.poller.resume(); },
-        success: () => { this.infoModalSuccessCallback('print'); },
-        error: () => { this.infoModalErrorCallback(); },
-        close: () => { this.radio.commands.execute('destroyModal'); },
-      },
-      extraContext: {
-        printPlacementChoices: this.printPlacementChoices,
-        printPublicationSections: this.printPublicationSections,
-        sectionPublicationMap: this.sectionPublicationMap,
-      },
-    });
+    this.placementsCollection = new ContentPlacementCollection();
 
-    const formRows = [];
-    formRows.push(
-      {
-        id: 'print_run_date_inputs',
-        extraClasses: '',
-        fields: [
-          {
-            type: 'input',
-            widthClasses: 'small-6 medium-6 large-6',
-            labelText: 'Print run date (start)',
-            inputID: 'print_run_date_start',
-            inputName: 'print_run_date_start',
-            inputType: 'text',
-          },
-          {
-            type: 'input',
-            widthClasses: 'small-6 medium-6 large-6',
-            labelText: 'Print run date (end)',
-            inputID: 'print_run_date_end',
-            inputName: 'print_run_date_end',
-            inputType: 'text',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
+    const placementQueryParams = {
+      data: { package: this.model.id },
+      xhrFields: { withCredentials: true },
+    };
 
-    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
-    if (printSlugName !== null) {
-      formRows.push(
-        {
-          extraClasses: '',
-          fields: [
-            {
-              type: 'input',
-              widthClasses: 'small-12 medium-12 large-12',
-              labelText: printSlugName,
-              inputID: 'print_system_slug',
-              inputName: 'print_system_slug',
-              inputType: 'text',
-            },
-          ],
-        }  // eslint-disable-line comma-dangle
-      );
+    this.placementsCollection.fetch(Object.assign({}, placementQueryParams, {
+      success: (collection) => {  // Args: collection, response, options
+        this.renderMultiplePlacementsModule(collection);
+      },
+      error: (collection, response) => {  // Args: collection, response, options
+        /* eslint-disable no-console */
+        console.warn('ERROR: Could not fetch content placements using these params:');
+        console.warn(placementQueryParams);
+        window.httpError = response;
+        console.warn('HTTP request details have been saved in "window.httpError".');
+        /* eslint-enable no-console */
+      },
+    }));
+  },
+
+  renderMultiplePlacementsModule(collection) {
+    if (collection.length > 0) {
+      const placementChoiceModal = new ContentPlacementChoicesModal({
+        model: this.model,
+        extraContext: this,
+        placements: collection,
+        moment: this.moment,
+        destinations: this.options.printPublications,
+        callbacks: {
+          cancel: () => {
+            this.radio.commands.execute('destroyModal');
+          },
+        },
+      });
+
+      this.modalView = new ModalView({
+        model: this.model,
+        view: placementChoiceModal,
+        renderCallback: (modalView) => {
+          const $modalInner = modalView.view.$el;
+          const $modalSelects = $modalInner.find('.select-trigger .checkbox input');
+          const $allRows = $modalInner.find('.table-card tbody tr');
+
+          $allRows.on('click', (event) => {
+            const $rowTarget = jQuery(event.currentTarget);
+            const $exactTarget = jQuery(event.target);
+            const $selectTrigger = $rowTarget.find('.select-trigger');
+
+            if (!jQuery.contains($selectTrigger[0], $exactTarget[0])) {
+              // Only capture clicks that don't already trigger the checkbox.
+              $selectTrigger.find('input').click();
+            }
+          });
+
+          $modalSelects.on('change', (event) => {
+            const $target = jQuery(event.currentTarget);
+            const isChecked = $target.is(':checked');
+            const $parentRow = $target.closest('tr');
+            const thisID = $target.attr('id').replace('is_selected_', '');
+
+            if (isChecked) {
+              // Set class "selected" on parent TR.
+              const $otherRows = $allRows.filter(`:not(#content-placement_${thisID})`);
+
+              $otherRows.removeClass('selected');
+              $parentRow.addClass('selected');
+
+              $otherRows.find('.select-trigger .checkbox input').prop('checked', false);
+            } else {
+              // Unset class "selected" on parent TR.
+              $parentRow.removeClass('selected');
+            }
+          });
+        },
+      });
+
+      this.radio.commands.execute('showModal', this.modalView);
+    } else {
+      // No placements exist. Go right into create view.
     }
-
-    formRows.push(
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'input',
-            extraClasses: 'publication-group',
-            widthClasses: 'small-12 medium-12 large-12',
-            labelText: 'Publication',
-            inputID: 'print_publication',
-            inputName: 'print_publication',
-            inputType: 'text',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
-
-    formRows.push(
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'div',
-            widthClasses: 'small-12 medium-12 large-12',
-            extraClasses: 'checkbox',
-            inputID: 'print_section',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
-
-    formRows.push(
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'checkbox',
-            extraClasses: 'additional-checkbox-group',
-            widthClasses: 'small-12 medium-12 large-12',
-            labelText: 'Print placement finalized?',
-            inputID: 'is_placement_finalized',
-            inputName: 'is_placement_finalized',
-            inputValue: 'finalized',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
-
-    printInfoModal.extendConfig({ formConfig: { rows: formRows } });
-
-    this.modalView = new ModalView({
-      modalConfig: printInfoModal.getConfig(),
-      model: this.model,
-      renderCallback: () => {
-        this.modalView.stickit(null, printInfoModal.getBindings());
-      },
-    });
-
-    this.radio.commands.execute('showModal', this.modalView);
   },
 
   showNotesModal() {
