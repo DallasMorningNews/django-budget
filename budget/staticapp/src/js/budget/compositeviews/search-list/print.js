@@ -82,7 +82,7 @@ export default BaseSearchList.extend({
   },
 
   isEmpty(collection) {
-    const thisPub = this.radio.reqres.request(
+    const thisDest = this.radio.reqres.request(
       'getState',
       'printSearchList',
       'queryTerms'  // eslint-disable-line comma-dangle
@@ -90,17 +90,17 @@ export default BaseSearchList.extend({
 
     const placementLinkedCollection = collection.linkPlacements(this.matchingPlacements);
 
-    const pubs = this.options.data.printPublications;
+    const destinations = this.placementDestinations;
 
-    // If no publication has been set yet, choose the first one in the list.
+    // If no destination has been set yet, choose the first one in the list.
     // This will already be the one chosen once the view rendering ends.
     const currentSlugConfig = (
-      _.isUndefined(thisPub)
-    ) ? pubs.at(0) : pubs.findWhere({
-      slug: thisPub.get('value').split('.dest')[0],
+      _.isUndefined(thisDest)
+    ) ? destinations.at(0) : destinations.findWhere({
+      slug: thisDest.get('value').split('.dest')[0],
     });
 
-    const publicationSectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
+    const destinationSectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
 
     const placementsByCollection = _.flatten(placementLinkedCollection
                                                     .map(i => i.placements))
@@ -108,7 +108,7 @@ export default BaseSearchList.extend({
     const collectionIsEmpty = _.chain(placementsByCollection)
         .flatten()
         .uniq()
-        .intersection(publicationSectionSlugs)
+        .intersection(destinationSectionSlugs)
         .isEmpty()
         .value();
 
@@ -252,21 +252,21 @@ export default BaseSearchList.extend({
   },
 
   generateFacetedCollections() {
-    const thisPub = this.radio.reqres.request(
+    const thisDest = this.radio.reqres.request(
       'getState',
       'printSearchList',
       'queryTerms'  // eslint-disable-line comma-dangle
     ).findWhere({ type: 'destination' });
 
-    const pubs = this.options.data.printPublications;
+    const destinations = this.placementDestinations;
 
     const currentSlugConfig = (
-        _.isUndefined(thisPub)
-    ) ? pubs.at(0) : pubs.findWhere({
-      slug: thisPub.get('value').split('.dest')[0],
+        _.isUndefined(thisDest)
+    ) ? destinations.at(0) : destinations.findWhere({
+      slug: thisDest.get('value').split('.dest')[0],
     });
 
-    const allSections = _.flatten(pubs.pluck('sections'));
+    const allSections = _.flatten(destinations.pluck('sections'));
 
     const sectionViews = _.chain(currentSlugConfig.get('sections')).map((section) => {
       const sectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
@@ -291,7 +291,7 @@ export default BaseSearchList.extend({
         ignoredSlugs: _.first(sectionSlugs, _.indexOf(sectionSlugs, section.slug)),
         sectionConfig: section,
         placements: this.matchingPlacements,
-        printPublications: this.options.data.printPublications,
+        placementDestinations: this.placementDestinations,
         poller: this.poller,
       });
 
