@@ -1,12 +1,9 @@
 import 'underscore.string';
 import _ from 'underscore';
 
-// import deline from '../../../vendored/deline';
-
+import ContentPlacement from '../../models/content-placement';
 import formatDateRange from '../../../common/date-range-formatter';
-import ModalView from '../modals/modal-window';
 import PackageItemView from './package-base';
-import PrintPublishingModalView from '../list-modals/print-publishing';
 
 export default PackageItemView.extend({
   template: 'budget/package-item-print',
@@ -200,132 +197,14 @@ export default PackageItemView.extend({
 
     // Halt polling (so subsequent fetches from the server don't
     // overwrite what a user is setting).
-      // eslint-disable-next-line no-underscore-dangle
+    // eslint-disable-next-line no-underscore-dangle
     this._parent.poller.pause();
 
-    console.log('Mk1');
-    window.mk = { this: this };
+    // Construct a 'ContentPlacement' model instance with the first placement's data.
+    const placement = new ContentPlacement(this.model.placements[0]);
 
-    const printInfoModal = new PrintPublishingModalView({
-      model: this.model,
-      callbacks: {
-        // eslint-disable-next-line no-underscore-dangle
-        resumePolling: () => { this._parent.poller.resume(); },
-        success: () => { this.infoModalSuccessCallback('print'); },
-        error: () => { this.infoModalErrorCallback(); },
-        close: () => { this.radio.commands.execute('destroyModal'); },
-      },
-      extraContext: {
-        printPlacementChoices: this.printPlacementChoices,
-        printPublicationSections: this.printPublicationSections,
-        sectionPublicationMap: this.sectionPublicationMap,
-      },
-    });
-
-    const formRows = [];
-    formRows.push(
-      {
-        id: 'print_run_date_inputs',
-        extraClasses: '',
-        fields: [
-          {
-            type: 'input',
-            widthClasses: 'small-6 medium-6 large-6',
-            labelText: 'Print run date (start)',
-            inputID: 'print_run_date_start',
-            inputName: 'print_run_date_start',
-            inputType: 'text',
-          },
-          {
-            type: 'input',
-            widthClasses: 'small-6 medium-6 large-6',
-            labelText: 'Print run date (end)',
-            inputID: 'print_run_date_end',
-            inputName: 'print_run_date_end',
-            inputType: 'text',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
-
-    const printSlugName = this.radio.reqres.request('getSetting', 'printSlugName');
-    if (printSlugName !== null) {
-      formRows.push(
-        {
-          extraClasses: '',
-          fields: [
-            {
-              type: 'input',
-              widthClasses: 'small-12 medium-12 large-12',
-              labelText: printSlugName,
-              inputID: 'print_system_slug',
-              inputName: 'print_system_slug',
-              inputType: 'text',
-            },
-          ],
-        }  // eslint-disable-line comma-dangle
-      );
-    }
-
-    formRows.push(
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'input',
-            extraClasses: 'publication-group',
-            widthClasses: 'small-12 medium-12 large-12',
-            labelText: 'Publication',
-            inputID: 'print_publication',
-            inputName: 'print_publication',
-            inputType: 'text',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
-
-    formRows.push(
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'div',
-            widthClasses: 'small-12 medium-12 large-12',
-            extraClasses: 'checkbox',
-            inputID: 'print_section',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
-
-    formRows.push(
-      {
-        extraClasses: '',
-        fields: [
-          {
-            type: 'checkbox',
-            extraClasses: 'additional-checkbox-group',
-            widthClasses: 'small-12 medium-12 large-12',
-            labelText: 'Print placement finalized?',
-            inputID: 'is_placement_finalized',
-            inputName: 'is_placement_finalized',
-            inputValue: 'finalized',
-          },
-        ],
-      }  // eslint-disable-line comma-dangle
-    );
-
-    printInfoModal.extendConfig({ formConfig: { rows: formRows } });
-
-    this.modalView = new ModalView({
-      modalConfig: printInfoModal.getConfig(),
-      model: this.model,
-      renderCallback: () => {
-        this.modalView.stickit(null, printInfoModal.getBindings());
-      },
-    });
-
-    this.radio.commands.execute('showModal', this.modalView);
+    // Show this content placement in an editable modal.
+    this.showContentPlacementModal(placement);
   },
 
   onRenderCallback() {
