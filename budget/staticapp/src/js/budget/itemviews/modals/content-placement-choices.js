@@ -8,15 +8,7 @@ import deline from '../../../vendored/deline';
 import formatDateRange from '../../../common/date-range-formatter';
 
 const uiElements = {
-  destination: '#destination',
-  runDateInputs: '#run_date_inputs',
-  runDateStart: '#run_date_start',
-  runDateEnd: '#run_date_end',
-  externalSlug: '#external_slug',
-  placementTypes: '#placement_types',
-  pageNumber: '#page_number',
-  placementDetails: '#placement_details',
-  isFinalized: '#is_finalized',
+  placementRows: '.table-card table tbody tr',
 };
 
 
@@ -42,7 +34,7 @@ export default Mn.ItemView.extend({
                         'expand-past-button open-for-editing-trigger',
           innerLabel: 'Edit placement',
           clickCallback: () => {  // Args: modalContext
-            this.callbacks.openPlacementForEditing();
+            this.callbacks.openPlacementForEditing(this);
           },
         },
         {
@@ -183,6 +175,23 @@ export default Mn.ItemView.extend({
   },
 
   getFormRows() {
+  },
+
+  getSelectedID() {
+    const allRows = this.ui.placementRows;
+    const selectedRows = allRows.filter((i, el) => el.classList.contains('selected'));
+
+    if (selectedRows.length === 0) {
+      return null;
+    } else if (selectedRows.length === 1) {
+      return parseInt(selectedRows[0].id.replace('content-placement_', ''), 10);
+    }
+
+    console.warn(''.join([  // eslint-disable-line no-console
+      'Multiple placement rows were selected on choice modal.',
+      'Using the first one...',
+    ]));
+    return parseInt(selectedRows[0].id.replace('content-placement_', ''), 10);
   },
 
   getBindings() {
