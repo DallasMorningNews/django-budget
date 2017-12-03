@@ -52,7 +52,9 @@
 
         <div class="button-holder">
             {% for button in buttons %}
+            {% if not button.hidden %}
             <div id="{{ button.buttonID }}" class="material-button {{ button.buttonClass }} click-init"><span>{{ button.innerLabel }}</span></div>
+            {% endif %}
             {% endfor %}
             <div class="clearer"></div>
         </div>
