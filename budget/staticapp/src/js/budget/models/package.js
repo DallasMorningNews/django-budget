@@ -142,7 +142,6 @@ export default CSRFAwareModel.extend({
   },
 
   loadRelatedItems(data, options) {
-    console.log('LRI.');
     const itemRequestPromise = new jQuery.Deferred();
     const allAdditionalRequests = [itemRequestPromise];
     const relatedItemPromise = new jQuery.Deferred();
