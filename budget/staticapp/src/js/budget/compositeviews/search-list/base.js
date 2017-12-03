@@ -50,7 +50,7 @@ export default Mn.CompositeView.extend({
     return {
       currentUser: this.options.currentUser,
       hubConfigs: this.options.data.hubs,
-      printPublications: this.options.data.printPublications,
+      placementDestinations: this.options.data.printPublications,
     };
   },
 
@@ -551,9 +551,7 @@ export default Mn.CompositeView.extend({
     childView.model.trigger('setPrimary', childView.model, {});
   },
 
-  onDataUpdated() {
-    // console.log('ODU.');
-  },
+  onDataUpdated() {},
 
   attachBuffer(collectionView, buffer) {
     this.ui.collectionHolder.append(buffer);
