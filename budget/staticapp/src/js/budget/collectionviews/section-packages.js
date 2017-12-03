@@ -17,7 +17,7 @@ export default Mn.CollectionView.extend({
       allSections: this.options.allSections,
       currentSection: this.options.sectionConfig,
       hubConfigs: this.options.hubConfigs,
-      printPublications: this.options.printPublications,
+      placementDestinations: this.options.placementDestinations,
       placementList: matchingPlacements,
     };
   },
