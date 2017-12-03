@@ -447,7 +447,12 @@ export default Mn.CompositeView.extend({
 
     const contentPlacementForm = new ContentPlacementForm({
       model,
-      extraContext: this,
+      // extraContext: this,
+      extraContext: {
+        destinationModels: this.options.data.printPublications,
+        destinations: this.printPlacementChoices,
+        destinationPlacements: this.printPublicationSections,
+      },
       callbacks: {
         delete: () => {
           this.radio.commands.execute('destroyModal');
