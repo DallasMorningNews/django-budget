@@ -82,25 +82,25 @@ export default BaseSearchList.extend({
   },
 
   isEmpty(collection) {
-    const thisPub = this.radio.reqres.request(
+    const thisDest = this.radio.reqres.request(
       'getState',
       'printSearchList',
       'queryTerms'  // eslint-disable-line comma-dangle
     ).findWhere({ type: 'destination' });
 
-    const placementLinkedCollection = collection.linkPlacements(this.placements);
+    const placementLinkedCollection = collection.linkPlacements(this.matchingPlacements);
 
-    const pubs = this.options.data.printPublications;
+    const destinations = this.placementDestinations;
 
-    // If no publication has been set yet, choose the first one in the list.
+    // If no destination has been set yet, choose the first one in the list.
     // This will already be the one chosen once the view rendering ends.
     const currentSlugConfig = (
-      _.isUndefined(thisPub)
-    ) ? pubs.at(0) : pubs.findWhere({
-      slug: thisPub.get('value').split('.dest')[0],
+      _.isUndefined(thisDest)
+    ) ? destinations.at(0) : destinations.findWhere({
+      slug: thisDest.get('value').split('.dest')[0],
     });
 
-    const publicationSectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
+    const destinationSectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
 
     const placementsByCollection = _.flatten(placementLinkedCollection
                                                     .map(i => i.placements))
@@ -108,7 +108,7 @@ export default BaseSearchList.extend({
     const collectionIsEmpty = _.chain(placementsByCollection)
         .flatten()
         .uniq()
-        .intersection(publicationSectionSlugs)
+        .intersection(destinationSectionSlugs)
         .isEmpty()
         .value();
 
@@ -154,7 +154,9 @@ export default BaseSearchList.extend({
   generateCollectionURL() {
     // Override this method to initialize the content-placements collection
     // before it's first needed.
-    if (!_.has(this, 'placements')) this.placements = new ContentPlacementCollection();
+    if (!_.has(this, 'placements')) {
+      this.matchingPlacements = new ContentPlacementCollection();
+    }
 
     return this.radio.reqres.request('getSetting', 'apiEndpoints').package;
   },
@@ -162,7 +164,7 @@ export default BaseSearchList.extend({
   updatePackages() {
     // First, load placements based on currently-set options.
     const fetchOptions = this.generatePlacementFetchOptions();
-    this.placements.fetch(Object.assign({}, fetchOptions, {
+    this.matchingPlacements.fetch(Object.assign({}, fetchOptions, {
       success: (placementCollection) => {  // args: collection, response, options
         // Update poller config with appropriate IDs.
         this.poller.requestConfig = this.generateCollectionFetchOptions(placementCollection);
@@ -187,7 +189,7 @@ export default BaseSearchList.extend({
         withCredentials: true,
       },
       success: (collection) => {
-        collection.linkPlacements(this.placements);
+        collection.linkPlacements(this.matchingPlacements);
       },
     };
 
@@ -250,21 +252,21 @@ export default BaseSearchList.extend({
   },
 
   generateFacetedCollections() {
-    const thisPub = this.radio.reqres.request(
+    const thisDest = this.radio.reqres.request(
       'getState',
       'printSearchList',
       'queryTerms'  // eslint-disable-line comma-dangle
     ).findWhere({ type: 'destination' });
 
-    const pubs = this.options.data.printPublications;
+    const destinations = this.placementDestinations;
 
     const currentSlugConfig = (
-        _.isUndefined(thisPub)
-    ) ? pubs.at(0) : pubs.findWhere({
-      slug: thisPub.get('value').split('.dest')[0],
+        _.isUndefined(thisDest)
+    ) ? destinations.at(0) : destinations.findWhere({
+      slug: thisDest.get('value').split('.dest')[0],
     });
 
-    const allSections = _.flatten(pubs.pluck('sections'));
+    const allSections = _.flatten(destinations.pluck('sections'));
 
     const sectionViews = _.chain(currentSlugConfig.get('sections')).map((section) => {
       const sectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
@@ -288,8 +290,8 @@ export default BaseSearchList.extend({
         hubConfigs: this.options.data.hubs,
         ignoredSlugs: _.first(sectionSlugs, _.indexOf(sectionSlugs, section.slug)),
         sectionConfig: section,
-        placements: this.placements,
-        printPublications: this.options.data.printPublications,
+        placements: this.matchingPlacements,
+        placementDestinations: this.placementDestinations,
         poller: this.poller,
       });
 

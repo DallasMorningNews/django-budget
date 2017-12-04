@@ -50,7 +50,7 @@ export default Mn.CompositeView.extend({
     return {
       currentUser: this.options.currentUser,
       hubConfigs: this.options.data.hubs,
-      printPublications: this.options.data.printPublications,
+      placementDestinations: this.placementDestinations,
     };
   },
 
@@ -154,6 +154,9 @@ export default Mn.CompositeView.extend({
     if (!_.isUndefined(this.extendInitialize)) {
       this.extendInitialize();
     }
+
+    // Set up a shortcut for accessing the placement destination collection.
+    this.placementDestinations = this.options.data.printPublications;
   },
 
   bindRadioEvents() {
@@ -551,9 +554,7 @@ export default Mn.CompositeView.extend({
     childView.model.trigger('setPrimary', childView.model, {});
   },
 
-  onDataUpdated() {
-    // console.log('ODU.');
-  },
+  onDataUpdated() {},
 
   attachBuffer(collectionView, buffer) {
     this.ui.collectionHolder.append(buffer);

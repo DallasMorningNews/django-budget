@@ -30,8 +30,6 @@ export default Mn.ItemView.extend({
 
     this.extraContext = this.options.extraContext || {};
 
-    this.destinations = this.extraContext.options.data.printPublications;
-
     this.config = {
       innerID: 'content-placement-modal',
       contentClassName: 'package-modal',
@@ -84,6 +82,7 @@ export default Mn.ItemView.extend({
           clickCallback: () => {
             this.callbacks.delete();
           },
+          hidden: this.isDeleteButtonHidden(),
         },
       ],
     };
@@ -313,7 +312,7 @@ export default Mn.ItemView.extend({
       initialize: ($el) => {
         const typeOpts = {
           maxItems: 1,
-          options: this.extraContext.printPlacementChoices,
+          options: this.extraContext.destinations,
           render: {
             item: dta => deline`
                 <div data-value="${dta.value}"
@@ -331,7 +330,7 @@ export default Mn.ItemView.extend({
         // if (_.isUndefined(this.model.id)) { return ''; }
 
         if (!this.model.has('destination')) {
-          const sortedDestinations = this.destinations.sortBy('priority');
+          const sortedDestinations = this.extraContext.destinationModels.sortBy('priority');
 
           // If no destination has been specified on the bound model, choose
           // one (in a deterministic manner) and apply it.
@@ -350,7 +349,7 @@ export default Mn.ItemView.extend({
           }
         }
 
-        const match = this.destinations.findWhere({
+        const match = this.extraContext.destinationModels.findWhere({
           id: this.model.get('destination'),
         }).get('slug');
 
@@ -367,7 +366,9 @@ export default Mn.ItemView.extend({
       },
       getVal: ($el) => {
         if (!_.isEmpty($el.val())) {
-          const newID = this.destinations.findWhere({ slug: $el.val() }).id;
+          const newID = this.extraContext.destinationModels.findWhere({
+            slug: $el.val(),
+          }).id;
 
           this.model.set('destination', newID, { silent: true });
         }
@@ -390,7 +391,7 @@ export default Mn.ItemView.extend({
         const newDestination = values[0];
         const selectedValues = this.model.get('placementTypes');
 
-        const destinationPlacements = this.extraContext.printPublicationSections;
+        const destinationPlacements = this.extraContext.destinationPlacements;
 
         // Clear existing toggles.
         $el.empty();
@@ -454,6 +455,16 @@ export default Mn.ItemView.extend({
 
     bindings[uiElements.pageNumber] = {
       observe: 'pageNumber',
+      getVal: ($el) => {
+        const correctedValue = (
+          $el.val() !== ''
+        ) ? (
+          parseInt($el.val(), 10)
+        ) : (
+          null
+        );
+        return correctedValue;
+      },
     };
 
     bindings[uiElements.placementDetails] = {
@@ -477,6 +488,10 @@ export default Mn.ItemView.extend({
     };
 
     return bindings;
+  },
+
+  isDeleteButtonHidden() {
+    return Object.keys(this.callbacks).indexOf('delete') === -1;
   },
 
   runValidation() {  // Originally named validate, which is a reserved name.
@@ -506,9 +521,9 @@ export default Mn.ItemView.extend({
         (modelErrors.placementTypes === blankPlacementMessage)
       ) {
         const rawDestination = this.model.get('destination');
-        const destination = this.destinations.get(rawDestination);
+        const destination = this.extraContext.destinationModels.get(rawDestination);
         const destinationSlug = destination.get('slug');
-        const placementsByDestination = this.extraContext.printPublicationSections;
+        const placementsByDestination = this.extraContext.destinationPlacements;
 
         if (
           (

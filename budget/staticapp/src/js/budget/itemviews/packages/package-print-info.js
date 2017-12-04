@@ -1,8 +1,7 @@
 import 'underscore.string';
 import _ from 'underscore';
 
-// import deline from '../../../vendored/deline';
-
+import ContentPlacement from '../../models/content-placement';
 import formatDateRange from '../../../common/date-range-formatter';
 import PackageItemView from './package-base';
 
@@ -191,6 +190,21 @@ export default PackageItemView.extend({
     }
 
     return templateContext;
+  },
+
+  showPrintInfoModal(event) {
+    event.stopPropagation();
+
+    // Halt polling (so subsequent fetches from the server don't
+    // overwrite what a user is setting).
+    // eslint-disable-next-line no-underscore-dangle
+    this._parent.poller.pause();
+
+    // Construct a 'ContentPlacement' model instance with the first placement's data.
+    const placement = new ContentPlacement(this.model.placements[0]);
+
+    // Show this content placement in an editable modal.
+    this.showContentPlacementModal(placement);
   },
 
   onRenderCallback() {

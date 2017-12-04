@@ -20,6 +20,7 @@
     }
 
     &.placement-choice-modal {
+        overflow: hidden;
         width: 800px;
     }
 
@@ -695,6 +696,21 @@
     }
 
     #content-placement-choice-modal {
+        .alerts {
+            background: $budget-red;
+            color: #FFFFFF;
+            display: none;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            line-height: 1.5rem;
+            margin: 0 1.375rem 1.25rem;
+            padding: 0.5rem 0.875rem;
+
+            &.shown {
+                display: block;
+            }
+        }
+
         p {
             padding-left: 2.25rem;
             padding-right: 2.25rem;
@@ -757,6 +773,14 @@
                         }
                     }
                 }
+            }
+        }
+
+        .button-holder {
+            .cancel-trigger {
+                left: 16px;
+                margin: 0;
+                position: absolute;
             }
         }
     }
