@@ -8,6 +8,7 @@ import deline from '../../../vendored/deline';
 import formatDateRange from '../../../common/date-range-formatter';
 
 const uiElements = {
+  alertsHolder: '#content-placement-choice-modal .choice-outer .alerts',
   placementRows: '.table-card table tbody tr',
 };
 
@@ -34,7 +35,18 @@ export default Mn.ItemView.extend({
                         'expand-past-button open-for-editing-trigger',
           innerLabel: 'Edit placement',
           clickCallback: () => {  // Args: modalContext
-            this.callbacks.openPlacementForEditing(this);
+            const selectedID = this.getSelectedID();
+
+            if (selectedID === null) {
+              setTimeout(() => {
+                this.ui.alertsHolder
+                            .html('Please choose a placement to proceed with editing.')
+                            .show();
+              }, 750);
+            } else {
+              this.ui.alertsHolder.html('');
+              this.callbacks.openPlacementForEditing(selectedID);
+            }
           },
         },
         {
@@ -136,6 +148,11 @@ export default Mn.ItemView.extend({
   },
 
   generateInnerHTML() {
+    const chatterLines = [
+      'Choose one of the already-created placements below to edit it.',
+      'You can also make a new placement by clicking the "New placement" button.',
+    ];
+
     const existingPlacementChoiceRows = this.options.placements.map((item) => {
       const html = this.generatePlacementRow(item);
       return html;
@@ -160,8 +177,8 @@ export default Mn.ItemView.extend({
     </div>`;
 
     return deline`<div class="choice-outer">
-        <p>Choose one of the already-created placements below to edit it.</p>
-        <p>You can also make a new placement by clicking the "New placement" button.</p>
+        <div class="alerts"></div>
+        ${chatterLines.map(htmlContents => `<p>${htmlContents}</p>`).join('')}
         ${tableMarkup}
     </div>`;
   },

@@ -221,9 +221,7 @@ export default Mn.ItemView.extend({
           cancel: () => {
             this.radio.commands.execute('destroyModal');
           },
-          openPlacementForEditing: (choiceModal) => {
-            const chosenID = choiceModal.getSelectedID();
-
+          openPlacementForEditing: (chosenID) => {
             if (chosenID === null) {
               // TODO: Show "please select a placement to edit it" error.
             } else {
