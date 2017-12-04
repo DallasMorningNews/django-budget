@@ -150,7 +150,7 @@ export default Mn.ItemView.extend({
   generateInnerHTML() {
     const chatterLines = [
       'Choose one of the already-created placements below to edit it.',
-      'You can also make a new placement by clicking the "New placement" button.',
+      // 'You can also make a new placement by clicking the "New placement" button.',
     ];
 
     const existingPlacementChoiceRows = this.options.placements.map((item) => {
