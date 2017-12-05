@@ -16,7 +16,9 @@ export default Mn.ItemView.extend({
     startPlaceholder: '#start-placeholder',
     endPlaceholder: '#end-placeholder',
     datesStart: '#budget-dates-start',
+    datesStartPlaceholder: '.start-date-holder',
     datesEnd: '#budget-dates-end',
+    datesEndPlaceholder: '.end-date-holder',
     createPackageTrigger: '.create-button .material-button',
   },
 
@@ -60,13 +62,11 @@ export default Mn.ItemView.extend({
     // if (this.dateRange.start === null) {
     this.retrieveDateRange();
 
-    this.ui.datesStart.val(
-      // eslint-disable-next-line comma-dangle
-      this.dateRange.start.format('MMM D, YYYY')
-    );
-    this.ui.datesEnd.val(
-      this.dateRange.end.clone().format('MMM D, YYYY')
-    );
+    this.ui.datesStart.val(this.dateRange.start.format('MMM D, YYYY'));
+    this.ui.datesStartPlaceholder.html(this.dateRange.start.format('MMM D, YYYY'));
+
+    this.ui.datesEnd.val(this.dateRange.end.clone().format('MMM D, YYYY'));
+    this.ui.datesEndPlaceholder.html(this.dateRange.end.clone().format('MMM D, YYYY'));
     // }
 
     this.ui.rippleButton.addClass('click-init');
@@ -87,7 +87,10 @@ export default Mn.ItemView.extend({
       },
       setValue: (s, s1, s2) => {
         this.ui.datesStart.val(s1[1]);
+        this.ui.datesStartPlaceholder.html(s1[1]);
+
         this.ui.datesEnd.val(s2[1]);
+        this.ui.datesEndPlaceholder.html(s2[1]);
 
         this.radio.commands.execute(
           'switchListDates',

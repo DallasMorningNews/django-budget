@@ -27,26 +27,32 @@
             padding-bottom: 9px;
             padding-left: 0;
             padding-top: 9px;
-        }
 
-        input {
-            float: left;
-            font-size: 14px;
-            line-height: 16px;
-            padding: 6px 8px;
-            width: 45%;
-        }
+            #date-chooser {
+                span {
+                    display: none;
+                }
 
-        .to-label {
-            color: #757575;
-            display: inline-block;
-            float: left;
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 32px;
-            text-align: center;
-            text-transform: uppercase;
-            width: 10%;
+                input {
+                    float: left;
+                    font-size: 14px;
+                    line-height: 16px;
+                    padding: 6px 8px;
+                    width: 45%;
+                }
+
+                .to-label {
+                    color: #757575;
+                    display: inline-block;
+                    float: left;
+                    font-size: 14px;
+                    font-weight: 700;
+                    line-height: 32px;
+                    text-align: center;
+                    text-transform: uppercase;
+                    width: 10%;
+                }
+            }
         }
 
         .create-button {
