@@ -19,6 +19,7 @@ import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/hea
 import MainFormBindingsView from '../../itemviews/package-edit-bindings/main-form';
 import ModalView from '../../itemviews/modals/modal-window';
 import NotesGroupBindingsView from '../../itemviews/package-edit-bindings/notes-group';
+import PublishingGroupBindingsView from '../../itemviews/package-edit-bindings/publishing-group';
 import SnackbarView from '../../itemviews/snackbars/snackbar';
 import urlConfig from '../../misc/urls';
 
@@ -153,12 +154,21 @@ export default Mn.CompositeView.extend({
       extraContext: {},
     });
 
+    const publishingGroupBindings = new PublishingGroupBindingsView({
+      model: this.model,
+      parentUI: this.ui,
+      uiElements,
+
+      extraContext: {},
+    });
+
     if (showHeadlines === true) {
       return Object.assign(
         baseStructureBindings.getBindings(),
         mainFormBindings.getBindings(),
         headlineGroupBindings.getBindings(),
         notesGroupBindings.getBindings(),
+        publishingGroupBindings.getBindings(),
       );
     }
 
@@ -166,6 +176,7 @@ export default Mn.CompositeView.extend({
       baseStructureBindings.getBindings(),
       mainFormBindings.getBindings(),
       notesGroupBindings.getBindings(),
+      publishingGroupBindings.getBindings(),
     );
   },
 

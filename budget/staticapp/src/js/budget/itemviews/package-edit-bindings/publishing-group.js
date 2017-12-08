@@ -1,5 +1,5 @@
 // import _ from 'underscore';
-// import Backbone from 'backbone';
+import Backbone from 'backbone';
 // import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 
@@ -7,23 +7,23 @@ import Mn from 'backbone.marionette';
 
 export default Mn.ItemView.extend({
   initialize() {
-    // this.radio = Backbone.Wreqr.radio.channel('global');
-    //
-    // this.parentUI = this.options.parentUI || {};
-    // this.uiElements = this.options.uiElements || {};
-    //
-    // this.extraContext = this.options.extraContext || {};
+    this.radio = Backbone.Wreqr.radio.channel('global');
+
+    this.parentUI = this.options.parentUI || {};
+    this.uiElements = this.options.uiElements || {};
+
+    this.extraContext = this.options.extraContext || {};
   },
 
   getBindings() {
-    // const bindings = {};
-    //
+    const bindings = {};
+
     // const extraContext = this.extraContext;
     // const model = this.model;
-    // const uiElements = this.uiElements;
-    //
+    const uiElements = this.uiElements;
+
     // const moment = this.radio.reqres.request('getSetting', 'moment');
-    //
+
     // bindings[uiElements.publishingGroup] = {
     //   observe: 'publishGroupHeight',
     //   update($el) {
@@ -41,11 +41,11 @@ export default Mn.ItemView.extend({
     //   },
     //   getVal() {},
     // };
-    //
-    // bindings[uiElements.urlField] = {
-    //   observe: 'publishedUrl',
-    // };
-    //
+
+    bindings[uiElements.urlField] = {
+      observe: 'publishedUrl',
+    };
+
     // bindings[uiElements.printRunDatesGroup] = {
     //   observe: 'printRunDate',
     //   events: ['setPrintRunDate'],
@@ -266,7 +266,7 @@ export default Mn.ItemView.extend({
     //     },
     //   ],
     // };
-    //
-    // return bindings;
+
+    return bindings;
   },
 });
