@@ -72,6 +72,8 @@ export default BaseSearchList.extend({
   ],
 
   extendInitialize() {
+    this.isInitialPlacementFetch = true;
+
     this.on('changeParams', () => {
       if (_.isObject(this.ui.facetedCollectionHolder)) {
         this.ui.facetedCollectionHolder.empty();
@@ -150,32 +152,45 @@ export default BaseSearchList.extend({
     return terms;
   },
 
+  placementsChanged: _.debounce((thisObj) => {
+    if (thisObj.isInitialPlacementFetch === true) {
+      // eslint-disable-next-line no-param-reassign
+      thisObj.isInitialPlacementFetch = false;
+    } else {
+      thisObj.renderFacetedLists();
+      thisObj.collection.forEach(model => model.trigger('setPrimary', model, {}));
+    }
+  }, 1000),
+
   generateCollectionURL() {
     // Override this method to initialize the content-placements collection
     // before it's first needed.
     if (!_.has(this, 'placements')) {
       this.matchingPlacements = new ContentPlacementCollection();
+      this.matchingPlacements.on('add', () => { this.placementsChanged(this); });
+      this.matchingPlacements.on('remove', () => { this.placementsChanged(this); });
+      this.matchingPlacements.on('change', () => { this.placementsChanged(this); });
     }
 
     return this.radio.reqres.request('getSetting', 'apiEndpoints').package;
   },
 
   updatePackages() {
-    // First, load placements based on currently-set options.
-    const fetchOptions = this.generatePlacementFetchOptions();
-    this.matchingPlacements.fetch(Object.assign({}, fetchOptions, {
-      success: (placementCollection) => {  // args: collection, response, options
-        // Update poller config with appropriate IDs.
-        this.poller.requestConfig = this.generateCollectionFetchOptions(placementCollection);
+    this.polledData = [this.matchingPlacements];
 
-        // Retrieve collection from the server.
-        this.poller.get(this.polledData, this.poller.requestConfig);
+    const fetchOptions = this.generatePlacementFetchOptions();
+
+    this.poller.requestConfig = Object.assign({}, fetchOptions, {
+      success: (placementCollection, response, opts) => {  // args: collection, response, options
+        this.collection.fetch(this.generateCollectionFetchOptions(placementCollection));
       },
       error: () => {  // args: collection, response, options
         console.warn('ERROR: Could not load placements given the following options:');
         console.warn(fetchOptions);
       },
-    }));
+    });
+
+    this.poller.get(this.polledData, this.poller.requestConfig);
   },
 
   generateCollectionFetchOptions(placements) {
