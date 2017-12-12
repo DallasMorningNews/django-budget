@@ -74,12 +74,31 @@ export default BaseSearchList.extend({
   extendInitialize() {
     this.isInitialPlacementFetch = true;
 
-    this.on('changeParams', () => {
+    this.on('changeParams', (change) => {
       if (_.isObject(this.ui.facetedCollectionHolder)) {
-        this.ui.facetedCollectionHolder.empty();
+        if (
+          (typeof change !== 'undefined') &&
+          (typeof change.term !== 'undefined') &&
+          (typeof change.term.type !== 'undefined') &&
+          (change.term.type === 'destination')
+        ) {
+          delete this.facetedCollections;
+        }
+
         this.rerenderFacetedLists = true;
       }
     });
+
+    // Override this method to initialize the content-placements collection
+    // before it's first needed.
+    if (!_.has(this, 'placements')) {
+      this.matchingPlacements = new ContentPlacementCollection();
+      this.matchingPlacements.on('add', () => { this.placementsChanged(this); });
+      this.matchingPlacements.on('remove', () => { this.placementsChanged(this); });
+      this.matchingPlacements.on('change', () => { this.placementsChanged(this); });
+    }
+
+    this.polledData = [this.matchingPlacements];
   },
 
   isEmpty(collection) {
@@ -163,25 +182,18 @@ export default BaseSearchList.extend({
   }, 1000),
 
   generateCollectionURL() {
-    // Override this method to initialize the content-placements collection
-    // before it's first needed.
-    if (!_.has(this, 'placements')) {
-      this.matchingPlacements = new ContentPlacementCollection();
-      this.matchingPlacements.on('add', () => { this.placementsChanged(this); });
-      this.matchingPlacements.on('remove', () => { this.placementsChanged(this); });
-      this.matchingPlacements.on('change', () => { this.placementsChanged(this); });
-    }
-
     return this.radio.reqres.request('getSetting', 'apiEndpoints').package;
   },
 
   updatePackages() {
-    this.polledData = [this.matchingPlacements];
-
     const fetchOptions = this.generatePlacementFetchOptions();
 
+    if (Object.keys(fetchOptions.data).indexOf('destination') === -1) {
+      fetchOptions.data.destination = this.placementDestinations.at(0).get('slug');
+    }
+
     this.poller.requestConfig = Object.assign({}, fetchOptions, {
-      success: (placementCollection, response, opts) => {  // args: collection, response, options
+      success: (placementCollection) => {  // args: collection, response, options
         this.collection.fetch(this.generateCollectionFetchOptions(placementCollection));
       },
       error: () => {  // args: collection, response, options
@@ -298,6 +310,7 @@ export default BaseSearchList.extend({
 
               return [topPlacementType.id, item];
             })
+            .filter(i => i !== null)
             .reduce((acc, val) => {  // Group item by top type ID.
               const sortKey = val[0];
               acc[sortKey] = acc[sortKey] || [];
