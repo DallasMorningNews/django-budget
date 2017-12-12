@@ -1,16 +1,15 @@
 import jQuery from 'jquery';
 import _ from 'underscore';
 
-import deline from '../../../vendored/deline';
-
 import BaseSearchList from './base';
 import ContentPlacementCollection from '../../collections/content-placements';
 import DailyTitleView from '../../itemviews/list-components/daily-title';
 import DateFilterView from '../../itemviews/list-components/date-filter';
+import PackageCollection from '../../collections/packages';
 import PackageItemPrintView from '../../itemviews/packages/package-print-info';
+import PlacementTypeFacetedPackageView from '../faceted-results/placement-type-faceted-packages';
 import PrintPlacementToggleView from '../../itemviews/list-components/print-placement-toggle';
 import SearchBoxView from '../../itemviews/list-components/search-box';
-import SectionPackagesCollection from '../../collectionviews/section-packages';
 import urlConfig from '../../misc/urls';
 
 export default BaseSearchList.extend({
@@ -266,38 +265,95 @@ export default BaseSearchList.extend({
       slug: thisDest.get('value').split('.dest')[0],
     });
 
-    const allSections = _.flatten(destinations.pluck('sections'));
+    const currentTypes = currentSlugConfig.get('sections');
 
-    const sectionViews = _.chain(currentSlugConfig.get('sections')).map((section) => {
-      const sectionSlugs = _.pluck(currentSlugConfig.get('sections'), 'slug');
+    // Sort packages in view collection by their top-priority placement type.
+    this.itemsByPlacementType = this.collection
+            .map((item) => {  // Get top-priority placement type for each item.
+              const placementTypeArray = item.placements[0].placementTypes
+                      .map(typeSlug => currentTypes.find(pType => pType.slug === typeSlug));
 
-      const facetOuterEl = jQuery(deline`
-        <div class="facet-holder">
+              const topPlacementType = placementTypeArray
+                      .filter(pType => pType.isActive === true)
+                      .reduce((acc, val) => {
+                        const smallerValue = (acc.priority <= val.priority) ? acc : val;
 
-            <h4 class="facet-label">${section.name}</h4>
+                        return smallerValue;
+                      });
 
-        </div>`  // eslint-disable-line comma-dangle
-      ).appendTo(this.ui.facetedCollectionHolder);
+              return [topPlacementType.id, item];
+            })
+            .reduce((acc, val) => {  // Group item by top type ID.
+              const sortKey = val[0];
+              acc[sortKey] = acc[sortKey] || [];
+              acc[sortKey].push(val[1]);
+              return acc;
+            }, {});
 
-      const facetEl = jQuery(`<div class="packages ${
-        section.slug
-      }"></div>`).appendTo(facetOuterEl);
-
-      const sectionPackagesCollection = new SectionPackagesCollection({
-        allSections,
-        collection: this.collection,
-        el: facetEl,
-        hubConfigs: this.options.data.hubs,
-        ignoredSlugs: _.first(sectionSlugs, _.indexOf(sectionSlugs, section.slug)),
-        sectionConfig: section,
-        placements: this.matchingPlacements,
-        placementDestinations: this.placementDestinations,
-        poller: this.poller,
+    // Render (an Underscore) collection of faceted (Backbone) collections by
+    // placement type.
+    if (typeof this.facetedCollections === 'undefined') {
+      this.facetedCollections = currentTypes.sort((a, b) => {
+        if (a.priority === b.priority) return 0;
+        return (a.priority > b.priority) ? 1 : -1;
+      }).map(pType => ({
+        typeConfig: pType,
+        placedItems: new PackageCollection(this.itemsByPlacementType[pType.id] || []),
+      }));
+    } else {
+      this.facetedCollections.forEach((facet) => {
+        const newFacetItems = this.itemsByPlacementType[facet.typeConfig.id] || [];
+        facet.placedItems.reset(newFacetItems);
       });
+    }
 
-      return sectionPackagesCollection;
-    }).value();
+    // Mark all containers in this.ui.facetedCollectionHolder for deletion.
+    this.ui.facetedCollectionHolder.find('> .facet-holder').attr('to-delete', 'true');
 
-    return sectionViews;
+    // Iterate through all current facets, getting or creating new elements to
+    // hold each facet's view.
+    this.sectionViewHolders = this.facetedCollections
+            .map((facetConfig) => {
+              const facetID = `facet_${facetConfig.typeConfig.id}`;
+
+              const existingFacetHolder = this.ui.facetedCollectionHolder
+                                                      .find(`> #${facetID}`);
+
+              const facetEl = (
+                existingFacetHolder.length > 0
+              ) ? (
+                existingFacetHolder
+              ) : (
+                jQuery(`<div id=${
+                  facetID
+                } class="facet-holder"></div>`)
+                      .appendTo(this.ui.facetedCollectionHolder)
+              );
+
+              facetEl.removeAttr('to-delete');
+
+              return { facetID: facetConfig.typeConfig.id, facetEl };
+            })
+            .reduce((acc, item) => Object.assign(acc, {
+              [item.facetID]: item.facetEl,
+            }), {});
+
+    // Remove all facets that still have the deletion flag.
+    this.ui.facetedCollectionHolder.find('> .facet-holder[to-delete="true"]').remove();
+
+    // Generate each of the prospective facet views.
+    this.sectionViews = this.facetedCollections
+            .map(facetConfig => new PlacementTypeFacetedPackageView({
+              facetConfig,
+              el: this.sectionViewHolders[facetConfig.typeConfig.id],
+              extraContext: {
+                currentTypes,
+                hubConfigs: this.options.data.hubs,
+                placementDestinations: this.placementDestinations,
+              },
+              poller: this.poller,  // Needed for poll-pausing on package views.
+            }));
+
+    return this.sectionViews;
   },
 });
