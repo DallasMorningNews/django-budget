@@ -399,10 +399,10 @@ export default Mn.CompositeView.extend({
 
   renderFacetedLists() {
     // Create each faceted list.
-    this.facetedCollections = this.generateFacetedCollections();
+    this.facetedCollectionViews = this.generateFacetedCollections();
 
     // Render each of the faceted collections.
-    _.invoke(this.facetedCollections, 'render');
+    _.invoke(this.facetedCollectionViews, 'render');
   },
 
   updatePackages() {
