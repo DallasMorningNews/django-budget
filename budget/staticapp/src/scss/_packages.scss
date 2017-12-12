@@ -8,13 +8,7 @@
             &.enabled-facet {
                 display: block;
 
-                + .enabled-facet {
-                    .facet-label {
-                        margin-top: 30px;
-                    }
-                }
-
-                + *:not(.enabled-facet) + .enabled-facet {
+                ~ .enabled-facet {
                     .facet-label {
                         margin-top: 30px;
                     }
