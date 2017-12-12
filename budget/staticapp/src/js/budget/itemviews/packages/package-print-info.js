@@ -145,47 +145,30 @@ export default PackageItemView.extend({
       return additionalConfig;
     });
 
+
     /*                                             */
     /* Content placement information for template. */
     /*                                             */
 
     if (
-      _.has(this.options, 'placementList')
+      _.has(this.model, 'placements') &&
+      this.model.placements.length > 0
     ) {
       // Only grab the first matching print placement.
       // That'll mean the same content won't be budgetable twice in the
       // same publication, which we'll have to add validation for.
-      templateContext.contentPlacements = this.options.placementList;
+      const firstPlacement = this.model.placements[0];
 
-      const allCurrentPlacements = this.options.placementList.map(i => i.placementTypes);
-      const currentPlacementList = _.flatten(allCurrentPlacements);
+      if (typeof this.options.typeSlugsToNames !== 'undefined') {
+        templateContext.placementTypes = firstPlacement.placementTypes
+              .map(typeSlug => this.options.typeSlugsToNames[typeSlug]);
+      }
 
-      const availablePlacements = this.availableSections.map(i => i.slug);
-
-      const activePlacements = _.intersection(availablePlacements, currentPlacementList);
-
-      templateContext.placementTypes = _.chain(activePlacements)
-          .uniq()
-          .map((placementSlug) => {
-            const match = _.findWhere(this.availableSections, {
-              slug: placementSlug,
-            });
-            return {
-              name: match.name,
-              priority: match.priority,
-            };
-          })
-          .sortBy('priority')
-          .pluck('name')
-          .value();
-
-      const rawRunDate = this.options.placementList[0].runDate;
-
+      const rawRunDate = firstPlacement.runDate;
       const runDate = {
         start: this.moment(rawRunDate[0], 'YYYY-MM-DD'),
         end: this.moment(rawRunDate[1], 'YYYY-MM-DD').subtract({ days: 1 }),
       };
-
       templateContext.formattedRunDateRange = formatDateRange(runDate.start, runDate.end);
     }
 
