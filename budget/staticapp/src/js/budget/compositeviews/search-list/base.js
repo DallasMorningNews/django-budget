@@ -143,20 +143,20 @@ export default Mn.CompositeView.extend({
     // Set the appropriate data URL for this query.
     this.collection.url = this.generateCollectionURL();
 
-    // Retrieve packages based on the current query parameters.
-    this.updatePackages();
-
-    // On subsequent data updates after initial load, the 'dataUpdated'
-    // event will be triggered. Bind that to the `onDataUpdated()` fn.
-    this.on('dataUpdated', this.onDataUpdated);
+    // Set up a shortcut for accessing the placement destination collection.
+    this.placementDestinations = this.options.data.printPublications;
 
     // Run overrides to init method.
     if (!_.isUndefined(this.extendInitialize)) {
       this.extendInitialize();
     }
 
-    // Set up a shortcut for accessing the placement destination collection.
-    this.placementDestinations = this.options.data.printPublications;
+    // Retrieve packages based on the current query parameters.
+    this.updatePackages();
+
+    // On subsequent data updates after initial load, the 'dataUpdated'
+    // event will be triggered. Bind that to the `onDataUpdated()` fn.
+    this.on('dataUpdated', this.onDataUpdated);
   },
 
   bindRadioEvents() {
@@ -186,7 +186,7 @@ export default Mn.CompositeView.extend({
 
         this.updatePackages();
         this.updateQuerystring();
-        this.trigger('changeParams');
+        this.trigger('changeParams', { mode: 'add', term: queryObject });
       },
       this  // eslint-disable-line comma-dangle
     );
@@ -209,7 +209,7 @@ export default Mn.CompositeView.extend({
         if ((opts.silent === false)) {
           this.updatePackages();
           this.updateQuerystring();
-          this.trigger('changeParams');
+          this.trigger('changeParams', { mode: 'remove', term: { value: queryValue } });
         }
       },
       this  // eslint-disable-line comma-dangle
