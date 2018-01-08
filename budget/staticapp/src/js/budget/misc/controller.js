@@ -91,6 +91,9 @@ export default {
       });
     }
   },
+  findItem() {
+    console.log('Find-item triggered.');
+  },
   fourohfour() {
     console.log('404.');  // eslint-disable-line no-console
   },
