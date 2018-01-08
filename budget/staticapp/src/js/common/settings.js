@@ -27,6 +27,10 @@ const generateNavigationLinks = rootURL => [
     name: 'Add item',
     destination: `${rootURL}edit/`,
   },
+  {
+    name: 'Search all',
+    destination: `${rootURL}find/`,
+  },
 ];
 
 // Initialize 'en-us-apstyle' locale.
