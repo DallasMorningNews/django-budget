@@ -26,4 +26,9 @@ export default {
     name: 'edit',
     reversePattern: '/edit/',
   },
+  findItem: {
+    pattern: /^find\/{0,1}([\s\d\w&=\-%.]*)\/{0,1}$/,
+    name: 'findItem',
+    reversePattern: '/find/',
+  },
 };
