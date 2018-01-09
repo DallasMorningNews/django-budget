@@ -1,0 +1,85 @@
+// // STYLES ADDED BY JOHN
+//
+// @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,700');
+// @import url('https://fonts.googleapis.com/css?family=Lato:400,700');
+//
+// $sans: "Roboto Condensed", Tahoma, 'Gill Sans', 'Arial Narrow', Arial, sans-serif;
+// $body: Lato, Calibri, Verdana, Arial, sans-serif;
+//
+//
+// // Original styles
+//
+// $theme-shade-100: #CFD8DC;
+// $theme-shade-200: #B0BEC5;
+// $theme-shade-300: #90A4AE;
+// $theme-shade-400: #78909C;
+// $theme-shade-500: #607D8B;
+// $theme-shade-600: #546E7A;
+// $theme-shade-700: #455A64;
+// $theme-shade-800: #37474F;
+// $theme-shade-900: #263238;
+//
+//
+// $primary-color: #455A64 !default;
+// $secondary-color: #0097A7 !default;
+// $danger-color: #F44336;
+// $warning-color: #ff8f24;
+//
+// $primary-button-color: #546E7A !default;
+// $danger-button-color: $danger-color;
+//
+// $form-focus-color: #607D8B !default;
+// $form-error-color: #F44336 !default;
+// $form-transition-speed: 0.28s !default;
+//
+// $snackbar-background-color: #323232 !default;
+// $snackbar-foreground-color: #FFFFFF !default;
+// $snackbar-secondary-color: #B0BEC5 !default;
+// $snackbar-tablet-breakpoint: 600px;
+//
+// $standard-curve-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+//
+// $spinner-offset: 187;
+// $spinner-duration: 1.4s;
+//
+// $tab-primary-color: $primary-color;
+// $tab-secondary-color: lighten(desaturate($primary-color, 75%), 35%);
+// $tab-ripple-opacity: 0.32;
+// $tab-ripple-radius: 100%;
+// $tab-height-with-text: 48px;
+// $tab-height-with-icon-and-text: 72px;
+// $animation-deceleration-curve-timing-function: cubic-bezier(0, 0, .2, 1);
+// $animation-acceleration-curve-timing-function: cubic-bezier(.4, 0, 1, 1);
+//
+// $dropdown-arrow-padding: 24px;
+// $fancy-select-primary-color: #0185D3;
+// $fancy-select-text-choices-color: rgba(0, 0, 0, 0.54);
+// $fancy-select-text-disabled-color: #AAAAAA;
+// $fancy-select-text-hint-color: #777777;
+// $fancy-select-background-color: #BE1337;
+// $fancy-select-primary-text-color: rgba(0,0,0,0.87);
+// $simple-menu-fade-duration: 0.2s;
+// $simple-menu-item-fade-duration: 0.3s;
+
+// // Variables.
+// $primary-color: #455A64 !default;
+// $secondary-color: #0097A7 !default;
+$danger-color: #F44336;
+// $warning-color: #ff8f24;
+
+$primary-button-color: #546E7A !default;
+$danger-button-color: $danger-color;
+
+
+$standard-curve-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+
+@import 'immaterial-ui/normalize';
+
+@import 'immaterial-ui/elevation';
+@import 'immaterial-ui/typography';
+
+@import 'immaterial-ui/buttons';
+@import 'immaterial-ui/floating-action-buttons';
+
+// @import 'immaterial-ui/base';
