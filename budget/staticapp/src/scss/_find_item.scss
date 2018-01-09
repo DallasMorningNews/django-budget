@@ -1,0 +1,149 @@
+@import 'immaterial-project';
+
+
+#find-item-wrapper {
+    #search-box {
+        .search-label-field {
+            label {
+                font-size: 12px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+
+                // @include z-depth(24);
+            }
+        }
+
+        .search-text-field {
+            display: flex;
+            flex-direction: row;
+            margin: 0 0 20px;
+            position: relative;
+
+            .search-box-label {
+                //
+                bottom: 0;
+                box-sizing: border-box;
+                font-size: 24px;
+                height: 50px;
+                line-height: 50px;
+                padding: 0 20px 0 10px;
+                position: absolute;
+                text-align: center;
+                top: 0;
+                width: 60px;
+                z-index: 333;
+
+                .material-icons {
+                    color: rgba(0,0,0,0.54);
+                    font-size: 28px;
+                    line-height: 50px;
+                }
+            }
+
+            input[type="text"] {
+                background: #FFFFFF;
+                border-radius: 3px;
+                box-sizing: border-box;
+                color: rgba(0,0,0,0.54);
+                cursor: pointer;
+                flex: 1 1 0;
+                font-size: 18px;
+                height: 50px;
+                line-height: 48px;
+                margin: 0;
+                opacity: 0.72;
+                outline-style: none;
+                overflow: hidden;
+                padding: 0 16px 0 60px;
+
+                @include z-depth(2);
+                @include z-depth-transition(
+                  color .28s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity .28s cubic-bezier(0.4, 0, 0.2, 1)
+                );
+
+                &::placeholder {
+                    color: rgba(0,0,0,0.38);
+
+                    @include z-depth-transition(
+                      color .28s cubic-bezier(0.4, 0, 0.2, 1)
+                    );
+                }
+
+                &:hover {
+                    color: rgba(0,0,0,0.68);
+                    opacity: 0.85;
+
+                    &::placeholder {
+                        color: rgba(0,0,0,0.38);
+                    }
+                }
+
+                &:focus {
+                    color: rgba(0,0,0,0.87);
+                    opacity: 1;
+
+                    @include z-depth(4);
+
+                    &::placeholder {
+                        color: rgba(0,0,0,0.25);
+                    }
+                }
+            }
+
+            button[type="submit"] {
+                display: none;
+
+                @media(min-width: 768px) {
+                    @include immaterial-button((
+                      base-color: #0185D3,
+                      opacity: 0.63,
+                      accent-color: #304F61,
+                    ));
+
+                    border-radius: 25px;
+                    flex: 0 0 auto;
+                    height: 50px;
+                    margin: 0 0 0 16px;
+                    min-width: 50px;
+                    padding: 0;
+                    position: relative;
+                    width: 50px;
+
+                    @include z-depth(3);
+                    @include z-depth-transition();
+
+                    &:hover {
+                        @include z-depth(6);
+                    }
+
+                    i {
+                        color: #FFFFFF;
+                        font-size: 2rem;
+                        font-weight: bold;
+                        left: 0;
+                        line-height: 50px;
+                        position: absolute;
+                        right: 0;
+                        text-align: center;
+                        top: 0;
+                        z-index: 333;
+                    }
+                }
+            }
+        }
+
+        .search-help-blocks {
+            border-bottom: 1px solid #D9D9D9;
+            padding-bottom: 12px;
+
+            .help-block {
+                @include typography-body-2();
+                // @include typography-body-1();
+                // @include typography-caption();
+                color: rgba(0,0,0,0.54);
+                padding: 0 0 8px 4px;
+            }
+        }
+    }
+}
