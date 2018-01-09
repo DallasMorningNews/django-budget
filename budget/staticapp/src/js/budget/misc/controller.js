@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 
+import FindItemView from '../compositeviews/find-item';
 import Package from '../models/package';
 import PackageEditView from '../compositeviews/packages/edit';
 import PrintSearchList from '../compositeviews/search-list/print';
@@ -93,6 +94,7 @@ export default {
   },
   findItem() {
     console.log('Find-item triggered.');
+    radio.commands.execute('switchMainView', FindItemView, {});
   },
   fourohfour() {
     console.log('404.');  // eslint-disable-line no-console
