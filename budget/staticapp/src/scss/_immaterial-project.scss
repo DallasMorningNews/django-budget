@@ -74,6 +74,10 @@ $danger-button-color: $danger-color;
 $standard-curve-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 
 
+$spinner-offset: 187;
+$spinner-duration: 1.4s;
+
+
 @import 'immaterial-ui/normalize';
 
 @import 'immaterial-ui/elevation';
@@ -82,5 +86,6 @@ $standard-curve-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 @import 'immaterial-ui/buttons';
 @import 'immaterial-ui/floating-action-buttons';
 @import 'immaterial-ui/helpers/_animation';
+@import 'immaterial-ui/spinners';
 
 // @import 'immaterial-ui/base';

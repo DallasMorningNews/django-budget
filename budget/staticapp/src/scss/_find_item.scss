@@ -3,7 +3,7 @@
 
 #find-item-wrapper {
     #search-box {
-        border-bottom: 1px solid transparent;
+        border: 0 none;
         opacity: 1;
         padding: 90px 10px 0;
         transition: border-color .28s .28s $animation-deceleration-curve-timing-function,
@@ -15,7 +15,6 @@
         }
 
         &.filled {
-            border-bottom-color: #D9D9D9;
             display: block;
             padding-top: 30px;
         }
@@ -198,6 +197,31 @@
                 // @include typography-caption();
                 color: rgba(0,0,0,0.54);
                 padding: 0 0 8px 4px;
+            }
+        }
+    }
+
+    #search-results {
+        border-top: 1px solid #D9D9D9;
+        display: block;
+        opacity: 0;
+        transition: opacity .28s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &.loading,
+        &.has-results {
+            opacity: 1;
+            transition: opacity .7s 0.21s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .loading-label {
+            padding: 40px 0;
+            text-align: center;
+            width: 100%;
+
+            p {
+                @include typography-button-text();
+
+                margin-top: 21px;
             }
         }
     }
