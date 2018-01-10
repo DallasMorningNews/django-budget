@@ -51,6 +51,7 @@ export default Mn.CompositeView.extend({
     searchHolder: '#search-box',
     searchBoxEl: '#search-box #find-item-search-box',
     clearSearchTrigger: '#search-box .clear-trigger',
+    searchResultsHolder: '#search-results',
   },
 
   childViewOptions(model, index) {  // eslint-disable-line no-unused-vars
@@ -105,6 +106,10 @@ export default Mn.CompositeView.extend({
     } else {
       this.ui.searchHolder.addClass('filled');
       this.ui.searchBoxEl.val(this.queryTerm);
+
+      this.ui.searchResultsHolder.addClass('loading');
+
+      // TODO(ajv): Call loading logic here.
     }
 
     // Then enable button ripples.
@@ -122,6 +127,10 @@ export default Mn.CompositeView.extend({
     const newURL = `${this.urlBase}${this.ui.searchForm.serialize()}/`;
 
     this.radio.commands.execute('navigate', newURL, { trigger: false });
+
+    this.ui.searchResultsHolder.addClass('loading');
+
+    // TODO(ajv): Call loading logic here.
   },
 
   clearSearch() {
@@ -133,6 +142,15 @@ export default Mn.CompositeView.extend({
     }
 
     this.radio.commands.execute('navigate', this.urlBase, { trigger: false });
+
+    this.ui.searchResultsHolder.removeClass('loading');
+    this.ui.searchResultsHolder.removeClass('has-results');
+
+    // TODO(ajv): Collection-dumping logic should go here.
+  },
+
+  runQuery() {
+    // TODO(ajv): Actual API query logic should go here.
   },
 
   onCollectionSync() {
