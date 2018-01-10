@@ -1,9 +1,10 @@
-<div id="search-box" class="center-content row">
-    <form action="" method="get">
+<div id="search-box" class="center-content row{% if initialIsBlank %} hidden{% endif %}">
+    <form id="search-form" action="" method="get">
         <div class="search-text-field column small-12 medium-12 large-12">
             <div class="search-box-label"><i class="material-icons">search</i></div>
-            <input id="find-item-search-box" name="find-item-search-box" type="text" placeholder="Search all items" />
-            <button class="btn btn-flat btn-primary has-js" type="submit" name="submit" value="_search"><i class="material-icons">arrow_forward</i></button>
+            <input id="find-item-search-box" name="q" type="text" placeholder="Search all items" autocomplete="off" />
+            <div class="clear-trigger"><i class="material-icons">close</i></div>
+            <button class="btn btn-flat btn-primary has-js" type="submit"><i class="material-icons">arrow_forward</i></button>
         </div>
 
         <div class="search-help-blocks column small-12 medium-12 large-12">

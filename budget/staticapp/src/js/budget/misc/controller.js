@@ -4,11 +4,19 @@ import Backbone from 'backbone';
 import FindItemView from '../compositeviews/find-item';
 import Package from '../models/package';
 import PackageEditView from '../compositeviews/packages/edit';
+import parseQuerystring from '../../common/parse-querystring';
 import PrintSearchList from '../compositeviews/search-list/print';
 import SnackbarView from '../itemviews/snackbars/snackbar';
 import WebSearchList from '../compositeviews/search-list/web';
 
+
 const radio = Backbone.Wreqr.radio.channel('global');
+
+const hasProperty = (object, property) =>
+  Object.prototype.hasOwnProperty.call(object, property);
+
+const decodeTerm = rawTerm => decodeURIComponent(rawTerm).replace(/\+/g, ' ');
+
 
 export default {
   home(querystring) {
@@ -92,9 +100,26 @@ export default {
       });
     }
   },
-  findItem() {
-    console.log('Find-item triggered.');
-    radio.commands.execute('switchMainView', FindItemView, {});
+  findItem(qs) {
+    const queryDefaults = {
+      term: null,
+      recency: null,
+    };
+
+    let queryMetadata = queryDefaults;
+
+    if (!_.isUndefined(qs) && qs !== null) {
+      const parsedQuery = parseQuerystring(qs);
+      const parsedMetadata = {};
+
+      if (hasProperty(parsedQuery, 'q')) parsedMetadata.term = decodeTerm(parsedQuery.q);
+
+      if (hasProperty(parsedQuery, 'recency')) parsedMetadata.recency = parsedQuery.recency;
+
+      queryMetadata = Object.assign({}, queryDefaults, parsedMetadata);
+    }
+
+    radio.commands.execute('switchMainView', FindItemView, queryMetadata);
   },
   fourohfour() {
     console.log('404.');  // eslint-disable-line no-console

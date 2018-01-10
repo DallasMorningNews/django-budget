@@ -11,11 +11,15 @@ import Poller from '../../common/poller';
 import PackageCollection from '../collections/packages';
 // import QueryTermCollection from '../../collections/query-terms';
 // import NoPackagesView from '../../itemviews/packages/no-package';
+import urlConfig from '../misc/urls';
+
 
 export default Mn.CompositeView.extend({
   id: 'find-item-wrapper',
 
   template: 'budget/find-item',
+
+  urlBase: urlConfig.findItem.reversePattern,
 
   regions: {},
 
@@ -24,14 +28,11 @@ export default Mn.CompositeView.extend({
   filtersRendered: false,
 
   events: {
+    'click @ui.clearSearchTrigger': 'clearSearch',
+    'submit @ui.searchForm': 'handleFormSubmit',
     // 'all': 'logEvents',
-    dataUpdated: 'onDataUpdated',
+    // dataUpdated: 'onDataUpdated',
     attach: 'onAttach',
-  },
-
-  onAttach() {
-    jQuery('.btn')
-        .each((i, el) => { ripple.Ripple.attachTo(jQuery('.btn')[i]); });
   },
 
   // Initialize the collection.
@@ -46,6 +47,10 @@ export default Mn.CompositeView.extend({
   },
 
   ui: {
+    searchForm: '#search-form',
+    searchHolder: '#search-box',
+    searchBoxEl: '#search-box #find-item-search-box',
+    clearSearchTrigger: '#search-box .clear-trigger',
   },
 
   childViewOptions(model, index) {  // eslint-disable-line no-unused-vars
@@ -72,7 +77,9 @@ export default Mn.CompositeView.extend({
     });
     this.polledData = [this.collection];
 
-    console.log('AAA 2');
+    this.queryTerm = this.options.boundData.term;
+
+    console.log('AAA 6');
     window.aaa = this;
 
     if (!this.isAttached) {
@@ -80,9 +87,57 @@ export default Mn.CompositeView.extend({
     }
   },
 
+  serializeData() {
+    const context = {};
+
+    context.initialIsBlank = (this.queryTerm === null);
+
+    return context;
+  },
+
+  onAttach() {
+    // Conditionally apply styling based on whether a term is currently being searched.
+    if (this.queryTerm === null) {
+      setTimeout(() => {
+        this.ui.searchHolder.removeClass('hidden');
+        this.ui.searchBoxEl.focus();
+      }, 300);
+    } else {
+      this.ui.searchHolder.addClass('filled');
+      this.ui.searchBoxEl.val(this.queryTerm);
+    }
+
+    // Then enable button ripples.
+    jQuery('.btn')
+        .each((i) => { ripple.Ripple.attachTo(jQuery('.btn')[i]); });
+  },
+
+  handleFormSubmit(event) {
+    event.preventDefault();
+
+    if (!this.ui.searchHolder.hasClass('filled')) {
+      this.ui.searchHolder.addClass('filled');
+    }
+
+    const newURL = `${this.urlBase}${this.ui.searchForm.serialize()}/`;
+
+    this.radio.commands.execute('navigate', newURL, { trigger: false });
+  },
+
+  clearSearch() {
+    this.queryTerm = '';
+    this.ui.searchBoxEl.val('');
+
+    if (this.ui.searchHolder.hasClass('filled')) {
+      this.ui.searchHolder.removeClass('filled').show();
+    }
+
+    this.radio.commands.execute('navigate', this.urlBase, { trigger: false });
+  },
+
   onCollectionSync() {
-    console.log('OCS');
-    const wasAttached = this.isAttached;
+    // console.log('OCS');
+    // const wasAttached = this.isAttached;
 
     // if (this.rerenderFacetedLists === true) {
     //   this.renderFacetedLists();
