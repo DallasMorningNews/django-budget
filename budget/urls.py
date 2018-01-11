@@ -11,6 +11,7 @@ from rest_framework import routers
 from budget.views import ConfigView
 from budget.views import ContentPlacementViewSet
 from budget.views import ExceptionView
+from budget.views import FindPackageViewSet
 from budget.views import HeadlineViewSet
 from budget.views import HeadlineVoteViewSet
 from budget.views import ItemViewSet
@@ -24,6 +25,8 @@ app_name = 'budget'
 
 router = routers.DefaultRouter()
 router.register(r'packages', PackageViewSet)
+router.register(r'find-packages', FindPackageViewSet,
+                base_name='find-packages')
 router.register(r'items', ItemViewSet)
 router.register(r'headlines', HeadlineViewSet)
 router.register(r'print-publications', PrintPublicationViewSet)
