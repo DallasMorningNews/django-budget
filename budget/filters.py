@@ -81,13 +81,16 @@ class FindPackageViewFilter(filters.FilterSet):
         budgeted packages whose items' budget line, slug, editor or
         author values match the queried term.
         """
+
         vector = SearchVector(
             'primary_content__budget_line', weight='A'
         ) + SearchVector(
             'slug_key',
+            'primary_content__computed_contributor_names',
             'additional_content__budget_line',
             weight='B'
         ) + SearchVector(
+            'additional_content__computed_contributor_names',
             'additional_content__slug_key',
             weight='C'
         )
