@@ -19,8 +19,10 @@ from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework.response import Response
 from rest_framework import viewsets
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import urlunparse
@@ -28,6 +30,7 @@ from six.moves.urllib.parse import urlunparse
 
 # Imports from budget.
 from budget.filters import ContentPlacementFilter
+from budget.filters import FindPackageViewFilter
 from budget.filters import HeadlineViewFilter
 from budget.filters import ItemViewFilter
 from budget.filters import PackageViewFilter
@@ -209,6 +212,14 @@ class CamelCasedViewSet(object):
 ############
 # Viewsets #
 ############
+
+
+class FindPackageViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
+                         ListModelMixin, viewsets.GenericViewSet):
+    """"""
+    filter_class = FindPackageViewFilter
+    queryset = Package.objects.distinct()
+    serializer_class = PackageSerializer
 
 
 class PackageViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,

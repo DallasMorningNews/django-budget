@@ -70,6 +70,43 @@ class NumberInFilter(BaseInFilter, NumberFilter):
     pass
 
 
+class FindPackageViewFilter(filters.FilterSet):
+    q = CharFilter(method='query_filter')
+    # recency = CharFilter(method='recency_filter')
+
+    def query_filter(self, queryset, field_name, query_term):
+        """Full-text query logic.
+
+        Uses Django's Postgres full-text search integration to find
+        budgeted packages whose items' budget line, slug, editor or
+        author values match the queried term.
+        """
+        vector = SearchVector(
+            'primary_content__budget_line', weight='A'
+        ) + SearchVector(
+            'slug_key',
+            'additional_content__budget_line',
+            weight='B'
+        ) + SearchVector(
+            'additional_content__slug_key',
+            weight='C'
+        )
+
+        return queryset.annotate(
+            rank=SearchRank(vector, SearchQuery(query_term))
+        ).filter(
+            rank__gte=0.1
+        ).order_by('-rank')
+
+    class Meta:  # NOQA
+        model = Package
+        fields = []
+        # order_by = (
+        #     'publish_date',
+        #     'slug',
+        # )
+
+
 class PackageOrderingFilter(OrderingFilter):
     def filter(self, qs, ordering_list):
         ordering = ordering_list[0]
