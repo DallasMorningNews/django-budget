@@ -458,12 +458,26 @@ class Item(CreationTrailModel):
         on_delete=models.CASCADE,
     )
 
+    computed_contributor_names = models.TextField(
+        blank=True,
+        null=True,
+        help_text=' '.join([
+            'An auto-generated list of all editors and authors for this item.',
+            'Re-generated every time the item is saved.'
+        ])
+    )
+
     class Meta:  # NOQA
         ordering = ['slug_key']
 
     def __str__(self):
         """String formatting."""
-        return self.full_slug
+        if self.full_slug is not None:
+            return '{} (primary content)'.format(
+                self.primary_for_package.full_slug
+            )
+
+        return self.primary_for_package.full_slug
 
     def clean(self):
         """Ensure that either a primary or additional item is specified.
@@ -489,18 +503,32 @@ class Item(CreationTrailModel):
         if self._state.adding and self.primary_for_package:
             self.slug_key = None
 
+        # self.computed_contributor_names = self.generate_contributor_names()
+
         super(Item, self).save(*args, **kwargs)
 
     @property
     def full_slug(self):
         if self.primary_for_package:
-            # return self.primary_for_package.full_slug
             return None
 
         return '{}.{}'.format(
             self.additional_for_package.full_slug,
             self.slug_key
         )
+
+    def generate_contributor_names(self):
+        """Condense author and editor names into a searchable string."""
+        author_names = []
+        editor_names = []
+
+        if self.authors is not None:
+            author_names = [_['full_name'] for _ in self.authors]
+
+        if self.editors is not None:
+            editor_names = [_['full_name'] for _ in self.editors]
+
+        return ' '.join(author_names + editor_names)
 
     def validate_unique(self, *args, **kwargs):
         super(Item, self).validate_unique(*args, **kwargs)
