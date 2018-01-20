@@ -12,7 +12,7 @@
         <div class="slug-bar row">
             <div class="date-slug-budget-line column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
-                <h2 class="date-header">{{ verticalName }}&nbsp;/&nbsp;{{ hubName }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if placementTypes|length > 0 %}{% for placement in placementTypes %}{{ placement }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}</h2>
+                <h2 class="date-header">{{ verticalName }}&nbsp;/&nbsp;{{ hubName }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if placementTypes|length > 0 %}{% for placement in placementTypes %}{{ placement }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}{% if placementPageNumber %} (Page&nbsp;{{ placementPageNumber }}){% endif %}</h2>
                 <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.budgetLine }}</h1>
                 <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-newspaper-o"></i>{% if packageObj %}{% if not packageObj.printPlacement.isFinalized %}Planned for {% else %}Set for {% endif %}{{ formattedRunDateRange|safe }}{% endif %}</h4>
             </div>
