@@ -48,7 +48,7 @@ There are several categories of settings you can override, one by one or all tog
 | Setting | Description |
 | :-- | :-- |
 | BUDGET_API_MAX_ITEMS | **Optional.** The maximum number of results that can be returned by one query to the API. Defaults to 500. |
-| BUDGET_API_CONFIGS | **Optional.** Can be used to specify different root URLs for the Budget or Staff APIs. Read more about how to set this option below. Defaults to the reversed URLs for `budget:api-root` and `editorial_staff:api:root`, respectively. |
+| BUDGET_API_CONFIGS | **Optional.** Can be used to specify different root URLs for the Budget or Staff APIs. Read more about how to set this option below. Defaults to the reversed URLs for `budget:api-root` and `editorial_staff:api:v1:root`, respectively. |
 
 ###### Overriding `BUDGET_API_CONFIGS`
 
