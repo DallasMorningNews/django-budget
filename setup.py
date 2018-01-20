@@ -55,7 +55,7 @@ setup(
     install_requires=[
         'Django>=1.9.0,<2.0',
         'django-admin-sortable2~=0.6.16',
-        'django-editorial-staff>=0.5.2',
+        'django-editorial-staff>=0.7.0',
         'django-filter~=1.0.0',
         'djangorestframework~=3.6.0',
         'djangorestframework-camel-case~=0.2.0',
