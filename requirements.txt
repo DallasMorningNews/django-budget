@@ -9,7 +9,7 @@ chardet==3.0.4            # via requests
 django-admin-sortable2==0.6.16
 django-bootstrap3==9.0.0  # via django-editorial-staff
 django-colorfield==0.1.14  # via django-editorial-staff
-django-editorial-staff==0.7.0
+django-editorial-staff==0.7.1
 django-filter==1.0.4
 django==1.11.4
 djangorestframework-camel-case==0.2.0

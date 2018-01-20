@@ -6,7 +6,7 @@ from setuptools import setup
 
 REPO_URL = 'https://github.com/DallasMorningNews/django-budget/'
 
-PYPI_VERSION = '0.8.6'
+PYPI_VERSION = '0.8.7'
 
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
@@ -55,7 +55,7 @@ setup(
     install_requires=[
         'Django>=1.9.0,<2.0',
         'django-admin-sortable2~=0.6.16',
-        'django-editorial-staff>=0.7.0',
+        'django-editorial-staff>=0.7.1',
         'django-filter~=1.0.0',
         'djangorestframework~=3.6.0',
         'djangorestframework-camel-case~=0.2.0',
