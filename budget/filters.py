@@ -330,6 +330,30 @@ class ContentPlacementFilter(filters.FilterSet):
             ('slug', 'Slug',),
         )
     )
+    person = CharFilter(method='person_filter')
+    vertical = CharFilter(name='package__vertical', lookup_expr='iexact')
+    hub = CharFilter(name='package__hub', lookup_expr='iexact')
+
+    def person_filter(self, queryset, name, person_email):
+        return queryset.filter(
+            Q(
+                package__primary_content__editors__contains=[
+                    {'email': person_email}
+                ]
+            ) | Q(
+                package__primary_content__authors__contains=[
+                    {'email': person_email}
+                ]
+            ) | Q(
+                package__additional_content__editors__contains=[
+                    {'email': person_email}
+                ]
+            ) | Q(
+                package__additional_content__authors__contains=[
+                    {'email': person_email}
+                ]
+            )
+        )
 
     @daterange_filter_decorator(time=False)
     def placement_run_date_filter(self, queryset, lower, upper):
