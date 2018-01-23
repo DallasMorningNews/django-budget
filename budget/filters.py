@@ -269,18 +269,26 @@ class HeadlineViewFilter(filters.FilterSet):
 
 
 class PrintPublicationViewFilter(filters.FilterSet):
+    name_or_slug = CharFilter(method='name_or_slug_filter')
     publication_active = CharFilter(method='publication_active_filter')
 
     class Meta:  # NOQA
         model = PrintPublication
-        fields = []
+        fields = ['name', 'slug']
 
-    """
-    These are implemented as CharFilters because the built-in BooleanFilter
-    interprets 3 as True and 2 as False, which is crazy. So these are built
-    as custom methods that interpret 1 as True and 0 as False
-    """
+    def name_or_slug_filter(self, queryset, field_name, queried_value):
+        val = queried_value.replace(' and ', ' & ')
+        return queryset.filter(Q(name__iexact=val) | Q(slug__iexact=val))
+
     def publication_active_filter(self, queryset, field_name, on_or_off):
+        """Custom zero-and-one implementation of boolean filter.
+
+        This was implemented as a CharFilter because the built-in
+        BooleanFilter interprets 3 as 'True' and 2 as 'False', which is
+        crazy.
+
+        These custom methods instead interpret 1 as True and 0 as False.
+        """
         if on_or_off not in ('1', '0'):
             return queryset.none()
 
