@@ -85,7 +85,7 @@
 
         th,
         td {
-            padding-left: 56px;
+            padding-left: 16px;
             padding-right: 0;
             position: relative;
 
@@ -97,7 +97,7 @@
                 text-overflow: ellipsis;
                 top: 15px;
                 white-space: nowrap;
-                width: calc(100% - 56px);
+                width: calc(100% - 16px);
             }
 
             &:first-child {
@@ -110,11 +110,11 @@
             }
 
             &:last-child {
-                padding-left: 56px;
+                padding-left: 16px;
                 padding-right: 24px;
 
                 & > span {
-                    width: calc(100% - 80px);
+                    width: calc(100% - 40px);
                 }
             }
         }

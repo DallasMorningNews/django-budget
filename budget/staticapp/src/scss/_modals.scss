@@ -783,11 +783,19 @@
                     }
 
                     &.run-date {
-                        width: 180px;
+                        width: 110px;
                     }
 
-                    &.is-finalized {
-                        width: 110px;
+                    &.external-slug {
+                        width: 155px;
+                    }
+
+                    &.placement-types {
+                        width: 105px;
+                    }
+
+                    &.delete-action-holder {
+                        // width: 110px;
                     }
                 }
 

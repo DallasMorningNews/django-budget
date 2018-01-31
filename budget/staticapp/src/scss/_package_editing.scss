@@ -629,7 +629,7 @@ $radio-margin: $default-font-size / -4 !default;
                     .run-date,
                     .external-slug,
                     .placement-types,
-                    .is-finalized {
+                    .page-and-details {
                         color: rgba(0,0,0,0);
                     }
                 }
@@ -641,7 +641,7 @@ $radio-margin: $default-font-size / -4 !default;
 
             .destination {
                 position: relative;
-                width: 150px;
+                width: 135px;
 
                 .background-shim {
                     bottom: 0px;
@@ -678,21 +678,27 @@ $radio-margin: $default-font-size / -4 !default;
             }
 
             .run-date {
-                width: 180px;
+                width: 120px;
+            }
+
+            .external-slug {
+                width: 150px;
             }
 
             .placement-types {
+                width: 90px;
+
                 &.empty-val {
                     color: rgba(0,0,0,0.38);
                 }
             }
 
-            .is-finalized {
-                width: 110px;
+            .page-and-details {
+                // width: 110px;
             }
 
             .delete-action-holder {
-                width: 115px;
+                width: 75px;
             }
 
             .delete-trigger {

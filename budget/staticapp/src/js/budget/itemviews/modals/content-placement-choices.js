@@ -105,16 +105,33 @@ export default Mn.ItemView.extend({
           .map(section => section.name)
           .reduce((memo, val) => `${memo}, ${val}`)
       ),
-      isFinalized: model.get('isFinalized'),
-      isFinalizedClass: model.get('isFinalized').toString(),
-      isFinalizedIcon: (
-        model.get('isFinalized')
-      ) ? (
-        'done'
-      ) : (
-        'not_interested'
-      ),
+      // isFinalized: model.get('isFinalized'),
+      // isFinalizedClass: model.get('isFinalized').toString(),
+      // isFinalizedIcon: (
+      //   model.get('isFinalized')
+      // ) ? (
+      //   'done'
+      // ) : (
+      //   'not_interested'
+      // ),
     };
+
+    const hasPageNumber = (
+      (model.get('pageNumber') !== null) &&
+      (model.get('pageNumber') !== undefined)
+    );
+
+    const hasPlacementDetails = (
+      (model.get('placementDetails') !== null) &&
+      (model.get('placementDetails') !== undefined) &&
+      (model.get('placementDetails').length > 0)
+    );
+
+    formattedValues.pageAndDetails = `${
+      (hasPageNumber === true) ? model.get('pageNumber') : 'TK'
+    } / ${
+      (hasPlacementDetails === true) ? model.get('placementDetails') : 'TK'
+    }`;
 
     return deline`<tr id="content-placement_${model.id}" class="">
         <td class="select-trigger">
@@ -139,10 +156,8 @@ export default Mn.ItemView.extend({
         <td class="placement-types ${formattedValues.placementTypeClass}">
             <span>${formattedValues.placementTypes}</span>
         </td>
-        <td class="is-finalized boolean ${formattedValues.isFinalizedClass}">
-            <span>
-                <i class="material-icons">${formattedValues.isFinalizedIcon}</i>
-            </span>
+        <td class="page-and-details">
+            <span>${formattedValues.pageAndDetails}</span>
         </td>
     </tr>`;
   },
@@ -167,7 +182,7 @@ export default Mn.ItemView.extend({
                     <th class="run-date">Run date(s)</th>
                     <th class="external-slug">Slug</th>
                     <th class="placement-types">Type(s)</th>
-                    <th class="is-finalized">Final?</th>
+                    <th class="page-and-details">Page / Details</th>
                 </tr>
             </thead>
             <tbody>
