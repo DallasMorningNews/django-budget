@@ -508,12 +508,54 @@ $radio-margin: $default-font-size / -4 !default;
         }
     }
 
+
+    .ql-toolbar {
+        &.ql-snow {
+          border: 1px solid #222222;
+          border-top-width: 4px;
+          border-radius: 3px 3px 0 0;
+
+          .ql-picker.ql-size {
+              .ql-picker-label,
+              .ql-picker-item {
+                  // &[data-value="10px"]::before { content: '10px'; }
+                  &[data-value="12px"]::before { content: '12px'; }
+                  &[data-value="14px"]::before { content: '14px'; }
+                  &[data-value="16px"]::before { content: '16px'; }
+                  &[data-value="18px"]::before { content: '18px'; }
+                  &[data-value="24px"]::before { content: '24px'; }
+                  &[data-value="30px"]::before { content: '30px'; }
+
+                  &:not([data-value])::before { content: '14px'; }
+              }
+
+              .ql-picker-item {
+                  // &[data-value="10px"]::before { font-size: 10px !important; }
+                  &[data-value="12px"]::before { font-size: 12px !important; }
+                  &[data-value="14px"]::before { font-size: 14px !important; }
+                  &[data-value="16px"]::before { font-size: 16px !important; }
+                  &[data-value="18px"]::before { font-size: 18px !important; }
+                  &[data-value="24px"]::before { font-size: 24px !important; }
+                  &[data-value="30px"]::before { font-size: 30px !important; }
+
+                  &:not([data-value])::before { font-size: 14px !important; }
+              }
+          }
+        }
+    }
     #notes-quill {
+        border: 1px solid #222222;
+        border-radius: 0 0 3px 3px;
+        border-top-width: 0;
         margin: 0;
 
         .text-holder {
             height: 270px;
         }
+    }
+
+    .ql-container {
+        font-size: 14px;
     }
 
     .notes-reveal {
@@ -587,7 +629,7 @@ $radio-margin: $default-font-size / -4 !default;
                     .run-date,
                     .external-slug,
                     .placement-types,
-                    .is-finalized {
+                    .page-and-details {
                         color: rgba(0,0,0,0);
                     }
                 }
@@ -599,7 +641,7 @@ $radio-margin: $default-font-size / -4 !default;
 
             .destination {
                 position: relative;
-                width: 150px;
+                width: 135px;
 
                 .background-shim {
                     bottom: 0px;
@@ -636,21 +678,27 @@ $radio-margin: $default-font-size / -4 !default;
             }
 
             .run-date {
-                width: 180px;
+                width: 120px;
+            }
+
+            .external-slug {
+                width: 150px;
             }
 
             .placement-types {
+                width: 90px;
+
                 &.empty-val {
                     color: rgba(0,0,0,0.38);
                 }
             }
 
-            .is-finalized {
-                width: 110px;
+            .page-and-details {
+                // width: 110px;
             }
 
             .delete-action-holder {
-                width: 115px;
+                width: 75px;
             }
 
             .delete-trigger {

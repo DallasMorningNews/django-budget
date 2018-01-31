@@ -63,8 +63,7 @@ const uiElements = {
   headlineRadio4: '#package-form #headline-fields #headlineRadio4',
   headlineVoteSubmissionToggle: '#package-form #headline-fields #vote-submission-toggle',
   headlineVoteSubmissionToggleInput: '#package-form #vote-submission-toggle input',
-  notesField: '#package-form #notes-quill .text-holder',
-  notesToolbar: '#package-form #notes-quill .toolbar-holder',
+  notesField: '#package-form #notes-quill',
   urlField: '#package-form #url',
         /* eslint-disable indent */
         addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
@@ -682,15 +681,32 @@ export default Mn.CompositeView.extend({
           .map(section => section.name)
           .reduce((memo, val) => `${memo}, ${val}`)
       ),
-      isFinalizedClass: placementObj.get('isFinalized').toString(),
-      isFinalizedIcon: (
-        placementObj.get('isFinalized')
-      ) ? (
-        'done'
-      ) : (
-        'not_interested'
-      ),
+      // isFinalizedClass: placementObj.get('isFinalized').toString(),
+      // isFinalizedIcon: (
+      //   placementObj.get('isFinalized')
+      // ) ? (
+      //   'done'
+      // ) : (
+      //   'not_interested'
+      // ),
     };
+
+    const hasPageNumber = (
+      (placementObj.get('pageNumber') !== null) &&
+      (placementObj.get('pageNumber') !== undefined)
+    );
+
+    const hasPlacementDetails = (
+      (placementObj.get('placementDetails') !== null) &&
+      (placementObj.get('placementDetails') !== undefined) &&
+      (placementObj.get('placementDetails').length > 0)
+    );
+
+    formattedValues.pageAndDetails = `${
+      (hasPageNumber === true) ? placementObj.get('pageNumber') : 'TK'
+    } / ${
+      (hasPlacementDetails === true) ? placementObj.get('placementDetails') : 'TK'
+    }`;
 
     const placementHTML = deline`<tr id="content-placement_${placementObj.id}" class="">
         <td class="destination">
@@ -706,12 +722,8 @@ export default Mn.CompositeView.extend({
         <td class="placement-types ${formattedValues.placementTypeClass}">
             <span>${formattedValues.placementTypes}</span>
         </td>
-        <td class="is-finalized boolean ${formattedValues.isFinalizedClass}">
-            <span>
-                <i class="material-icons">${
-                    formattedValues.isFinalizedIcon
-                }</i>
-            </span>
+        <td class="page-and-details">
+            <span>${formattedValues.pageAndDetails}</span>
         </td>
         <td class="delete-trigger">
             <div class="material-button flat-button delete-action click-init"><i class="material-icons">delete</i></div>
