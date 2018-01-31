@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+coverage = '*'
+dj-database-url = '~=0.4.2'
+flake8 = '*'
+freezegun = '*'
+ipython = '*'
+mock = '*'
+moto = '==0.4.31'  # last one first-class with boto 2 support
+tblib = '*'
+
+[packages]
+Django = '~=1.11.0'
+django-admin-sortable2 = '==0.6.16'
+django-editorial-staff = '~=0.7.1'
+django-filter = '~=1.0.0'
+djangorestframework = '~=3.6.0'
+djangorestframework-camel-case = '==0.2.0'
+psycopg2 = '==2.6.1'  # Can go up to 2.7.3.
+python-dateutil = '~=2.6.1'
+pytz = '==2017.2'
+requests = '==2.18.4'
+six = '~=1.11.0'
