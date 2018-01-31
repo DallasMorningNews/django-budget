@@ -1,8 +1,8 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
+import cheerio from 'cheerio';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
-import _string_ from 'underscore.string';
 
 import deline from '../../../vendored/deline';
 import urlConfig from '../../misc/urls';
@@ -359,18 +359,38 @@ export default Mn.ItemView.extend({
 
   showNotesModal() {
     const noteText = this.model.get('notes');
-    const noteLines = _string_.lines(noteText);
+
+    const noteBody = cheerio.load(`<body>${noteText}</body>`);
+
+    const formattedBody = Array.from(noteBody('body > *')
+              .map((i, el) => {
+                if (
+                  (el.children.length === 1) &&
+                  (el.children[0].name === 'br') &&
+                  (el.children[0].type === 'tag')
+                ) { return null; }
+
+                const $el = cheerio(el);
+
+                $el.find('span[style="font-size: 8px;"]').addClass('text-8');
+                $el.find('span[style="font-size: 9px;"]').addClass('text-9');
+                $el.find('span[style="font-size: 10px;"]').addClass('text-10');
+                $el.find('span[style="font-size: 11px;"]').addClass('text-11');
+                $el.find('span[style="font-size: 13px;"]').addClass('text-13');
+                $el.find('span[style="font-size: 14px;"]').addClass('text-14');
+                $el.find('span[style="font-size: 16px;"]').addClass('text-16');
+                $el.find('span[style="font-size: 18px;"]').addClass('text-18');
+                $el.find('span[style="font-size: 24px;"]').addClass('text-24');
+                $el.find('span[style="font-size: 30px;"]').addClass('text-30');
+                $el.find('span[style="font-size: 36px;"]').addClass('text-36');
+
+                return `<p>${$el.html()}</p>`;
+              })
+              .filter(line => line !== null));
 
     let displayedHTML = '';
-    const strippedLength = _.chain(noteLines)
-                                  .map(d => _string_.stripTags(d))
-                                  .reduce((m, n) => `${m} ${n}`, '')
-                                .value()
-                                .length;
 
-    if (strippedLength > 0) {
-      const formattedLines = _.map(noteLines, d => _string_.stripTags(d));
-
+    if (formattedBody.length > 0) {
       displayedHTML = deline`
         <div class="mode-toggle">
 
@@ -382,9 +402,9 @@ export default Mn.ItemView.extend({
 
         <div class="modes">
 
-            <div class="read-only ruled">${formattedLines.join('<br />')}</div>
-
-            <div class="edit"><textarea>${formattedLines.join('<br />')}</textarea></div>
+            <div class="read-only ruled">${
+              formattedBody.reduce((m, n) => `${m} ${n}`, '')
+            }</div>
 
         </div>`;
     } else {
