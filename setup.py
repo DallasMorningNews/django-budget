@@ -4,9 +4,13 @@ from setuptools import find_packages
 from setuptools import setup
 
 
+# Imports from django-budget.
+from budget import __version__
+
+
 REPO_URL = 'https://github.com/DallasMorningNews/django-budget/'
 
-PYPI_VERSION = '0.8.11'
+PYPI_VERSION = '.'.join(str(v) for v in __version__)
 
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
