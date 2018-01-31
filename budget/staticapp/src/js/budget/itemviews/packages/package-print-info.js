@@ -164,6 +164,24 @@ export default PackageItemView.extend({
               .map(typeSlug => this.options.typeSlugsToNames[typeSlug]);
       }
 
+      if (
+        (_.has(firstPlacement, 'pageNumber')) &&
+        (firstPlacement.pageNumber !== null)
+      ) {
+        templateContext.placementPageNumber = firstPlacement.pageNumber;
+      } else {
+        templateContext.placementPageNumber = null;
+      }
+
+      if (
+        (_.has(firstPlacement, 'placementDetails')) &&
+        (firstPlacement.placementDetails !== null)
+      ) {
+        templateContext.placementDetails = firstPlacement.placementDetails;
+      } else {
+        templateContext.placementDetails = null;
+      }
+
       const rawRunDate = firstPlacement.runDate;
       const runDate = {
         start: this.moment(rawRunDate[0], 'YYYY-MM-DD'),
