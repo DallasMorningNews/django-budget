@@ -63,8 +63,7 @@ const uiElements = {
   headlineRadio4: '#package-form #headline-fields #headlineRadio4',
   headlineVoteSubmissionToggle: '#package-form #headline-fields #vote-submission-toggle',
   headlineVoteSubmissionToggleInput: '#package-form #vote-submission-toggle input',
-  notesField: '#package-form #notes-quill .text-holder',
-  notesToolbar: '#package-form #notes-quill .toolbar-holder',
+  notesField: '#package-form #notes-quill',
   urlField: '#package-form #url',
         /* eslint-disable indent */
         addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',

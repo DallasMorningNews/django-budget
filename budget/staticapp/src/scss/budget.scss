@@ -59,8 +59,9 @@
 @import "../../node_modules/timedropper-ex/src/timedropper";
 
 // Quill.js
-@import "../../node_modules/quill/dist/quill.base";
-// @import "../../node_modules/quill/dist/quill.snow";
+@import "../../node_modules/quill/dist/quill.core";
+// @import "../../node_modules/quill/dist/quill.bubble";
+@import "../../node_modules/quill/dist/quill.snow";
 
 // Selectize.js
 @import "../../node_modules/selectize/dist/css/selectize";

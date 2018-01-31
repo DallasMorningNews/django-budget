@@ -61,7 +61,7 @@
     "moment": "^2.16.0",
     "moment-timezone": "^0.5.9",
     "nunjucks": "^2.5.2",
-    "quill": "^0.20.1",
+    "quill": "^1.3.5",
     "selectize": "^0.12.4",
     "timedropper-ex": "git://github.com/allanjamesvestal/Time-Dropper-Ex.git",
     "underscore": "^1.8.3",

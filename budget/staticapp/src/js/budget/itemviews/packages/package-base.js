@@ -372,17 +372,12 @@ export default Mn.ItemView.extend({
 
                 const $el = cheerio(el);
 
-                $el.find('span[style="font-size: 8px;"]').addClass('text-8');
-                $el.find('span[style="font-size: 9px;"]').addClass('text-9');
-                $el.find('span[style="font-size: 10px;"]').addClass('text-10');
-                $el.find('span[style="font-size: 11px;"]').addClass('text-11');
-                $el.find('span[style="font-size: 13px;"]').addClass('text-13');
-                $el.find('span[style="font-size: 14px;"]').addClass('text-14');
-                $el.find('span[style="font-size: 16px;"]').addClass('text-16');
-                $el.find('span[style="font-size: 18px;"]').addClass('text-18');
-                $el.find('span[style="font-size: 24px;"]').addClass('text-24');
-                $el.find('span[style="font-size: 30px;"]').addClass('text-30');
-                $el.find('span[style="font-size: 36px;"]').addClass('text-36');
+                $el.find('[style="font-size: 10px;"]').addClass('text-10');
+                $el.find('[style="font-size: 14px;"]').addClass('text-14');
+                $el.find('[style="font-size: 16px;"]').addClass('text-16');
+                $el.find('[style="font-size: 18px;"]').addClass('text-18');
+                $el.find('[style="font-size: 24px;"]').addClass('text-24');
+                $el.find('[style="font-size: 30px;"]').addClass('text-30');
 
                 return `<p>${$el.html()}</p>`;
               })
