@@ -3,9 +3,9 @@ import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import _ from 'underscore';
 import _string_ from 'underscore.string';
-import 'daterange-picker-ex';
+// import 'daterange-picker-ex';
 import 'selectize';
-import 'timedropper-ex';
+// import 'timedropper-ex';
 
 import deline from '../../../vendored/deline';
 
@@ -275,8 +275,8 @@ export default Mn.CompositeView.extend({
 
     /* Set meridiem formatting for time picker. */
 
-    jQuery.TDExLang.en.am = 'a.m.';
-    jQuery.TDExLang.en.pm = 'p.m.';
+    // jQuery.TDExLang.en.am = 'a.m.';
+    // jQuery.TDExLang.en.pm = 'p.m.';
   },
 
   filter(child) {  // args: child, index, collection
