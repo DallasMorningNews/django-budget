@@ -105,6 +105,7 @@ class PackageViewFilter(filters.FilterSet):
     hub = CharFilter(name='hub', lookup_expr='iexact')
     vertical = CharFilter(name='vertical', lookup_expr='iexact')
     search = CharFilter(method='search_filter')
+    url_contains = CharFilter(name='published_url', lookup_expr='icontains')
     ordering = PackageOrderingFilter(
         choices=(
             ('slug', 'Slug',),
