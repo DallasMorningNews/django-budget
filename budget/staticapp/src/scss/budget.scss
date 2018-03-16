@@ -53,10 +53,14 @@
 // @import "../../vendored/longbill-daterangepicker/daterangepicker";
 
 // Air-Datepicker
-@import "../../node_modules/daterange-picker-ex/src/daterangepicker";
+// @import "../../node_modules/daterange-picker-ex/src/daterangepicker";
 
 // Time picker
-@import "../../node_modules/timedropper-ex/src/timedropper";
+// @import "../../node_modules/timedropper-ex/src/timedropper";
+// @import "../../node_modules/material-pickers-time/src/sass/_timepicker";
+// @import '../../node_modules/material-datetime-picker/lib/scss/material-datetime-picker';
+@import 'material-datepicker';
+@import 'material-timepicker';
 
 // Quill.js
 @import "../../node_modules/quill/dist/quill.core";
