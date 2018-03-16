@@ -131,27 +131,78 @@ const standardSettings = {
 
   datePickerOptions: {
     default: {
-      watchValueChange: true,
-      singleMonth: true,
-      customArrowNextSymbol: '<i class="fa fa-arrow-circle-right"></i>',
-      customArrowPrevSymbol: '<i class="fa fa-arrow-circle-left"></i>',
-      autoClose: true,
-      customTopBar: ' ',
-      format: 'YYYY-MM-DD',
+      titlebarFormat: 'ddd, MMM D',
+      i18n: {
+        previousMonth: 'Previous Month',
+        nextMonth: 'Next Month',
+        months: [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ],
+        weekdays: [
+          'Sunday',
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+        ],
+        weekdaysShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+      },
     },
-    m: {
-      batchMode: 'month',
-    },
+    m: {},
     w: {
-      batchMode: 'week',
+      titlebarFormat: '[Wk of] MMM D',
+      pickWholeWeek: true,
+      showDaysInNextAndPreviousMonths: true,
+      beforeSelect: (ui, date) => {
+        const dateIsSunday = (date.getDay() === 0) ? 'y' : 'n';
+
+        const sundayDate = date.getDate() - date.getDay();
+        const previousSunday = new Date(date.setDate(sundayDate));
+
+        const datePicker = ui.pubDateField.data('datePicker');
+
+        if (dateIsSunday !== 'y') { datePicker.setDate(previousSunday); }
+      },
     },
-    d: {
-      singleDate: true,
-    },
-    t: {
-      singleDate: true,
-    },
+    d: {},
+    t: {},
   },
+  // datePickerOptions: {
+  //   default: {
+  //     watchValueChange: true,
+  //     singleMonth: true,
+  //     customArrowNextSymbol: '<i class="fa fa-arrow-circle-right"></i>',
+  //     customArrowPrevSymbol: '<i class="fa fa-arrow-circle-left"></i>',
+  //     autoClose: true,
+  //     customTopBar: ' ',
+  //     format: 'YYYY-MM-DD',
+  //   },
+  //   m: {
+  //     batchMode: 'month',
+  //   },
+  //   w: {
+  //     batchMode: 'week',
+  //   },
+  //   d: {
+  //     singleDate: true,
+  //   },
+  //   t: {
+  //     singleDate: true,
+  //   },
+  // },
 
   dateGranularities: {
     m: {

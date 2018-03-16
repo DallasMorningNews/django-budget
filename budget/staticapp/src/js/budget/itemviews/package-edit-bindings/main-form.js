@@ -422,8 +422,11 @@ export default Mn.ItemView.extend({
               const datePicker = ui.pubDateField.data('datePicker');
               const currentDateFormat = modeConfig.format[0];
 
+              console.log('SE.');
+
               ui.pubDateField.val(datePicker.getMoment().format(currentDateFormat));
               datePicker.hide();
+              datePickerOverlay.classList.remove('shown');
               ui.pubDateField.trigger('changePublishDate');
             },
             hideEvent: () => {

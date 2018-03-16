@@ -2,8 +2,8 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
-import 'daterange-picker-ex';
-import 'timedropper-ex';
+// import 'daterange-picker-ex';
+// import 'timedropper-ex';
 
 export default Mn.ItemView.extend({
   initialize() {
