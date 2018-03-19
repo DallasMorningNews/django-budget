@@ -63,7 +63,7 @@ setup(
         'django-filter~=1.0.0',
         'djangorestframework~=3.6.0',
         'djangorestframework-camel-case~=0.2.0',
-        'psycopg2~=2.6.1',
+        'psycopg2>=2.6.1',
         'python-dateutil~=2.6.1',
         'pytz~=2017.2',
         'requests~=2.18.4',
