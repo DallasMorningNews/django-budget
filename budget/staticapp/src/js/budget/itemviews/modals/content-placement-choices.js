@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Mn from 'backbone.marionette';
-import 'daterange-picker-ex';
+// import 'daterange-picker-ex';
 
 
 import deline from '../../../vendored/deline';

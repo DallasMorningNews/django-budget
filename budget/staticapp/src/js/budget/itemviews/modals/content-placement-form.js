@@ -2,9 +2,10 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
-import 'daterange-picker-ex';
+
 
 import deline from '../../../vendored/deline';
+import UglyDateRangePicker from '../../../common/ugly-daterange-picker';
 
 
 const uiElements = {
@@ -29,6 +30,8 @@ export default Mn.ItemView.extend({
     this.callbacks = this.options.callbacks || {};
 
     this.extraContext = this.options.extraContext || {};
+
+    this.moment = this.radio.reqres.request('getSetting', 'moment');
 
     this.config = {
       innerID: 'content-placement-modal',
@@ -94,6 +97,18 @@ export default Mn.ItemView.extend({
     ) : (
       'Edit content placement'
     );
+
+    this.config.extraModalHTML = deline`
+      <div class="ugly-date-picker" data-uglydate-large-screen-width="585">
+          <div class="search-dates-start-holder">
+              <input type="date" name="start-date" placeholder="Select A Date" />
+          </div>
+
+          <div class="search-dates-end-holder">
+              <input type="date" name="end-date" placeholder="Select A Date" />
+          </div>
+      </div>
+      `;
   },
 
   extendConfig(configToAdd) {
@@ -225,34 +240,36 @@ export default Mn.ItemView.extend({
         const startDateEl = $el.find('#run_date_start');
         const endDateEl = $el.find('#run_date_end');
 
-        const datePickerHolder = jQuery('<div class="date-range-picker">');
-        $el.parent().append(datePickerHolder);
+        const defaultRange = this.radio.reqres.request('getSetting', 'defaultDateRange');
 
-        this.datePickerObj = $el.dateRangePicker({
-          format: 'MMM D, YYYY',
-          separator: ' to ',
-          watchValueChange: true,
-          container: datePickerHolder,
-          getValue: () => {
-            // const startDateEl = $el.find('#run_date_start');
-            // const endDateEl = $el.find('#run_date_end');
+        setTimeout(() => {
+          this.rangePicker = new UglyDateRangePicker({
+            selector: '.ugly-date-picker',
+            startDateSelector: '.search-dates-start-holder',
+            endDateSelector: '.search-dates-end-holder',
+            additionalClicksDisabled: ['#run_date_inputs'],
+            allowedRange: defaultRange(),
+            getValues: () => {
+              const range = mdl.get('runDate').map(i => this.moment(i, 'YYYY-MM-DD'));
+              return { start: range[0], end: range[1].clone().subtract(1, 'days') };
+            },
+            onSelect: (event) => {
+              const startMoment = this.moment(event.startDate);
+              const endMoment = this.moment(event.endDate);
 
-            if (startDateEl.val() && endDateEl.val()) {
-              return `${startDateEl.val()} to ${endDateEl.val()}`;
-            }
+              const displayFmt = 'MMM D, YYYY';
 
-            return '';
-          },
-          setValue: (s, s1, s2) => {
-            startDateEl.val(s1[1]);
-            endDateEl.val(s2[1]);
+              startDateEl.val(startMoment.format(displayFmt));
+              endDateEl.val(endMoment.format(displayFmt));
 
-            $el.trigger(opts.events[0]);
-          },
-          customArrowNextSymbol: '<i class="fa fa-arrow-circle-right"></i>',
-          customArrowPrevSymbol: '<i class="fa fa-arrow-circle-left"></i>',
-          shortcuts: this.radio.reqres.request('getSetting', 'dateRangeShortcuts'),
-        });
+              $el.trigger(opts.events[0]);
+            },
+          });
+
+          startDateEl.on('focus', () => { this.rangePicker.show(); });
+
+          endDateEl.on('focus', () => { this.rangePicker.show(); });
+        }, 20);
       },
       update: ($el, value, mdl) => {
         const startDateEl = $el.find('#run_date_start');
@@ -261,17 +278,15 @@ export default Mn.ItemView.extend({
         let startDateVal = '';
         let endDateVal = '';
 
-        const moment = this.radio.reqres.request('getSetting', 'moment');
-
         if (
           (!_.isNull(mdl.get('runDate'))) &&
           (mdl.get('runDate').every(dateStr => typeof dateStr === 'string'))
         ) {
-          startDateVal = moment(mdl.get('runDate')[0], 'YYYY-MM-DD')
+          startDateVal = this.moment(mdl.get('runDate')[0], 'YYYY-MM-DD')
               .clone()
               .format('MMM D, YYYY');
 
-          endDateVal = moment(mdl.get('runDate')[1], 'YYYY-MM-DD')
+          endDateVal = this.moment(mdl.get('runDate')[1], 'YYYY-MM-DD')
               .clone()
               .subtract(1, 'days')
               .format('MMM D, YYYY');
@@ -286,20 +301,17 @@ export default Mn.ItemView.extend({
         val.every(dateStr => typeof dateStr === 'string')
       ) && (
         val.every((dateStr) => {
-          const dateFormats = this.radio.reqres.request('getSetting', 'moment');
-          return dateFormats(dateStr, 'YYYY-MM-DD').isValid();
+          return this.moment(dateStr, 'YYYY-MM-DD').isValid();
         })
       ),
       getVal: ($el) => {
         const startDateEl = $el.find('#run_date_start');
         const endDateEl = $el.find('#run_date_end');
 
-        const moment = this.radio.reqres.request('getSetting', 'moment');
-
         return [
-          moment(startDateEl.val(), 'MMM D, YYYY')
+          this.moment(startDateEl.val(), 'MMM D, YYYY')
             .format('YYYY-MM-DD'),
-          moment(endDateEl.val(), 'MMM D, YYYY')
+          this.moment(endDateEl.val(), 'MMM D, YYYY')
             .clone()
             .add(1, 'days')
             .format('YYYY-MM-DD'),

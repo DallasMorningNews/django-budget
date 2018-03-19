@@ -418,22 +418,22 @@ export default CSRFAwareModel.extend({
       'getSetting',
       'dateGranularities'  // eslint-disable-line comma-dangle
     )[resolution];
-    let roughDate;
+    // let roughDate;
     let start = null;
     let end = null;
 
     if (newResolution === resolution) {
       if (!_.isNull(newPublishDate)) {
-        if (resolution === 't') {
-          roughDate = this.moment(newPublishDate, resolutionConfig.format.join(' '));
-        } else {
-          roughDate = this.moment.tz(
-            newPublishDate,
-            resolutionConfig.format.join(' '),
-            // eslint-disable-next-line comma-dangle
-            this.radio.reqres.request('getSetting', 'defaultTimezone')
-          );
-        }
+        const defaultTZ = this.radio.reqres.request('getSetting', 'defaultTimezone');
+        const resolutionFormat = resolutionConfig.format.join(' ');
+
+        // if (resolution === 't') {
+        //   roughDate = this.moment(newPublishDate, resolutionFormat);
+        // } else {
+        //   roughDate = this.moment.tz(newPublishDate, resolutionFormat, defaultTZ);
+        // }
+
+        const roughDate = this.moment.tz(newPublishDate, resolutionFormat, defaultTZ);
 
         end = roughDate.clone().endOf(resolutionConfig.rounding);
         start = end.clone().startOf(resolutionConfig.rounding);

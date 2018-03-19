@@ -868,6 +868,40 @@ fieldset {
         }
     }
 
+    .rich-widget-trigger {
+        background-color: transparent;
+        border-radius: 50%;
+        cursor: pointer;
+        display: none;
+        height: 24px;
+        outline: none;
+        position: absolute;
+        right: calc(0.625rem + 2px);
+        top: 4px;
+        transition: background .28s ease;
+        user-select: none;
+        width: 24px;
+
+        &:hover,
+        &:focus {
+          background-color: rgba(0,0,0,0.12);
+        }
+
+        &:active {
+          background-color: rgba(0,0,0,0.38);
+        }
+
+        i.material-icons {
+            color: rgba(0,0,0,0.54);
+            font-size: 16px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            user-select: none;
+            width: 24px;
+        }
+    }
+
     .bar {
         border-bottom: ($default-font-size / 16) solid $default-border-color;
         display: block;

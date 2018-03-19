@@ -1,0 +1,74 @@
+// colors
+
+$c-mtp-primary: #0185D3;
+$c-mtp-primary-dark: darken ($c-mtp-primary, 15%);
+$c-mtp-primary-light: lighten($c-mtp-primary, 40%);
+$c-mtp-text: #FFFFFF;
+$c-mtp-accent: #9E9E9E;
+$c-mtp-primary-text: #212121;
+$c-mtp-secondary-text: #727272;
+$c-mtp-divider: #B6B6B6;
+$c-mtp-clock-face: #EFEFEF;
+$c-mtp-wrapper-background: #FFF;
+
+
+$c-primary-dark: $c-mtp-primary-dark;
+$c-primary: $c-mtp-primary;
+$c-primary-light: $c-mtp-primary-light;
+$c-text: $c-mtp-text;
+$c-accent: $c-mtp-accent;
+$c-primary-text: $c-mtp-primary-text;
+$c-secondary-text: $c-mtp-secondary-text;
+$c-divider: $c-mtp-divider;
+$c-clock-face: $c-mtp-clock-face;
+$c-wrapper-background: $c-mtp-wrapper-background;
+
+$mpt-colors: (
+    primary-dark: $c-mtp-primary-dark,
+    primary: $c-mtp-primary,
+    primary-light: $c-mtp-primary-light,
+    text: #FFFFFF,
+    accent: #9E9E9E,
+    primary-text: #212121,
+    secondary-text: #727272,
+    divider: #B6B6B6,
+    clock-face: #EFEFEF,
+    wrapper-background: #FFF,
+    background: #FFF
+);
+
+$font-family-sans-serif: 'Roboto', sans-serif;
+
+// global
+@import '../../node_modules/ajv-material-pickers-time/src/sass/timepicker';
+// @import '../../node_modules/ajv-material-pickers-time/src/sass/global/global';
+// @import '../../node_modules/ajv-material-pickers-time/src/sass/global/mixins';
+//
+// // section specific
+// @import '../../node_modules/ajv-material-pickers-time/src/sass/sections/display';
+// @import '../../node_modules/ajv-material-pickers-time/src/sass/sections/meridiem';
+// @import '../../node_modules/ajv-material-pickers-time/src/sass/sections/clock';
+// @import '../../node_modules/ajv-material-pickers-time/src/sass/sections/actions';
+//
+// @mixin mtp-timepicker-theme($mtp-colors)
+// {
+//     @include mtp-global($mtp-colors);
+//     @include mtp-section-display($mtp-colors);
+//     @include mtp-section-meridiem($mtp-colors);
+//     @include mtp-section-clock($mtp-colors);
+//     @include mtp-section-actions($mtp-colors);
+// }
+//
+// body {
+//     background-color: #3e82a1;
+// }
+
+@include mtp-timepicker-theme($mpt-colors);
+
+.mtp-overlay {
+  z-index: 1200;
+}
+
+.mtp-wrapper {
+  margin: calc((100vh - 474px) / 2) auto;
+}

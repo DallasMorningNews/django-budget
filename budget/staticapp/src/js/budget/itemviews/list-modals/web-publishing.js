@@ -2,8 +2,11 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
-import 'daterange-picker-ex';
-import 'timedropper-ex';
+import TimePicker from 'ajv-material-pickers-time';
+
+
+import MaterialDatePicker from '../../../common/material-datepicker';
+
 
 export default Mn.ItemView.extend({
   initialize() {
@@ -122,10 +125,6 @@ export default Mn.ItemView.extend({
       'getSetting',
       'defaultTimezone'  // eslint-disable-line comma-dangle
     );
-    const timePickerOptions = this.radio.reqres.request(
-      'getSetting',
-      'timePickerOptions'  // eslint-disable-line comma-dangle
-    );
 
     const formatEndTime = (endTimestamp, resolution, formatString) => {
       let endDate;
@@ -154,27 +153,16 @@ export default Mn.ItemView.extend({
         const datePickerHolder = jQuery('<div class="date-range-picker">');
         $el.parent().append(datePickerHolder);
 
-        this.datePickerObj = $el.dateRangePicker({
-          format: 'MMM D, YYYY',
-          watchValueChange: true,
-          container: datePickerHolder,
-          singleDate: true,
-          singleMonth: true,
-          getValue: () => {
-            if ($el.val()) {
-              return $el.val();
-            }
-
-            return '';
-          },
-          setValue: (formattedValue) => {
-            $el.val(formattedValue);
-
-            $el.trigger(opts.events[0]);
-          },
-          customArrowNextSymbol: '<i class="fa fa-arrow-circle-right"></i>',
-          customArrowPrevSymbol: '<i class="fa fa-arrow-circle-left"></i>',
+        const datePicker = new MaterialDatePicker({
+          boundField: $el,
+          mode: 'd',
+          modeConfig: { format: ['MMM D, YYYY'] },
+          onChangeEvent: opts.events[0],
+          overlayParent: document.body,
         });
+
+        $el.on('focus', () => { datePicker.picker.show(); });
+        $el.on('blur', () => { datePicker.picker.hide(); });
       },
       update: ($el, value, mdl) => {
         $el.val(formatEndTime(
@@ -204,37 +192,11 @@ export default Mn.ItemView.extend({
       observe: ['publishDateResolution', 'publishDate'],
       events: ['updatePublishTime'],
       initialize($el, mdl, opts) {
-        jQuery.TDExLang.en.am = 'a.m.';
-        jQuery.TDExLang.en.pm = 'p.m.';
+        const timepicker = new TimePicker();
 
-        const timePickerHolder = jQuery('<div class="time-picker">');
-        $el.parent().append(timePickerHolder);
+        $el.on('focus', () => timepicker.openOnInput($el[0]));
 
-        $el.timeDropper(
-          _.defaults(
-            {
-              container: timePickerHolder,
-              fetchTime: () => {
-                const localizedDate = moment($el.val(), 'h:mm a');
-
-                return localizedDate
-                          .locale('en')
-                          .format('h:mm a');
-              },
-              putTime: (s) => {
-                const formattedTime = moment(s, 'h:mm a')
-                        .format('h:mm a');
-
-                if (formattedTime !== $el.val()) {
-                  $el.val(formattedTime).change();
-
-                  $el.trigger(opts.events[0]);
-                }
-              },
-            },
-            timePickerOptions  // eslint-disable-line comma-dangle
-          )  // eslint-disable-line comma-dangle
-        );
+        timepicker.events.on('timeSelected', () => { $el.trigger(opts.events[0]); });
       },
       update($el, values, mdl) {
         $el.val(formatEndTime(

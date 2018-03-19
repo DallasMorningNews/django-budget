@@ -1,0 +1,479 @@
+@charset "UTF-8";
+
+$c-mtp-primary: #0185D3;
+$c-mtp-primary-dark: darken($c-mtp-primary, 15%);
+$c-mtp-primary-light: lighten($c-mtp-primary, 40%);
+
+$mdp-colors: (
+    primary-dark: $c-mtp-primary-dark,
+    primary: $c-mtp-primary,
+    primary-light: $c-mtp-primary-light,
+    text: #FFFFFF,
+    accent: #9E9E9E,
+    primary-text: #3F3F3F,
+    secondary-text: #727272,
+    divider: #B6B6B6,
+    clock-face: #EFEFEF,
+    wrapper-background: #FFF,
+    background: #FFF
+);
+
+
+.mdp-overlay {
+  background-color: rgba(55,55,55,0.3);
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed !important;
+  right: 0;
+  top: 0;
+  z-index: 5000;
+
+  &.shown {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+
+/*!
+ * Pikaday
+ * Copyright Ã‚Â© 2014 David Bushell | BSD & MIT license | http://dbushell.com/
+ */
+.pika-single {
+  z-index: 9999;
+  display: block;
+  position: fixed !important;
+  color: #333;
+  border: 0px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  height: 400px;
+  width: 270px;
+  top: 50vh !important;
+  left: 50vw !important;
+  margin: -200px 0 0 -135px !important;
+}
+
+/*
+clear child float (pika-lendar), using the famous micro clearfix hack
+http://nicolasgallagher.com/micro-clearfix-hack/
+*/
+
+.pika-single:after {
+  clear: both;
+  content: " ";
+  display: table;
+}
+
+.pika-single {
+  *zoom: 1;
+}
+
+.pika-single.is-hidden {
+  display: none;
+}
+
+.pika-pika {
+  background-color: transparent;
+  transition: background-color .26s ease;
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0;
+  left: 0 !important;
+  right: 0;
+}
+
+.pika-lendar {
+  width: 270px;
+  box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.9);
+  background-color: #FFFFFF;
+  border-radius: 4px;
+  margin: 0;
+  padding: 0;
+  transition: all .26s ease;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    background: map-get($mdp-colors, primary) !important;
+    box-sizing: border-box;
+    color: #FFF;
+    content: attr(data-selected-date) ' ';
+    display: block;
+    font-size: 30px;
+    font-weight: 500;
+    height: 96px;
+    line-height: 40px;
+    overflow: hidden;
+    padding: 40px 20px 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &::after {
+    color: #FFFFFF;
+    content: attr(data-selected-year) ' ';
+    font-size: 16px;
+    font-weight: 500;
+    height: 24px;
+    left: 20px;
+    line-height: 24px;
+    opacity: 0.55;
+    position: absolute;
+    top: 16px;
+  }
+
+  .datepicker-actions {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px;
+
+    button {
+      background-color: transparent;
+      border: 0 none;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      height: 36px;
+      letter-spacing: calc(0.04 * 16px);
+      line-height: 24px;
+      min-width: 50px;
+      outline: 0;
+      overflow: hidden;
+      padding: 6px 10px;
+      text-align: center;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      user-select: none;
+      white-space: nowrap;
+
+      &:hover {
+        background-color: rgba(158,158,158,0.2);
+      }
+
+      &:active {
+        background-color: lighten(map-get($mdp-colors, primary), 34%);
+        outline: 0;
+      }
+    }
+  }
+}
+
+.im-here .pika-lendar {
+  margin-top: 10%;
+}
+.im-here .pika-pika {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.pika-title {
+  align-items: center;
+  display: flex;
+  height: 48px;
+  justify-content: center;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  text-align: center;
+}
+
+.pika-label {
+  background-color: transparent;
+  color: map-get($mdp-colors, primary-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 32px;
+  margin: 0;
+  pointer-events: none;
+  position: relative;
+  z-index: 9999;
+
+  & + .pika-label {
+    &::before {
+      content: '\0000a0';
+    }
+  }
+
+  &.dayname {
+    background-color: map-get($mdp-colors, primary);
+    display: block;
+    padding: 0 6px;
+  }
+  &.day {
+    display: block;
+    font-size: 50px;
+    line-height: 50px;
+    padding: 0;
+    width: 80px;
+    margin: 0 auto;
+  }
+  &.month {
+    text-transform: uppercase;
+    font-size: 20px;
+    line-height: 20px;
+    padding: 0;
+  }
+  &.year {
+    font-size: 20px;
+    line-height: 20px;
+    padding: 0;
+    color: #a6b2e7;
+  }
+}
+
+.pika-title select {
+  cursor: pointer;
+  position: absolute;
+  z-index: 9998;
+  margin: 0;
+  left: 0;
+  top: 5px;
+  filter: alpha(opacity=0);
+  opacity: 0;
+}
+
+.pika-prev,
+.pika-next {
+  background-color: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  display: block;
+  height: 36px;
+  margin: 6px;
+  outline: none;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  text-indent: 100px;
+  top: 0;
+  white-space: nowrap;
+  width: 36px;
+
+  &::before,
+  &::after {
+    bottom: 0;
+    color: rgba(0,0,0,0.54);
+    display: block;
+    font-family: 'Material Icons';
+    font-size: 24px;
+    left: 0;
+    line-height: 36px;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    text-indent: 0;
+    top: 0;
+  }
+}
+
+.pika-prev {
+  left: 0;
+
+  &::before {
+    content: 'keyboard_arrow_left';
+  }
+}
+
+.pika-next {
+  right: 0;
+
+  &::before {
+    content: 'keyboard_arrow_right';
+  }
+}
+
+.pika-prev.is-disabled,
+.pika-next.is-disabled {
+  cursor: default;
+  opacity: .2;
+}
+
+.pika-select {
+  display: inline-block;
+  *display: inline;
+}
+
+.pika-table {
+  border: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 0 10px 15px 12px;
+  width: calc(100% - 22px);
+}
+
+.pika-table th,
+.pika-table td {
+  width: 14.285714285714286%;
+  padding: 0;
+}
+
+.pika-table th {
+  color: #454545;
+  font-size: 12px;
+  line-height: 25px;
+  font-weight: normal;
+  text-align: center;
+  padding: 10px 0px;
+}
+
+.pika-button {
+  cursor: pointer;
+  display: block;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  outline: none;
+  border: 0;
+  margin: 0 2px 7px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: #444;
+  font-size: 12px;
+  line-height: 15px;
+  background-color: #FFFFFF;
+  text-align: center;
+  border-radius: 100%;
+}
+
+.pika-footer {
+  text-align: right;
+}
+
+.pika-ok {
+  border: 0;
+  background-color: transparent;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 16px;
+  padding: 6px 10px;
+  margin: 0 25px;
+  color: map-get($mdp-colors, primary);
+}
+.pika-ok:focus, .pika-ok:active {
+  outline: 0;
+}
+
+.pika-week {
+  font-size: 11px;
+  color: #444;
+}
+
+.is-today .pika-button {
+  color: map-get($mdp-colors, primary);
+  font-weight: bold;
+}
+
+.is-selected .pika-button {
+  color: #fff;
+  font-weight: bold;
+  background-color: map-get($mdp-colors, primary);
+  border-color: #fff !important;
+}
+
+.is-disabled .pika-button {
+  pointer-events: none;
+  cursor: default;
+  color: #666;
+  opacity: .3;
+}
+
+.pika-button:hover {
+  color: #fff !important;
+  background: map-get($mdp-colors, primary) !important;
+  border-color: #fff !important;
+}
+
+/* styling for abbr */
+.pika-table abbr {
+  border-bottom: none;
+  cursor: default;
+}
+
+.pika-table {
+  border: none;
+
+  thead {
+    tr {
+      th {
+        abbr {
+          border-bottom: none !important;
+          color: map-get($mdp-colors, accent);
+          cursor: inherit !important;
+          text-decoration: none !important;
+        }
+      }
+    }
+  }
+
+  .pika-row {
+    position: relative;
+
+    &.pick-whole-week {
+      &::after {
+        border-radius: 15px;
+        content: '';
+        cursor: pointer;
+        height: 30px;
+        left: 10px;
+        position: absolute;
+        width: calc(100% - 20px);
+      }
+
+      &:hover {
+        &::after {
+          background: map-get($mdp-colors, primary-light);
+        }
+      }
+
+      &.is-selected {
+        &::after {
+          background: map-get($mdp-colors, primary);
+        }
+
+        .pika-day.pika-button {
+          &:hover {
+            color: #FFFFFF !important;
+          }
+        }
+      }
+
+      td {
+        width: calc(100% / 7);
+      }
+
+      .is-outside-current-month {
+        .pika-day.pika-button {
+          color: lighten(map-get($mdp-colors, accent), 10%);
+
+          &:hover {
+            color: lighten(map-get($mdp-colors, accent), 10%) !important;
+          }
+        }
+      }
+
+      .pika-day.pika-button {
+          background: none;
+          border-radius: 0;
+          margin: 0 0 7px;
+          width: 100%;
+
+          &:hover {
+            background-color: transparent !important;
+            color: inherit !important;
+          }
+      }
+    }
+  }
+}
+.pika-table td, .pika-table tr, .pika-table th {
+  border: none;
+  position: relative;
+  z-index: 3;
+}

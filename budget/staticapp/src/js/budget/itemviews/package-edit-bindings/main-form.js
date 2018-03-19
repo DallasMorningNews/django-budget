@@ -2,8 +2,12 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
+import TimePicker from 'ajv-material-pickers-time';
+
 
 import deline from '../../../vendored/deline';
+import MaterialDatePicker from '../../../common/material-datepicker';
+
 
 export default Mn.ItemView.extend({
   initialize() {
@@ -228,8 +232,8 @@ export default Mn.ItemView.extend({
         const newMode = _.contains(['m', 'w', 'd', 't'], value) ? value : '';
 
         const control = (
-            _.has(ui.pubDateField.data(), 'DRPEx')
-        ) ? ui.pubDateField.data('DRPEx') : null;
+            _.has(ui.pubDateField.data(), 'datePicker')
+        ) ? ui.pubDateField.data('datePicker') : null;
 
         if (!_.isNull(control)) {
           try {
@@ -311,57 +315,16 @@ export default Mn.ItemView.extend({
           /*  */
           /* Construct the appropriate widget for the chosen date mode. */
           /*  */
-          const datePickerOptions = this.radio.reqres.request(
-            'getSetting',
-            'datePickerOptions'  // eslint-disable-line comma-dangle
-          );
-          const singleDateMode = (
-            _.has(datePickerOptions[value], 'singleDate')
-          ) && (
-            datePickerOptions[value].singleDate === true
-          );
+          const datePicker = new MaterialDatePicker({
+            modeConfig,
+            mode: value,
+            boundField: ui.pubDateField,
+            overlayParent: document.body,
+            onChangeEvent: 'changePublishDate',
+          });
 
-          ui.pubDateField.dateRangePicker(
-            _.defaults(
-              {
-                getValue: () => {
-                  if (ui.pubDateField.val()) {
-                    const startDate = moment(
-                      ui.pubDateField.val(),
-                      modeConfig.format[0]  // eslint-disable-line comma-dangle
-                    );
-
-                    const fmtStart = startDate.format('YYYY-MM-DD');
-
-                    if (singleDateMode === true) {
-                      return fmtStart;
-                    }
-
-                    const fmtEnd = startDate
-                                    .clone()
-                                    .endOf(modeConfig.rounding)
-                                    .format('YYYY-MM-DD');
-
-                    return `${fmtStart} to ${fmtEnd}`;
-                  }
-
-                  return '';
-                },
-                setValue: (formattedValue) => {
-                  const startDate = moment(
-                    formattedValue.split('to')[0].trim(),
-                    'YYYY-MM-DD'  // eslint-disable-line comma-dangle
-                  );
-
-                  ui.pubDateField.val(startDate.format(modeConfig.format[0]));
-
-                  ui.pubDateField.trigger('changePublishDate');
-                },
-              },
-              datePickerOptions[value],
-              datePickerOptions.default  // eslint-disable-line comma-dangle
-            )  // eslint-disable-line comma-dangle
-          );
+          ui.pubDateField.on('focus', () => { datePicker.picker.show(); });
+          ui.pubDateField.on('blur', () => { datePicker.picker.hide(); });
         }
 
         $el.attr('date-mode', newMode);
@@ -391,11 +354,15 @@ export default Mn.ItemView.extend({
             'getSetting',
             'defaultTimezone'  // eslint-disable-line comma-dangle
           );
-          $el.val(
-            moment.tz(value[0], defaultTimezone)
-              // eslint-disable-next-line comma-dangle
-              .format(dateGranularities[mode].format[0])
-          );
+          // const datePicker = $el.data('datePicker');
+
+          const currentDateFormat = dateGranularities[mode].format[0];
+
+          const fmtDate = moment.tz(value[0], defaultTimezone).format(currentDateFormat);
+
+          $el.val(fmtDate);
+
+          // datePicker.setMoment(moment(fmtDate, currentDateFormat));
         }
       },
       getVal($el) {
@@ -494,29 +461,12 @@ export default Mn.ItemView.extend({
           /*  */
           /* Construct the appropriate widget for the chosen date mode. */
           /*  */
-          ui.pubTimeField.timeDropper(
-            _.defaults(
-              {
-                fetchTime: () => {
-                  const localizedDate = moment(ui.pubTimeField.val(), 'h:mm a');
-                  return localizedDate.locale('en').format('h:mm a');
-                },
-                putTime: (s) => {
-                  const formattedTime = moment(s, 'h:mm a', 'en')
-                          .locale('en-us-apstyle').format('h:mm a');
+          const timepicker = new TimePicker();
+          ui.pubTimeField.on('focus', event => timepicker.openOnInput(event.target));
 
-                  if (formattedTime !== ui.pubTimeField.val()) {
-                    ui.pubTimeField.val(formattedTime).change();
-
-                    // $el.trigger(opts.events[0]);
-                    ui.pubTimeField.trigger('changePublishTime');
-                  }
-                },
-              },
-              // eslint-disable-next-line comma-dangle
-              this.radio.reqres.request('getSetting', 'timePickerOptions')
-            )  // eslint-disable-line comma-dangle
-          );
+          timepicker.events.on('timeSelected', () => { // args: selectedTime (dict)
+            ui.pubTimeField.trigger('changePublishTime');
+          });
         } else if (
           (ui.pubTimeField.val() !== '')
         ) {

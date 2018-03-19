@@ -1,10 +1,6 @@
-
-// @include keyframes-vex-flyin
-// @include keyframes-vex-flyout
 @include keyframes-vex-fadein
 @include keyframes-vex-fadeforward
 @include keyframes-vex-fadebackward
-// @import keyframes
 
 
 #modal-holder .package-modal {
@@ -949,6 +945,21 @@
                 }
             }
         }
+    }
+
+    & + .ugly-date-picker {
+        height: 100px;
+        left: calc(((100vw - 500px) / 2) - 24px);
+        position: absolute;
+        top: 374px;
+        z-index: 3333;
+
+        .search-dates-start-holder,
+        .search-dates-end-holder,
+        .js-uglydate-text-input {
+            display: none;
+        }
+
     }
 }
 
