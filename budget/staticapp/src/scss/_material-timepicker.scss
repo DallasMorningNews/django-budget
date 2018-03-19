@@ -64,3 +64,11 @@ $font-family-sans-serif: 'Roboto', sans-serif;
 // }
 
 @include mtp-timepicker-theme($mpt-colors);
+
+.mtp-overlay {
+  z-index: 1200;
+}
+
+.mtp-wrapper {
+  margin: calc((100vh - 474px) / 2) auto;
+}

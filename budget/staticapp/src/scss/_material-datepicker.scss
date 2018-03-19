@@ -28,7 +28,7 @@ $mdp-colors: (
   position: fixed !important;
   right: 0;
   top: 0;
-  z-index: 100;
+  z-index: 5000;
 
   &.shown {
     opacity: 1;
