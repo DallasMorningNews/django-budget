@@ -42,6 +42,10 @@
             {% if row.rowType == 'radio-buttons' %}
                 </div>
             {% endif %}
+
+            {% if row.extraHTML %}
+            {{ row.extraHTML|safe }}
+            {% endif %}
             <div class="clearer"></div>
         </div>
         {% endfor %}
