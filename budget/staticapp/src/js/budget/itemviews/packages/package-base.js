@@ -9,7 +9,7 @@ import urlConfig from '../../misc/urls';
 
 import ContentPlacementCollection from '../../collections/content-placements';
 import ContentPlacementChoicesModal from '../modals/content-placement-choices';
-import ContentPlacementForm from '../../itemviews/modals/content-placement-form';
+import ContentPlacementForm from '../modals/content-placement-form';
 import ModalView from '../modals/modal-window';
 import SnackbarView from '../snackbars/snackbar';
 import WebPublishingModalView from '../list-modals/web-publishing';
