@@ -1,0 +1,382 @@
+/* these are the styles you'd want to theme */
+.uglydate-hide {
+  position: absolute !important;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+
+.js-uglydate-calendar {
+  background: #EFEFEF;
+  border: 1px solid #BFBFBF;
+  box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+  font-size: 12px;
+  left: auto;
+  line-height: 20px;
+  padding: 8px;
+  position: absolute;
+  top: auto;
+  transform: none !important;
+  transition: none;
+  width: 500px;
+  z-index: 333;
+}
+
+.js-uglydate-calendar.uglydate-hide {
+  display: none;
+}
+
+.js-uglydate-calendar.js-uglydate-in {
+  transform: none;
+}
+
+#js-uglydate-text-input {
+  display: none;
+}
+
+.js-uglydate-nav-button {
+  display:none;
+
+  position: absolute;
+  z-index: 2;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  color: inherit;
+
+  /* skin below */
+  width: 25px;
+  height: 25px;
+  top: calc(50% - 10px);
+}
+
+.js-uglydate-nav-button {
+  font-size: 22px;
+  font-weight: 700;
+  height: 40px;
+  line-height: 40px;
+  outline: none;
+  padding: 0;
+  transition: color 0.28s ease-in;
+  user-select: none;
+  width: 40px;
+
+  &:hover {
+    &::before {
+      background: rgba(0,0,0,0.12);
+    }
+  }
+
+  &:active {
+    &::before {
+      background: rgba(0,0,0,0.25);
+    }
+  }
+
+  &::before {
+    border-radius: 50%;
+    bottom: 8px;
+    font-family: 'Material Icons';
+    font-size: 16px;
+    left: 8px;
+    line-height: 24px;
+    position: absolute;
+    right: 8px;
+    text-align: center;
+    top: 8px;
+  }
+}
+
+.js-uglydate-prev-button {
+  /* skin below */
+  left: 19px;
+  top: 8px;
+
+  &::before {
+    content: 'keyboard_arrow_left';
+  }
+}
+
+.js-uglydate-next-button {
+  /* skin below */
+  right: 19px;
+  top: 9px;
+
+  &::before {
+    content: 'keyboard_arrow_right';
+  }
+}
+
+.js-uglydate-nav-button.js-uglydate-nav-button-disabled,
+.js-uglydate-nav-button.js-uglydate-nav-button-disabled:hover {
+  /* skin below */
+  // background: gray;
+  color: rgba(0,0,0,0.12);
+
+  &::before {
+    background-color: transparent;
+  }
+}
+
+// .js-uglydate-header {
+//   display: flex;
+//   position: fixed;
+//   width: 100%;
+//
+//   font-size: 1.5rem;
+//   color: orange;
+//   padding-bottom: 30px;
+//   z-index: 2;
+// }
+
+.js-uglydate-calendar-container-element {
+
+
+  /* skin below */
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100%;
+  overflow: visible;
+  position: static;
+  top: auto;
+  width: 100%;
+  z-index: 1;
+}
+
+
+/* this hide the scrollbar, but not sure if we want that */
+.js-uglydate-calendar-container-element::-webkit-scrollbar {
+  background: transparent;
+  width: 0px;
+}
+
+.js-uglydate-calendar-container-element::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+/* end hiding scrollbar */
+
+.js-uglydate-footer {
+  position: absolute;
+  top: calc(100vh - 40px);
+  left: 0;
+  width: 100%;
+  z-index: 2;
+
+  /* skin below */
+  background: red;
+  height: 40px;
+}
+
+// .js-uglydate-done-button {
+//   cursor: pointer;
+//   position: absolute;
+//
+//   /* skin below */
+//   right: 20px;
+//   background: yellow;
+//   color: black;
+//   padding: 10px;
+// }
+
+.js-uglydate-header-day {
+  color: #9E9E9E;
+  flex: 0 0 14.285714286%; /* 100 / 7 */
+  font-size: 12px;
+  font-weight: 500;
+  justify-content: center;
+  text-align: center;
+}
+
+/* S M T Th W F block for each month. */
+.js-uglydate-month-container .js-uglydate-header {
+  display: none;
+}
+
+.js-uglydate-month-header {
+  /* skin below */
+  font-size: 12px;
+  font-weight: 700;
+  height: 40px;
+  justify-content: center;
+  line-height: 40px;
+  min-width: 24px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.js-uglydate-day-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.js-uglydate-day {
+  display: inline-block;
+  flex: 0 0 14.285714286%; /* 100 / 7 */
+  text-align: center;
+  width: 14.285714286%;
+  justify-content: center;
+  vertical-align: middle;
+  align-self: center;
+  height: 14.285714286vw;
+  border: 0;
+  background: none;
+  color: #888888;
+  /* skin below */
+  padding: 0;
+  outline: none;
+  user-select: none;
+}
+
+.js-uglydate-day-button {
+  display: flex;
+  text-align: center;
+  vertical-align: middle;
+  height: 100%;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  /* skin below */
+  outline: none;
+  user-select: none;
+}
+
+.js-uglydate-day:hover .js-uglydate-day-button {
+  /* skin below */
+  border-radius: 50%;
+  margin: 0;
+  background: rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.38);
+}
+
+.js-uglydate-is-selected-start-day .js-uglydate-day-button {
+  background-color: #4499EE;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+  color: #FFFFFF;
+}
+
+.js-uglydate-is-selected-end-day .js-uglydate-day-button {
+  background-color: #4499EE;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  color: #FFFFFF;
+}
+
+.js-uglydate-day.js-uglydate-is-today {
+  /* skin below */
+  background-color: #FFE684;
+}
+
+.js-uglydate-day.js-uglydate-prev-month-day,
+.js-uglydate-day.js-uglydate-next-month-day {
+  visibility: hidden;
+}
+
+.js-uglydate-day.js-uglydate-is-disabled-date {
+  /* skin below */
+  opacity: 0.5;
+}
+
+.js-uglydate-day.js-uglydate-is-disabled-date:hover .js-uglydate-day-button {
+  background: transparent;
+}
+
+.js-uglydate-day.js-uglydate-is-day-within-range .js-uglydate-day-button {
+  /* skin below */
+  background: #9CDBF7;
+  border-radius: 0;
+}
+
+.js-uglydate-day.js-uglydate-is-selected-day .js-uglydate-day-button,
+.js-uglydate-day.js-uglydate-is-selected-day:hover .js-uglydate-day-button {
+  /* skin below */
+  background: #4499EE;
+}
+
+.js-uglydate-day.js-uglydate-is-selected-day {
+  /* skin below */
+  background: transparent;
+}
+
+.js-uglydate-day.js-uglydate-is-selected-start-day .js-uglydate-day-button,
+.js-uglydate-day.js-uglydate-is-selected-start-day:hover .js-uglydate-day-button {
+  /* skin below */
+  border-radius: 100px 0 0 100px;
+}
+
+.js-uglydate-day.js-uglydate-is-selected-end-day .js-uglydate-day-button,
+.js-uglydate-day.js-uglydate-is-selected-end-day:hover .js-uglydate-day-button {
+  /* skin below */
+  border-radius: 0 100px 100px 0;
+}
+
+.js-uglydate-day.js-uglydate-is-selected-end-day.js-uglydate-is-selected-start-day .js-uglydate-day-button,
+.js-uglydate-day.js-uglydate-is-selected-end-day.js-uglydate-is-selected-start-day:hover .js-uglydate-day-button {
+  /* skin below */
+  border-radius: 100px;
+}
+
+@media screen and (min-width: 585px) {
+  .js-uglydate-text-input {
+    position: relative;
+  }
+
+  .js-uglydate-calendar,
+  .js-uglydate-calendar.js-uglydate-in {
+    /* skin below, this centers the date picker on desktop but i have no idea what the number means. */
+    transform: translate3d(-149px, 0, 0);
+  }
+
+  .js-uglydate-header {
+    position: static;
+  }
+
+  .js-uglydate-footer {
+    display: none;
+  }
+
+  .js-uglydate-month-container {
+    width: 50%;
+    flex: none;
+
+    /* skin below */
+    padding: 0 10px;
+  }
+
+  .js-uglydate-day-container {
+    height: 200px; /* skin this, height less the header */
+  }
+
+  .js-uglydate-day {
+    height: 30px; /* skin this, easiest to just calculate the height from above and hard code */
+  }
+
+  .js-uglydate-header {
+    display: none;
+  }
+
+  .js-uglydate-nav-button {
+    display: block;
+  }
+
+  .js-uglydate-calendar-scroll-viewport {
+    background: #FFFFFF;
+    border: 1px solid #BFBFBF;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  /* S M T Th W F block for each month. */
+  .js-uglydate-month-container .js-uglydate-header {
+    display: flex;
+
+    /* skin below */
+    padding: 0;
+    font-size: 1rem;
+  }
+}
