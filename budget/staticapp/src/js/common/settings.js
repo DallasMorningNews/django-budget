@@ -264,6 +264,11 @@ const standardSettings = {
     },
   },
 
+  defaultDateRange: () => ({
+    start: moment('2016-01-01', 'YYYY-MM-DD'),
+    end: moment().add(18, 'months').endOf('month'),
+  }),
+
   defaultTimezone: 'America/Chicago',  // Will also be overridden by Django.
 
   editDropdownOptions: {
