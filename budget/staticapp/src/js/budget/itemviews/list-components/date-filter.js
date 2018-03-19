@@ -2,9 +2,12 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
-// import 'daterange-picker-ex';
+// import 'uglydate';
+
 
 import urlConfig from '../../misc/urls';
+import UglyDateRangePicker from '../../../common/ugly-daterange-picker';
+
 
 export default Mn.ItemView.extend({
   // id: '',
@@ -13,6 +16,8 @@ export default Mn.ItemView.extend({
   ui: {
     rippleButton: '.material-button',
     dateChooser: '#date-chooser',
+    uglyStartInput: '#search-dates-start-holder input',
+    uglyEndInput: '#search-dates-end-holder input',
     startPlaceholder: '#start-placeholder',
     endPlaceholder: '#end-placeholder',
     datesStart: '#budget-dates-start',
@@ -59,7 +64,6 @@ export default Mn.ItemView.extend({
 
   onRender() {
     // Fill date range inputs with appropriate values.
-    // if (this.dateRange.start === null) {
     this.retrieveDateRange();
 
     this.ui.datesStart.val(this.dateRange.start.format('MMM D, YYYY'));
@@ -67,98 +71,42 @@ export default Mn.ItemView.extend({
 
     this.ui.datesEnd.val(this.dateRange.end.clone().format('MMM D, YYYY'));
     this.ui.datesEndPlaceholder.html(this.dateRange.end.clone().format('MMM D, YYYY'));
-    // }
 
     this.ui.rippleButton.addClass('click-init');
 
-    this.ui.dateChooser.dateRangePicker({
-      format: 'MMM D, YYYY',
-      separator: ' to ',
-      watchValueChange: true,
-      getValue: () => {
-        const startDateEl = this.ui.datesStart;
-        const endDateEl = this.ui.datesEnd;
+    setTimeout(() => {
+      const defaultRange = this.radio.reqres.request('getSetting', 'defaultDateRange');
 
-        if (startDateEl.val() && endDateEl.val()) {
-          return `${startDateEl.val()} to ${endDateEl.val()}`;
-        }
+      this.rangePicker = new UglyDateRangePicker({
+        selector: '#ugly-date-picker',
+        startDateSelector: '#search-dates-start-holder',
+        endDateSelector: '#search-dates-end-holder',
+        allowedRange: defaultRange(),
+        additionalClicksDisabled: ['#date-chooser'],
+        getValues: () => { this.retrieveDateRange(); return this.dateRange; },
+        onSelect: (event) => {
+          const startMoment = this.moment(event.startDate);
+          const endMoment = this.moment(event.endDate);
 
-        return '';
-      },
-      setValue: (s, s1, s2) => {
-        this.ui.datesStart.val(s1[1]);
-        this.ui.datesStartPlaceholder.html(s1[1]);
+          const displayFmt = 'MMM D, YYYY';
 
-        this.ui.datesEnd.val(s2[1]);
-        this.ui.datesEndPlaceholder.html(s2[1]);
+          this.ui.datesStart.val(startMoment.format(displayFmt));
+          this.ui.datesStartPlaceholder.html(startMoment.format(displayFmt));
 
-        this.radio.commands.execute(
-          'switchListDates',
-          this.options.stateKey,
-          {
-            start: this.moment(s1[1], 'MMM D, YYYY')
-                                .format('YYYY-MM-DD'),
-            end: this.moment(s2[1], 'MMM D, YYYY')
-                                // .clone().add(1, 'day')
-                                .format('YYYY-MM-DD'),
-          }  // eslint-disable-line comma-dangle
-        );
-      },
-      customArrowNextSymbol: '<i class="fa fa-arrow-circle-right"></i>',
-      customArrowPrevSymbol: '<i class="fa fa-arrow-circle-left"></i>',
-      shortcuts: {
-        custom: {
-          Yesterday: presentDay => [
-            presentDay.clone().subtract(1, 'days').toDate(),
-            presentDay.clone().subtract(1, 'days').toDate(),
-          ],
-          Today: presentDay => [
-            presentDay.toDate(),
-            presentDay.toDate(),
-          ],
-          'Next 3 days': presentDay => [
-            presentDay.toDate(),
-            presentDay.clone().add(2, 'days').toDate(),
-          ],
-          'This week': presentDay => [
-            presentDay.clone().startOf('week').toDate(),
-            presentDay.clone().endOf('week').toDate(),
-          ],
-          'Next week': presentDay => [
-            presentDay.clone().add(7, 'days').startOf('week').toDate(),
-            presentDay.clone().add(7, 'days').endOf('week').toDate(),
-          ],
-          'This month': presentDay => [
-            presentDay.clone().startOf('month').toDate(),
-            presentDay.clone().endOf('month').toDate(),
-          ],
+          this.ui.datesEnd.val(endMoment.format(displayFmt));
+          this.ui.datesEndPlaceholder.html(endMoment.format(displayFmt));
+
+          this.radio.commands.execute('switchListDates', this.options.stateKey, {
+            start: startMoment.format('YYYY-MM-DD'),
+            end: endMoment.format('YYYY-MM-DD'),
+          });
         },
-      },
-    });
+      });
 
-    // // Run the date-range selects line-by-line, since the datepicker's
-    // // 'silent' flag apparently means nothing.
-    // this.startDatepicker.silent = true;
-    // this.startDatepicker.date = this.dateRange.start;
-    // // eslint-disable-next-line no-underscore-dangle
-    // this.startDatepicker.nav._render();
-    // this.startDatepicker.selectedDates = [this.dateRange.start];
-    // // eslint-disable-next-line no-underscore-dangle
-    // this.startDatepicker._setInputValue();
-    // // eslint-disable-next-line no-underscore-dangle
-    // this.startDatepicker.views[this.startDatepicker.currentView]._render();
-    // this.startDatepicker.silent = false;
-    //
-    // this.endDatepicker.silent = true;
-    // this.endDatepicker.date = this.dateRange.end;
-    // // eslint-disable-next-line no-underscore-dangle
-    // this.endDatepicker.nav._render();
-    // this.endDatepicker.selectedDates = [this.dateRange.end];
-    // // eslint-disable-next-line no-underscore-dangle
-    // this.endDatepicker._setInputValue();
-    // // eslint-disable-next-line no-underscore-dangle
-    // this.endDatepicker.views[this.endDatepicker.currentView]._render();
-    // this.endDatepicker.silent = false;
+      this.ui.datesStart.on('focus', () => { this.rangePicker.show(); });
+
+      this.ui.datesEnd.on('focus', () => { this.rangePicker.show(); });
+    }, 20);
   },
 
   addButtonClickedClass(event) {
@@ -166,19 +114,13 @@ export default Mn.ItemView.extend({
     thisEl.addClass('active-state');
     thisEl.removeClass('click-init');
 
-    setTimeout(
-        () => {
-          thisEl.removeClass('hover').removeClass('active-state');
-        },
-        1000  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => {
+      thisEl.removeClass('hover').removeClass('active-state');
+    }, 1000);
 
-    setTimeout(
-      () => {
-        thisEl.addClass('click-init');
-      },
-      2000  // eslint-disable-line comma-dangle
-    );
+    setTimeout(() => {
+      thisEl.addClass('click-init');
+    }, 2000);
   },
 
   showPackageCreate(event) {
@@ -187,16 +129,9 @@ export default Mn.ItemView.extend({
     if (event.button === 0 && !(event.ctrlKey || event.metaKey)) {
       event.preventDefault();
 
-      setTimeout(
-        () => {
-          this.radio.commands.execute(
-            'navigate',
-            createLink,
-            { trigger: true }  // eslint-disable-line comma-dangle
-          );
-        },
-        450  // eslint-disable-line comma-dangle
-      );
+      setTimeout(() => {
+        this.radio.commands.execute('navigate', createLink, { trigger: true });
+      }, 450);
     }
   },
 });
