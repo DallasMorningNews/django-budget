@@ -3,9 +3,7 @@ import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import _ from 'underscore';
 import _string_ from 'underscore.string';
-// import 'daterange-picker-ex';
 import 'selectize';
-// import 'timedropper-ex';
 
 import deline from '../../../vendored/deline';
 
@@ -44,8 +42,10 @@ const uiElements = {
   pubDateResolution: '#package-form #pub_date_resolution',
   pubDateGroup: '#package-form .pub-date-group',
   pubDateField: '#package-form #pub_date',
+  pubDateTrigger: '#package-form .pub-date-group .datepicker-trigger',
   pubTimeGroup: '#package-form .pub-time-group',
   pubTimeField: '#package-form #pub_time',
+  pubTimeTrigger: '#package-form .pub-time-group .timepicker-trigger',
 
   authorsDropdown: '#package-form #authors',
   editorsDropdown: '#package-form #editors',
