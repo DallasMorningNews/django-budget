@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
+import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
 import vex from 'vex-scss';
 
@@ -99,6 +100,10 @@ export default Mn.LayoutView.extend({
       }
 
       this.modal = vex.open(vexConfig);
+
+      if (!_.isUndefined(viewConfig.extraModalHTML)) {
+        jQuery(this.modal.rootEl).append(viewConfig.extraModalHTML);
+      }
     }, this);
 
     this.radio.commands.setHandler('showSnackbar', (snackbarView) => {
