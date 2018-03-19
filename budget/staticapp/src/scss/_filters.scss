@@ -29,6 +29,23 @@
             padding-top: 9px;
 
             #date-chooser {
+                position: relative;
+
+                #search-dates-start-holder,
+                #search-dates-end-holder,
+                #js-uglydate-text-input {
+                  display: none;
+                }
+
+                .js-uglydate-calendar {
+                    top: 32px;
+                    z-index: 33;
+
+                    span {
+                        display: flex;
+                    }
+                }
+
                 span {
                     display: none;
                 }
