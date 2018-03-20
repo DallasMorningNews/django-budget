@@ -60,6 +60,7 @@
   line-height: 40px;
   outline: none;
   padding: 0;
+  top: 9px;
   transition: color 0.28s ease-in;
   user-select: none;
   width: 40px;
@@ -93,7 +94,6 @@
 .js-uglydate-prev-button {
   /* skin below */
   left: 19px;
-  top: 8px;
 
   &::before {
     content: 'keyboard_arrow_left';
@@ -103,7 +103,6 @@
 .js-uglydate-next-button {
   /* skin below */
   right: 19px;
-  top: 9px;
 
   &::before {
     content: 'keyboard_arrow_right';
@@ -198,13 +197,18 @@
 .js-uglydate-month-header {
   /* skin below */
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 900;
   height: 40px;
   justify-content: center;
+  letter-spacing: calc(0.04 * 16px);
   line-height: 40px;
   min-width: 24px;
   text-align: center;
   text-transform: uppercase;
+
+  &::after {
+    content: ' ' attr(data-year);
+  }
 }
 
 .js-uglydate-day-container {

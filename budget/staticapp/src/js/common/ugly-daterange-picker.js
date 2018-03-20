@@ -69,12 +69,42 @@ export default class {
     this.uglyPicker.addEventListener('change', this.events.handleChange);
 
     this.uglyPicker.addEventListener('close', this.events.handleClose);
+
+    this.appendMonthHeaderYears();
   }
 
   destroy() {
     this.uglyPicker.removeEventListener('open', this.events.handleOpen);
     this.uglyPicker.removeEventListener('change', this.events.handleChange);
     this.uglyPicker.removeEventListener('close', this.events.handleClose);
+  }
+
+  appendMonthHeaderYears() {
+    const calendarEl = this.uglyPicker.dateSelectors[0].calendar.element;
+    const monthHeaders = calendarEl.querySelectorAll('.js-uglydate-month-container');
+
+    Array.from(monthHeaders).forEach((monthEl) => {
+      const excludedClasses = {
+        dayInPreviousMonth: 'js-uglydate-prev-month-day',
+        dayInNextMonth: 'js-uglydate-next-month-day',
+      };
+
+      const activeDaySelector = `.js-uglydate-day:not(.${
+        excludedClasses.dayInPreviousMonth
+      }):not(.${
+        excludedClasses.dayInNextMonth
+      })`;
+
+      const firstActiveDay = monthEl.querySelector(activeDaySelector);
+
+      if (firstActiveDay !== null) {
+        const firstDayFull = firstActiveDay.getAttribute('aria-label');
+        const firstDayYear = firstDayFull.split(',')[1].trim();
+        const monthHeaderEl = monthEl.querySelector('.js-uglydate-month-header');
+
+        monthHeaderEl.setAttribute('data-year', firstDayYear);
+      }
+    });
   }
 
   clearExistingDayHighlights() {
