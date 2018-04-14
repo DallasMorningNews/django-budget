@@ -2,16 +2,35 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
 import Mn from 'backbone.marionette';
-import TimePicker from 'ajv-material-pickers-time';
+import MDDateTimePicker from 'md-date-time-picker';
 
 
 import deline from '../../../vendored/deline';
 import MaterialDatePicker from '../../../common/material-datepicker';
 
 
+const findNextTabStop = (el) => {
+  const universe = document.querySelectorAll('input, button, select, textarea, a[href]');
+  const list = Array.prototype.filter.call(universe, item => item.tabIndex >= '0');
+  const index = list.indexOf(el);
+  return list[index + 1] || list[0];
+};
+
+const findPreviousTabStop = (el) => {
+  const universe = document.querySelectorAll('input, button, select, textarea, a[href]');
+  const list = Array.prototype.filter.call(universe, item => item.tabIndex >= '0');
+  const index = list.indexOf(el);
+  return (index > 0)
+    ? list[index - 1]
+    : list[list.length - 1];
+};
+
+
 export default Mn.ItemView.extend({
   initialize() {
     this.radio = Backbone.Wreqr.radio.channel('global');
+    this.moment = this.radio.reqres.request('getSetting', 'moment');
+    this.defaultTimezone = this.radio.reqres.request('getSetting', 'defaultTimezone');
 
     this.ui = this.options.parentUI || {};
     this.uiElements = this.options.uiElements || {};
@@ -267,15 +286,13 @@ export default Mn.ItemView.extend({
           // Treat day-and-time mode as day mode for rounding purposes.
           if (oldMode === 't') { oldMode = 'd'; }
 
-          const moment = this.radio.reqres.request('getSetting', 'moment');
-
           let addCurrentDate = false;
           if ((currentValue !== '') && (oldMode !== '')) {
             const oldModeConfig = this.radio.reqres.request(
                 'getSetting',
                 'dateGranularities'  // eslint-disable-line comma-dangle
             )[oldMode];
-            const initialDate = moment(currentValue, oldModeConfig.format[0]);
+            const initialDate = this.moment(currentValue, oldModeConfig.format[0]);
 
             if (initialDate.isValid()) {
               const roundedDate = (
@@ -304,7 +321,7 @@ export default Mn.ItemView.extend({
           }
 
           if (addCurrentDate === true) {
-            const newStartFormatted = moment()
+            const newStartFormatted = this.moment()
                         .startOf(modeConfig.rounding)
                         .format(modeConfig.format[0]);
 
@@ -345,24 +362,21 @@ export default Mn.ItemView.extend({
         const mode = mdl.get('publishDateResolution');
 
         if (_.contains(['m', 'w', 'd', 't'], mode)) {
-          const moment = this.radio.reqres.request('getSetting', 'moment');
           const dateGranularities = this.radio.reqres.request(
             'getSetting',
             'dateGranularities'  // eslint-disable-line comma-dangle
-          );
-          const defaultTimezone = this.radio.reqres.request(
-            'getSetting',
-            'defaultTimezone'  // eslint-disable-line comma-dangle
           );
           // const datePicker = $el.data('datePicker');
 
           const currentDateFormat = dateGranularities[mode].format[0];
 
-          const fmtDate = moment.tz(value[0], defaultTimezone).format(currentDateFormat);
+          const fmtDate = this.moment
+            .tz(value[0], this.defaultTimezone)
+            .format(currentDateFormat);
 
           $el.val(fmtDate);
 
-          // datePicker.setMoment(moment(fmtDate, currentDateFormat));
+          // datePicker.setMoment(this.moment(fmtDate, currentDateFormat));
         }
       },
       getVal($el) {
@@ -399,20 +413,20 @@ export default Mn.ItemView.extend({
 
         const currentValue = ui.pubTimeField.val();
 
-        const control = (
-          _.has(ui.pubTimeField.data(), 'TDEx')
-        ) ? ui.pubTimeField.data('TDEx') : null;
-
-        if (!_.isNull(control)) {
-          try {
-            control.destroy();
-          } catch (e) {
-            if (e.message !== 'Already destroyed') {
-              // eslint-disable-next-line no-console
-              console.error(e.message);
-            }
-          }
-        }
+        // const control = (
+        //   _.has(ui.pubTimeField.data(), 'TDEx')
+        // ) ? ui.pubTimeField.data('TDEx') : null;
+        //
+        // if (!_.isNull(control)) {
+        //   try {
+        //     control.destroy();
+        //   } catch (e) {
+        //     if (e.message !== 'Already destroyed') {
+        //       // eslint-disable-next-line no-console
+        //       console.error(e.message);
+        //     }
+        //   }
+        // }
 
         if (newMode === 't') {
           // Show time picker.
@@ -422,15 +436,13 @@ export default Mn.ItemView.extend({
           );
           const modeConfig = dateGranularities[value];
 
-          const moment = this.radio.reqres.request('getSetting', 'moment');
-
           /*  */
           /* Check to see if there's a present, valid time value. */
           /*  */
 
           let addDefaultTime = false;
           if ((currentValue !== '')) {
-            const initialTime = moment(currentValue, modeConfig.format[1]);
+            const initialTime = this.moment(currentValue, modeConfig.format[1]);
 
             if (initialTime.isValid()) {
               // Now that we have our starting time, get the
@@ -450,23 +462,18 @@ export default Mn.ItemView.extend({
           }
 
           if (addDefaultTime === true) {
-            const newStartFormatted = moment('12:00:00', 'HH:mm:ss')
+            const newStart = this.moment('12:00:00', 'HH:mm:ss');
+            const newStartFormatted = newStart
                     .startOf(modeConfig.rounding)
                     .format(modeConfig.format[1]);
 
             ui.pubTimeField.val(newStartFormatted);
             ui.pubTimeField.trigger('changePublishTime');
+
+            if (typeof this.timePicker !== 'undefined') {
+              this.timePicker.time = newStart;
+            }
           }
-
-          /*  */
-          /* Construct the appropriate widget for the chosen date mode. */
-          /*  */
-          const timepicker = new TimePicker();
-          ui.pubTimeField.on('focus', event => timepicker.openOnInput(event.target));
-
-          timepicker.events.on('timeSelected', () => { // args: selectedTime (dict)
-            ui.pubTimeField.trigger('changePublishTime');
-          });
         } else if (
           (ui.pubTimeField.val() !== '')
         ) {
@@ -489,25 +496,149 @@ export default Mn.ItemView.extend({
     bindings[uiElements.pubTimeField] = {
       observe: 'publishDate',
       events: ['changePublishTime'],
-      update($el, value, mdl) {
-        const mode = mdl.get('publishDateResolution');
-
-        const moment = this.radio.reqres.request('getSetting', 'moment');
+      initialize($el, mdl) {
         const dateGranularities = this.radio.reqres.request(
           'getSetting',
           'dateGranularities'  // eslint-disable-line comma-dangle
         );
-        const defaultTimezone = this.radio.reqres.request(
+
+        const timeFormat = dateGranularities.t.format[1];
+
+        this.timePicker = new MDDateTimePicker({
+          type: 'time',
+          trigger: $el[0],
+          init: this.moment($el.val(), timeFormat),
+          // mode: true,
+          // inner24: true,
+        });
+
+        $el.on('keydown', (event) => {
+          const keyCode = event.keyCode || event.which;
+
+          if (keyCode === 9) {
+            event.preventDefault();
+
+            if (event.shiftKey) {
+              this.timePicker.hide();
+              $el.removeClass('picker-shown');
+              findPreviousTabStop($el[0]).focus();
+            } else {
+              this.timePicker.hide();
+              $el.removeClass('picker-shown');
+              findNextTabStop($el[0]).focus();
+            }
+          }
+        });
+
+        $el.on('blur', (event) => {
+          if ($el.hasClass('picker-shown')) {
+            event.preventDefault();
+          }
+        });
+
+        $el.on('focus', () => {
+          if (!$el.hasClass('picker-shown')) {
+            $el.addClass('picker-shown');
+
+            const initialValue = this.moment($el.val(), timeFormat);
+
+            this.timePicker.show();
+
+            // Override default meridiem-setting, since the default behavior has
+            // several logic issues. [Part 1 of 2]
+
+            // eslint-disable-next-line no-underscore-dangle
+            const sDialog = this.timePicker._sDialog;
+            const hourEls = sDialog.hourView.querySelectorAll('span');
+            const activeMClass = 'mddtp-picker__color--active';
+
+            sDialog.AM.addEventListener('click', () => {
+              $el.attr('meridiemOverride', 'a.m.');
+              sDialog.AM.classList.add(activeMClass);
+              sDialog.PM.classList.remove(activeMClass);
+            });
+
+            sDialog.PM.addEventListener('click', () => {
+              $el.attr('meridiemOverride', 'p.m.');
+              sDialog.AM.classList.remove(activeMClass);
+              sDialog.PM.classList.add(activeMClass);
+            });
+
+            if (initialValue.format('a') === 'a.m.') {
+              sDialog.AM.click();
+
+              hourEls.forEach((el) => {
+                el.setAttribute('isCorrected', 'false');
+
+                el.addEventListener('click', () => {
+                  if (el.getAttribute('isCorrected') !== 'true') {
+                    el.setAttribute('isCorrected', 'true');
+
+                    sDialog.AM.click();
+                  }
+                });
+              });
+            } else {
+              sDialog.PM.click();
+
+              hourEls.forEach((el) => {
+                el.setAttribute('isCorrected', 'false');
+
+                el.addEventListener('click', () => {
+                  if (el.getAttribute('isCorrected') !== 'true') {
+                    el.setAttribute('isCorrected', 'true');
+
+                    sDialog.PM.click();
+                  }
+                });
+              });
+            }
+          }
+        });
+
+        $el.on('onCancel', () => {
+          $el.removeClass('picker-shown');
+          findNextTabStop($el[0]).focus();
+        });
+
+        $el.on('onOk', () => {
+          $el.removeClass('picker-shown');
+          findNextTabStop($el[0]).focus();
+
+          let newTimeString = this.timePicker.time.format(timeFormat);
+
+          // Override default meridiem-setting, since the default behavior has
+          // several logic issues. [Part 2 of 2]
+          const meridiemOverride = $el.attr('meridiemOverride');
+          if ((typeof meridiemOverride !== 'undefined') && (meridiemOverride !== false)) {
+            if (newTimeString.indexOf(meridiemOverride) === -1) {
+              const meridiemlessTime = (meridiemOverride === 'a.m.')
+                ? newTimeString.replace(' p.m.', '')
+                : newTimeString.replace(' a.m.', '');
+
+              newTimeString = `${meridiemlessTime} ${meridiemOverride}`;
+            }
+          }
+
+          $el.val(newTimeString);
+          $el.trigger('changePublishTime');
+        });
+      },
+      update($el, value, mdl) {
+        const mode = mdl.get('publishDateResolution');
+
+        const defaultTZ = this.radio.reqres
+          .request('getSetting', 'defaultTimezone');
+
+        const dateGranularities = this.radio.reqres.request(
           'getSetting',
-          'defaultTimezone'  // eslint-disable-line comma-dangle
+          'dateGranularities'  // eslint-disable-line comma-dangle
         );
 
         if (mode === 't') {
-          $el.val(
-              moment.tz(value[0], defaultTimezone)
-                  // eslint-disable-next-line comma-dangle
-                  .format(dateGranularities[mode].format[1])
-          );
+          const newVal = this.moment.tz(value[0], defaultTZ)
+            .format(dateGranularities[mode].format[1]);
+          $el.val(newVal);
         }
       },
       getVal($el) {
