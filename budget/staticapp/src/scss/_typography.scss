@@ -1,11 +1,7 @@
 // Roboto font
-@if ($offline) {
-    @import url(https://fonts.googleapis.com/css?family=Roboto:400,500,700,900,400italic);
-    @import url(https://fonts.googleapis.com/css?family=Roboto+Mono);
-} else {
-    @import url(https://fonts.googleapis.com/css?family=Roboto:400,500,700,900,400italic);
-    @import url(https://fonts.googleapis.com/css?family=Roboto+Mono);
-}
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,700,900,400italic);
+@import url(https://fonts.googleapis.com/css?family=Roboto+Mono);
+
 
 // FontAwesome
 $fa-font-path: "../fonts/font-awesome";
