@@ -10,7 +10,7 @@ const gulp = require('gulp');
 
 module.exports = () => {
   // Copies over all image files
-  return gulp.src(['./src/images/**/*'], { nodir: true })
+  return gulp.src(['../staticapp/src/images/**/*'], { nodir: true })
     .pipe(changed('../static/budget/images'))
     .pipe(gulp.dest('../static/budget/images'));
 };

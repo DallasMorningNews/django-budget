@@ -5,7 +5,7 @@ const glob = require('glob');
 const path = require('path');
 const nunjucks = require('nunjucks');
 
-const TEMPLATE_DIR = './src/templates';
+const TEMPLATE_DIR = '../staticapp/src/templates';
 
 module.exports = (cb) => {
     glob(`${TEMPLATE_DIR}/**/*.{html,njk}`, (err, files) => {
@@ -31,7 +31,7 @@ module.exports = (cb) => {
             });
 
             fs.writeFileSync(
-              `./src/js/templates/${bundleName}.js`,
+              `../staticapp/src/js/templates/${bundleName}.js`,
               precompiled.join('\n')
             );
         });

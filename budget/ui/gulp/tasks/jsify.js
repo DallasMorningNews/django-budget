@@ -4,6 +4,7 @@ const babelify = require('babelify');
 const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
 const es = require('event-stream');
+const glob = require('glob');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
 const rename = require('gulp-rename');
@@ -17,14 +18,12 @@ module.exports = (watch) => {
   const wrapper = watch ? watchify : b => b;
 
   return () => {
-    const files = [
-      'main-budget.js',
-      'main-headlines.js',
-    ];
+    // All root-level JS files in the editor and public folders
+    const files = glob.sync('../staticapp/src/js/main-*.js');
 
     const tasks = files.map((entry) => {
       const props = {
-        entries: `./src/js/${entry}`,
+        entries: entry,
         extensions: ['.js'],
         cache: {},
         packageCache: {},
@@ -41,17 +40,12 @@ module.exports = (watch) => {
           .pipe(source(entry))
           .pipe(buffer())
           .pipe(sourcemaps.init({ loadMaps: true }))
-          .pipe(
-              rename(
-                  filePath => Object.assign(
-                      filePath,
-                      { dirname: `static/budget/js/` }
-                  )
-              )
-          )
+          .pipe(rename((filePath) => {
+            return Object.assign(filePath, { dirname: `../static/budget/js/` });
+          }))
           .pipe(uglify({ mangle: false, compress: true }).on('error', gutil.log))
           .pipe(sourcemaps.write('./'))
-          .pipe(gulp.dest('../'));
+          .pipe(gulp.dest('./'));
       }
 
       bundler.on('log', gutil.log);
