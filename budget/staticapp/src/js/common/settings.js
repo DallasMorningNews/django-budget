@@ -312,6 +312,7 @@ const standardSettings = {
   navigationLinks: generateNavigationLinks('/'),
 
   pollInterval: 15 * 60 * 1000,
+  presencePollInterval: 3 * 1000,
 
   printPlacementTypes: [
     {
