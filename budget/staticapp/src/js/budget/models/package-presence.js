@@ -14,18 +14,22 @@ export default CSRFAwareModel.extend({
     this.pageLoadID = opts.pageLoadID;
   },
 
+  urlRoot() {
+    return this.radio.reqres.request('getSetting', 'apiBases').budget;
+  },
+
   url() {
     if (this.has('pingURL')) {
-      return this.pingURL;
+      return `${this.urlRoot()}${this.pingURL}`;
     }
 
-    return '';
+    return this.urlRoot();
   },
 
   exitPackage() {
     if (this.has('exitURL')) {
       return jQuery.getJSON({
-        url: this.exitURL,
+        url: `${this.urlRoot()}${this.exitURL}`,
         data: { pageload: this.pageLoadID },
         type: 'GET',
         xhrFields: { withCredentials: true },

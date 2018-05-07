@@ -171,6 +171,15 @@ class ConfigView(View):
             }, sort_keys=True).encode('utf-8')
         ).hexdigest()
 
+        pkg_params = {'package_id': 0}
+        editing_url = reverse('budget:user-editing-package', kwargs=pkg_params)
+        exited_url = reverse('budget:user-exited-package', kwargs=pkg_params)
+
+        budget_root = reverse('budget:api-root')
+
+        editing_suffix = editing_url.replace(budget_root, '')
+        exited_suffix = exited_url.replace(budget_root, '')
+
         return JsonResponse({
             'adminEmail': actual_admin_email,
             'apiBases': api_bases,
@@ -202,12 +211,10 @@ class ConfigView(View):
                 )),
             },
             'defaultTimezone': timezone.get_default_timezone_name(),
-            'editingURL': reverse('budget:user-editing-package', kwargs={
-                'package_id': 0,
-            }),
-            'exitedURL': reverse('budget:user-exited-package', kwargs={
-                'package_id': 0,
-            }),
+            'presenceSuffixes': {
+                'editing': editing_suffix,
+                'exited': exited_suffix,
+            },
             'externalURLs': json.dumps(
                 getattr(settings, 'BUDGET_EXTERNAL_URLS', {})
             ),

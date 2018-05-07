@@ -290,10 +290,10 @@ export default Mn.CompositeView.extend({
     this.radio = Backbone.Wreqr.radio.channel('global');
 
     const pageLoadID = this.radio.reqres.request('getSetting', 'pageLoadID');
-    const pingURL = this.radio.reqres.request('getSetting', 'editingURL')
-      .replace(/-0\/$/, `-${this.model.id}/`);
-    const exitURL = this.radio.reqres.request('getSetting', 'exitedURL')
-      .replace(/-0\/$/, `-${this.model.id}/`);
+    const presenceSuffixes = this.radio.reqres.request('getSetting', 'presenceSuffixes');
+
+    const pingURL = presenceSuffixes.editing.replace(/-0\/$/, `-${this.model.id}/`);
+    const exitURL = presenceSuffixes.exited.replace(/-0\/$/, `-${this.model.id}/`);
 
     this.presenceFeed = new PackagePresenceModel({ pingURL, exitURL, pageLoadID });
 

@@ -67,6 +67,7 @@ const standardSettings = {
   adminEmail: 'ajvestal@dallasnews.com',
 
   apiEndpoints: generateEndpointsFromBases(apiBases),
+  apiBases: apiBases,
 
   buttonHideWidth: 600,
 
@@ -387,6 +388,7 @@ export default (dynamicConfig) => {
     configRequest.done((data) => {
       if (_.has(data, 'apiBases')) {
         standardSettings.apiEndpoints = generateEndpointsFromBases(data.apiBases);
+        standardSettings.apiBases = data.apiBases;
       }
 
       if (_.has(data, 'externalURLs')) {
