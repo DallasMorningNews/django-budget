@@ -17,6 +17,8 @@ from budget.views import ItemViewSet
 from budget.views import MainBudgetView
 from budget.views import PackageViewSet
 from budget.views import PrintPublicationViewSet
+from budget.views import UserEditingPackageUpdateView
+from budget.views import UserExitedPackageUpdateView
 
 
 app_name = 'budget'
@@ -38,6 +40,15 @@ urlpatterns = [
 
     # Add an extra custom route here because the built-in REST RegEx won't
     # match our slugs because of the double-dots
+    url(r'^api/user-activity/', include([
+        url(r'^editing-(?P<package_id>[\d]+)/$',
+            UserEditingPackageUpdateView.as_view(),
+            name='user-editing-package'),
+        url(r'^exited-(?P<package_id>[\d]+)/$',
+            UserExitedPackageUpdateView.as_view(),
+            name='user-exited-package')
+    ])),
+
     url(r'^api/packages/(?P<pk>[\d]+)/$', PackageViewSet.as_view({
         'get': 'retrieve',
         'put': 'update',

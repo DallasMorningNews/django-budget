@@ -1,9 +1,13 @@
 # Imports from python.  # NOQA
+from datetime import datetime
+import hashlib
 import json
+import time
 
 
 # Imports from Django.
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import Http404
 from django.http import JsonResponse
@@ -17,6 +21,7 @@ from django.views.generic import View
 # Imports from other dependencies.
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+import redis
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -45,6 +50,13 @@ from budget.serializers import HeadlineVoteSerializer
 from budget.serializers import ItemSerializer
 from budget.serializers import PackageSerializer
 from budget.serializers import PrintPublicationSerializer
+
+
+REDIS_URL = getattr(settings, 'BUDGET_REDIS_URL', '')
+
+REDIS_CONNECTION = redis.from_url(REDIS_URL)
+
+EDITING_MARKER_TIMEOUT = 90  # Ninety seconds (1.5 minutes).
 
 
 class MainBudgetView(TemplateView):
@@ -139,6 +151,26 @@ class ConfigView(View):
         else:
             root_url = reverse('budget:main-budget-view', kwargs={'path': ''})
 
+        if request.user.is_authenticated():
+            # Use user ID as unique-per-user part of hash.
+            unique_user_id = request.user.username
+        else:
+            # Use user IP address (or HTTP_X_FORWARDED_FOR header, if set) as
+            # unique-per-user part of hash.
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+
+            if x_forwarded_for:
+                unique_user_id = x_forwarded_for.split(',')[0]
+            else:
+                unique_user_id = request.META.get('REMOTE_ADDR')
+
+        unique_pageload_id = hashlib.sha1(
+            json.dumps({
+                'time_accessed': time.mktime(timezone.now().timetuple()),
+                'user': unique_user_id,
+            }, sort_keys=True).encode('utf-8')
+        ).hexdigest()
+
         return JsonResponse({
             'adminEmail': actual_admin_email,
             'apiBases': api_bases,
@@ -170,6 +202,12 @@ class ConfigView(View):
                 )),
             },
             'defaultTimezone': timezone.get_default_timezone_name(),
+            'editingURL': reverse('budget:user-editing-package', kwargs={
+                'package_id': 0,
+            }),
+            'exitedURL': reverse('budget:user-exited-package', kwargs={
+                'package_id': 0,
+            }),
             'externalURLs': json.dumps(
                 getattr(settings, 'BUDGET_EXTERNAL_URLS', {})
             ),
@@ -178,9 +216,10 @@ class ConfigView(View):
                 'slackProgress': static('budget/images/slack-in-progress.png'),
             },
             'maxItemsToLoad': getattr(settings, 'BUDGET_API_MAX_ITEMS', 500),
+            'pageLoadID': unique_pageload_id,
             'printSlugName': getattr(settings, 'BUDGET_PRINT_SLUG_NAME', None),
             'showHeadlines': getattr(settings, 'BUDGET_SHOW_HEADLINES', False),
-            'rootURL': root_url
+            'rootURL': root_url,
         })
 
 
@@ -278,3 +317,134 @@ class PrintPublicationViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
     queryset = PrintPublication.objects.all().prefetch_related('sections')
     serializer_class = PrintPublicationSerializer
     filter_class = PrintPublicationViewFilter
+
+
+########################
+# Multi-user warnings. #
+########################
+
+class UserPackageBehaviorMixin(LoginRequiredMixin):
+    """TK."""
+    def dispatch(self, request, package_id, *args, **kwargs):
+        # TODO: Decide whether we care about checking whether the package ID
+        # actually exists.
+        # If not, this saves us a database query — and takes the response times
+        # on local dev down from ~35ms to ~25ms.
+        # try:
+        #     Package.objects.get(id=package_id)
+        # except Package.DoesNotExist:
+        #     return JsonResponse({
+        #         'status': 404,
+        #         'message': 'No package found for ID #{}.'.format(package_id)
+        #     })
+
+        if request.user.is_authenticated:
+            self.package_id = package_id
+            self.user_identifier = self.get_user_identifier()
+            self.pageload_id = request.GET.get('pageload', None)
+
+            self.current_visit_key = self.get_current_visit_key()
+
+        return super(
+            UserPackageBehaviorMixin,
+            self
+        ).dispatch(request, *args, **kwargs)
+
+    def get_user_identifier(self):
+        if self.request.user.email:
+            return self.request.user.email
+        return self.request.user.username
+
+    def get_current_visit_key(self):
+        return 'p={}--u={}--l={}'.format(
+            self.package_id,
+            self.user_identifier,
+            self.pageload_id
+        )
+
+
+class UserEditingPackageUpdateView(UserPackageBehaviorMixin, View):
+    def get(self, request, *args, **kwargs):
+        # Get the current time.
+        # We'll use this for the key value, as well as for the expiration time.
+        current_timestamp = int(time.mktime(datetime.now().timetuple()))
+
+        # Calculate new expiration.
+        new_expiration_timestamp = current_timestamp + EDITING_MARKER_TIMEOUT
+
+        response_object = {
+            'status': 200,
+            'current_key': self.current_visit_key,
+        }
+
+        # Get or create package key with current timestamp as value.
+        old_timestamp_raw = REDIS_CONNECTION.getset(
+            self.current_visit_key,
+            current_timestamp
+        )
+
+        # Set (or increment) the time this key will expire.
+        REDIS_CONNECTION.expireat(
+            self.current_visit_key,
+            new_expiration_timestamp
+        )
+
+        if old_timestamp_raw is not None:
+            old_timestamp = int(old_timestamp_raw.decode('utf-8'))
+
+            response_object['created'] = False
+            response_object[
+                'action_message'
+            ] = 'Extended active status by {} seconds.'.format(
+                current_timestamp - old_timestamp
+            )
+        else:
+            response_object['created'] = True
+            response_object[
+                'action_message'
+            ] = 'New active status until {}.'.format(
+                new_expiration_timestamp
+            )
+
+        matching_keys = REDIS_CONNECTION.scan(
+            match='p={}--*'.format(self.package_id)
+        )[1]
+
+        other_active_sessions = [
+            key.decode('utf-8') for key in matching_keys
+            if key.decode('utf-8') != self.current_visit_key
+        ]
+
+        other_active_session_users = list(set([
+            key.split('--')[1].split('=')[1] for key in other_active_sessions
+        ]))
+
+        response_object['current_user_has_duplicate_sessions'] = (
+            self.user_identifier in other_active_session_users
+        )
+
+        other_active_users = [
+            user_str for user_str in other_active_session_users
+            if user_str != self.user_identifier
+        ]
+
+        response_object['other_active_users'] = other_active_users
+
+        return JsonResponse(response_object)
+
+
+class UserExitedPackageUpdateView(UserPackageBehaviorMixin, View):
+    def get(self, request, *args, **kwargs):
+        # Remove the key.
+        REDIS_CONNECTION.delete(self.current_visit_key)
+
+        # Get the same key as was generated above, then delete it.
+        return JsonResponse({
+            'status': 204,
+            'message': 'Successfully deleted key',
+            'deleted_key': self.current_visit_key,
+        })
+
+
+# The following code deletes all active editing records for package #114:
+# r.delete(*[_.decode('utf-8') for _ in r.scan(match='p=114--*')[1]])
