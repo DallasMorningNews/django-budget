@@ -66,6 +66,7 @@ setup(
         'psycopg2>=2.6.1',
         'python-dateutil~=2.6.1',
         'pytz~=2017.2',
+        'redis~=2.10.6',
         'requests~=2.18.4',
         'six~=1.11.0',
     ],
