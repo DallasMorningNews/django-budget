@@ -17,9 +17,20 @@ import HeadlineGroupBindingsView from '../../itemviews/package-edit-bindings/hea
 import MainFormBindingsView from '../../itemviews/package-edit-bindings/main-form';
 import ModalView from '../../itemviews/modals/modal-window';
 import NotesGroupBindingsView from '../../itemviews/package-edit-bindings/notes-group';
+import PackagePresenceModel from '../../models/package-presence';
+import Poller from '../../../common/poller';
 import PublishingGroupBindingsView from '../../itemviews/package-edit-bindings/publishing-group';
 import SnackbarView from '../../itemviews/snackbars/snackbar';
 import urlConfig from '../../misc/urls';
+
+
+const arrayToSentence = (arr) => {
+  if (arr.length === 1) return arr[0];
+
+  const last = arr.pop();
+  return `${arr.join(', ')} and ${last}`;
+};
+
 
 const uiElements = {
   colorDot: '.single-page .package-header .color-dot',
@@ -68,6 +79,7 @@ const uiElements = {
         /* eslint-disable indent */
         addAdditionalItemTrigger: '.single-page .add-additional-content-trigger',
         bottomButtonHolder: '.single-page .bottom-button-holder',
+        editBar: '.edit-bar',
         persistentHolder: '.edit-bar .button-holder',
         persistentButton: '.edit-bar .button-holder .material-button',
                 packageDeleteTrigger: '.edit-bar .button-holder .material-button.delete-trigger',
@@ -85,6 +97,9 @@ const uiElements = {
   contentPlacementsPgEnd: '#content-placements-table .table-pagination .range-end',
   contentPlacementsPgTotal: '#content-placements-table .table-pagination .total-records',
   contentPlacementsDeleteTriggers: '#content-placements-table table tbody .delete-trigger .material-button',
+
+  presenceIndicator: '#presence-indicator',
+  presenceIndicatorUserList: '#presence-indicator .other-active-users',
 };
 
 export default Mn.CompositeView.extend({
@@ -212,6 +227,52 @@ export default Mn.CompositeView.extend({
     this.model.set('additionalContent', finalList);
   },
 
+  updatePresenceIndicator(otherUsersCount) {
+    if (otherUsersCount === 0) {
+      if (this.$el.hasClass('alert-shown')) {
+        this.$el.removeClass('alert-shown');
+      }
+
+      if (this.ui.editBar.hasClass('show-alert')) {
+        this.ui.editBar.removeClass('show-alert');
+      }
+
+      if (this.ui.presenceIndicator.hasClass('shown')) {
+        this.ui.presenceIndicator.removeClass('shown');
+      }
+
+      this.ui.presenceIndicatorUserList.html('');
+    } else {
+      if (!this.$el.hasClass('alert-shown')) {
+        this.$el.addClass('alert-shown');
+      }
+
+      if (!this.ui.editBar.hasClass('show-alert')) {
+        this.ui.editBar.addClass('show-alert');
+      }
+
+      if (!this.ui.presenceIndicator.hasClass('shown')) {
+        this.ui.presenceIndicator.addClass('shown');
+      }
+
+      const otherActiveUsers = this.presenceFeed.get('other_active_users');
+      const formattedUsers = otherActiveUsers
+        .map((rawUser) => {
+          if (rawUser.indexOf('@') === -1) return `User &ldquo;${rawUser}&rdquo;`;
+          return rawUser;
+        })
+        .map(user => `<strong>${user}</strong>`);
+
+      const correctVerb = (formattedUsers.length === 1) ? 'is' : 'are';
+
+      this.ui.presenceIndicatorUserList.html(`${
+        arrayToSentence(formattedUsers)
+      } ${
+        correctVerb
+      } also editing this item.`);
+    }
+  },
+
   removeAdditionalItem(additionalView) {
     const initialList = this.model.get('additionalContent');
     const idToRemove = additionalView.model.id;
@@ -227,6 +288,60 @@ export default Mn.CompositeView.extend({
     this.isFirstRender = true;
 
     this.radio = Backbone.Wreqr.radio.channel('global');
+
+    const pageLoadID = this.radio.reqres.request('getSetting', 'pageLoadID');
+    const pingURL = this.radio.reqres.request('getSetting', 'editingURL')
+      .replace(/-0\/$/, `-${this.model.id}/`);
+    const exitURL = this.radio.reqres.request('getSetting', 'exitedURL')
+      .replace(/-0\/$/, `-${this.model.id}/`);
+
+    this.presenceFeed = new PackagePresenceModel({ pingURL, exitURL, pageLoadID });
+
+    this.currentOtherUsers = null;
+
+    const requestConfig = {
+      data: { pageload: pageLoadID },
+      xhrFields: { withCredentials: true },
+      // eslint-disable-next-line no-param-reassign
+      beforeSend: (xhr) => { xhr.withCredentials = true; },
+      success: (mdl) => {  // args: collection, response, options
+        const otherUsersCount = mdl.get('other_active_users').length;
+
+        if (otherUsersCount !== this.currentOtherUsers) {
+          this.currentOtherUsers = otherUsersCount;
+
+          const verboseUsers = (otherUsersCount === 1) ? 'user' : 'users';
+
+          const baseMessage = `[user presence] ${mdl.get('action_message')}`;
+
+          const successMessage = (otherUsersCount > 0)
+            ? `${baseMessage} (${otherUsersCount} other ${verboseUsers})`
+            : `${baseMessage} (no other ${verboseUsers})`;
+
+          // eslint-disable-next-line no-console
+          console.info(successMessage);
+
+          this.updatePresenceIndicator(otherUsersCount);
+        }
+      },
+      error: (collection, response) => {  // args: collection, response, options
+        /* eslint-disable no-console */
+        console.warn('ERROR: Could not load presence feed.');
+        console.log(`--- Response: ${response}`);
+        // console.log(`--- Text status: ${textStatus}`);
+        // console.log(`--- Error thrown: ${errorThrown}`);
+        /* eslint-enable no-console */
+      },
+    };
+
+    this.poller = new Poller({
+      pollInterval: this.radio.reqres.request('getSetting', 'presencePollInterval'),
+      requestConfig,
+      isPolling: false,
+    });
+    this.polledData = [this.presenceFeed];
+    this.poller.get(this.polledData, requestConfig);
+    this.poller.commencePolling();
 
     this.collection = this.model.additionalContentCollection;
 
@@ -1553,4 +1668,9 @@ export default Mn.CompositeView.extend({
   */
 
   serializeForm() {},  // End serializeForm.
+
+  onBeforeDestroy() {
+    this.poller.destroy();
+    this.presenceFeed.exitPackage();
+  },
 });
