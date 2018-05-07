@@ -323,7 +323,9 @@ class PrintPublicationViewSet(SessionAndTokenAuthedViewSet, CamelCasedViewSet,
 # Multi-user warnings. #
 ########################
 
-class UserPackageBehaviorMixin(LoginRequiredMixin):
+
+# class UserPackageBehaviorMixin(LoginRequiredMixin):
+class UserPackageBehaviorMixin(object):
     """TK."""
     def dispatch(self, request, package_id, *args, **kwargs):
         # TODO: Decide whether we care about checking whether the package ID
