@@ -24,6 +24,10 @@ $radio-margin: $default-font-size / -4 !default;
 #package-edit {
     margin-bottom: 2.4rem;
 
+    &.alert-shown {
+        margin-bottom: 4.2rem;
+    }
+
     .edit-bar {
         background: #FFFFFF;
         border-top: 1px solid #E5E5E5;
@@ -32,7 +36,9 @@ $radio-margin: $default-font-size / -4 !default;
         box-sizing: content-box;
         height: 3rem;
         left: 0;
+        max-height: 3rem;
         position: fixed;
+        transition: max-height 0.75s cubic-bezier(0.25, 0.8, 0.25, 1);
         width: 100%;
         z-index: 100;
 
@@ -42,6 +48,82 @@ $radio-margin: $default-font-size / -4 !default;
             left: 50%;
             margin-left: -415px;
             max-width: 830px;
+        }
+
+        &.show-alert {
+            height: calc(3rem + 32px);
+            max-height: calc(3rem + 32px);
+        }
+
+        #presence-indicator {
+            background: #FFE082;
+            height: 0;
+            max-height: 0;
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.75s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+            &.shown {
+                height: 32px;
+                max-height: 32px;
+            }
+
+            &::before {
+                background: #FFB300;
+                content: '';
+                height: 1px;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+
+            &::after {
+                background: #FFC107;
+                bottom: 0;
+                content: '';
+                height: 1px;
+                left: 0;
+                position: absolute;
+                right: 0;
+            }
+
+            .presence-notice-holder {
+                display: flex;
+                flex-direction: row;
+                margin: 0 auto;
+                max-width: 800px;
+                padding: 0 18px;
+
+                .presence-heading {
+                    display: flex;
+                    flex-direction: row;
+                    width: 115px;
+
+                    .fa {
+                        color: #FF7F00;
+                        font-size: 18px;
+                        line-height: 32px;
+                        margin-right: 6px;
+                    }
+
+                    h2 {
+                        color: #FF6F00;
+                        font-size: 16px;
+                        font-weight: 900;
+                        letter-spacing: 0.5px;
+                        line-height: 32px;
+                        margin: 0;
+                        text-transform: uppercase;
+                    }
+                }
+
+                .other-active-users {
+                    font-size: 14px;
+                    line-height: 30px;
+                    width: calc(100% - 115px);
+                }
+            }
         }
 
         .button-holder {
