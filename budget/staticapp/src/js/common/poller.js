@@ -36,8 +36,12 @@ export default Mn.Object.extend({
         return;
       }
       if (datum instanceof Backbone.Model) {
+        const fetchedURL = (typeof datum.url === 'function')
+          ? datum.url()
+          : datum.url;
+
         // eslint-disable-next-line no-console
-        console.info(`[poller] Updating model from ${datum.url}`);
+        console.info(`[poller] Updating model from ${fetchedURL}`);
       } else if (datum instanceof Backbone.Collection) {
         // eslint-disable-next-line no-console
         console.info(`[poller] Updating collection from ${datum.url}`);
