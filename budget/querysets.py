@@ -152,8 +152,8 @@ class PackageQuerySet(models.QuerySet):
 
         if (publish_date_range.upper - publish_date_range.lower).days == 1:
             return self.get(
-                hub=slug_parts[0],
-                slug_key=slug_parts[1],
+                hub__iexact=slug_parts[0],
+                slug_key__iexact=slug_parts[1],
                 publish_date__contained_by=publish_date_range
             )
 
@@ -163,8 +163,8 @@ class PackageQuerySet(models.QuerySet):
                 # Query for month matches first.
                 # These will exactly match the given range
                 return self.get(
-                    hub=slug_parts[0],
-                    slug_key=slug_parts[1],
+                    hub__iexact=slug_parts[0],
+                    slug_key__iexact=slug_parts[1],
                     publish_date__contained_by=publish_date_range
                 )
             except Package.DoesNotExist:
@@ -176,7 +176,7 @@ class PackageQuerySet(models.QuerySet):
                 # Instead of looking for an exact match, just find any packages
                 # whose dates intersect the current month.
                 return self.get(
-                    hub=slug_parts[0],
-                    slug_key=slug_parts[1],
+                    hub__iexact=slug_parts[0],
+                    slug_key__iexact=slug_parts[1],
                     publish_date__contained_by=publish_date_range
                 )
