@@ -14,7 +14,7 @@
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
                 <h2 class="date-header">{{ verticalName }}&nbsp;/&nbsp;{{ hubName }}</h2>
                 <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.budgetLine }}</h1>
-                <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-desktop"></i>{% if packageObj %}{% if packageObj.publishedUrl %}Published{% else %}Expected{% endif %}{% else %}Expected{% endif %} {{ publishDate }}</h4>
+                <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-desktop"></i>{% if packageObj %}{% if packageObj.publishedUrl %}Posted{% else %}Expected{% endif %}{% else %}Expected{% endif %} {{ publishDate }}</h4>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
                 <h3 class="additional-info-line package-slug"><span>{{ packageObj.slugKey }}.{{ packageObj.slugDate }}</span></h3>
