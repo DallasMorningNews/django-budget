@@ -400,20 +400,27 @@ class Item(CreationTrailModel):
     TEXT_TYPE = 'text'
     PHOTO_TYPE = 'photo'
     VIDEO_TYPE = 'video'
-    AUDIO_TYPE = 'audio'
     GRAPHIC_TYPE = 'graphic'
+    INFOBOX_TYPE = 'infobox'
+    AUDIO_TYPE = 'audio'
+    OTHER_TYPE = 'other'
+
+    # Deprecated types:
     INTERACTIVE_TYPE = 'interactive'
     AGGREGATION_TYPE = 'aggregation'
-    OTHER_TYPE = 'other'
+
     ITEM_TYPE_CHOICES = (
         (TEXT_TYPE, 'Text'),
         (PHOTO_TYPE, 'Photo'),
         (VIDEO_TYPE, 'Video'),
-        (AUDIO_TYPE, 'Audio'),
         (GRAPHIC_TYPE, 'Graphic'),
-        (INTERACTIVE_TYPE, 'Interactive'),
-        (AGGREGATION_TYPE, 'Aggregation'),
+        (INFOBOX_TYPE, 'Infobox'),
+        (AUDIO_TYPE, 'Audio'),
         (OTHER_TYPE, 'Other'),
+
+        # Deprecated types (retained to keep database working properly):
+        (INTERACTIVE_TYPE, 'Interactive (discontinued)'),
+        (AGGREGATION_TYPE, 'Aggregation (discontinued)'),
     )
 
     # TODO(ajv): Delete this field, after migrating its values.
