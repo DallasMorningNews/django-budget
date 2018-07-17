@@ -534,6 +534,57 @@
                 }
             }
         }
+
+        &.print-placement-view {
+            .readiness-indicator {
+                .indicator-inner {
+                    border-color: #43A047;
+                    border-bottom-color: transparent;
+                    border-right-color: transparent;
+                    display: none;
+                    pointer-events: none;
+
+                    i {
+                        color: #FFFFFF;
+                        display: none;
+                        font-size: 14px;
+                        line-height: 19px;
+                    }
+                }
+            }
+
+            &[placement-is-finalized="true"] {
+                .readiness-indicator {
+                    .indicator-inner {
+                        display: block;
+                        i {
+                            display: block;
+                        }
+                    }
+                }
+            }
+
+            .web-link {
+                display: none;
+            }
+
+            &[has-url="true"] {
+                .web-link {
+                    display: inline-block;
+                    height: 14px;
+                    margin-left: 4px;
+                    position: relative;
+
+                    i {
+                        color: #0185D3;
+
+                        &:hover {
+                            color: #275F7F;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     .extra-sheet {
