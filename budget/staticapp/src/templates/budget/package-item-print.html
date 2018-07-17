@@ -1,23 +1,21 @@
-<div class="package-sheet{% if primaryIsExpanded %} is-expanded{% endif %} row{% if hasPrimary %} has-primary{% endif %}" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" has-url="{{ packageHasURL }}">
+<div class="package-sheet print-placement-view{% if primaryIsExpanded %} is-expanded{% endif %} row{% if hasPrimary %} has-primary{% endif %}" content-id="{{ packageObj.id }}" content-primary-id="{{ packageObj.primaryContent.id }}" data-hub="{{ packageObj.hub }}" data-vertical="{{ verticalSlug }}" data-all-people="{{ allPeople }}" data-full-text="" has-url="{{ packageHasURL }}" placement-is-finalized="{{ placementIsFinalized }}">
 
     <div class="minimal-card column small-11 medium-11 large-11">
-        {% if packageObj %}{% if packageObj.publishedUrl %}<a href="{{ packageObj.publishedUrl }}" target="_blank">{% endif %}{% endif %}
         <div class="readiness-indicator">
             <div class="indicator-inner">
-                <i class="fa fa-check"></i>
+                <i class="fa fa-thumbs-up"></i>
             </div>
         </div>
-        {% if packageObj %}{% if packageObj.publishedUrl %}</a>{% endif %}{% endif %}
 
         <div class="slug-bar row">
             <div class="date-slug-budget-line column small-7 medium-9 large-9">
                 <div class="color-dot" style="background-color: {{ hubDotColor }};"></div>
-                <h2 class="date-header">{{ verticalName }}&nbsp;/&nbsp;{{ hubName }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if placementTypes|length > 0 %}{% for placement in placementTypes %}{{ placement }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}{% if placementPageNumber %} (Page&nbsp;{{ placementPageNumber }}){% endif %}</h2>
+                <h2 class="date-header">{{ verticalName }}&nbsp;/&nbsp;{{ hubName }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{% if placementTypes|length > 0 %}{% for placement in placementTypes %}{{ placement }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}No placements{% endif %}{% if placementPageNumber %} (Page&nbsp;{{ placementPageNumber }}{% if placementDetails %} / {{ placementDetails }}{% endif %}){% else %}{% if placementDetails %} ({{ placementDetails }}){% endif %}{% endif %}</h2>
                 <h1 class="primary-slug might-overflow">{{ packageObj.primaryContent.budgetLine }}</h1>
-                <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-newspaper-o"></i>{% if packageObj %}{% if not packageObj.printPlacement.isFinalized %}Planned for {% else %}Set for {% endif %}{{ formattedRunDateRange|safe }}{% endif %}</h4>
+                <h4 class="budget-line-truncated might-overflow"><i class="fa fa-fw fa-newspaper-o"></i>{% if packageObj %}{% if not packageObj.printPlacement.isFinalized %}Planned for {% else %}Set for {% endif %}{{ formattedRunDateRange|safe }}{% endif %}{% if packageObj %}{% if packageObj.publishedUrl %} <a class="web-link" href="{{ packageObj.publishedUrl }}" target="_blank" title="Web link"><i class="fa fa-link"></i></a>{% endif %}{% endif %}</h4>
             </div>
             <div class="author-info column small-5 medium-3 large-3">
-                <h3 class="additional-info-line package-slug"><span>{{ packageObj.slugKey }}.{{ packageObj.slugDate }}</span></h3>
+                <h3 class="additional-info-line{% if externalSlug %} package-slug{% endif %}" title="{{ packageObj.slugKey }}.{{ packageObj.slugDate }}"><span>{% if externalSlug %}{{ externalSlug }}{% else %}[No print slug]{% endif %}</span></h3>
 
                 <div class="staff-info">
                     <h3 class="might-overflow">
