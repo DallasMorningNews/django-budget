@@ -165,6 +165,24 @@ export default PackageItemView.extend({
       }
 
       if (
+        (_.has(firstPlacement, 'isFinalized')) &&
+        (firstPlacement.isFinalized === true)
+      ) {
+        templateContext.placementIsFinalized = true;
+      } else {
+        templateContext.placementIsFinalized = false;
+      }
+
+      if (
+        (_.has(firstPlacement, 'externalSlug')) &&
+        (firstPlacement.externalSlug !== null)
+      ) {
+        templateContext.externalSlug = firstPlacement.externalSlug;
+      } else {
+        templateContext.externalSlug = null;
+      }
+
+      if (
         (_.has(firstPlacement, 'pageNumber')) &&
         (firstPlacement.pageNumber !== null)
       ) {
