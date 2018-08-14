@@ -12,17 +12,17 @@ ipython = '*'
 mock = '*'
 moto = '==0.4.31'  # last one first-class with boto 2 support
 tblib = '*'
+twine = "*"
 
 [packages]
-Django = '~=1.11.0'
+Django = "*"
 django-admin-sortable2 = '==0.6.16'
-django-editorial-staff = '~=0.7.1'
+django-editorial-staff = '~=0.7.4'
 django-filter = '~=1.0.0'
 djangorestframework = '~=3.6.0'
 djangorestframework-camel-case = '==0.2.0'
 python-dateutil = '~=2.6.1'
-pytz = '==2017.2'
-requests = '==2.18.4'
-six = '~=1.11.0'
-twine = "*"
-redis = '~=2.10.6'
+pytz = "*"
+requests = '>=2.18.4'
+six = '>=1.11.0'
+redis = '>=2.10.6'
