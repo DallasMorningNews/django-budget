@@ -160,15 +160,13 @@ const standardSettings = {
       titlebarFormat: '[Wk of] MMM D',
       pickWholeWeek: true,
       showDaysInNextAndPreviousMonths: true,
-      beforeSelect: (ui, date) => {
+      beforeSelect: (pickerObj, date) => {
         const dateIsSunday = (date.getDay() === 0) ? 'y' : 'n';
 
         const sundayDate = date.getDate() - date.getDay();
         const previousSunday = new Date(date.setDate(sundayDate));
 
-        const datePicker = ui.pubDateField.data('datePicker');
-
-        if (dateIsSunday !== 'y') { datePicker.setDate(previousSunday); }
+        if (dateIsSunday !== 'y') { pickerObj.setDate(previousSunday); }
       },
     },
     d: {},

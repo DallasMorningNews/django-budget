@@ -12,6 +12,7 @@ export default class {
 
     this.radio = Backbone.Wreqr.radio.channel('global');
     this.datePickerOptions = this.radio.reqres.request('getSetting', 'datePickerOptions');
+
     this.moment = this.radio.reqres.request('getSetting', 'moment');
 
     this.options = Object.assign({}, defaults, opts);
@@ -57,11 +58,13 @@ export default class {
   }
 
   destroy() {
-    this.picker.removeEventListener('click', this.overlayClickEvent);
+    // this.overlay.removeEventListener('click', this.overlayClickEvent);
+    this.picker.destroy();
+    this.overlay.remove();
   }
 
   getConfigDefaults() {
-    return Object.assign(this.datePickerOptions.default, this.datePickerOptions[this.mode]);
+    return Object.assign({}, this.datePickerOptions.default, this.datePickerOptions[this.mode]);
   }
 
   generateConfig() {
@@ -149,7 +152,7 @@ export default class {
       },
       onSelect: (date) => {
         if (typeof this.datePickerOptions[this.mode].beforeSelect !== 'undefined') {
-          this.datePickerOptions[this.mode].beforeSelect(date);
+          this.datePickerOptions[this.mode].beforeSelect(this.picker, date);
         }
       },
       onClose: () => {

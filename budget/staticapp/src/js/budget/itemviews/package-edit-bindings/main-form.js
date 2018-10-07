@@ -250,20 +250,22 @@ export default Mn.ItemView.extend({
       update: ($el, value) => {
         const newMode = _.contains(['m', 'w', 'd', 't'], value) ? value : '';
 
-        const control = (
-            _.has(ui.pubDateField.data(), 'datePicker')
-        ) ? ui.pubDateField.data('datePicker') : null;
+        // const control = (
+        //     _.has(ui.pubDateField.data(), 'datePicker')
+        // ) ? ui.pubDateField.data('datePicker') : null;
 
-        if (!_.isNull(control)) {
-          try {
-            control.destroy();
-          } catch (e) {
-            if (e.message !== 'Already destroyed') {
-              // eslint-disable-next-line no-console
-              console.error(e.message);
-            }
-          }
-        }
+        // if (!_.isNull(control)) {
+        //   try {
+        //     control.destroy();
+        //     ui.pubDateField.removeData('datePicker');
+        //   } catch (e) {
+        //     if (e.message !== 'Already destroyed') {
+        //       // eslint-disable-next-line no-console
+        //       console.error(e.message);
+        //     }
+        //   }
+        // }
+        if (typeof this.datePicker !== 'undefined') { this.datePicker.destroy(); }
 
         if (newMode !== '') {
           const modeConfig = this.radio.reqres.request(
@@ -332,7 +334,7 @@ export default Mn.ItemView.extend({
           /*  */
           /* Construct the appropriate widget for the chosen date mode. */
           /*  */
-          const datePicker = new MaterialDatePicker({
+          this.datePicker = new MaterialDatePicker({
             modeConfig,
             mode: value,
             boundField: ui.pubDateField,
@@ -340,8 +342,8 @@ export default Mn.ItemView.extend({
             onChangeEvent: 'changePublishDate',
           });
 
-          ui.pubDateField.on('focus', () => { datePicker.picker.show(); });
-          ui.pubDateField.on('blur', () => { datePicker.picker.hide(); });
+          ui.pubDateField.on('focus', () => { this.datePicker.picker.show(); });
+          ui.pubDateField.on('blur', () => { this.datePicker.picker.hide(); });
         }
 
         $el.attr('date-mode', newMode);
@@ -416,7 +418,7 @@ export default Mn.ItemView.extend({
         // const control = (
         //   _.has(ui.pubTimeField.data(), 'TDEx')
         // ) ? ui.pubTimeField.data('TDEx') : null;
-        //
+
         // if (!_.isNull(control)) {
         //   try {
         //     control.destroy();
