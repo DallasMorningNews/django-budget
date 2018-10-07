@@ -1,12 +1,13 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import jQuery from 'jquery';
+import Lightpick from 'lightpick';
 import Mn from 'backbone.marionette';
 // import 'uglydate';
 
 
 import urlConfig from '../../misc/urls';
-import UglyDateRangePicker from '../../../common/ugly-daterange-picker';
+// import UglyDateRangePicker from '../../../common/ugly-daterange-picker';
 
 
 export default Mn.ItemView.extend({
@@ -16,16 +17,21 @@ export default Mn.ItemView.extend({
   ui: {
     rippleButton: '.material-button',
     dateChooser: '#date-chooser',
-    uglyStartInput: '#search-dates-start-holder input',
-    uglyEndInput: '#search-dates-end-holder input',
+    widgetStartInput: '#search-dates-start-holder input',
+    widgetEndInput: '#search-dates-end-holder input',
     startPlaceholder: '#start-placeholder',
     endPlaceholder: '#end-placeholder',
     datesStart: '#budget-dates-start',
     datesStartPlaceholder: '.start-date-holder',
     datesEnd: '#budget-dates-end',
     datesEndPlaceholder: '.end-date-holder',
+
+    // datePickerWidget: '.picker-widget',
+
     createPackageTrigger: '.create-button .material-button',
   },
+
+  dateFormat: 'MMM D, YYYY',
 
   events: {
     'mousedown @ui.rippleButton': 'addButtonClickedClass',
@@ -74,39 +80,71 @@ export default Mn.ItemView.extend({
 
     this.ui.rippleButton.addClass('click-init');
 
+    const hidePickerCallback = (event) => { this.hidePicker(); };
+    const pickerExclusionEvent = (event) => { event.stopPropagation(); };
+
     setTimeout(() => {
-      const defaultRange = this.radio.reqres.request('getSetting', 'defaultDateRange');
+      this.rangePicker = new Lightpick({
+        field: this.ui.widgetStartInput[0],
+        secondField: this.ui.widgetEndInput[0],
+        firstDay: 7,
+        format: 'YYYY-MM-DD',
+        numberOfMonths: 2,
+        hideOnBodyClick: false,
+        parentEl: '#date-filter .picker-widget',
+        onOpen: () => {
+          this.numDatesSelected = 0;
 
-      this.rangePicker = new UglyDateRangePicker({
-        selector: '#ugly-date-picker',
-        startDateSelector: '#search-dates-start-holder',
-        endDateSelector: '#search-dates-end-holder',
-        allowedRange: defaultRange(),
-        additionalClicksDisabled: ['#date-chooser'],
-        getValues: () => { this.retrieveDateRange(); return this.dateRange; },
-        onSelect: (event) => {
-          const startMoment = this.moment(event.startDate);
-          const endMoment = this.moment(event.endDate);
+          jQuery(window).on('click', hidePickerCallback);
+          this.$el.on('click', pickerExclusionEvent);
+        },
+        onSelect: (startDate, endDate) => {
+          this.numDatesSelected += 1;
 
-          const displayFmt = 'MMM D, YYYY';
+          if (this.numDatesSelected === 2) {
+            const formattedDates = {
+              start: this.moment(startDate.toDate()).format(this.dateFormat),
+              end: this.moment(endDate.toDate()).format(this.dateFormat),
+            };
 
-          this.ui.datesStart.val(startMoment.format(displayFmt));
-          this.ui.datesStartPlaceholder.html(startMoment.format(displayFmt));
+            this.ui.datesStart.val(formattedDates.start);
+            this.ui.datesStartPlaceholder.html(formattedDates.start);
 
-          this.ui.datesEnd.val(endMoment.format(displayFmt));
-          this.ui.datesEndPlaceholder.html(endMoment.format(displayFmt));
+            this.ui.datesEnd.val(formattedDates.end);
+            this.ui.datesEndPlaceholder.html(formattedDates.end);
 
-          this.radio.commands.execute('switchListDates', this.options.stateKey, {
-            start: startMoment.format('YYYY-MM-DD'),
-            end: endMoment.format('YYYY-MM-DD'),
-          });
+            this.radio.commands.execute('switchListDates', this.options.stateKey, {
+              start: startDate.format('YYYY-MM-DD'),
+              end: endDate.format('YYYY-MM-DD'),
+            });
+          }
+
+          this.selectedStart = startDate;
+          this.selectedEnd = endDate;
+        },
+        onClose: () => {
+          jQuery(window).off('click', hidePickerCallback);
+          this.$el.off('click', pickerExclusionEvent);
+
+          if (this.numDatesSelected !== 2) {
+            this.rangePicker.setDateRange(this.selectedStart.toDate(), this.selectedStart.toDate());
+          }
         },
       });
 
-      this.ui.datesStart.on('focus', () => { this.rangePicker.show(); });
+      this.rangePicker.setDateRange(this.dateRange.start.toDate(), this.dateRange.end.toDate());
 
-      this.ui.datesEnd.on('focus', () => { this.rangePicker.show(); });
+      this.ui.datesStart.on('focus', this.showPicker.bind(this));
+      this.ui.datesEnd.on('focus', this.showPicker.bind(this));
     }, 20);
+  },
+
+  showPicker(event) {
+    this.rangePicker.show();
+  },
+
+  hidePicker(event) {
+    this.rangePicker.hide();
   },
 
   addButtonClickedClass(event) {
