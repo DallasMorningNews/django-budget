@@ -69,6 +69,13 @@
                     text-transform: uppercase;
                     width: 10%;
                 }
+
+                .picker-widget {
+                    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+                    position: absolute;
+                    top: 36px;
+                    z-index: 3300;
+                }
             }
         }
 

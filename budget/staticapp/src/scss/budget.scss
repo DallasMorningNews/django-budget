@@ -48,22 +48,25 @@
 
 @import 'material-datepicker';
 @import 'material-timepicker';
-@import 'uglydate';
+// @import 'uglydate';
+// @import '../../../../node_modules/tiny-date-picker/tiny-date-picker.css';
+// @import '../../../../node_modules/tiny-date-picker/date-range-picker.css';
+@import '../../../../node_modules/lightpick/css/lightpick.css';
 
 // Quill.js
-@import "../../node_modules/quill/dist/quill.core";
-// @import "../../node_modules/quill/dist/quill.bubble";
-@import "../../node_modules/quill/dist/quill.snow";
+@import "../../../../node_modules/quill/dist/quill.core";
+// @import "../../../../node_modules/quill/dist/quill.bubble";
+@import "../../../../node_modules/quill/dist/quill.snow";
 
 // Selectize.js
-@import "../../node_modules/selectize/dist/css/selectize";
-// @import "../../node_modules/selectize/dist/css/selectize.bootstrap3";
+@import "../../../../node_modules/selectize/dist/css/selectize";
+// @import "../../../../node_modules/selectize/dist/css/selectize.bootstrap3";
 
 // Vex.js
-@import "../../node_modules/vex-scss/src/scss/vex";
-@import "../../node_modules/vex-scss/src/scss/vex-theme-plain";
-@import "../../node_modules/vex-scss/src/scss/_keyframes";
-@import "../../node_modules/vex-scss/src/scss/_mixins";
+@import "../../../../node_modules/vex-scss/src/scss/vex";
+@import "../../../../node_modules/vex-scss/src/scss/vex-theme-plain";
+@import "../../../../node_modules/vex-scss/src/scss/_keyframes";
+@import "../../../../node_modules/vex-scss/src/scss/_mixins";
 
 // @import "mixins";
 
