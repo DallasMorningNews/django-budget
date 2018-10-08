@@ -1,3 +1,3 @@
-__version__ = (0, 9, 9)
+__version__ = (0, 9, 10)
 
 default_app_config = 'budget.apps.BudgetConfig'  # NOQA
