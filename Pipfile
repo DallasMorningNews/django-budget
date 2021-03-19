@@ -19,7 +19,7 @@ Django = "*"
 django-admin-sortable2 = '==0.6.16'
 django-editorial-staff = '~=0.7.4'
 django-filter = '~=1.0.0'
-djangorestframework = '~=3.6.0'
+djangorestframework = '~=3.11.2'
 djangorestframework-camel-case = '==0.2.0'
 python-dateutil = '~=2.6.1'
 pytz = "*"
