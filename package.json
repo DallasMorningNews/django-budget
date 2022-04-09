@@ -39,7 +39,7 @@
     "lightpick": "^1.2.5",
     "lunr": "^0.7.2",
     "md-date-time-picker": "^2.3.0",
-    "moment": "^2.16.0",
+    "moment": "^2.29.2",
     "moment-timezone": "^0.5.9",
     "nunjucks": "^2.5.2",
     "pikaday": "^1.7.0",
