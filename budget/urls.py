@@ -1,6 +1,5 @@
 # Imports from Django.  # NOQA
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include, re_path
 
 
 # Imports from other dependencies.
@@ -34,35 +33,35 @@ router.register(r'content-placements', ContentPlacementViewSet)
 
 
 urlpatterns = [
-    url(r'^api/', include(router.urls)),
+    re_path(r'^api/', include(router.urls)),
 
-    url(r'^exception/$', ExceptionView.as_view()),
+    re_path(r'^exception/$', ExceptionView.as_view()),
 
     # Add an extra custom route here because the built-in REST RegEx won't
     # match our slugs because of the double-dots
-    url(r'^api/user-activity/', include([
-        url(r'^editing-(?P<package_id>[\d]+)/$',
+    re_path(r'^api/user-activity/', include([
+        re_path(r'^editing-(?P<package_id>[\d]+)/$',
             UserEditingPackageUpdateView.as_view(),
             name='user-editing-package'),
-        url(r'^exited-(?P<package_id>[\d]+)/$',
+        re_path(r'^exited-(?P<package_id>[\d]+)/$',
             UserExitedPackageUpdateView.as_view(),
             name='user-exited-package')
     ])),
 
-    url(r'^api/packages/(?P<pk>[\d]+)/$', PackageViewSet.as_view({
+    re_path(r'^api/packages/(?P<pk>[\d]+)/$', PackageViewSet.as_view({
         'get': 'retrieve',
         'put': 'update',
         'patch': 'partial_update',
         'delete': 'destroy'
     })),
-    url(r'^api/packages/(?P<raw_slug>[-\w.]+)/$', PackageViewSet.as_view({
+    re_path(r'^api/packages/(?P<raw_slug>[-\w.]+)/$', PackageViewSet.as_view({
         'get': 'retrieve',
         'put': 'update',
         'patch': 'partial_update',
         'delete': 'destroy'
     })),
 
-    url(r'^config/$', ConfigView.as_view(), name='config'),
+    re_path(r'^config/$', ConfigView.as_view(), name='config'),
 
-    url(r'^(?P<path>.*)$', MainBudgetView.as_view(), name='main-budget-view'),
+    re_path(r'^(?P<path>.*)$', MainBudgetView.as_view(), name='main-budget-view'),
 ]
